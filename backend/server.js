@@ -1,8 +1,9 @@
 const express = require('express');
-const sql = require('mssql');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const path = require('path');
+const { getSampleData, addSampleData, updateSampleData, deleteSampleData } = require('./azure_sql_connection/sampleData');
+const loginRouter = require('./azure_sql_connection/login'); // Correct import for loginRouter
 
 const app = express();
 app.use(cors());
@@ -10,93 +11,14 @@ app.use(bodyParser.json());
 
 const PORT = process.env.PORT || 8080;
 
-const config = {
-    user: process.env.DB_USER || 'agritayo',
-    password: process.env.DB_PASSWORD || 'Irregular4',
-    server: process.env.DB_SERVER || 'agritayo.database.windows.net',
-    database: process.env.DB_NAME || 'AgriTayo',
-    authentication: {
-        type: 'default'
-    },
-    options: {
-        encrypt: true
-    }
-};
+// API routes for sample data
+app.get('/api/data/sample', getSampleData);
+app.post('/api/data/sample', addSampleData);
+app.put('/api/data/sample/:id', updateSampleData);
+app.delete('/api/data/sample/:id', deleteSampleData);
 
-const poolPromise = new sql.ConnectionPool(config)
-    .connect()
-    .then(pool => {
-        console.log('Connected to Azure SQL Database');
-        return pool;
-    })
-    .catch(err => {
-        console.error('Database Connection Failed! Bad Config: ', err);
-        throw err;
-    });
-
-// API routes
-app.get('/api/data', async (req, res) => {
-    try {
-        const pool = await poolPromise;
-        console.log('Connected to the pool');
-        
-        const result = await pool.request().query('SELECT * FROM dbo.sample');
-        
-        console.log('Query executed');
-        console.log('Data fetched:', result.recordset); // Log the fetched data
-        res.json(result.recordset);
-    } catch (err) {
-        console.error('Error executing SQL query:', err.message);
-        res.status(500).json({ error: 'Internal server error' });
-    }
-});
-
-app.post('/api/data', async (req, res) => {
-    try {
-        const { id, name, city } = req.body;
-        const pool = await poolPromise;
-        await pool.request()
-            .input('id', sql.Int, id)
-            .input('name', sql.NVarChar, name)
-            .input('city', sql.NVarChar, city)
-            .query('INSERT INTO dbo.sample (id, name, city) VALUES (@id, @name, @city)');
-        res.status(201).json({ message: 'Record added successfully' });
-    } catch (err) {
-        console.error('Error executing SQL query:', err.message);
-        res.status(500).json({ error: 'Internal server error' });
-    }
-});
-
-app.put('/api/data/:id', async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { name, city } = req.body;
-        const pool = await poolPromise;
-        await pool.request()
-            .input('id', sql.Int, id)
-            .input('name', sql.NVarChar, name)
-            .input('city', sql.NVarChar, city)
-            .query('UPDATE dbo.sample SET name = @name, city = @city WHERE id = @id');
-        res.status(200).json({ message: 'Record updated successfully' });
-    } catch (err) {
-        console.error('Error executing SQL query:', err.message);
-        res.status(500).json({ error: 'Internal server error' });
-    }
-});
-
-app.delete('/api/data/:id', async (req, res) => {
-    try {
-        const { id } = req.params;
-        const pool = await poolPromise;
-        await pool.request()
-            .input('id', sql.Int, id)
-            .query('DELETE FROM dbo.sample WHERE id = @id');
-        res.status(200).json({ message: 'Record deleted successfully' });
-    } catch (err) {
-        console.error('Error executing SQL query:', err.message);
-        res.status(500).json({ error: 'Internal server error' });
-    }
-});
+// API routes for login
+app.use('/api/login', loginRouter); // Mount loginRouter at /api/login
 
 // Serve frontend files
 const distPath = path.join(__dirname, '../frontend/dist/');
