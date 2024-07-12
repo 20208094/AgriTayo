@@ -1,50 +1,59 @@
-import { StatusBar } from "expo-status-bar";
-import { Text, View, TouchableOpacity, TextInput } from "react-native";
+import * as React from "react";
+import { NavigationContainer } from "@react-navigation/native";
+import { createStackNavigator } from "@react-navigation/stack";
+import LoginScreen from "./app/screens/LoginScreen";
+import RegisterScreenBuyers from "./app/screens/RegisterScreenBuyers";
+import RegisterScreenFarmers from "./app/screens/farmers/RegisterScreenFarmers";
+import HomePageScreen from "./app/screens/HomePageScreen";
+import NavigationBar from "./app/components/NavigationBar";
+import CartScreen from "./app/screens/CartScreen";
+import MessageScreen from "./app/screens/MessageScreen";
+import NotificationScreen from "./app/screens/NotificationScreen";
+import ProductDetailsScreen from "./app/screens/ProductDetailsScreen";
+import MessageDetailsScreen from "./app/screens/MessageDetailsScreen";
+import NotificationDetailsScreen from "./app/screens/NotificationDetailsScreen";
 
-export default function App() {
+const Stack = createStackNavigator();
+
+function App() {
   return (
-    <View className='flex-1 justify-center items-center bg-white'>
-      <StatusBar style='auto' />
-      <Text className='text-center mt-3 text-2xl font-light text-orange-300'>
-        Login
-      </Text>
-      {/* Additional components goes here */}
-      <View className='mt-5 mx-5'>
-        <View>
-          <Text className='text-gray-400'>EMAIL:</Text>
-          <TextInput
-            placeholder='Enter Email...'
-            className='border border-dotted p-2 text-gray-500 border-amber-400 mt-1'
+    <>
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName="Login">
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen
+            name="Register"
+            component={RegisterScreenBuyers}
           />
-        </View>
-        <View className='mt-3'>
-          <Text className='text-gray-400'>PASSWORD:</Text>
-          <TextInput
-            secureTextEntry
-            placeholder='Enter Password...'
-            className='border text-gray-500 border-dotted p-2 border-amber-400 mt-1'
+          <Stack.Screen
+            name="Register As Farmers"
+            component={RegisterScreenFarmers}
           />
-        </View>
-
-        <TouchableOpacity className='bg-orange-300 p-3 mt-4 rounded-full'>
-          <Text className='text-center text-base text-white'>Login</Text>
-        </TouchableOpacity>
-
-        <Text className='text-center font-normal text-gray-500 text-base mt-3'>
-          OR
-        </Text>
-        <View className='mt-4'>
-          <TouchableOpacity className='flex flex-row items-center justify-center p-2 bg-orange-300'>
-            <Text className='text-white mx-2 text-sm'>Sign In With Google</Text>
-          </TouchableOpacity>
-        </View>
-        <View className='mt-6 flex-row justify-center'>
-          <Text className=''>New to FreeCodeCamp? </Text>
-          <TouchableOpacity>
-            <Text className='text-amber-500'>Create an Account</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </View>
+          <Stack.Screen name="HomePageScreen" component={HomePageScreen} />
+          <Stack.Screen name="CartScreen" component={CartScreen} />
+          <Stack.Screen name="Messages" component={MessageScreen} />
+          <Stack.Screen name="Notifications" component={NotificationScreen} />
+          <Stack.Screen
+            name="Product Details"
+            component={ProductDetailsScreen}
+          />
+          <Stack.Screen
+            name=```````````````````````````````````````````````````````"Message Details"
+            component={MessageDetailsScreen}
+          />
+          <Stack.Screen
+            name="Notification Details"
+            component={NotificationDetailsScreen}
+          />
+          <Stack.Screen
+            name="NavigationBar"
+            component={NavigationBar}
+            options={{ headerShown: false }}
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </>
   );
 }
+
+export default App;
