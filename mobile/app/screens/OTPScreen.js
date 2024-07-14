@@ -1,6 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, Image, TextInput, TouchableOpacity, SafeAreaView } from "react-native";
-import pic from '../assets/emailotp.png'
+import {
+  View,
+  Text,
+  Image,
+  TextInput,
+  TouchableOpacity,
+  SafeAreaView,
+} from "react-native";
+import pic from "../assets/emailotp.png";
 
 function OTPScreen({ navigation }) {
   // Dummy data for email
@@ -14,7 +21,7 @@ function OTPScreen({ navigation }) {
     let interval = null;
     if (seconds > 0) {
       interval = setInterval(() => {
-        setSeconds(prevSeconds => prevSeconds - 1);
+        setSeconds((prevSeconds) => prevSeconds - 1);
       }, 1000);
     } else {
       setIsResendEnabled(true);
@@ -26,12 +33,14 @@ function OTPScreen({ navigation }) {
   const formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    return `${String(minutes).padStart(2, "0")}:${String(secs).padStart(
+      2,
+      "0"
+    )}`;
   };
 
   const handleResend = () => {
-    // Handle resend OTP logic here
-    setSeconds(2 * 60 + 15); // Reset timer to 2 minutes and 15 seconds
+    setSeconds(10 * 60);
     setIsResendEnabled(false);
   };
 
@@ -49,7 +58,9 @@ function OTPScreen({ navigation }) {
             A 6-digit code has been sent to {email}{" "}
           </Text>
           <View className="flex-row justify-center">
-            <TouchableOpacity onPress={() => navigation.navigate("ChangeEmail")}>
+            <TouchableOpacity
+              onPress={() => navigation.navigate("ChangeEmail")}
+            >
               <Text className="text-green-500">Change</Text>
             </TouchableOpacity>
           </View>
@@ -94,11 +105,13 @@ function OTPScreen({ navigation }) {
           />
         </View>
 
-        <Text className="text-gray-600 mb-4">- The OTP will expire in {formatTime(seconds)}</Text>
+        <Text className="text-gray-600 mb-4">
+          - The OTP will expire in {formatTime(seconds)}
+        </Text>
 
         <View className="flex-row items-center mb-6">
-          <Text className="text-gray-600">- Didn’t receive the code?{" "}</Text>
-          <TouchableOpacity>
+          <Text className="text-gray-600">- Didn’t receive the code? </Text>
+          <TouchableOpacity onPress={handleResend}>
             <Text className="text-green-500">Resend</Text>
           </TouchableOpacity>
         </View>
