@@ -1,9 +1,11 @@
+-- Create user_type table
 CREATE TABLE user_type (
     user_type_id INT PRIMARY KEY AUTO_INCREMENT,
     user_type_name VARCHAR(50) NOT NULL,
     user_type_description TEXT
 );
 
+-- Create users table
 CREATE TABLE users (
     user_id INT PRIMARY KEY AUTO_INCREMENT,
     firstname VARCHAR(50) NOT NULL,
@@ -12,14 +14,26 @@ CREATE TABLE users (
     email VARCHAR(100) UNIQUE NOT NULL,
     password VARCHAR(100) NOT NULL,
     phone_number VARCHAR(20),
-    address TEXT,
-    gender ENUM('Male', 'Female', 'Other'),
+    gender VARCHAR(10) CHECK (gender IN ('Male', 'Female', 'Other')),
     birthday DATE,
     user_type_id INT,
     verified TINYINT(1) DEFAULT 0,
     FOREIGN KEY (user_type_id) REFERENCES user_type(user_type_id)
 );
 
+CREATE INDEX idx_users_user_type_id ON users(user_type_id);
+
+-- Create addresses table
+CREATE TABLE addresses (
+    address_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT,
+    address TEXT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+);
+
+CREATE INDEX idx_addresses_user_id ON addresses(user_id);
+
+-- Create shop table
 CREATE TABLE shop (
     shop_id INT PRIMARY KEY AUTO_INCREMENT,
     shop_name VARCHAR(100) NOT NULL,
@@ -29,12 +43,16 @@ CREATE TABLE shop (
     FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
 
+CREATE INDEX idx_shop_user_id ON shop(user_id);
+
+-- Create crop_category table
 CREATE TABLE crop_category (
     crop_category_id INT PRIMARY KEY AUTO_INCREMENT,
     crop_category_name VARCHAR(100) NOT NULL,
     crop_category_description TEXT
 );
 
+-- Create metric_system table
 CREATE TABLE metric_system (
     metric_system_id INT PRIMARY KEY AUTO_INCREMENT,
     metric_system_name VARCHAR(100) NOT NULL,
@@ -43,6 +61,7 @@ CREATE TABLE metric_system (
     metric_val_pounds DECIMAL(10, 4) NOT NULL
 );
 
+-- Create crops table
 CREATE TABLE crops (
     crop_id INT PRIMARY KEY AUTO_INCREMENT,
     crop_name VARCHAR(100) NOT NULL,
@@ -60,12 +79,18 @@ CREATE TABLE crops (
     FOREIGN KEY (metric_system_id) REFERENCES metric_system(metric_system_id)
 );
 
+CREATE INDEX idx_crops_category_id ON crops(category_id);
+CREATE INDEX idx_crops_shop_id ON crops(shop_id);
+CREATE INDEX idx_crops_metric_system_id ON crops(metric_system_id);
+
+-- Create order_status table
 CREATE TABLE order_status (
     order_status_id INT PRIMARY KEY AUTO_INCREMENT,
     order_status_name VARCHAR(50) NOT NULL,
     order_status_description TEXT
 );
 
+-- Create orders table
 CREATE TABLE orders (
     order_id INT PRIMARY KEY AUTO_INCREMENT,
     total_price DECIMAL(10, 2) NOT NULL,
@@ -78,6 +103,11 @@ CREATE TABLE orders (
     FOREIGN KEY (order_metric_system_id) REFERENCES metric_system(metric_system_id)
 );
 
+CREATE INDEX idx_orders_status_id ON orders(status_id);
+CREATE INDEX idx_orders_user_id ON orders(user_id);
+CREATE INDEX idx_orders_metric_system_id ON orders(order_metric_system_id);
+
+-- Create order_products table
 CREATE TABLE order_products (
     order_prod_id INT PRIMARY KEY AUTO_INCREMENT,
     order_id INT,
@@ -92,6 +122,12 @@ CREATE TABLE order_products (
     FOREIGN KEY (order_prod_metric_system_id) REFERENCES metric_system(metric_system_id)
 );
 
+CREATE INDEX idx_order_products_order_id ON order_products(order_id);
+CREATE INDEX idx_order_products_crop_id ON order_products(order_prod_crop_id);
+CREATE INDEX idx_order_products_user_id ON order_products(order_prod_user_id);
+CREATE INDEX idx_order_products_metric_system_id ON order_products(order_prod_metric_system_id);
+
+-- Create cart table
 CREATE TABLE cart (
     cart_id INT PRIMARY KEY AUTO_INCREMENT,
     cart_total_price DECIMAL(10, 2) NOT NULL,
@@ -102,6 +138,10 @@ CREATE TABLE cart (
     FOREIGN KEY (cart_metric_system_id) REFERENCES metric_system(metric_system_id)
 );
 
+CREATE INDEX idx_cart_user_id ON cart(cart_user_id);
+CREATE INDEX idx_cart_metric_system_id ON cart(cart_metric_system_id);
+
+-- Create cart_products table
 CREATE TABLE cart_products (
     cart_prod_id INT PRIMARY KEY AUTO_INCREMENT,
     cart_id INT,
@@ -115,3 +155,59 @@ CREATE TABLE cart_products (
     FOREIGN KEY (cart_prod_user_id) REFERENCES users(user_id),
     FOREIGN KEY (cart_prod_metric_system_id) REFERENCES metric_system(metric_system_id)
 );
+
+CREATE INDEX idx_cart_products_cart_id ON cart_products(cart_id);
+CREATE INDEX idx_cart_products_crop_id ON cart_products(cart_prod_crop_id);
+CREATE INDEX idx_cart_products_user_id ON cart_products(cart_prod_user_id);
+CREATE INDEX idx_cart_products_metric_system_id ON cart_products(cart_prod_metric_system_id);
+
+-- Create reviews table
+CREATE TABLE reviews (
+    review_id INT PRIMARY KEY AUTO_INCREMENT,
+    crop_id INT,
+    user_id INT,
+    rating DECIMAL(2, 1) CHECK (rating BETWEEN 1 AND 5),
+    review_text TEXT,
+    review_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (crop_id) REFERENCES crops(crop_id),
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+);
+
+CREATE INDEX idx_reviews_crop_id ON reviews(crop_id);
+CREATE INDEX idx_reviews_user_id ON reviews(user_id);
+
+-- Create order_tracking table
+CREATE TABLE order_tracking (
+    tracking_id INT PRIMARY KEY AUTO_INCREMENT,
+    order_id INT,
+    status VARCHAR(10) CHECK (status IN ('Placed', 'Processed', 'Shipped', 'Delivered', 'Cancelled')),
+    update_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (order_id) REFERENCES orders(order_id)
+);
+
+CREATE INDEX idx_order_tracking_order_id ON order_tracking(order_id);
+
+-- Create payments table
+CREATE TABLE payments (
+    payment_id INT PRIMARY KEY AUTO_INCREMENT,
+    order_id INT,
+    payment_method VARCHAR(50),
+    payment_status VARCHAR(10) CHECK (payment_status IN ('Pending', 'Completed', 'Failed')),
+    payment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    amount DECIMAL(10, 2),
+    FOREIGN KEY (order_id) REFERENCES orders(order_id)
+);
+
+CREATE INDEX idx_payments_order_id ON payments(order_id);
+
+-- Create notifications table
+CREATE TABLE notifications (
+    notification_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT,
+    message TEXT,
+    is_read TINYINT(1) DEFAULT 0,
+    notification_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+);
+
+CREATE INDEX idx_notifications_user_id ON notifications(user_id);

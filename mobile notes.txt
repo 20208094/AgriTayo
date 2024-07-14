@@ -8,7 +8,9 @@ MOBILE FRONTEND:
         My Purchases - Cancelled
         My Purchases - Return/Refund
         Profile
+        Insert Address
         Product Information
+        Checkout Confirmation
 
     Finished:
         Login
