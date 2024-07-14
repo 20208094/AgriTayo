@@ -12,7 +12,7 @@ const NavigationBar = () => {
     <Tab.Navigator>
       <Tab.Screen name="Home" component={HomePageScreen} />
       <Tab.Screen name="Crops" component={CropsScreen} />
-      <Tab.Screen name="Cart" component={CartScreen} />
+      <Tab.Screen name="Cart" component={CartScreen} options={{ headerShown: false }}/>
       <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
   );
