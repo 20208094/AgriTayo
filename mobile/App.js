@@ -12,7 +12,7 @@ import NotificationScreen from "./app/screens/NotificationScreen";
 import ProductDetailsScreen from "./app/screens/ProductDetailsScreen";
 import MessageDetailsScreen from "./app/screens/MessageDetailsScreen";
 import NotificationDetailsScreen from "./app/screens/NotificationDetailsScreen";
-
+import OTPScreen from "./app/screens/OTPScreen";
 const Stack = createStackNavigator();
 
 function App() {
@@ -27,7 +27,7 @@ function App() {
             component={RegisterScreenFarmers}
           />
           <Stack.Screen name="HomePageScreen" component={HomePageScreen} />
-          <Stack.Screen name="CartScreen" component={CartScreen} />
+          <Stack.Screen name="CartScreen" component={CartScreen} options={{ headerShown: false }}/>
           <Stack.Screen name="Messages" component={MessageScreen} />
           <Stack.Screen name="Notifications" component={NotificationScreen} />
           <Stack.Screen
@@ -45,6 +45,11 @@ function App() {
           <Stack.Screen
             name="NavigationBar"
             component={NavigationBar}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name='OTP Screen'
+            component={OTPScreen}
             options={{ headerShown: false }}
           />
         </Stack.Navigator>
