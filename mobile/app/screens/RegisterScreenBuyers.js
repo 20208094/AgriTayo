@@ -10,7 +10,7 @@ import {
 import RadioForm from "react-native-simple-radio-button";
 import DateTimePicker from "@react-native-community/datetimepicker";
 
-function RegisterScreenBuyers() {
+function RegisterScreenBuyers({navigation}) {
   const handleRegister = () => {
     // handle registration logic here
   };
@@ -119,7 +119,7 @@ function RegisterScreenBuyers() {
               autoCorrect={false}
             />
             <TouchableOpacity
-              onPress={handleRegister}
+              onPress={() => navigation.navigate('OTP Screen')}
               className="w-full p-3 bg-[#00B251] rounded-lg shadow-md"
             >
               <Text className="text-white text-center text-lg">Register</Text>
