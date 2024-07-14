@@ -1,0 +1,21 @@
+WEB FRONTEND:
+    Unfinished:
+        Cart (almost done)
+        My Purchases - To Confirm
+        My Purchases - To Ship
+        My Purchases - To Receive
+        My Purchases - Completed
+        My Purchases - Cancelled
+        My Purchases - Return/Refund
+        Profile
+        Product Information
+        Login
+        Register
+        Email Verification
+        Home
+
+    Finished:
+        alaws
+
+======================================================
+WEB BACKEND:
