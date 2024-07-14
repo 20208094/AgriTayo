@@ -20,11 +20,8 @@ function App() {
     <>
       <NavigationContainer>
         <Stack.Navigator initialRouteName="Login">
-          <Stack.Screen name="Login" component={LoginScreen} />
-          <Stack.Screen
-            name="Register"
-            component={RegisterScreenBuyers}
-          />
+          <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }}/>
+          <Stack.Screen name="Register" component={RegisterScreenBuyers} options={{ headerShown: false }}/>
           <Stack.Screen
             name="Register As Farmers"
             component={RegisterScreenFarmers}
@@ -38,7 +35,7 @@ function App() {
             component={ProductDetailsScreen}
           />
           <Stack.Screen
-            name=```````````````````````````````````````````````````````"Message Details"
+            name="Message Details"
             component={MessageDetailsScreen}
           />
           <Stack.Screen
