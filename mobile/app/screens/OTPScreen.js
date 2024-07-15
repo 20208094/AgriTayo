@@ -59,7 +59,7 @@ function OTPScreen({ navigation }) {
           </Text>
           <View className="flex-row justify-center">
             <TouchableOpacity
-              onPress={() => navigation.navigate("ChangeEmail")}
+              onPress={() => navigation.navigate("Change Email")}
             >
               <Text className="text-green-500">Change</Text>
             </TouchableOpacity>

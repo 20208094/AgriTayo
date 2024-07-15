@@ -13,6 +13,7 @@ import ProductDetailsScreen from "./app/screens/ProductDetailsScreen";
 import MessageDetailsScreen from "./app/screens/MessageDetailsScreen";
 import NotificationDetailsScreen from "./app/screens/NotificationDetailsScreen";
 import OTPScreen from "./app/screens/OTPScreen";
+import ChangeEmailScreen from "./app/screens/ChangeEmailScreen";
 const Stack = createStackNavigator();
 
 function App() {
@@ -50,6 +51,11 @@ function App() {
           <Stack.Screen
             name='OTP Screen'
             component={OTPScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name='Change Email'
+            component={ChangeEmailScreen}
             options={{ headerShown: false }}
           />
         </Stack.Navigator>
