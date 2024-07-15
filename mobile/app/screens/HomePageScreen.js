@@ -47,7 +47,6 @@ const products = [
     discount: 5,
     address: "Trinidad",
   },
-
 ];
 
 function HomePageScreen() {
@@ -110,6 +109,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#f0f0f0",
+    paddingTop: 40, // Increased top padding for more space at the top
   },
   header: {
     flexDirection: "row",
