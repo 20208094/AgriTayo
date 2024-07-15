@@ -1,6 +1,7 @@
 // supabase_connection/cart.js
 const supabase = require('../db');
 
+// Get all carts
 async function getCarts(req, res) {
     try {
         const { data, error } = await supabase
@@ -19,12 +20,18 @@ async function getCarts(req, res) {
     }
 }
 
+// Add a new cart
 async function addCart(req, res) {
     try {
-        const { user_id, cart_total } = req.body;
+        const { cart_total_price, cart_total_weight, cart_user_id, cart_metric_system_id } = req.body;
         const { data, error } = await supabase
             .from('cart')
-            .insert([{ user_id, cart_total }]);
+            .insert([{ 
+                cart_total_price,
+                cart_total_weight,
+                cart_user_id,
+                cart_metric_system_id
+            }]);
 
         if (error) {
             console.error('Supabase query failed:', error.message);
@@ -38,13 +45,19 @@ async function addCart(req, res) {
     }
 }
 
+// Update an existing cart
 async function updateCart(req, res) {
     try {
         const { id } = req.params;
-        const { user_id, cart_total } = req.body;
+        const { cart_total_price, cart_total_weight, cart_user_id, cart_metric_system_id } = req.body;
         const { data, error } = await supabase
             .from('cart')
-            .update({ user_id, cart_total })
+            .update({ 
+                cart_total_price,
+                cart_total_weight,
+                cart_user_id,
+                cart_metric_system_id
+            })
             .eq('cart_id', id);
 
         if (error) {
@@ -59,6 +72,7 @@ async function updateCart(req, res) {
     }
 }
 
+// Delete a cart
 async function deleteCart(req, res) {
     try {
         const { id } = req.params;

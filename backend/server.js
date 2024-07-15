@@ -118,7 +118,7 @@ const {
 const {
     getNotifications,
     addNotification,
-    updateNotification,
+    markNotificationAsRead,
     deleteNotification
 } = require('./supabase_connection/crud_services/notifications');
 
@@ -227,7 +227,7 @@ app.delete('/api/payments/:id', deletePayment);
 // API routes for notifications
 app.get('/api/notifications', getNotifications);
 app.post('/api/notifications', addNotification);
-app.put('/api/notifications/:id', updateNotification);
+app.put('/api/notifications/:id', markNotificationAsRead);
 app.delete('/api/notifications/:id', deleteNotification);
 
 // Serve frontend files

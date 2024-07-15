@@ -21,10 +21,10 @@ async function getPayments(req, res) {
 
 async function addPayment(req, res) {
     try {
-        const { order_id, amount, payment_method } = req.body;
+        const { order_id, payment_method, payment_status, amount } = req.body;
         const { data, error } = await supabase
             .from('payments')
-            .insert([{ order_id, amount, payment_method }]);
+            .insert([{ order_id, payment_method, payment_status, amount }]);
 
         if (error) {
             console.error('Supabase query failed:', error.message);
@@ -41,10 +41,10 @@ async function addPayment(req, res) {
 async function updatePayment(req, res) {
     try {
         const { id } = req.params;
-        const { order_id, amount, payment_method } = req.body;
+        const { payment_method, payment_status, amount } = req.body;
         const { data, error } = await supabase
             .from('payments')
-            .update({ order_id, amount, payment_method })
+            .update({ payment_method, payment_status, amount })
             .eq('payment_id', id);
 
         if (error) {

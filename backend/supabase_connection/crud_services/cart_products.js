@@ -1,4 +1,3 @@
-// supabase_connection/cart_products.js
 const supabase = require('../db');
 
 async function getCartProducts(req, res) {
@@ -21,10 +20,10 @@ async function getCartProducts(req, res) {
 
 async function addCartProduct(req, res) {
     try {
-        const { cart_id, product_id, quantity } = req.body;
+        const { cart_id, cart_prod_crop_id, cart_prod_total_weight, cart_prod_total_price, cart_prod_user_id, cart_prod_metric_system_id } = req.body;
         const { data, error } = await supabase
             .from('cart_products')
-            .insert([{ cart_id, product_id, quantity }]);
+            .insert([{ cart_id, cart_prod_crop_id, cart_prod_total_weight, cart_prod_total_price, cart_prod_user_id, cart_prod_metric_system_id }]);
 
         if (error) {
             console.error('Supabase query failed:', error.message);
@@ -41,11 +40,11 @@ async function addCartProduct(req, res) {
 async function updateCartProduct(req, res) {
     try {
         const { id } = req.params;
-        const { cart_id, product_id, quantity } = req.body;
+        const { cart_id, cart_prod_crop_id, cart_prod_total_weight, cart_prod_total_price, cart_prod_user_id, cart_prod_metric_system_id } = req.body;
         const { data, error } = await supabase
             .from('cart_products')
-            .update({ cart_id, product_id, quantity })
-            .eq('cart_product_id', id);
+            .update({ cart_id, cart_prod_crop_id, cart_prod_total_weight, cart_prod_total_price, cart_prod_user_id, cart_prod_metric_system_id })
+            .eq('cart_prod_id', id);
 
         if (error) {
             console.error('Supabase query failed:', error.message);
@@ -65,7 +64,7 @@ async function deleteCartProduct(req, res) {
         const { data, error } = await supabase
             .from('cart_products')
             .delete()
-            .eq('cart_product_id', id);
+            .eq('cart_prod_id', id);
 
         if (error) {
             console.error('Supabase query failed:', error.message);

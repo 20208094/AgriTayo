@@ -45,7 +45,7 @@ CREATE TABLE shop (
 
 CREATE INDEX idx_shop_user_id ON shop(user_id);
 
--- Create crop_category table
+-- Create crop_category tablea
 CREATE TABLE crop_category (
     crop_category_id SERIAL PRIMARY KEY,
     crop_category_name VARCHAR(100) NOT NULL,

@@ -21,10 +21,10 @@ async function getReviews(req, res) {
 
 async function addReview(req, res) {
     try {
-        const { user_id, product_id, rating, comment } = req.body;
+        const { crop_id, user_id, rating, review_text } = req.body;
         const { data, error } = await supabase
             .from('reviews')
-            .insert([{ user_id, product_id, rating, comment }]);
+            .insert([{ crop_id, user_id, rating, review_text }]);
 
         if (error) {
             console.error('Supabase query failed:', error.message);
@@ -41,10 +41,10 @@ async function addReview(req, res) {
 async function updateReview(req, res) {
     try {
         const { id } = req.params;
-        const { user_id, product_id, rating, comment } = req.body;
+        const { crop_id, user_id, rating, review_text } = req.body;
         const { data, error } = await supabase
             .from('reviews')
-            .update({ user_id, product_id, rating, comment })
+            .update({ crop_id, user_id, rating, review_text })
             .eq('review_id', id);
 
         if (error) {

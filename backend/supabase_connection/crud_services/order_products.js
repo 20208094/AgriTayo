@@ -21,10 +21,19 @@ async function getOrderProducts(req, res) {
 
 async function addOrderProduct(req, res) {
     try {
-        const { order_id, product_id, quantity } = req.body;
+        const { order_id, order_prod_crop_id, order_prod_total_weight, order_prod_total_price, order_prod_user_id, order_prod_metric_system_id } = req.body;
         const { data, error } = await supabase
             .from('order_products')
-            .insert([{ order_id, product_id, quantity }]);
+            .insert([
+                { 
+                    order_id, 
+                    order_prod_crop_id, 
+                    order_prod_total_weight, 
+                    order_prod_total_price, 
+                    order_prod_user_id, 
+                    order_prod_metric_system_id 
+                }
+            ]);
 
         if (error) {
             console.error('Supabase query failed:', error.message);
@@ -41,11 +50,18 @@ async function addOrderProduct(req, res) {
 async function updateOrderProduct(req, res) {
     try {
         const { id } = req.params;
-        const { order_id, product_id, quantity } = req.body;
+        const { order_id, order_prod_crop_id, order_prod_total_weight, order_prod_total_price, order_prod_user_id, order_prod_metric_system_id } = req.body;
         const { data, error } = await supabase
             .from('order_products')
-            .update({ order_id, product_id, quantity })
-            .eq('order_product_id', id);
+            .update({ 
+                order_id, 
+                order_prod_crop_id, 
+                order_prod_total_weight, 
+                order_prod_total_price, 
+                order_prod_user_id, 
+                order_prod_metric_system_id 
+            })
+            .eq('order_prod_id', id);
 
         if (error) {
             console.error('Supabase query failed:', error.message);
@@ -65,7 +81,7 @@ async function deleteOrderProduct(req, res) {
         const { data, error } = await supabase
             .from('order_products')
             .delete()
-            .eq('order_product_id', id);
+            .eq('order_prod_id', id);
 
         if (error) {
             console.error('Supabase query failed:', error.message);

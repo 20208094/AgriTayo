@@ -21,10 +21,10 @@ async function getOrderTrackings(req, res) {
 
 async function addOrderTracking(req, res) {
     try {
-        const { order_id, status, timestamp } = req.body;
+        const { order_id, status } = req.body;
         const { data, error } = await supabase
             .from('order_tracking')
-            .insert([{ order_id, status, timestamp }]);
+            .insert([{ order_id, status }]);
 
         if (error) {
             console.error('Supabase query failed:', error.message);
@@ -41,10 +41,10 @@ async function addOrderTracking(req, res) {
 async function updateOrderTracking(req, res) {
     try {
         const { id } = req.params;
-        const { order_id, status, timestamp } = req.body;
+        const { status } = req.body;
         const { data, error } = await supabase
             .from('order_tracking')
-            .update({ order_id, status, timestamp })
+            .update({ status })
             .eq('tracking_id', id);
 
         if (error) {

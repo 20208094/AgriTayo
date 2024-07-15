@@ -21,10 +21,10 @@ async function getNotifications(req, res) {
 
 async function addNotification(req, res) {
     try {
-        const { user_id, message, timestamp } = req.body;
+        const { user_id, message } = req.body;
         const { data, error } = await supabase
             .from('notifications')
-            .insert([{ user_id, message, timestamp }]);
+            .insert([{ user_id, message }]);
 
         if (error) {
             console.error('Supabase query failed:', error.message);
@@ -38,13 +38,12 @@ async function addNotification(req, res) {
     }
 }
 
-async function updateNotification(req, res) {
+async function markNotificationAsRead(req, res) {
     try {
         const { id } = req.params;
-        const { user_id, message, timestamp } = req.body;
         const { data, error } = await supabase
             .from('notifications')
-            .update({ user_id, message, timestamp })
+            .update({ is_read: true })
             .eq('notification_id', id);
 
         if (error) {
@@ -52,7 +51,7 @@ async function updateNotification(req, res) {
             return res.status(500).json({ error: 'Internal server error' });
         }
 
-        res.status(200).json({ message: 'Notification updated successfully', data });
+        res.status(200).json({ message: 'Notification marked as read successfully', data });
     } catch (err) {
         console.error('Error executing Supabase query:', err.message);
         res.status(500).json({ error: 'Internal server error' });
@@ -82,6 +81,6 @@ async function deleteNotification(req, res) {
 module.exports = {
     getNotifications,
     addNotification,
-    updateNotification,
+    markNotificationAsRead,
     deleteNotification
 };
