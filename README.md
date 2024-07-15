@@ -11,3 +11,7 @@ AFTER coding:
     3. type message then commit
     4. Press Sync
     5. Check github repository in google if changes made are uploaded
+
+
+Remove deleted branches:
+    git fetch --all --prune
