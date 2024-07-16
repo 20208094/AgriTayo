@@ -1,49 +1,36 @@
 import React from "react";
-import { TouchableOpacity, View, Text, StyleSheet, Button } from "react-native";
+import { TouchableOpacity, View, Text, Button } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import { styled } from "nativewind";
+import { Icon } from "react-native-elements";
 
 const NotificationTable = ({ notification, moveToRead, showButton }) => {
   const navigation = useNavigation();
+
   return (
     <TouchableOpacity
       onPress={() =>
         navigation.navigate("Notification Details", { notification })
       }
+      className="bg-white p-4 m-1 rounded-lg shadow-md"
     >
-      <View style={styles.tableContainer}>
-        <View style={styles.tableRow}>
-          <Text style={styles.tableCell}>
-            {notification.title}
-            {"\n"}
-            {notification.message}
-          </Text>
-          {showButton && (
-            <Button
-              title='X'
-              onPress={() => moveToRead(notification.id)}
-            />
-          )}
-        </View>
+      <View className="flex-row justify-between items-center">
+        <Text className="flex-1 text-base">
+          <Text className="font-bold">{notification.title}</Text>
+          {"\n"}
+          {notification.message}
+        </Text>
+        {showButton && (
+          <TouchableOpacity
+            onPress={() => moveToRead(notification.id)}
+            className="ml-4"
+          >
+            <Icon name="checkmark" type="ionicon" size={20} color="green" />
+          </TouchableOpacity>
+        )}
       </View>
     </TouchableOpacity>
   );
 };
 
-const styles = StyleSheet.create({
-  tableContainer: {
-    borderColor: "#000",
-  },
-  tableRow: {
-    flexDirection: "row",
-    borderColor: "#000",
-  },
-
-  tableCell: {
-    flex: 1,
-    padding: 10,
-    borderBottomWidth: 0.5,
-    borderColor: "#000",
-  },
-});
-
-export default NotificationTable;
+export default styled(NotificationTable);

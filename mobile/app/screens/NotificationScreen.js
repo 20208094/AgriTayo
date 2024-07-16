@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import ReadScreen from "./ReadScreen";
 import UnreadScreen from "./UnreadScreen";
+import Icon from "react-native-vector-icons/FontAwesome";
 
 const initialNotifications = [
   {
@@ -29,21 +30,35 @@ function NotificationScreen() {
   };
 
   return (
-    <Tab.Navigator>
-      <Tab.Screen name='Unread'>
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        tabBarIcon: ({ color }) => {
+          let iconName;
+          if (route.name === 'Unread') {
+            iconName = 'envelope';
+          } else if (route.name === 'Read') {
+            iconName = 'envelope-open';
+          }
+          return <Icon name={iconName} size={20} color={color} />;
+        },
+        tabBarActiveTintColor: "#16A34A",
+        tabBarInactiveTintColor: "gray",
+      })}
+    >
+      <Tab.Screen name="Unread">
         {(props) => (
-          <UnreadScreen 
-            {...props} 
-            notifications={unreadNotifications} 
-            moveToRead={moveToRead} 
+          <UnreadScreen
+            {...props}
+            notifications={unreadNotifications}
+            moveToRead={moveToRead}
           />
         )}
       </Tab.Screen>
-      <Tab.Screen name='Read'>
+      <Tab.Screen name="Read">
         {(props) => (
-          <ReadScreen 
-            {...props} 
-            notifications={readNotifications} 
+          <ReadScreen
+            {...props}
+            notifications={readNotifications}
           />
         )}
       </Tab.Screen>

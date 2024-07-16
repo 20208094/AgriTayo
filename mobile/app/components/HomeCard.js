@@ -16,7 +16,7 @@ const HomeCard = ({ product }) => {
       className="bg-white rounded-lg shadow m-2 w-[44%] mb-5"
     >
       <View className="rounded-t-lg overflow-hidden">
-        <Image source={product.image} className="w-full h-38" />
+        <Image source={product.image} className="w-full h-28" />
       </View>
       <View className="p-2.5">
         <Text className="text-base font-bold mb-1.5">{product.title}</Text>
