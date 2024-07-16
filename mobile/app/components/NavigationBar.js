@@ -29,6 +29,9 @@ const NavigationBar = () => {
             case 'Profile':
               iconName = 'person-outline';
               break;
+            case 'Orders':
+              iconName = 'receipt-outline';
+              break;
             default:
               iconName = 'ellipse-outline';
               break;
@@ -44,9 +47,9 @@ const NavigationBar = () => {
     >
       <Tab.Screen name="Home" component={HomePageScreen} options={{ headerShown: false }} />
       <Tab.Screen name="Crops" component={CropsScreen} />
-      <Tab.Screen name="Cart" component={CartScreen} options={{ headerShown: false }}/>
-      <Tab.Screen name='Orders' component={OrdersScreen} />
-      <Tab.Screen name="Profile" component={ProfileScreen} />   
+      <Tab.Screen name="Cart" component={CartScreen} options={{ headerShown: false }} />
+      <Tab.Screen name="Orders" component={OrdersScreen} />
+      <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
   );
 };
