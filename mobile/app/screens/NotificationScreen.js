@@ -1,8 +1,9 @@
-import React from "react";
-import { ScrollView, StyleSheet } from "react-native";
-import NotificationTable from "../components/NotificationTable";
+import React, { useState } from "react";
+import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
+import ReadScreen from "./ReadScreen";
+import UnreadScreen from "./UnreadScreen";
 
-const notifications = [
+const initialNotifications = [
   {
     id: 1,
     title: "notification 1",
@@ -16,17 +17,38 @@ const notifications = [
 ];
 
 function NotificationScreen() {
+  const Tab = createMaterialTopTabNavigator();
+
+  const [unreadNotifications, setUnreadNotifications] = useState(initialNotifications);
+  const [readNotifications, setReadNotifications] = useState([]);
+
+  const moveToRead = (notificationId) => {
+    const notification = unreadNotifications.find(n => n.id === notificationId);
+    setUnreadNotifications(unreadNotifications.filter(n => n.id !== notificationId));
+    setReadNotifications([...readNotifications, notification]);
+  };
+
   return (
-    <ScrollView className=''>
-      {notifications.map((notification) => (
-        <NotificationTable key={notification.id} notification={notification} />
-      ))}
-    </ScrollView>
+    <Tab.Navigator>
+      <Tab.Screen name='Unread'>
+        {(props) => (
+          <UnreadScreen 
+            {...props} 
+            notifications={unreadNotifications} 
+            moveToRead={moveToRead} 
+          />
+        )}
+      </Tab.Screen>
+      <Tab.Screen name='Read'>
+        {(props) => (
+          <ReadScreen 
+            {...props} 
+            notifications={readNotifications} 
+          />
+        )}
+      </Tab.Screen>
+    </Tab.Navigator>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {},
-});
 
 export default NotificationScreen;

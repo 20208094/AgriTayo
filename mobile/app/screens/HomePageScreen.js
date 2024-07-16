@@ -1,10 +1,11 @@
 import React from "react";
-import { View, ScrollView, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, ScrollView, Text, TouchableOpacity, Image } from "react-native";
 import SearchBarC from "../components/SearchBarC";
 import logo from "../assets/logo.png";
 import HomeCard from "../components/HomeCard";
 import { Icon } from "react-native-elements";
 import { useNavigation } from "@react-navigation/native";
+import { styled } from "nativewind";
 
 const products = [
   {
@@ -53,17 +54,17 @@ function HomePageScreen() {
   const navigation = useNavigation();
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerText}>Hi Paeng!</Text>
-        <View style={styles.headerIcons}>
+    <ScrollView className="flex-1 bg-gray-100 pt-5">
+      <View className="flex-row justify-between items-center px-4 pt-8">
+        <Text className="text-green-700 text-3xl font-bold">Hi Paeng!</Text>
+        <View className="flex-row">
           <Icon
             name="notifications-outline"
             type="ionicon"
             size={30}
             color="green"
             onPress={() => navigation.navigate("Notifications")}
-            style={styles.icon}
+            className="ml-4"
           />
           <Icon
             name="mail-outline"
@@ -71,31 +72,31 @@ function HomePageScreen() {
             size={30}
             color="green"
             onPress={() => navigation.navigate("Messages")}
-            style={styles.icon}
+            className="ml-4"
           />
         </View>
       </View>
-      <Text style={styles.subText}>Enjoy our services!</Text>
-      <View style={styles.searchContainer}>
+      <Text className="px-4 text-base text-gray-600 mt-2">Enjoy our services!</Text>
+      <View className="mt-4 px-4">
         <SearchBarC />
       </View>
-      <View style={styles.freeConsultation}>
-        <View style={styles.consultationText}>
-          <Text style={styles.consultationTitle}>AgriTutorial</Text>
+      <View className="bg-green-200 p-4 rounded-lg mt-4 mx-4">
+        <View className="ml-4">
+          <Text className="text-2xl font-bold">AgriTutorial</Text>
           <Text>Want to know how AgriTayo Works? </Text>
-          <TouchableOpacity style={styles.callNowButton}>
-            <Text style={styles.callNowText}>Click Here</Text>
+          <TouchableOpacity className="bg-green-600 px-3 py-1.5 rounded mt-2 self-start">
+            <Text className="text-white font-bold text-sm">Click Here</Text>
           </TouchableOpacity>
         </View>
       </View>
-      <View style={styles.featuredProducts}>
-        <View style={styles.featuredHeader}>
-          <Text style={styles.featuredTitle}>Featured Products</Text>
+      <View className="mt-4 px-4">
+        <View className="flex-row justify-between items-center mb-2">
+          <Text className="text-2xl font-bold">Featured Products</Text>
           <TouchableOpacity>
-            <Text style={styles.seeAllText}>See All</Text>
+            <Text className="text-blue-500">See All</Text>
           </TouchableOpacity>
         </View>
-        <View style={styles.productContainer}>
+        <View className="flex-row flex-wrap justify-between">
           {products.map((product) => (
             <HomeCard key={product.id} product={product} />
           ))}
@@ -105,89 +106,4 @@ function HomePageScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f0f0f0",
-    paddingTop: 40, // Increased top padding for more space at the top
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 20,
-    paddingTop: 20,
-  },
-  headerText: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "green",
-  },
-  headerIcons: {
-    flexDirection: "row",
-  },
-  icon: {
-    marginLeft: 10,
-  },
-  subText: {
-    paddingHorizontal: 20,
-    fontSize: 14,
-    color: "#666",
-    marginTop: 10,
-  },
-  searchContainer: {
-    marginTop: 20,
-    paddingHorizontal: 20,
-  },
-  freeConsultation: {
-    backgroundColor: "#c4f6c2",
-    padding: 20,
-    borderRadius: 10,
-    marginTop: 20,
-    marginHorizontal: 20,
-  },
-  consultationText: {
-    marginLeft: 20,
-  },
-  consultationTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 10,
-  },
-  callNowButton: {
-    backgroundColor: "#47a83e",
-    padding: 10,
-    borderRadius: 5,
-    marginTop: 10,
-    width: 100,
-    alignItems: "center",
-  },
-  callNowText: {
-    color: "#fff",
-    fontWeight: "bold",
-  },
-  featuredProducts: {
-    marginTop: 20,
-    paddingHorizontal: 20,
-  },
-  featuredHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 10,
-  },
-  featuredTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-  seeAllText: {
-    color: "#0c99c7",
-  },
-  productContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-  },
-});
-
-export default HomePageScreen;
+export default styled(HomePageScreen);

@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { View, Text, FlatList, Dimensions, TouchableOpacity, Image, Alert } from "react-native";
+import { View, Text, FlatList, Dimensions, TouchableOpacity, Image, Alert, Modal } from "react-native";
 import CheckBox from 'react-native-check-box';
 import deleteButton from "../assets/delete.png";
 import editButton from "../assets/edit.png";
+import placeholderImage from "../assets/placeholder.png"; // Placeholder image for item
 import { Swipeable } from 'react-native-gesture-handler';
 import { styled } from 'nativewind';
 
@@ -40,6 +41,8 @@ function CartScreen() {
   ];
 
   const [shops, setShops] = useState(initialShops);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false);
 
   const renderItem = ({ item, shopIndex, itemIndex }) => {
     let swipeableRef = null;
@@ -120,41 +123,48 @@ function CartScreen() {
       </StyledView>
     );
 
+    const showItemDetails = () => {
+      setSelectedItem(item);
+      setModalVisible(true);
+    };
+
     return (
       <Swipeable
         ref={(ref) => { swipeableRef = ref; }}
         renderRightActions={renderRightActions}
         overshootRight={false}
       >
-        <StyledView className="my-2 mx-2.5">
-          <StyledView className="bg-white rounded-lg shadow">
-            <StyledView className="p-4 flex-row justify-between items-center">
-              <CheckBox
-                isChecked={item.selected}
-                onClick={toggleSelection}
-              />
-              <StyledView className="flex-1 ml-2">
-                <StyledText className="text-lg font-medium mb-1 text-gray-800">{item.title}</StyledText>
-                <StyledText className="text-base text-gray-600">₱ {item.price.toFixed(2)}</StyledText>
-              </StyledView>
-              <StyledView className="flex-row items-center">
-                <TouchableOpacity
-                  onPress={decrementQuantity}
-                  className="bg-red-500 justify-center items-center w-7 h-7 rounded-full mx-1.5"
-                >
-                  <Text className="text-white text-xl">-</Text>
-                </TouchableOpacity>
-                <StyledText className="text-base text-gray-800 mx-2">{item.quantity}</StyledText>
-                <TouchableOpacity
-                  onPress={incrementQuantity}
-                  className="bg-[#50d71e] justify-center items-center w-7 h-7 rounded-full mx-1.5"
-                >
-                  <Text className="text-white text-xl">+</Text>
-                </TouchableOpacity>
+        <TouchableOpacity onPress={showItemDetails}>
+          <StyledView className="my-2 mx-2.5">
+            <StyledView className="bg-white rounded-lg shadow">
+              <StyledView className="p-4 flex-row justify-between items-center">
+                <CheckBox
+                  isChecked={item.selected}
+                  onClick={toggleSelection}
+                />
+                <StyledView className="flex-1 ml-2">
+                  <StyledText className="text-lg font-medium mb-1 text-gray-800">{item.title}</StyledText>
+                  <StyledText className="text-base text-gray-600">₱ {item.price.toFixed(2)}</StyledText>
+                </StyledView>
+                <StyledView className="flex-row items-center">
+                  <TouchableOpacity
+                    onPress={decrementQuantity}
+                    className="bg-red-500 justify-center items-center w-7 h-7 rounded-full mx-1.5"
+                  >
+                    <Text className="text-white text-xl">-</Text>
+                  </TouchableOpacity>
+                  <StyledText className="text-base text-gray-800 mx-2">{item.quantity}</StyledText>
+                  <TouchableOpacity
+                    onPress={incrementQuantity}
+                    className="bg-[#50d71e] justify-center items-center w-7 h-7 rounded-full mx-1.5"
+                  >
+                    <Text className="text-white text-xl">+</Text>
+                  </TouchableOpacity>
+                </StyledView>
               </StyledView>
             </StyledView>
           </StyledView>
-        </StyledView>
+        </TouchableOpacity>
       </Swipeable>
     );
   };
@@ -197,6 +207,34 @@ function CartScreen() {
       >
         <StyledText className="text-lg font-bold text-white">Checkout</StyledText>
       </TouchableOpacity>
+
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <StyledView className="flex-1 justify-center items-center bg-black bg-opacity-50">
+          <StyledView className="bg-white rounded-lg p-4 shadow-lg">
+            <StyledText className="text-xl font-bold mb-4 text-gray-800">Item Details</StyledText>
+            {selectedItem && (
+              <>
+                <Image source={placeholderImage} className="w-32 h-32 mb-4 self-center" />
+                <StyledText className="text-lg font-medium mb-1 text-gray-800">{selectedItem.title}</StyledText>
+                <StyledText className="text-base text-gray-600">₱ {selectedItem.price.toFixed(2)}</StyledText>
+                <StyledText className="text-base text-gray-600 mt-2">Quantity: {selectedItem.quantity}</StyledText>
+                <StyledText className="text-base text-gray-600 mt-2">Description: This is a placeholder description for the item.</StyledText>
+                <TouchableOpacity
+                  onPress={() => setModalVisible(false)}
+                  className="bg-red-500 justify-center items-center py-2 mt-4 rounded-lg"
+                >
+                  <StyledText className="text-lg font-bold text-white">Close</StyledText>
+                </TouchableOpacity>
+              </>
+            )}
+          </StyledView>
+        </StyledView>
+      </Modal>
     </StyledView>
   );
 }

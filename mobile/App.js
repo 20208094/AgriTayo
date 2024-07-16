@@ -14,6 +14,9 @@ import MessageDetailsScreen from "./app/screens/MessageDetailsScreen";
 import NotificationDetailsScreen from "./app/screens/NotificationDetailsScreen";
 import OTPScreen from "./app/screens/OTPScreen";
 import ChangeEmailScreen from "./app/screens/ChangeEmailScreen";
+import ForgotPasswordScreen from "./app/screens/ForgotPasswordScreen";
+import ChangePasswordOTPSCreen from "./app/screens/ChangePasswordOTPScreen";
+import NewPasswordScreen from "./app/screens/NewPasswordScreen";
 const Stack = createStackNavigator();
 
 function App() {
@@ -58,6 +61,21 @@ function App() {
             component={ChangeEmailScreen}
             options={{ headerShown: false }}
           />
+          <Stack.Screen
+            name='Forgot Password'
+            component={ForgotPasswordScreen}
+            options={{headerShown:false}}
+            />
+            <Stack.Screen
+              name='Change Password OTP'
+              component={ChangePasswordOTPSCreen}
+              options={{headerShown:false}}
+              />
+              <Stack.Screen
+                name='New Password'
+                component={NewPasswordScreen}
+                options={{headerShown:false}}
+                />
         </Stack.Navigator>
       </NavigationContainer>
     </>
