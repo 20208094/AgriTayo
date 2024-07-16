@@ -2,49 +2,158 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 function RegisterPage() {
-  const [firstname, setFirstname] = useState('');
-  const [lastname, setLastname] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const navigate = useNavigate();
+    const [formData, setFormData] = useState({
+        firstname: '',
+        middlename: '',
+        lastname: '',
+        email: '',
+        password: '',
+        phone_number: '',
+        gender: '',
+        birthday: '',
+        user_type_id: 3, // Default user type ID
+        verified: false
+    });
+    const [error, setError] = useState('');
+    const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    try {
-      const response = await fetch('/api/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ firstname, lastname, email, password })
-      });
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormData({ ...formData, [name]: value });
+    };
 
-      if (!response.ok) {
-        throw new Error('Registration failed');
-      }
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const response = await fetch('/api/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+            if (!response.ok) {
+                const errorData = await response.json();
+                setError(errorData.error + ": " + errorData.details);
+                return;
+            }
+            const data = await response.json();
+            // Redirect to login page after successful registration
+            navigate('/login'); // Adjust the path as needed
+        } catch (error) {
+            console.error('Error during registration:', error);
+            setError('An error occurred. Please try again.');
+        }
+    };
 
-      console.log('Registration successful');
-      // Redirect or show success message
-      navigate.push('/login'); // Example redirect after successful registration
-    } catch (error) {
-      console.error('Error registering:', error.message);
-      // Handle error (show message, reset form, etc.)
-    }
-  };
-
-  return (
-    <div>
-      <h2>Register Page</h2>
-      <form onSubmit={handleSubmit}>
-        <input type="text" placeholder="First Name" value={firstname} onChange={(e) => setFirstname(e.target.value)} required />
-        <input type="text" placeholder="Last Name" value={lastname} onChange={(e) => setLastname(e.target.value)} required />
-        <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-        <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-        <button type="submit">Register</button>
-      </form>
-    </div>
-  );
+    return (
+        <div style={{ padding: '50px', maxWidth: '400px', margin: 'auto' }}>
+            <h1>Register</h1>
+            {error && <p style={{ color: 'red' }}>{error}</p>}
+            <form onSubmit={handleSubmit}>
+                <div>
+                    <label>First Name:</label>
+                    <input
+                        type="text"
+                        name="firstname"
+                        value={formData.firstname}
+                        onChange={handleInputChange}
+                        required
+                    />
+                </div>
+                <div>
+                    <label>Middle Name:</label>
+                    <input
+                        type="text"
+                        name="middlename"
+                        value={formData.middlename}
+                        onChange={handleInputChange}
+                    />
+                </div>
+                <div>
+                    <label>Last Name:</label>
+                    <input
+                        type="text"
+                        name="lastname"
+                        value={formData.lastname}
+                        onChange={handleInputChange}
+                        required
+                    />
+                </div>
+                <div>
+                    <label>Email:</label>
+                    <input
+                        type="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        required
+                    />
+                </div>
+                <div>
+                    <label>Password:</label>
+                    <input
+                        type="password"
+                        name="password"
+                        value={formData.password}
+                        onChange={handleInputChange}
+                        required
+                    />
+                </div>
+                <div>
+                    <label>Phone Number:</label>
+                    <input
+                        type="text"
+                        name="phone_number"
+                        value={formData.phone_number}
+                        onChange={handleInputChange}
+                    />
+                </div>
+                <div>
+                    <label>Gender:</label>
+                    <select
+                        name="gender"
+                        value={formData.gender}
+                        onChange={handleInputChange}
+                    >
+                        <option value="">Select Gender</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Birthday:</label>
+                    <input
+                        type="date"
+                        name="birthday"
+                        value={formData.birthday}
+                        onChange={handleInputChange}
+                    />
+                </div>
+                <div>
+                    <label>User Type ID:</label>
+                    <input
+                        type="text"
+                        name="user_type_id"
+                        value={formData.user_type_id}
+                        onChange={handleInputChange}
+                        readOnly
+                    />
+                </div>
+                <div>
+                    <label>Verified:</label>
+                    <input
+                        type="checkbox"
+                        name="verified"
+                        checked={formData.verified}
+                        onChange={() => setFormData({ ...formData, verified: !formData.verified })}
+                    />
+                </div>
+                <button type="submit">Register</button>
+            </form>
+        </div>
+    );
 }
 
 export default RegisterPage;

@@ -1,4 +1,5 @@
 const express = require('express');
+const session = require('express-session');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const path = require('path');
@@ -122,11 +123,47 @@ const {
     deleteNotification
 } = require('./supabase_connection/crud_services/notifications');
 
+const { login } = require('./supabase_connection/user_auth_services/login');
+const { register } = require('./supabase_connection/user_auth_services/register');
+const { logout } = require('./supabase_connection/user_auth_services/logout');
+
+
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
 const PORT = process.env.PORT || 8080;
+
+// Middleware setup for session
+app.use(session({
+    secret: 'AgriTayoKey2024', // Replace with a secure random key
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: false }
+}));
+
+app.get('/api/session', (req, res) => {
+    // Check if user data exists in session
+    if (req.session && req.session.user) {
+      // Return session data
+      res.json({
+        user_type_id: req.session.user.user_type_id
+        // Add other session data as needed
+      });
+    } else {
+      // Session data not found
+      res.status(404).json({ error: 'Session data not found' });
+    }
+  });
+
+// API for login
+app.post('/api/login', login);
+
+// API for register
+app.post('/api/register', register);
+
+// API for logout
+app.post('/api/logout', logout);
 
 // API routes for sample data
 app.get('/api/data/sample', getSampleData);
@@ -239,6 +276,16 @@ app.get('*', (req, res) => {
     res.sendFile('index.html', { root: distPath });
 });
 
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).send('Something broke!');
+});
+
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
+});
+
+// Debugging route to check session data
+app.get('/api/debug/session', (req, res) => {
+    res.json(req.session);
 });

@@ -2,46 +2,81 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const navigate = useNavigate();
+    const [formData, setFormData] = useState({
+        email: '',
+        password: ''
+    });
+    const [error, setError] = useState('');
+    const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    try {
-      const response = await fetch('/api/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ email, password })
-      });
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormData({ ...formData, [name]: value });
+    };
 
-      if (!response.ok) {
-        throw new Error('Login failed');
-      }
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const response = await fetch('/api/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+            if (!response.ok) {
+                const errorData = await response.json();
+                setError(errorData.error);
+                return;
+            }
+            const data = await response.json();
 
-      const data = await response.json();
-      console.log('Login successful:', data);
-      // Redirect or set authentication token
-      navigate.push('/sample'); // Example redirect after successful login
-    } catch (error) {
-      console.error('Error logging in:', error.message);
-      // Handle error (show message, reset form, etc.)
-    }
-  };
+            // Store the token in localStorage
+            localStorage.setItem('token', data.token);
 
-  return (
-    <div>
-      <h2>Login Page</h2>
-      <form onSubmit={handleSubmit}>
-        <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-        <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-        <button type="submit">Login</button>
-      </form>
-    </div>
-  );
+            // Redirect based on user type or default path
+            if (data.user.user_type_id === 1) {
+                navigate('/dashboard-admin'); // Example path for admin dashboard
+            } if (data.user.user_type_id === 2) {
+                navigate('/dashboard-seller'); // Example path for admin dashboard
+            } else {
+                navigate('/dashboard-buyer'); // Example path for regular user dashboard
+            } 
+        } catch (error) {
+            console.error('Error during login:', error);
+            setError('An error occurred. Please try again.');
+        }
+    };
+
+    return (
+        <div style={{ padding: '50px', maxWidth: '400px', margin: 'auto' }}>
+            <h1>Login</h1>
+            {error && <p style={{ color: 'red' }}>{error}</p>}
+            <form onSubmit={handleSubmit}>
+                <div>
+                    <label>Email:</label>
+                    <input
+                        type="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        required
+                    />
+                </div>
+                <div>
+                    <label>Password:</label>
+                    <input
+                        type="password"
+                        name="password"
+                        value={formData.password}
+                        onChange={handleInputChange}
+                        required
+                    />
+                </div>
+                <button type="submit">Login</button>
+            </form>
+        </div>
+    );
 }
 
 export default LoginPage;

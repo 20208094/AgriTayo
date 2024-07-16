@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, NavLink, Route, Routes } from 'react-router-dom';
 import SamplePage from './web_pages/crud_pages/SamplePage';
 import LoginPage from './web_pages/LoginPage';
+import LogoutButton from './web_pages/LogoutPage';
 import RegisterPage from './web_pages/RegisterPage';
 import UserTypePage from './web_pages/crud_pages/UserTypePage';
 import UsersPage from './web_pages/crud_pages/UsersPage';
@@ -21,6 +22,26 @@ import PaymentsPage from './web_pages/crud_pages/PaymentsPage';
 import NotificationsPage from './web_pages/crud_pages/NotificationsPage';
 
 function App() {
+  const [userType, setUserType] = useState(null);
+
+  useEffect(() => {
+    async function fetchUserSession() {
+      try {
+        const response = await fetch('/api/session'); // Adjust URL based on your server setup
+        if (response.ok) {
+          const data = await response.json();
+          setUserType(data.user_type_id);
+        } else {
+          console.error('Failed to fetch user session:', response.statusText);
+        }
+      } catch (err) {
+        console.error('Error fetching user session:', err.message);
+      }
+    }
+
+    fetchUserSession();
+  }, []);
+
   return (
     <Router>
       <div>
@@ -34,9 +55,11 @@ function App() {
           <NavLink to="/register" style={{ marginRight: '10px' }} activeClassName="active">
             Register
           </NavLink>
-          <NavLink to="/user_type" style={{ marginRight: '10px' }} activeClassName="active">
-            User Type
-          </NavLink>
+          {userType === 1 && (
+            <NavLink to="/user_type" style={{ marginRight: '10px' }} activeClassName="active">
+              User Type
+            </NavLink>
+          )}
           <NavLink to="/users" style={{ marginRight: '10px' }} activeClassName="active">
             Users
           </NavLink>
@@ -82,6 +105,9 @@ function App() {
           <NavLink to="/notifications" style={{ marginRight: '10px' }} activeClassName="active">
             Notifications
           </NavLink>
+          <NavLink to="/logout" style={{ marginRight: '10px' }} activeClassName="active">
+            Logout
+          </NavLink>
         </nav>
 
         <Routes>
@@ -89,7 +115,9 @@ function App() {
           <Route exact path="/sample" element={<SamplePage />} />
           <Route exact path="/login" element={<LoginPage />} />
           <Route exact path="/register" element={<RegisterPage />} />
-          <Route exact path="/user_type" element={<UserTypePage />} />
+          {userType === 1 && (
+            <Route exact path="/user_type" element={<UserTypePage />} />
+          )}
           <Route exact path="/users" element={<UsersPage />} />
           <Route exact path="/addresses" element={<AddressesPage />} />
           <Route exact path="/shops" element={<ShopPage />} />
@@ -105,6 +133,7 @@ function App() {
           <Route exact path="/order_tracking" element={<OrderTrackingPage />} />
           <Route exact path="/payments" element={<PaymentsPage />} />
           <Route exact path="/notifications" element={<NotificationsPage />} />
+          <Route exact path="/logout" element={<LogoutButton />} />
         </Routes>
       </div>
     </Router>
