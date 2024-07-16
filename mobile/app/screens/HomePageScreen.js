@@ -1,5 +1,11 @@
 import React from "react";
-import { View, ScrollView, Text, TouchableOpacity, StyleSheet } from "react-native";
+import {
+  View,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+} from "react-native";
 import SearchBarC from "../components/SearchBarC";
 import logo from "../assets/logo.png";
 import HomeCard from "../components/HomeCard";

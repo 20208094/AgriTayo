@@ -1,8 +1,8 @@
 import React from "react";
-import { TouchableOpacity, View, Text, StyleSheet } from "react-native";
+import { TouchableOpacity, View, Text, StyleSheet, Button } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
-const NotificationTable = ({ notification }) => {
+const NotificationTable = ({ notification, moveToRead, showButton }) => {
   const navigation = useNavigation();
   return (
     <TouchableOpacity
@@ -17,6 +17,12 @@ const NotificationTable = ({ notification }) => {
             {"\n"}
             {notification.message}
           </Text>
+          {showButton && (
+            <Button
+              title='X'
+              onPress={() => moveToRead(notification.id)}
+            />
+          )}
         </View>
       </View>
     </TouchableOpacity>
