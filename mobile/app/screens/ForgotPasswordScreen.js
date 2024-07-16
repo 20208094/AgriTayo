@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, TextInput, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+//eyy ka muna eyy
 function ForgotPasswordScreen({ navigation }) {
   return (
     <SafeAreaView>
