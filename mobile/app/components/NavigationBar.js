@@ -39,11 +39,9 @@ const NavigationBar = () => {
 
           return <Icon name={iconName} size={size} color={color} />;
         },
+        tabBarActiveTintColor: 'green',
+        tabBarInactiveTintColor: 'gray',
       })}
-      tabBarOptions={{
-        activeTintColor: 'green',
-        inactiveTintColor: 'gray',
-      }}
     >
       <Tab.Screen name="Home" component={HomePageScreen} options={{ headerShown: false }} />
       <Tab.Screen name="Crops" component={CropsScreen} />

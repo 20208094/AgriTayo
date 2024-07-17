@@ -42,13 +42,10 @@ function OrdersScreen() {
             return <Icon name={iconName} size={20} color={color} />;
           },
           tabBarShowLabel: true,
+          tabBarActiveTintColor: 'green',
+          tabBarInactiveTintColor: 'gray',
+          tabBarStyle: { backgroundColor: 'white' },
         })}
-        tabBarOptions={{
-          showIcon: true,
-          activeTintColor: 'green',
-          inactiveTintColor: 'gray',
-          style: { backgroundColor: 'white' },
-        }}
       >
         <Tab.Screen
           name="To Pay"
