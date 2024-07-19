@@ -19,6 +19,12 @@ import ChangeEmailScreen from "./app/screens/ChangeEmailScreen";
 import ForgotPasswordScreen from "./app/screens/ForgotPasswordScreen";
 import ChangePasswordOTPSCreen from "./app/screens/ChangePasswordOTPScreen";
 import NewPasswordScreen from "./app/screens/NewPasswordScreen";
+import ViewProfileScreen from "./app/screens/ViewProfileScreen";
+import AddressScreen from "./app/screens/AddressScreen";
+import AddAddressScreen from "./app/screens/AddAdressScreen";
+import ViewAddressScreen from "./app/screens/ViewAddressScreen";
+import EditProfileScreen from "./app/screens/EditProfileScreen";
+import EditAddress from "./app/screens/EditAddress";
 
 const Stack = createStackNavigator();
 
@@ -105,6 +111,30 @@ function App() {
               name="New Password"
               component={NewPasswordScreen}
               options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name='View Profile'
+              component={ViewProfileScreen}
+            />
+            <Stack.Screen
+            name = 'Address'
+            component = {AddressScreen}
+            />
+            <Stack.Screen
+            name = 'Add Address'
+            component = {AddAddressScreen}
+            />
+            <Stack.Screen
+            name='View Address'
+            component={ViewAddressScreen}
+            />
+            <Stack.Screen
+            name='Edit Profile'
+            component={EditProfileScreen}
+            />
+            <Stack.Screen
+            name='Edit Address'
+            getComponent={EditAddress}
             />
           </>
         )}
