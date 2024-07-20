@@ -47,7 +47,7 @@ const NavigationBar = () => {
       <Tab.Screen name="Crops" component={CropsScreen} />
       <Tab.Screen name="Cart" component={CartScreen} options={{ headerShown: false }} />
       <Tab.Screen name="Orders" component={OrdersScreen} />
-      <Tab.Screen name="Profile" component={ProfileScreen} />
+      <Tab.Screen name="Profile" component={ProfileScreen} options={{ headerShown: false }} />
     </Tab.Navigator>
   );
 };
