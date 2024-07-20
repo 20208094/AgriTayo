@@ -134,7 +134,7 @@ function App() {
             />
             <Stack.Screen
             name='Edit Address'
-            getComponent={EditAddress}
+            component={EditAddress}
             />
           </>
         )}
