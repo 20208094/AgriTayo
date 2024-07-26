@@ -1,6 +1,7 @@
-import React from "react";
-import { View, Text, TouchableOpacity } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, View, ActivityIndicator } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import * as Location from 'expo-location';
 import { useNavigation } from "@react-navigation/native";
 import { Icon } from "react-native-elements";
 import { styled } from "nativewind";
@@ -8,6 +9,31 @@ import { NotificationIcon, MessagesIcon } from "../components/SearchBarC"; // Im
 
 function AddressScreen({ route }) {
   const { profile } = route.params;
+  const [currentLocation, setCurrentLocation] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        console.log('Permission to access location was denied');
+        return;
+      }
+
+      let { coords } = await Location.getCurrentPositionAsync({});
+      setCurrentLocation({ latitude: coords.latitude, longitude: coords.longitude });
+      setLoading(false);
+    })();
+  }, []);
+
+  if (loading) {
+    return (
+      <SafeAreaView className="flex-1 items-center justify-center">
+        <ActivityIndicator size="large" color="#00B251" />
+      </SafeAreaView>
+    );
+  }
+
   const navigation = useNavigation();
 
   return (
