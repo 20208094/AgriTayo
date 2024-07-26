@@ -115,6 +115,7 @@ function App() {
             <Stack.Screen
               name='View Profile'
               component={ViewProfileScreen}
+              options={{ headerShown: false }}
             />
             <Stack.Screen
             name = 'Address'
