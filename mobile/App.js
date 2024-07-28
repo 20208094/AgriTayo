@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import SplashScreen from "./app/screens/SplashScreen";
 import LoginScreen from "./app/screens/LoginScreen";
 import RegisterScreenBuyers from "./app/screens/RegisterScreenBuyers";
-import RegisterScreenFarmers from "./app/screens/farmers/RegisterScreenFarmers";
 import HomePageScreen from "./app/screens/HomePageScreen";
 import NavigationBar from "./app/components/NavigationBar";
 import CartScreen from "./app/screens/CartScreen";
@@ -25,6 +24,9 @@ import AddAddressScreen from "./app/screens/AddAdressScreen";
 import ViewAddressScreen from "./app/screens/ViewAddressScreen";
 import EditProfileScreen from "./app/screens/EditProfileScreen";
 import EditAddress from "./app/screens/EditAddress";
+import StartSelling from "./app/screens/StartSellingScreen";
+import ShopInformationScreen from "./app/screens/farmers/ShopInformationScreen";
+import BusinessInformationScreen from "./app/screens/BusinessInformationScreen";
 
 const Stack = createStackNavigator();
 
@@ -57,10 +59,6 @@ function App() {
               name="Register"
               component={RegisterScreenBuyers}
               options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="Register As Farmers"
-              component={RegisterScreenFarmers}
             />
             <Stack.Screen name="HomePageScreen" component={HomePageScreen} />
             <Stack.Screen
@@ -120,6 +118,7 @@ function App() {
             <Stack.Screen
             name = 'Address'
             component = {AddressScreen}
+            options={{ headerShown: false }}
             />
             <Stack.Screen
             name = 'Add Address'
@@ -128,6 +127,7 @@ function App() {
             <Stack.Screen
             name='View Address'
             component={ViewAddressScreen}
+            options={{ headerShown: false }}
             />
             <Stack.Screen
             name='Edit Profile'
@@ -136,6 +136,18 @@ function App() {
             <Stack.Screen
             name='Edit Address'
             component={EditAddress}
+            />
+            <Stack.Screen
+            name='Welcome To Agritayo!'
+            component={StartSelling}
+            />
+            <Stack.Screen
+            name='Shop Information'
+            component={ShopInformationScreen}
+            />
+            <Stack.Screen
+            name='Business Information'
+            component={BusinessInformationScreen}
             />
           </>
         )}

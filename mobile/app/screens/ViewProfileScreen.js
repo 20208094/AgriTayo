@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, ScrollView, Image, Modal, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from '@expo/vector-icons'; // Ensure you have this package installed
+import GoBack from "../components/GoBack";
 
 const editButton = require('../assets/edit.png');
 const userImage = require('../assets/user.png'); // Import the user image
@@ -25,12 +26,7 @@ function ViewProfileScreen({ route, navigation }) {
             <ScrollView className="flex-1 px-4">
                 <View className="bg-white p-4 rounded-lg shadow-sm relative">
                     {/* Back Button */}
-                    <TouchableOpacity 
-                        className="absolute top-4 left-4"
-                        onPress={() => navigation.goBack()} // Navigate back on press
-                    >
-                        <Ionicons name="arrow-back-outline" size={24} color="#50d71e" />
-                    </TouchableOpacity>
+                   <GoBack navigation={navigation}/>
 
                     {/* Circular frame with user image and shadow effect */}
                     <View className="items-center mb-4 mt-8">

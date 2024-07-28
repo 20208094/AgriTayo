@@ -30,7 +30,9 @@ function ProfileScreen() {
         {/* Empty View to push icons to the right */}
         <View className="flex-1"></View>
         <View className="flex-row space-x-4">
-          <NotificationIcon onPress={() => navigation.navigate("Notifications")} />
+          <NotificationIcon
+            onPress={() => navigation.navigate("Notifications")}
+          />
           <MessagesIcon onPress={() => navigation.navigate("Messages")} />
         </View>
       </View>
@@ -44,7 +46,9 @@ function ProfileScreen() {
             </View>
           </View>
           <View>
-            <Text className="text-2xl font-bold mt-4 text-black">{profile.firstname} {profile.lastname}</Text>
+            <Text className="text-2xl font-bold mt-4 text-black">
+              {profile.firstname} {profile.lastname}
+            </Text>
             <Text className="text-black">{profile.email}</Text>
             <Text className="text-black">{profile.phone}</Text>
           </View>
@@ -55,31 +59,63 @@ function ProfileScreen() {
       <View className="mt-4 px-4">
         <View className="bg-white rounded-lg shadow p-4 space-y-6">
           <View className="flex-row items-center justify-between">
-            <Text className="text-lg font-semibold text-gray-800">My Purchases</Text>
-            <TouchableOpacity onPress={() => navigation.navigate('Orders', { screen: 'Completed' })}>
+            <Text className="text-lg font-semibold text-gray-800">
+              My Purchases
+            </Text>
+            <TouchableOpacity
+              onPress={() =>
+                navigation.navigate("Orders", { screen: "Completed" })
+              }
+            >
               <Text className="text-green-600">View Purchase History</Text>
             </TouchableOpacity>
           </View>
           <View className="flex-row justify-around mt-2">
-            <TouchableOpacity onPress={() => navigation.navigate('Orders', { screen: 'To Pay' })}>
+            <TouchableOpacity
+              onPress={() =>
+                navigation.navigate("Orders", { screen: "To Pay" })
+              }
+            >
               <View className="items-center">
-                <Icon name="credit-card" type="font-awesome" size={24} color="green" />
+                <Icon
+                  name="credit-card"
+                  type="font-awesome"
+                  size={24}
+                  color="green"
+                />
                 <Text className="text-gray-800 mt-1">To Pay</Text>
               </View>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => navigation.navigate('Orders', { screen: 'To Ship' })}>
+            <TouchableOpacity
+              onPress={() =>
+                navigation.navigate("Orders", { screen: "To Ship" })
+              }
+            >
               <View className="items-center">
-                <Icon name="truck" type="font-awesome" size={24} color="green" />
+                <Icon
+                  name="truck"
+                  type="font-awesome"
+                  size={24}
+                  color="green"
+                />
                 <Text className="text-gray-800 mt-1">To Ship</Text>
               </View>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => navigation.navigate('Orders', { screen: 'To Receive' })}>
+            <TouchableOpacity
+              onPress={() =>
+                navigation.navigate("Orders", { screen: "To Receive" })
+              }
+            >
               <View className="items-center">
                 <Icon name="gift" type="font-awesome" size={24} color="green" />
                 <Text className="text-gray-800 mt-1">To Receive</Text>
               </View>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => navigation.navigate('Orders', { screen: 'To Rate' })}>
+            <TouchableOpacity
+              onPress={() =>
+                navigation.navigate("Orders", { screen: "To Rate" })
+              }
+            >
               <View className="items-center">
                 <Icon name="star" type="font-awesome" size={24} color="green" />
                 <Text className="text-gray-800 mt-1">To Rate</Text>
@@ -92,23 +128,46 @@ function ProfileScreen() {
         <View className="bg-white rounded-lg shadow p-4 space-y-4">
           <TouchableOpacity
             className="flex-row items-center justify-between"
-            onPress={() => navigation.navigate('View Profile', { profile })}
+            onPress={() => navigation.navigate("View Profile", { profile })}
           >
             <View className="flex-row items-center">
               <Icon name="user" type="font-awesome" size={20} color="green" />
-              <Text className="text-gray-800 font-semibold ml-4">View Profile</Text>
+              <Text className="text-gray-800 font-semibold ml-4">
+                View Profile
+              </Text>
             </View>
-            <Icon name="chevron-right" type="font-awesome" size={20} color="gray" />
+            <Icon
+              name="chevron-right"
+              type="font-awesome"
+              size={20}
+              color="gray"
+            />
           </TouchableOpacity>
           <TouchableOpacity
             className="flex-row items-center justify-between"
-            onPress={() => navigation.navigate('Address', { profile })}
+            onPress={() => navigation.navigate("Address", { profile })}
           >
             <View className="flex-row items-center">
-              <Icon name="address-book" type="font-awesome" size={20} color="green" />
+              <Icon
+                name="address-book"
+                type="font-awesome"
+                size={20}
+                color="green"
+              />
               <Text className="text-gray-800 font-semibold ml-4">Address</Text>
             </View>
-            <Icon name="chevron-right" type="font-awesome" size={20} color="gray" />
+            <Icon
+              name="chevron-right"
+              type="font-awesome"
+              size={20}
+              color="gray"
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            className=""
+            onPress={() => navigation.navigate("Welcome To Agritayo!", {profile})}
+          >
+            <Text className="">Start Selling</Text>
           </TouchableOpacity>
         </View>
       </View>

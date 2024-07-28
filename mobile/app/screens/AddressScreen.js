@@ -5,10 +5,11 @@ import * as Location from 'expo-location';
 import { useNavigation } from "@react-navigation/native";
 import { Icon } from "react-native-elements";
 import { styled } from "nativewind";
-import { NotificationIcon, MessagesIcon } from "../components/SearchBarC"; // Import icons
+import { NotificationIcon, MessagesIcon } from "../components/SearchBarC"; 
 
 function AddressScreen({ route }) {
   const { profile } = route.params;
+  const navigation = useNavigation();
   const [currentLocation, setCurrentLocation] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -34,12 +35,10 @@ function AddressScreen({ route }) {
     );
   }
 
-  const navigation = useNavigation();
-
   return (
     <SafeAreaView className="flex-1 bg-gray-100 pt-0">
       <View className="px-4 mt-0 flex-row justify-between items-center">
-      <View className="flex-1"></View>
+        <View className="flex-1"></View>
         <View className="flex-row space-x-4">
           <NotificationIcon onPress={() => navigation.navigate("Notifications")} />
           <MessagesIcon onPress={() => navigation.navigate("Messages")} />
@@ -67,7 +66,7 @@ function AddressScreen({ route }) {
           </TouchableOpacity>
           <TouchableOpacity
             className="flex-row items-center justify-between"
-            onPress={() => navigation.navigate('Add Address')}
+            onPress={() => navigation.navigate('Add Address', { currentLocation })}
           >
             <View className="flex-row items-center">
               <Icon name="plus-circle" type="font-awesome" size={20} color="green" />
