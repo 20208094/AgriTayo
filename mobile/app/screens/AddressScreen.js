@@ -11,7 +11,7 @@ function AddressScreen({ route }) {
   const { profile } = route.params;
   const navigation = useNavigation();
   const [currentLocation, setCurrentLocation] = useState(null);
-  const [loading, setLoading] = useState(true);
+
 
   useEffect(() => {
     (async () => {
@@ -23,17 +23,8 @@ function AddressScreen({ route }) {
 
       let { coords } = await Location.getCurrentPositionAsync({});
       setCurrentLocation({ latitude: coords.latitude, longitude: coords.longitude });
-      setLoading(false);
     })();
   }, []);
-
-  if (loading) {
-    return (
-      <SafeAreaView className="flex-1 items-center justify-center">
-        <ActivityIndicator size="large" color="#00B251" />
-      </SafeAreaView>
-    );
-  }
 
   return (
     <SafeAreaView className="flex-1 bg-gray-100 pt-0">

@@ -26,7 +26,7 @@ import EditProfileScreen from "./app/screens/EditProfileScreen";
 import EditAddress from "./app/screens/EditAddress";
 import StartSelling from "./app/screens/StartSellingScreen";
 import ShopInformationScreen from "./app/screens/farmers/ShopInformationScreen";
-import BusinessInformationScreen from "./app/screens/BusinessInformationScreen";
+import BusinessInformationScreen from "./app/screens/farmers/BusinessInformationScreen";
 
 const Stack = createStackNavigator();
 

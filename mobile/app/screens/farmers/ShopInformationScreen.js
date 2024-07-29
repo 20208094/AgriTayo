@@ -16,19 +16,19 @@ function ShopInformationScreen({ route, navigation }) {
                 />
                 <TouchableOpacity 
                     className=''
-                    onPress={() => navigation.navigate('SomeOtherScreen')}
+                    onPress={() => navigation.navigate('')}
                 >
                     <Text className=''>Pickup Address: {profile.address}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                     className=''
-                    onPress={() => navigation.navigate('SomeOtherScreen')}
+                    onPress={() => navigation.navigate('OTP Screen')}
                 >
                     <Text className=''>Email: {profile.email}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                     className=''
-                    onPress={() => navigation.navigate('SomeOtherScreen')}
+                    onPress={() => navigation.navigate('')}
                 >
                     <Text className=''>Phone number: {profile.phone}</Text>
                 </TouchableOpacity>
@@ -40,7 +40,7 @@ function ShopInformationScreen({ route, navigation }) {
                 </TouchableOpacity>
                 <TouchableOpacity
                     className=''
-                    onPress={() => navigation.navigate('Business Information')}
+                    onPress={() => navigation.navigate('Business Information', {profile})}
                 >
                     <Text className=''>Next</Text>
                 </TouchableOpacity>
