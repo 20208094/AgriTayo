@@ -23,7 +23,6 @@ function ViewAddressScreen({ route }) {
       <View className="mt-1 bg-gray-100 pt-4 pb-6 rounded-b-lg">
         <View className="px-4">
           <Text className="text-2xl font-bold text-black">Current Address</Text>
-          <Text className="text-black mt-2">{profile.address}</Text>
         </View>
       </View>
 
@@ -41,6 +40,14 @@ function ViewAddressScreen({ route }) {
           </TouchableOpacity>
         </View>
       </View>
+
+
+      <View className="mt-1 bg-gray-100 pt-4 pb-6 rounded-b-lg">
+        <View className="px-4">
+          <Text className="text-black mt-2">{profile.address}</Text>
+        </View>
+      </View>
+      
     </SafeAreaView>
   );
 }
