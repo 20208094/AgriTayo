@@ -6,6 +6,7 @@ import editButton from "../assets/edit.png";
 import placeholderImage from "../assets/placeholder.png"; // Placeholder image for item
 import { Swipeable } from 'react-native-gesture-handler';
 import { styled } from 'nativewind';
+import { useNavigation } from "@react-navigation/native";
 
 const StyledView = styled(View);
 const StyledText = styled(Text);
@@ -13,6 +14,7 @@ const StyledText = styled(Text);
 const { width } = Dimensions.get("window");
 
 function CartScreen() {
+  const navigation = useNavigation();
   const initialShops = [
     {
       id: 1,
@@ -186,11 +188,11 @@ function CartScreen() {
   const handleCheckout = () => {
     const selectedItems = shops.flatMap(shop => shop.items.filter(item => item.selected));
     if (selectedItems.length > 0) {
-      Alert.alert("Checkout", `You have selected ${selectedItems.length} item(s) for checkout.`);
+      navigation.navigate('CheckOutScreen', { checkedOutItems: selectedItems }); // Pass checked-out items
     } else {
       Alert.alert("Checkout", "No items selected for checkout.");
     }
-  };
+  };  
 
   return (
     <StyledView className="flex-1 bg-gray-100 p-2.5">

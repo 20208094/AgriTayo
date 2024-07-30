@@ -161,7 +161,7 @@ function ViewProfileScreen({ route, navigation }) {
                 </View>
 
                 <TouchableOpacity 
-                    className="bg-green-500 py-3 rounded-lg flex-row justify-center items-center shadow-lg mt-4"
+                    className="bg-green-500 py-3 rounded-lg flex-row justify-center items-center shadow-lg mt-4 mb-4"
                     onPress={() => navigation.navigate('Edit Profile', { profile })}
                 >
                     <Image source={editButton} className="w-6 h-6" style={{ tintColor: 'white' }} />

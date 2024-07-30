@@ -27,6 +27,7 @@ import EditAddress from "./app/screens/EditAddress";
 import StartSelling from "./app/screens/StartSellingScreen";
 import ShopInformationScreen from "./app/screens/farmers/ShopInformationScreen";
 import BusinessInformationScreen from "./app/screens/BusinessInformationScreen";
+import CheckOutScreen from "./app/screens/CheckOutScreen";
 
 const Stack = createStackNavigator();
 
@@ -148,6 +149,11 @@ function App() {
             <Stack.Screen
             name='Business Information'
             component={BusinessInformationScreen}
+            />
+            <Stack.Screen
+              name="CheckOutScreen"
+              component={CheckOutScreen}
+              options={{ headerShown: false }}
             />
           </>
         )}
