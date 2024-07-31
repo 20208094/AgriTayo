@@ -169,7 +169,7 @@ function BusinessInformationScreen({ navigation, route }) {
 
         <TouchableOpacity
           style={{ borderWidth: 1, borderColor: '#ccc', borderRadius: 4, padding: 8, marginBottom: 16 }}
-          onPress={() => navigation.navigate("View Address", { profile })}
+          onPress={() => navigation.navigate("Address", { profile })}
         >
           <Text style={{ fontSize: 14, color: '#999', marginBottom: 16  }}>Registered Address</Text>
         </TouchableOpacity>
