@@ -138,10 +138,12 @@ function App() {
             <Stack.Screen
               name="Shop Information"
               component={ShopInformationScreen}
+              options={{ headerShown: false }}
             />
             <Stack.Screen
               name="Business Information"
               component={BusinessInformationScreen}
+              options={{ headerShown: false }}
             />
             <Stack.Screen
               name="CheckOutScreen"
