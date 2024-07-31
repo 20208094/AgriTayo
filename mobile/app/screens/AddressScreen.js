@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, ActivityIndicator, FlatList, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Location from 'expo-location';
 import { useNavigation } from "@react-navigation/native";
@@ -11,7 +11,56 @@ function AddressScreen({ route }) {
   const { profile } = route.params;
   const navigation = useNavigation();
   const [currentLocation, setCurrentLocation] = useState(null);
+  const [loading, setLoading] = useState(true);
 
+  // Updated example addresses with accurate coordinates
+  const addresses = [
+    {
+      id: '1',
+      icon: 'heart',
+      label: 'Partner',
+      address: 'St. John Inn Dominican Hill Rd Baguio Benguet',
+      note: 'pahintay nalang sa labas ng AHB Inn',
+      latitude: 16.4003,
+      longitude: 120.5860,
+    },
+    {
+      id: '2',
+      icon: 'home',
+      label: 'Home',
+      address: 'Pinget Hesed Baptist Church Upper Pinget Baguio',
+      note: 'meet at waiting shed',
+      latitude: 16.4250,
+      longitude: 120.5930,
+    },
+    {
+      id: '3',
+      icon: 'map-marker',
+      label: 'Cornerstone Catholic Community Military Cut-Off',
+      address: 'Baguio Benguet',
+      note: 'none',
+      latitude: 16.4090,
+      longitude: 120.6000,
+    },
+    {
+      id: '4',
+      icon: 'map-marker',
+      label: 'JD Store Baguio City',
+      address: 'Baguio Benguet',
+      note: 'none',
+      latitude: 16.4100,
+      longitude: 120.6010,
+    },
+    {
+      id: '5',
+      icon: 'map-marker',
+      label: '212 Pinget',
+      address: 'Baguio Benguet',
+      note: 'none',
+      latitude: 16.4250,
+      longitude: 120.5930,
+    },
+  ];
 
   useEffect(() => {
     (async () => {
@@ -26,6 +75,35 @@ function AddressScreen({ route }) {
     })();
   }, []);
 
+  if (loading) {
+    return (
+      <SafeAreaView className="flex-1 items-center justify-center">
+        <ActivityIndicator size="large" color="#00B251" />
+      </SafeAreaView>
+    );
+  }
+
+  const renderItem = ({ item }) => (
+    <View className="flex-row justify-between items-center bg-white rounded-lg shadow p-4 mb-4">
+      <View className="flex-1 flex-row items-center">
+        <Icon name={item.icon} type="font-awesome" size={24} color="#00B251" />
+        <View className="ml-4 flex-1">
+          <Text className="text-lg font-semibold text-black">{item.label}</Text>
+          <Text className="text-gray-600">{item.address}</Text>
+          <Text className="text-gray-600">Note to rider: {item.note}</Text>
+        </View>
+      </View>
+      <View className="flex-row space-x-4">
+        <TouchableOpacity onPress={() => navigation.navigate('Edit Address', { address: item })}>
+          <Icon name="edit" type="font-awesome" size={20} color="#00B251" />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => console.log('Delete address')}>
+          <Icon name="trash" type="font-awesome" size={20} color="#00B251" />
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+
   return (
     <SafeAreaView className="flex-1 bg-gray-100 pt-0">
       <View className="px-4 mt-0 flex-row justify-between items-center">
@@ -38,34 +116,24 @@ function AddressScreen({ route }) {
 
       <View className="mt-1 bg-gray-100 pt-4 pb-6 rounded-b-lg">
         <View className="px-4">
-          <Text className="text-2xl font-bold text-black">Address</Text>
-          <Text className="text-black mt-2">{profile.address}</Text>
+          <Text className="text-2xl font-bold text-black">Addresses</Text>
         </View>
       </View>
 
-      <View className="mt-4 px-4">
-        <View className="bg-white rounded-lg shadow p-4 space-y-4">
-          <TouchableOpacity
-            className="flex-row items-center justify-between"
-            onPress={() => navigation.navigate('View Address', { profile })}
-          >
-            <View className="flex-row items-center">
-              <Icon name="map-marker" type="font-awesome" size={20} color="green" />
-              <Text className="text-gray-800 font-semibold ml-4">View Address</Text>
-            </View>
-            <Icon name="chevron-right" type="font-awesome" size={20} color="gray" />
-          </TouchableOpacity>
-          <TouchableOpacity
-            className="flex-row items-center justify-between"
-            onPress={() => navigation.navigate('Add Address', { currentLocation })}
-          >
-            <View className="flex-row items-center">
-              <Icon name="plus-circle" type="font-awesome" size={20} color="green" />
-              <Text className="text-gray-800 font-semibold ml-4">Add New Address</Text>
-            </View>
-            <Icon name="chevron-right" type="font-awesome" size={20} color="gray" />
-          </TouchableOpacity>
-        </View>
+      <FlatList
+        data={addresses}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={{ padding: 16 }}
+      />
+
+      <View className="px-4 py-4">
+        <TouchableOpacity
+          className="bg-green-600 rounded-full py-4 items-center"
+          onPress={() => navigation.navigate('Add Address', { currentLocation })}
+        >
+          <Text className="text-white text-lg font-semibold">Add New Address</Text>
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
