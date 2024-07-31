@@ -124,6 +124,7 @@ function ProfileScreen() {
           </View>
         </View>
       </View>
+
       <View className="mt-4 px-4">
         <View className="bg-white rounded-lg shadow p-4 space-y-4">
           <TouchableOpacity
@@ -164,10 +165,24 @@ function ProfileScreen() {
             />
           </TouchableOpacity>
           <TouchableOpacity
-            className=""
-            onPress={() => navigation.navigate("Welcome To Agritayo!", {profile})}
+            className="flex-row items-center justify-between"
+            onPress={() => navigation.navigate("Welcome To Agritayo!", { profile })}
           >
-            <Text className="">Start Selling</Text>
+            <View className="flex-row items-center">
+              <Icon
+                name="plus"
+                type="font-awesome"
+                size={20}
+                color="green"
+              />
+              <Text className="text-gray-800 font-semibold ml-4">Start Selling</Text>
+            </View>
+            <Icon
+              name="chevron-right"
+              type="font-awesome"
+              size={20}
+              color="gray"
+            />
           </TouchableOpacity>
         </View>
       </View>
