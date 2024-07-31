@@ -11,7 +11,6 @@ function AddressScreen({ route }) {
   const { profile } = route.params;
   const navigation = useNavigation();
   const [currentLocation, setCurrentLocation] = useState(null);
-  const [loading, setLoading] = useState(true);
 
   // Updated example addresses with accurate coordinates
   const addresses = [
@@ -74,14 +73,6 @@ function AddressScreen({ route }) {
       setCurrentLocation({ latitude: coords.latitude, longitude: coords.longitude });
     })();
   }, []);
-
-  if (loading) {
-    return (
-      <SafeAreaView className="flex-1 items-center justify-center">
-        <ActivityIndicator size="large" color="#00B251" />
-      </SafeAreaView>
-    );
-  }
 
   const renderItem = ({ item }) => (
     <View className="flex-row justify-between items-center bg-white rounded-lg shadow p-4 mb-4">

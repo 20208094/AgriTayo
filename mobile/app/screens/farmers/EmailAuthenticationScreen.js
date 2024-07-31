@@ -7,9 +7,10 @@ import {
   TouchableOpacity,
   SafeAreaView,
 } from "react-native";
-import pic from "../assets/emailotp.png";
+import pic from "../../assets/emailotp.png";
 
-function OTPScreen({ navigation }) {
+function EmailAuthenticationScreen({ navigation , route}) {
+    const {profile} = route.params
   // Dummy data for email
   const email = "example@gmail.com";
 
@@ -117,7 +118,7 @@ function OTPScreen({ navigation }) {
         </View>
 
         <TouchableOpacity
-          onPress={() => navigation.navigate("NavigationBar")}
+          onPress={() => navigation.navigate("Shop Information", {profile})}
           className="w-4/5 p-3 bg-[#00B251] rounded-lg shadow-md"
         >
           <Text className="text-white text-center text-lg">Verify</Text>
@@ -127,4 +128,4 @@ function OTPScreen({ navigation }) {
   );
 }
 
-export default OTPScreen;
+export default EmailAuthenticationScreen;

@@ -28,6 +28,8 @@ import StartSelling from "./app/screens/StartSellingScreen";
 import ShopInformationScreen from "./app/screens/farmers/ShopInformationScreen";
 import BusinessInformationScreen from "./app/screens/farmers/BusinessInformationScreen";
 import CheckOutScreen from "./app/screens/CheckOutScreen";
+import PhoneAuthenticationScreen from "./app/screens/farmers/PhoneAuthenticationScreen";
+import EmailAuthenticationScreen from "./app/screens/farmers/EmailAuthenticationScreen";
 
 const Stack = createStackNavigator();
 
@@ -37,7 +39,7 @@ function App() {
   useEffect(() => {
     setTimeout(() => {
       setIsLoading(false);
-    }, 3000); 
+    }, 3000);
   }, []);
 
   return (
@@ -112,48 +114,48 @@ function App() {
               options={{ headerShown: false }}
             />
             <Stack.Screen
-              name='View Profile'
+              name="View Profile"
               component={ViewProfileScreen}
               options={{ headerShown: false }}
             />
             <Stack.Screen
-            name = 'Address'
-            component = {AddressScreen}
-            options={{ headerShown: false }}
+              name="Address"
+              component={AddressScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen name="Add Address" component={AddAddressScreen} />
+            <Stack.Screen
+              name="View Address"
+              component={ViewAddressScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen name="Edit Profile" component={EditProfileScreen} />
+            <Stack.Screen name="Edit Address" component={EditAddress} />
+            <Stack.Screen
+              name="Welcome To Agritayo!"
+              component={StartSelling}
             />
             <Stack.Screen
-            name = 'Add Address'
-            component = {AddAddressScreen}
+              name="Shop Information"
+              component={ShopInformationScreen}
             />
             <Stack.Screen
-            name='View Address'
-            component={ViewAddressScreen}
-            options={{ headerShown: false }}
-            />
-            <Stack.Screen
-            name='Edit Profile'
-            component={EditProfileScreen}
-            />
-            <Stack.Screen
-            name='Edit Address'
-            component={EditAddress}
-            />
-            <Stack.Screen
-            name='Welcome To Agritayo!'
-            component={StartSelling}
-            />
-            <Stack.Screen
-            name='Shop Information'
-            component={ShopInformationScreen}
-            />
-            <Stack.Screen
-            name='Business Information'
-            component={BusinessInformationScreen}
+              name="Business Information"
+              component={BusinessInformationScreen}
             />
             <Stack.Screen
               name="CheckOutScreen"
               component={CheckOutScreen}
               options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="Authentication"
+              component={PhoneAuthenticationScreen}
+            />
+            <Stack.Screen
+            name='Email Authentication'
+            component={EmailAuthenticationScreen}
+            options={{ headerShown:false }}
             />
           </>
         )}

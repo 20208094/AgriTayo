@@ -158,19 +158,28 @@ function BusinessInformationScreen({ navigation, route }) {
           equal to P500,000.00.
         </Text>
         <View className="mb-4">
-          <TouchableOpacity
-            onPress={() => setIsTermsAccepted(!isTermsAccepted)} 
-            className="flex-row items-center mr-6 mb-1"
-          >
-            <View className="w-8 h-8 rounded-full border-2 border-green-600 flex items-center justify-center">
-              {isTermsAccepted && (
-                <FontAwesome name="check" size={25} color="#00B251" />
-              )}
+          <View className="flex-row items-center">
+            <TouchableOpacity
+              onPress={() => setIsTermsAccepted(!isTermsAccepted)}
+              className="mr-2"
+            >
+              <View className="w-8 h-8 rounded-full border-2 border-green-600 flex items-center justify-center">
+                {isTermsAccepted && (
+                  <FontAwesome name="check" size={25} color="#00B251" />
+                )}
+              </View>
+            </TouchableOpacity>
+            <View className="flex-row flex-wrap items-center">
+              <Text className="text-gray-600">I agree to the </Text>
+              <TouchableOpacity onPress={() => navigation.navigate("")}>
+                <Text className="text-green-500">Terms and Conditions</Text>
+              </TouchableOpacity>
+              <Text className="text-gray-600"> and </Text>
+              <TouchableOpacity onPress={() => navigation.navigate("")}>
+                <Text className="text-green-500">Privacy Policy</Text>
+              </TouchableOpacity>
             </View>
-            <Text className="">
-              I agree to these Terms and Condition and Privacy Policy
-            </Text>
-          </TouchableOpacity>
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>

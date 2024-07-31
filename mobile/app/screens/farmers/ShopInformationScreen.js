@@ -22,13 +22,13 @@ function ShopInformationScreen({ route, navigation }) {
                 </TouchableOpacity>
                 <TouchableOpacity
                     className=''
-                    onPress={() => navigation.navigate('OTP Screen')}
+                    onPress={() => navigation.navigate('Email Authentication', {profile})}
                 >
                     <Text className=''>Email: {profile.email}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                     className=''
-                    onPress={() => navigation.navigate('')}
+                    onPress={() => navigation.navigate('Authentication', {profile})}
                 >
                     <Text className=''>Phone number: {profile.phone}</Text>
                 </TouchableOpacity>
