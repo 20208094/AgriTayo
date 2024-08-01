@@ -30,6 +30,7 @@ import BusinessInformationScreen from "./app/screens/farmers/BusinessInformation
 import CheckOutScreen from "./app/screens/CheckOutScreen";
 import PhoneAuthenticationScreen from "./app/screens/farmers/PhoneAuthenticationScreen";
 import EmailAuthenticationScreen from "./app/screens/farmers/EmailAuthenticationScreen";
+import PickUpAddressScreen from "./app/screens/farmers/PickUpAddressScreen";
 
 const Stack = createStackNavigator();
 
@@ -158,6 +159,10 @@ function App() {
             name='Email Authentication'
             component={EmailAuthenticationScreen}
             options={{ headerShown:false }}
+            />
+            <Stack.Screen
+            name='Pickup Address'
+            component={PickUpAddressScreen}
             />
           </>
         )}

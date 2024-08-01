@@ -38,7 +38,7 @@ function ShopInformationScreen({ route, navigation }) {
 
         <TouchableOpacity 
           className='bg-gray-100 rounded-md p-4 my-2 flex-row justify-between items-center'
-          onPress={() => navigation.navigate('')}
+          onPress={() => navigation.navigate('Pickup Address', {profile})}
         >
           <Text className='text-base text-black'>Pickup Address: {profile.address}</Text>
           <Icon name="chevron-right" type="font-awesome" size={24} color="#2F855A" />
