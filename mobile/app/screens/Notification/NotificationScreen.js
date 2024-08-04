@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
-import ReadScreen from "./ReadScreen";
-import UnreadScreen from "./UnreadScreen";
+import ReadScreen from "../Message/ReadScreen";
+import UnreadScreen from "../Message/UnreadScreen";
 import Icon from "react-native-vector-icons/FontAwesome";
 
 const initialNotifications = [
@@ -20,12 +20,17 @@ const initialNotifications = [
 function NotificationScreen() {
   const Tab = createMaterialTopTabNavigator();
 
-  const [unreadNotifications, setUnreadNotifications] = useState(initialNotifications);
+  const [unreadNotifications, setUnreadNotifications] =
+    useState(initialNotifications);
   const [readNotifications, setReadNotifications] = useState([]);
 
   const moveToRead = (notificationId) => {
-    const notification = unreadNotifications.find(n => n.id === notificationId);
-    setUnreadNotifications(unreadNotifications.filter(n => n.id !== notificationId));
+    const notification = unreadNotifications.find(
+      (n) => n.id === notificationId
+    );
+    setUnreadNotifications(
+      unreadNotifications.filter((n) => n.id !== notificationId)
+    );
     setReadNotifications([...readNotifications, notification]);
   };
 
@@ -34,10 +39,10 @@ function NotificationScreen() {
       screenOptions={({ route }) => ({
         tabBarIcon: ({ color }) => {
           let iconName;
-          if (route.name === 'Unread') {
-            iconName = 'envelope';
-          } else if (route.name === 'Read') {
-            iconName = 'envelope-open';
+          if (route.name === "Unread") {
+            iconName = "envelope";
+          } else if (route.name === "Read") {
+            iconName = "envelope-open";
           }
           return <Icon name={iconName} size={20} color={color} />;
         },
@@ -55,12 +60,7 @@ function NotificationScreen() {
         )}
       </Tab.Screen>
       <Tab.Screen name="Read">
-        {(props) => (
-          <ReadScreen
-            {...props}
-            notifications={readNotifications}
-          />
-        )}
+        {(props) => <ReadScreen {...props} notifications={readNotifications} />}
       </Tab.Screen>
     </Tab.Navigator>
   );

@@ -2,7 +2,7 @@ import React from 'react';
 import { Image, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { styled } from 'nativewind';
-import ehh from "../assets/ehh.png";
+import ehh from "../../assets/ehh.png";
 
 function StartSelling({ navigation, route }) {
   const { profile } = route.params;

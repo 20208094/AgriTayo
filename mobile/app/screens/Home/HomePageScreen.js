@@ -1,11 +1,10 @@
 import React from "react";
 import { View, ScrollView, Text, TouchableOpacity, Image } from "react-native";
-import SearchBarC, { NotificationIcon, MessagesIcon } from "../components/SearchBarC";
-import logo from "../assets/logo.png";
-import HomeCard from "../components/HomeCard";
+import SearchBarC, { NotificationIcon, MessagesIcon } from "../../components/SearchBarC";
+import logo from "../../assets/logo.png";
+import HomeCard from "../../components/HomeCard";
 import { useNavigation } from "@react-navigation/native";
 import { styled } from "nativewind";
-import Header from "../components/Header";
 
 const products = [
   {

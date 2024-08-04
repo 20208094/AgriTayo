@@ -7,9 +7,9 @@ import {
   TouchableOpacity,
   SafeAreaView,
 } from "react-native";
-import pic from "../assets/emailotp.png";
+import pic from "../../assets/emailotp.png";
 
-function ChangePasswordOTPSCreen({navigation}) {
+function OTPScreen({ navigation }) {
   // Dummy data for email
   const email = "example@gmail.com";
 
@@ -43,13 +43,14 @@ function ChangePasswordOTPSCreen({navigation}) {
     setSeconds(10 * 60);
     setIsResendEnabled(false);
   };
+
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
       <View className="flex-1 justify-center items-center p-6">
         <Image source={pic} className="w-3/4 h-1/4 mb-6" resizeMode="contain" />
 
         <Text className="text-3xl font-bold mb-4 text-gray-800 text-center">
-          Change Password
+          Verify Your Email
         </Text>
 
         <View className="mb-6">
@@ -109,14 +110,14 @@ function ChangePasswordOTPSCreen({navigation}) {
         </Text>
 
         <View className="flex-row items-center mb-6">
-          <Text className="text-gray-600">- Didn’t receive the code? </Text>
+          <Text className="text-gray-600">-Didn’t receive the code? </Text>
           <TouchableOpacity onPress={handleResend}>
             <Text className="text-green-500">Resend</Text>
           </TouchableOpacity>
         </View>
 
         <TouchableOpacity
-          onPress={() => navigation.navigate("New Password")}
+          onPress={() => navigation.navigate("NavigationBar")}
           className="w-4/5 p-3 bg-[#00B251] rounded-lg shadow-md"
         >
           <Text className="text-white text-center text-lg">Verify</Text>
@@ -126,4 +127,4 @@ function ChangePasswordOTPSCreen({navigation}) {
   );
 }
 
-export default ChangePasswordOTPSCreen;
+export default OTPScreen;

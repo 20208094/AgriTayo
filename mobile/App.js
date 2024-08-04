@@ -2,35 +2,40 @@ import * as React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { useEffect, useState } from "react";
-import SplashScreen from "./app/screens/SplashScreen";
-import LoginScreen from "./app/screens/LoginScreen";
-import RegisterScreenBuyers from "./app/screens/RegisterScreenBuyers";
-import HomePageScreen from "./app/screens/HomePageScreen";
+import SplashScreen from "./app/screens/Splash/SplashScreen";
+import LoginScreen from "./app/screens/Login/LoginScreen";
+import RegisterScreenBuyers from "./app/screens/Register/RegisterScreenBuyers";
+import HomePageScreen from "./app/screens/Home/HomePageScreen";
 import NavigationBar from "./app/components/NavigationBar";
-import CartScreen from "./app/screens/CartScreen";
-import MessageScreen from "./app/screens/MessageScreen";
-import NotificationScreen from "./app/screens/NotificationScreen";
-import ProductDetailsScreen from "./app/screens/ProductDetailsScreen";
-import MessageDetailsScreen from "./app/screens/MessageDetailsScreen";
-import NotificationDetailsScreen from "./app/screens/NotificationDetailsScreen";
-import OTPScreen from "./app/screens/OTPScreen";
-import ChangeEmailScreen from "./app/screens/ChangeEmailScreen";
-import ForgotPasswordScreen from "./app/screens/ForgotPasswordScreen";
-import ChangePasswordOTPSCreen from "./app/screens/ChangePasswordOTPScreen";
-import NewPasswordScreen from "./app/screens/NewPasswordScreen";
-import ViewProfileScreen from "./app/screens/ViewProfileScreen";
-import AddressScreen from "./app/screens/AddressScreen";
-import AddAddressScreen from "./app/screens/AddAdressScreen";
-import ViewAddressScreen from "./app/screens/ViewAddressScreen";
-import EditProfileScreen from "./app/screens/EditProfileScreen";
-import EditAddress from "./app/screens/EditAddress";
-import StartSelling from "./app/screens/StartSellingScreen";
+import CartScreen from "./app/screens/Cart/CartScreen";
+import MessageScreen from "./app/screens/Message/MessageScreen";
+import NotificationScreen from "./app/screens/Notification/NotificationScreen";
+import ProductDetailsScreen from "./app/screens/Home/ProductDetailsScreen";
+import NotificationDetailsScreen from "./app/screens/Notification/NotificationDetailsScreen";
+import OTPScreen from "./app/screens/Register/OTPScreen";
+import ChangeEmailScreen from "./app/screens/Register/ChangeEmailScreen";
+import ForgotPasswordScreen from "./app/screens/Login/ForgotPasswordScreen";
+import ChangePasswordOTPSCreen from "./app/screens/Login/ChangePasswordOTPScreen";
+import NewPasswordScreen from "./app/screens/Login/NewPasswordScreen";
+import ViewProfileScreen from "./app/screens/Profile/ViewProfileScreen";
+import AddressScreen from "./app/screens/Profile/Address/AddressScreen";
+import AddAddressScreen from "./app/screens/Profile/Address/AddAdressScreen";
+import ViewAddressScreen from "./app/screens/Profile/ViewAddressScreen";
+import EditProfileScreen from "./app/screens/Profile/EditProfileScreen";
+import EditAddress from "./app/screens/Profile/Address/EditAddress";
+import StartSelling from "./app/screens/Profile/StartSellingScreen";
 import ShopInformationScreen from "./app/screens/farmers/ShopInformationScreen";
 import BusinessInformationScreen from "./app/screens/farmers/BusinessInformationScreen";
-import CheckOutScreen from "./app/screens/CheckOutScreen";
+import CheckOutScreen from "./app/screens/Cart/CheckOutScreen";
 import PhoneAuthenticationScreen from "./app/screens/farmers/PhoneAuthenticationScreen";
 import EmailAuthenticationScreen from "./app/screens/farmers/EmailAuthenticationScreen";
 import PickUpAddressScreen from "./app/screens/farmers/PickUpAddressScreen";
+import FruitCategoryScreen from "./app/screens/Market/MarketCategory/FruitCategoryScreen";
+import VegetableCategoryScreen from "./app/screens/Market/MarketCategory/VegetableCategoryScreen";
+import SeedlingCategoryScreen from "./app/screens/Market/MarketCategory/SeedlingCategoryScreen";
+import SpicesCategoryScreen from "./app/screens/Market/MarketCategory/SpicesCategoryScreen";
+import PlantCategoryScreen from "./app/screens/Market/MarketCategory/PlantCategoryScreen";
+import FlowerCategoryScreen from "./app/screens/Market/MarketCategory/FlowerCategoryScreen";
 
 const Stack = createStackNavigator();
 
@@ -75,10 +80,6 @@ function App() {
             <Stack.Screen
               name="Product Details"
               component={ProductDetailsScreen}
-            />
-            <Stack.Screen
-              name="Message Details"
-              component={MessageDetailsScreen}
             />
             <Stack.Screen
               name="Notification Details"
@@ -156,13 +157,37 @@ function App() {
               component={PhoneAuthenticationScreen}
             />
             <Stack.Screen
-            name='Email Authentication'
-            component={EmailAuthenticationScreen}
-            options={{ headerShown:false }}
+              name="Email Authentication"
+              component={EmailAuthenticationScreen}
+              options={{ headerShown: false }}
             />
             <Stack.Screen
-            name='Pickup Address'
-            component={PickUpAddressScreen}
+              name="Pickup Address"
+              component={PickUpAddressScreen}
+            />
+            <Stack.Screen
+            name='Fruit Category'
+            component={FruitCategoryScreen}
+            />
+            <Stack.Screen
+            name='Vegetable Category'
+            component={VegetableCategoryScreen}
+            />
+            <Stack.Screen
+            name='Seedling Category'
+            component={SeedlingCategoryScreen}
+            />
+            <Stack.Screen
+            name='Spices Category'
+            component={SpicesCategoryScreen}
+            />
+            <Stack.Screen
+            name='Plant Category'
+            component={PlantCategoryScreen}
+            />
+            <Stack.Screen
+            name='Flower Category'
+            component={FlowerCategoryScreen}
             />
           </>
         )}

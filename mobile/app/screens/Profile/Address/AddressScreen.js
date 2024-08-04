@@ -1,11 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ActivityIndicator, FlatList, Alert } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import * as Location from 'expo-location';
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ActivityIndicator,
+  FlatList,
+  Alert,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import * as Location from "expo-location";
 import { useNavigation } from "@react-navigation/native";
 import { Icon } from "react-native-elements";
 import { styled } from "nativewind";
-import { NotificationIcon, MessagesIcon } from "../components/SearchBarC"; 
+import { NotificationIcon, MessagesIcon } from "../../../components/SearchBarC";
 
 function AddressScreen({ route }) {
   const { profile } = route.params;
@@ -15,62 +22,65 @@ function AddressScreen({ route }) {
   // Updated example addresses with accurate coordinates
   const addresses = [
     {
-      id: '1',
-      icon: 'heart',
-      label: 'Partner',
-      address: 'St. John Inn Dominican Hill Rd Baguio Benguet',
-      note: 'pahintay nalang sa labas ng AHB Inn',
+      id: "1",
+      icon: "heart",
+      label: "Partner",
+      address: "St. John Inn Dominican Hill Rd Baguio Benguet",
+      note: "pahintay nalang sa labas ng AHB Inn",
       latitude: 16.4003,
-      longitude: 120.5860,
+      longitude: 120.586,
     },
     {
-      id: '2',
-      icon: 'home',
-      label: 'Home',
-      address: 'Pinget Hesed Baptist Church Upper Pinget Baguio',
-      note: 'meet at waiting shed',
-      latitude: 16.4250,
-      longitude: 120.5930,
+      id: "2",
+      icon: "home",
+      label: "Home",
+      address: "Pinget Hesed Baptist Church Upper Pinget Baguio",
+      note: "meet at waiting shed",
+      latitude: 16.425,
+      longitude: 120.593,
     },
     {
-      id: '3',
-      icon: 'map-marker',
-      label: 'Cornerstone Catholic Community Military Cut-Off',
-      address: 'Baguio Benguet',
-      note: 'none',
-      latitude: 16.4090,
-      longitude: 120.6000,
+      id: "3",
+      icon: "map-marker",
+      label: "Cornerstone Catholic Community Military Cut-Off",
+      address: "Baguio Benguet",
+      note: "none",
+      latitude: 16.409,
+      longitude: 120.6,
     },
     {
-      id: '4',
-      icon: 'map-marker',
-      label: 'JD Store Baguio City',
-      address: 'Baguio Benguet',
-      note: 'none',
-      latitude: 16.4100,
-      longitude: 120.6010,
+      id: "4",
+      icon: "map-marker",
+      label: "JD Store Baguio City",
+      address: "Baguio Benguet",
+      note: "none",
+      latitude: 16.41,
+      longitude: 120.601,
     },
     {
-      id: '5',
-      icon: 'map-marker',
-      label: '212 Pinget',
-      address: 'Baguio Benguet',
-      note: 'none',
-      latitude: 16.4250,
-      longitude: 120.5930,
+      id: "5",
+      icon: "map-marker",
+      label: "212 Pinget",
+      address: "Baguio Benguet",
+      note: "none",
+      latitude: 16.425,
+      longitude: 120.593,
     },
   ];
 
   useEffect(() => {
     (async () => {
       const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        console.log('Permission to access location was denied');
+      if (status !== "granted") {
+        console.log("Permission to access location was denied");
         return;
       }
 
       let { coords } = await Location.getCurrentPositionAsync({});
-      setCurrentLocation({ latitude: coords.latitude, longitude: coords.longitude });
+      setCurrentLocation({
+        latitude: coords.latitude,
+        longitude: coords.longitude,
+      });
     })();
   }, []);
 
@@ -85,10 +95,12 @@ function AddressScreen({ route }) {
         </View>
       </View>
       <View className="flex-row space-x-4">
-        <TouchableOpacity onPress={() => navigation.navigate('Edit Address', { address: item })}>
+        <TouchableOpacity
+          onPress={() => navigation.navigate("Edit Address", { address: item })}
+        >
           <Icon name="edit" type="font-awesome" size={20} color="#00B251" />
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => console.log('Delete address')}>
+        <TouchableOpacity onPress={() => console.log("Delete address")}>
           <Icon name="trash" type="font-awesome" size={20} color="#00B251" />
         </TouchableOpacity>
       </View>
@@ -100,7 +112,9 @@ function AddressScreen({ route }) {
       <View className="px-4 mt-0 flex-row justify-between items-center">
         <View className="flex-1"></View>
         <View className="flex-row space-x-4">
-          <NotificationIcon onPress={() => navigation.navigate("Notifications")} />
+          <NotificationIcon
+            onPress={() => navigation.navigate("Notifications")}
+          />
           <MessagesIcon onPress={() => navigation.navigate("Messages")} />
         </View>
       </View>
@@ -121,9 +135,13 @@ function AddressScreen({ route }) {
       <View className="px-4 py-4">
         <TouchableOpacity
           className="bg-green-600 rounded-full py-4 items-center"
-          onPress={() => navigation.navigate('Add Address', { currentLocation })}
+          onPress={() =>
+            navigation.navigate("Add Address", { currentLocation })
+          }
         >
-          <Text className="text-white text-lg font-semibold">Add New Address</Text>
+          <Text className="text-white text-lg font-semibold">
+            Add New Address
+          </Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

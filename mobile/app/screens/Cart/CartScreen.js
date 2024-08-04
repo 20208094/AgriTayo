@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { View, Text, FlatList, Dimensions, TouchableOpacity, Image, Alert, Modal } from "react-native";
 import CheckBox from 'react-native-check-box';
-import deleteButton from "../assets/delete.png";
-import editButton from "../assets/edit.png";
-import placeholderImage from "../assets/placeholder.png"; // Placeholder image for item
+import deleteButton from "../../assets/delete.png";
+import editButton from "../../assets/edit.png";
+import placeholderImage from "../../assets/placeholder.png"; // Placeholder image for item
 import { Swipeable } from 'react-native-gesture-handler';
 import { styled } from 'nativewind';
 import { useNavigation } from "@react-navigation/native";

@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Image, Text} from 'react-native';
-import ehh from "../assets/ehh.png";
+import ehh from "../../assets/ehh.png";
 
 function SplashScreen() {
   return (

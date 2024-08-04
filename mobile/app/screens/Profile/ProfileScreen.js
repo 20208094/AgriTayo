@@ -3,9 +3,9 @@ import { View, Image, Text, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import { Icon } from "react-native-elements";
-import michael from "../assets/ehh.png";
+import michael from "../../assets/ehh.png";
 import { styled } from "nativewind";
-import { NotificationIcon, MessagesIcon } from "../components/SearchBarC"; // Import icons
+import { NotificationIcon, MessagesIcon } from "../../components/SearchBarC"; // Import icons
 
 function ProfileScreen() {
   const navigation = useNavigation();
@@ -103,7 +103,7 @@ function ProfileScreen() {
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() =>
-                navigation.navigate("Orders", { screen: "To Receive" })
+                navigation.navigate("Orders", { screen: "To Recieve" })
               }
             >
               <View className="items-center">
@@ -166,16 +166,15 @@ function ProfileScreen() {
           </TouchableOpacity>
           <TouchableOpacity
             className="flex-row items-center justify-between"
-            onPress={() => navigation.navigate("Welcome To Agritayo!", { profile })}
+            onPress={() =>
+              navigation.navigate("Welcome To Agritayo!", { profile })
+            }
           >
             <View className="flex-row items-center">
-              <Icon
-                name="plus"
-                type="font-awesome"
-                size={20}
-                color="green"
-              />
-              <Text className="text-gray-800 font-semibold ml-4">Start Selling</Text>
+              <Icon name="plus" type="font-awesome" size={20} color="green" />
+              <Text className="text-gray-800 font-semibold ml-4">
+                Start Selling
+              </Text>
             </View>
             <Icon
               name="chevron-right"
