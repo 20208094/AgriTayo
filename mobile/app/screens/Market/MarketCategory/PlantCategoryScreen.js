@@ -4,49 +4,8 @@ import { createMaterialTopTabNavigator } from "@react-navigation/material-top-ta
 
 const Tab = createMaterialTopTabNavigator();
 
-function PlantCategoryScreen (){
-    const plantsCategory = [
-        {
-            id: 1,
-            name: "Spider Plant",
-        },
-        {
-            id: 2,
-            name: "Aloe Vera",
-        },
-        {
-            id: 3,
-            name: "Rose",
-        },
-        {
-            id: 4,
-            name: "Lavender",
-        },
-        {
-            id: 5,
-            name: "Snake Plant",
-        },
-        {
-            id: 6,
-            name: "Peace Lily",
-        },
-        {
-            id: 7,
-            name: "Pothos",
-        },
-        {
-            id: 8,
-            name: "Jade Plant",
-        },
-        {
-            id: 9,
-            name: "Hibiscus",
-        },
-        {
-            id: 10,
-            name: "Bamboo Plant"
-        }
-    ]
+function PlantCategoryScreen ({route}){
+    const {plantsCategory, selectedPlantId} = route.params
     return(
        <Tab.Navigator
        screenOptions={{
@@ -54,6 +13,7 @@ function PlantCategoryScreen (){
         tabBarScrollEnabled: true,
         lazy: true,
       }}
+      initialRouteName={plantsCategory.find((plant) => plant.id === selectedPlantId).name}
        >
         {plantsCategory.map(plant =>
             <Tab.Screen

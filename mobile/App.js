@@ -36,7 +36,12 @@ import SeedlingCategoryScreen from "./app/screens/Market/MarketCategory/Seedling
 import SpicesCategoryScreen from "./app/screens/Market/MarketCategory/SpicesCategoryScreen";
 import PlantCategoryScreen from "./app/screens/Market/MarketCategory/PlantCategoryScreen";
 import FlowerCategoryScreen from "./app/screens/Market/MarketCategory/FlowerCategoryScreen";
-
+import VegetableCategoryListScreen from "./app/screens/Market/MarketCategory/VegetableCategoryListScreen";
+import FruitCategoryListScreen from "./app/screens/Market/MarketCategory/FruitCategoryListScreen";
+import SpiceCategoryListScreen from "./app/screens/Market/MarketCategory/SpiceCategoryListScreen";
+import SeedlingCategotyList from "./app/screens/Market/MarketCategory/SeedlingCategoryListScreen";
+import PlantCategoryListScreen from "./app/screens/Market/MarketCategory/PlantCategoryListScreen";
+import FlowerCategoryListScreen from "./app/screens/Market/MarketCategory/FlowerCategoryListScreen";
 const Stack = createStackNavigator();
 
 function App() {
@@ -188,6 +193,30 @@ function App() {
             <Stack.Screen
             name='Flower Category'
             component={FlowerCategoryScreen}
+            />
+            <Stack.Screen
+            name = 'Vegetable List'
+            component={VegetableCategoryListScreen}
+            />
+            <Stack.Screen
+            name='Fruit List'
+            component = {FruitCategoryListScreen}
+            />
+            <Stack.Screen
+            name='Spice List'
+            component= {SpiceCategoryListScreen}
+            />
+            <Stack.Screen
+            name='Seedling List'
+            component={SeedlingCategotyList}
+            />
+            <Stack.Screen
+            name='Plant List'
+            component={PlantCategoryListScreen}
+            />
+            <Stack.Screen
+            name='Flower List'
+            component={FlowerCategoryListScreen}
             />
           </>
         )}

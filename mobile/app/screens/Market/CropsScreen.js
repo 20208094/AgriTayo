@@ -38,12 +38,12 @@ const marketCategories = [
 ];
 
 const navigationTargets = {
-  1: 'Vegetable Category',
-  2: 'Fruit Category',
-  3: 'Spices Category',
-  4: 'Seedling Category',
-  5: 'Plant Category',
-  6: 'Flower Category'
+  1: 'Vegetable List',
+  2: 'Fruit List',
+  3: 'Spice List',
+  4: 'Seedling List',
+  5: 'Plant List',
+  6: 'Flower List'
 };
 
 const MarketCategoryCard = ({ marketCategory }) => {

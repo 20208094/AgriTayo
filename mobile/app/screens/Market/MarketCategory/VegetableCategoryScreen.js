@@ -4,49 +4,9 @@ import { createMaterialTopTabNavigator } from "@react-navigation/material-top-ta
 
 const Tab = createMaterialTopTabNavigator();
 
-function VegetableCategoryScreen() {
-  const vegetablesCategory = [
-    {
-      id: 1,
-      name: "Potato",
-    },
-    {
-      id: 2,
-      name: "Carrot",
-    },
-    {
-      id: 3,
-      name: "Tomato",
-    },
-    {
-      id: 4,
-      name: "Lettuce",
-    },
-    {
-      id: 5,
-      name: "Spinach",
-    },
-    {
-      id: 6,
-      name: "Brocolli",
-    },
-    {
-      id: 7,
-      name: "Onion",
-    },
-    {
-      id: 8,
-      name: "Cucumber",
-    },
-    {
-      id: 9,
-      name: "Bell Pepper",
-    },
-    {
-      id: 10,
-      name: "Zucchini",
-    },
-  ];
+function VegetableCategoryScreen({ route }) {
+  const { vegetablesCategory, selectedVegetableId } = route.params;
+
   return (
     <Tab.Navigator
       screenOptions={{
@@ -54,10 +14,14 @@ function VegetableCategoryScreen() {
         tabBarScrollEnabled: true,
         lazy: true,
       }}
+      initialRouteName={vegetablesCategory.find(vegetable => vegetable.id === selectedVegetableId).name}
     >
       {vegetablesCategory.map((vegetable) => (
         <Tab.Screen key={vegetable.id} name={vegetable.name}>
-          {() => <View></View>}
+          {() => (
+            <View  className=''>
+            </View>
+          )}
         </Tab.Screen>
       ))}
     </Tab.Navigator>

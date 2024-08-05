@@ -4,49 +4,8 @@ import { createMaterialTopTabNavigator } from "@react-navigation/material-top-ta
 
 const Tab = createMaterialTopTabNavigator();
 
-function SpicesCategoryScreen (){
-    const spicesCategory = [
-        {
-            id: 1,
-            name: 'Turmeric'
-        },
-        {
-            id: 2,
-            name: 'Cumin'
-        },
-        {
-            id: 3, 
-            name: 'Pepper'
-        },
-        {
-            id: 4,
-            name: 'Cinnamon'
-        },
-        {
-            id: 5,
-            name: 'Coriander'
-        },
-        {
-            id: 6,
-            name: 'Ginger'
-        },
-        {
-            id: 7,
-            name: 'Clove'
-        },
-        {
-            id: 8,
-            name: 'Cardamom'
-        },
-        {
-            id: 9,
-            name: 'Fennel'
-        },
-        {
-            id: 10,
-            name: 'Mustard Seed'
-        }
-    ]
+function SpicesCategoryScreen ({route}){
+    const {spicesCategory, selectedSpiceId} = route.params
     return(
         <Tab.Navigator
         screenOptions={{
@@ -54,6 +13,7 @@ function SpicesCategoryScreen (){
             tabBarScrollEnabled: true,
             lazy: true,
           }}
+          initialRouteName={spicesCategory.find((spice) => spice.id == selectedSpiceId).name}
         >
             {spicesCategory.map(spice =>
                 <Tab.Screen
@@ -61,7 +21,9 @@ function SpicesCategoryScreen (){
                 name= {spice.name}
                 >
                     {() => (
-                        <View></View>
+                        <View className=''>
+                            
+                        </View>
                     )}
                 </Tab.Screen>
             )}

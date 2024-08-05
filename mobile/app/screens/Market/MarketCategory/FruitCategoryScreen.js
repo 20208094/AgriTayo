@@ -4,49 +4,8 @@ import { createMaterialTopTabNavigator } from "@react-navigation/material-top-ta
 
 const Tab = createMaterialTopTabNavigator();
 
-function FruitCategoryScreen() {
-  const fruitsCategory = [
-    {
-      id: 1,
-      name: "Apple",
-    },
-    {
-      id: 2,
-      name: "Banana",
-    },
-    {
-      id: 3,
-      name: "Orange",
-    },
-    {
-      id: 4,
-      name: "Strawberry",
-    },
-    {
-      id: 5,
-      name: "Grape",
-    },
-    {
-      id: 6,
-      name: "Mango",
-    },
-    {
-      id: 7,
-      name: "BlueBerry",
-    },
-    {
-      id: 8,
-      name: "Pineapple",
-    },
-    {
-      id: 9,
-      name: "Watermelon",
-    },
-    {
-      id: 10,
-      name: "Peach",
-    },
-  ];
+function FruitCategoryScreen({ route }) {
+  const { fruitsCategory,  selectedFruitId} = route.params;
   return (
     <Tab.Navigator
       screenOptions={{
@@ -54,10 +13,15 @@ function FruitCategoryScreen() {
         tabBarScrollEnabled: true,
         lazy: true,
       }}
+      initialRouteName={
+        fruitsCategory.find((fruit) => fruit.id === selectedFruitId).name
+      }
     >
       {fruitsCategory.map((fruit) => (
         <Tab.Screen key={fruit.id} name={fruit.name}>
-          {() => <View></View>}
+          {() => 
+          <View className=""></View>
+          }
         </Tab.Screen>
       ))}
     </Tab.Navigator>
