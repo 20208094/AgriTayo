@@ -1,39 +1,45 @@
 import React from "react";
 import { View, Text, Image, TouchableOpacity, ScrollView} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import logo from "../../assets/logo.png";
+import veggies from "../../assets/Market/Veggies.png";
+import fruits from "../../assets/Market/Fruits.png";
+import seedlings from "../../assets/Market/Seedlings.png";
+import spices from "../../assets/Market/Spices.png";
+import flowers from "../../assets/Market/Flowers.png";
+import plants from "../../assets/Market/Plants.png";
+import logo from "../../assets/logo.png"
 import { useNavigation } from "@react-navigation/native";
 
 const marketCategories = [
   {
     id: 1,
     title: "Vegetables",
-    image: logo,
+    image: veggies,
   },
   {
     id: 2,
     title: "Fruits",
-    image: logo,
+    image: fruits,
   },
   {
     id: 3,
     title: "Spices",
-    image: logo,
+    image: spices,
   },
   {
     id: 4, 
     title: 'Seedlings',
-    image: logo
+    image: seedlings,
   },
   {
     id: 5, 
     title: 'Plants',
-    image: logo
+    image: plants,
   },
   {
     id: 6, 
     title: 'Flowers',
-    image: logo
+    image: flowers
   },
 ];
 
@@ -59,19 +65,20 @@ const MarketCategoryCard = ({ marketCategory }) => {
   return (
     <SafeAreaView className="bg-white rounded-lg shadow m-2 w-[45%] mb-3">
       <ScrollView>
-      <TouchableOpacity onPress={handlePress}>
-        <View className="rounded-t-lg overflow-hidden">
-          <Image source={marketCategory.image} className="w-full h-28" />
-          <View className="p-2.5">
-            <Text className="text-base font-bold mb-1.5">
-              {marketCategory.title}
-            </Text>
+        <TouchableOpacity onPress={handlePress}>
+          <View className="rounded-t-lg overflow-hidden">
+            <Image source={marketCategory.image} className="w-full h-28" />
+            <View className="p-2.5">
+              <Text className="text-base font-bold mb-1.5">
+                {marketCategory.title}
+              </Text>
+            </View>
           </View>
-        </View>
-      </TouchableOpacity>
+        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
+  
 };
 
 function CropsScreen() {
