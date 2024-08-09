@@ -1,6 +1,10 @@
 import React from "react";
 import { View, ScrollView, Text, TouchableOpacity, Image } from "react-native";
-import SearchBarC, { NotificationIcon, MessagesIcon } from "../../components/SearchBarC";
+import SearchBarC, {
+  NotificationIcon,
+  MessagesIcon,
+  MarketIcon,
+} from "../../components/SearchBarC";
 import logo from "../../assets/logo.png";
 import HomeCard from "../../components/HomeCard";
 import { useNavigation } from "@react-navigation/native";
@@ -57,11 +61,16 @@ function HomePageScreen() {
       <View className="flex-row justify-between items-center px-4 pt-8">
         <Text className="text-green-700 text-3xl font-bold">Hi Paeng!</Text>
         <View className="flex-row">
-          <NotificationIcon onPress={() => navigation.navigate("Notifications")} />
+          <MarketIcon onPress={() => navigation.navigate("CartScreen")} />
+          <NotificationIcon
+            onPress={() => navigation.navigate("Notifications")}
+          />
           <MessagesIcon onPress={() => navigation.navigate("Messages")} />
         </View>
       </View>
-      <Text className="px-4 text-base text-gray-600 mt-2">Enjoy our services!</Text>
+      <Text className="px-4 text-base text-gray-600 mt-2">
+        Enjoy our services!
+      </Text>
       <View className="mt-4 px-4">
         <SearchBarC />
       </View>

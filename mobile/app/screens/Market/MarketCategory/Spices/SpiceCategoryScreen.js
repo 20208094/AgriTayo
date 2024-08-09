@@ -4,7 +4,7 @@ import { createMaterialTopTabNavigator } from "@react-navigation/material-top-ta
 
 const Tab = createMaterialTopTabNavigator();
 
-function SpicesCategoryScreen ({route}){
+function SpiceCategoryScreen ({route}){
     const {spicesCategory, selectedSpiceId} = route.params
     return(
         <Tab.Navigator
@@ -32,4 +32,4 @@ function SpicesCategoryScreen ({route}){
     )
 }
 
-export default SpicesCategoryScreen
+export default SpiceCategoryScreen

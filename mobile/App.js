@@ -30,18 +30,24 @@ import CheckOutScreen from "./app/screens/Cart/CheckOutScreen";
 import PhoneAuthenticationScreen from "./app/screens/farmers/PhoneAuthenticationScreen";
 import EmailAuthenticationScreen from "./app/screens/farmers/EmailAuthenticationScreen";
 import PickUpAddressScreen from "./app/screens/farmers/PickUpAddressScreen";
-import FruitCategoryScreen from "./app/screens/Market/MarketCategory/FruitCategoryScreen";
-import VegetableCategoryScreen from "./app/screens/Market/MarketCategory/VegetableCategoryScreen";
-import SeedlingCategoryScreen from "./app/screens/Market/MarketCategory/SeedlingCategoryScreen";
-import SpicesCategoryScreen from "./app/screens/Market/MarketCategory/SpicesCategoryScreen";
-import PlantCategoryScreen from "./app/screens/Market/MarketCategory/PlantCategoryScreen";
-import FlowerCategoryScreen from "./app/screens/Market/MarketCategory/FlowerCategoryScreen";
-import VegetableCategoryListScreen from "./app/screens/Market/MarketCategory/VegetableCategoryListScreen";
-import FruitCategoryListScreen from "./app/screens/Market/MarketCategory/FruitCategoryListScreen";
-import SpiceCategoryListScreen from "./app/screens/Market/MarketCategory/SpiceCategoryListScreen";
-import SeedlingCategotyList from "./app/screens/Market/MarketCategory/SeedlingCategoryListScreen";
-import PlantCategoryListScreen from "./app/screens/Market/MarketCategory/PlantCategoryListScreen";
-import FlowerCategoryListScreen from "./app/screens/Market/MarketCategory/FlowerCategoryListScreen";
+import FruitCategoryScreen from "./app/screens/Market/MarketCategory/Fruits/FruitCategoryScreen";
+import VegetableCategoryScreen from "./app/screens/Market/MarketCategory/Vegetables/VegetableCategoryScreen";
+import SeedlingCategoryScreen from "./app/screens/Market/MarketCategory/Seedlings/SeedlingCategoryScreen";
+import PlantCategoryScreen from "./app/screens/Market/MarketCategory/Plants/PlantCategoryScreen";
+import FlowerCategoryScreen from "./app/screens/Market/MarketCategory/Flowers/FlowerCategoryScreen";
+import VegetableCategoryListScreen from "./app/screens/Market/MarketCategory/Vegetables/VegetableCategoryListScreen";
+import FruitCategoryListScreen from "./app/screens/Market/MarketCategory/Fruits/FruitCategoryListScreen";
+import SpiceCategoryListScreen from "./app/screens/Market/MarketCategory/Spices/SpiceCategoryListScreen";
+import SeedlingCategotyList from "./app/screens/Market/MarketCategory/Seedlings/SeedlingCategoryListScreen";
+import PlantCategoryListScreen from "./app/screens/Market/MarketCategory/Plants/PlantCategoryListScreen";
+import FlowerCategoryListScreen from "./app/screens/Market/MarketCategory/Flowers/FlowerCategoryListScreen";
+import FlowerAnalyticsScreen from "./app/screens/Analytics/FlowerAnalyticsScreen";
+import FruitAnalyticsScreen from "./app/screens/Analytics/FruitAnalyticsScreen";
+import PlantAnalyticsScreen from "./app/screens/Analytics/PlantAnalyticsScreen";
+import SeedlingAnalyticsScreen from "./app/screens/Analytics/SeedlingAnalyticsScreen";
+import SpiceAnalyticsScreen from "./app/screens/Analytics/SpiceAnalyticsScreen";
+import VegetableAnalyticsScreen from "./app/screens/Analytics/VegetableAnalyticsScreen";
+
 const Stack = createStackNavigator();
 
 function App() {
@@ -183,8 +189,8 @@ function App() {
             component={SeedlingCategoryScreen}
             />
             <Stack.Screen
-            name='Spices Category'
-            component={SpicesCategoryScreen}
+            name='Spice Category'
+            component={SpiceCategoryListScreen}
             />
             <Stack.Screen
             name='Plant Category'
@@ -217,6 +223,30 @@ function App() {
             <Stack.Screen
             name='Flower List'
             component={FlowerCategoryListScreen}
+            />
+            <Stack.Screen
+            name='Flower Analytics'
+            component={FlowerAnalyticsScreen}
+            />
+            <Stack.Screen
+            name='Fruit Analytics'
+            component={FruitAnalyticsScreen}
+            />
+            <Stack.Screen
+            name='Plant Analytics'
+            component={PlantAnalyticsScreen}
+            />
+            <Stack.Screen
+            name='Seedling Analytics'
+            component={SeedlingAnalyticsScreen}
+            />
+            <Stack.Screen
+            name='Spice Analytics'
+            component={SpiceAnalyticsScreen}
+            />
+            <Stack.Screen
+            name='Vegetable Analytics'
+            component={VegetableAnalyticsScreen}
             />
           </>
         )}

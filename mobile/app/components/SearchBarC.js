@@ -105,5 +105,16 @@ const styles = StyleSheet.create({
   },
 });
 
-export { NotificationIcon, MessagesIcon };
+const MarketIcon = ({ onPress }) => (
+  <Icon
+    name="cart-outline"
+    type="ionicon"
+    size={30}
+    color="green"
+    onPress={onPress}
+    containerStyle={styles.iconContainer}
+  />
+);
+
+export { NotificationIcon, MessagesIcon, MarketIcon };
 export default SearchBarC;

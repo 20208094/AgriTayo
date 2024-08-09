@@ -1,6 +1,8 @@
 import React from "react";
-import { Text, TouchableOpacity } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+
 
 function VegetableCategoryListScreen({ navigation }) {
   const vegetablesCategory = [

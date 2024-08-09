@@ -3,9 +3,9 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Icon from "react-native-vector-icons/Ionicons";
 import HomePageScreen from "../screens/Home/HomePageScreen";
 import CropsScreen from "../screens/Market/CropsScreen";
-import CartScreen from "../screens/Cart/CartScreen";
 import ProfileScreen from "../screens/Profile/ProfileScreen";
 import OrdersScreen from "../screens/Orders/OrdersScreen";
+import AnalyticScreen from "../screens/Analytics/AnalyticScreen";
 
 const Tab = createBottomTabNavigator();
 
@@ -23,8 +23,8 @@ const NavigationBar = () => {
             case "Market":
               iconName = "leaf-outline";
               break;
-            case "Cart":
-              iconName = "cart-outline";
+            case "Analytics":
+              iconName = "analytics-outline";
               break;
             case "Profile":
               iconName = "person-outline";
@@ -49,11 +49,7 @@ const NavigationBar = () => {
         options={{ headerShown: false }}
       />
       <Tab.Screen name="Market" component={CropsScreen} />
-      <Tab.Screen
-        name="Cart"
-        component={CartScreen}
-        options={{ headerShown: false }}
-      />
+      <Tab.Screen name="Analytics" component={AnalyticScreen} />
       <Tab.Screen name="Orders" component={OrdersScreen} />
       <Tab.Screen
         name="Profile"
