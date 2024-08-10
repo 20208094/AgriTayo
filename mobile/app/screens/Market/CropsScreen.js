@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, Image, TouchableOpacity } from "react-native"; // Double-check these imports
+import { View, Text, Image, TouchableOpacity, ScrollView, StyleSheet } from "react-native"; // Import ScrollView
 import { SafeAreaView } from "react-native-safe-area-context";
 import logo from "../../assets/logo.png";
 import { useNavigation } from "@react-navigation/native";
@@ -36,15 +36,23 @@ const MarketCategoryCard = ({ marketCategory }) => {
 
 function CropsScreen() {
   return (
-    <View className="flex-row flex-wrap justify-between">
-      {marketCategories.map((marketCategory) => (
-        <MarketCategoryCard
-          key={marketCategory.id}
-          marketCategory={marketCategory}
-        />
-      ))}
-    </View>
+    <ScrollView contentContainerStyle={styles.container}>
+      <View className="flex-row flex-wrap justify-between">
+        {marketCategories.map((marketCategory) => (
+          <MarketCategoryCard
+            key={marketCategory.id}
+            marketCategory={marketCategory}
+          />
+        ))}
+      </View>
+    </ScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    paddingBottom: 1, // Adjust this value as needed to ensure space for the bottom navigation bar
+  },
+});
 
 export default CropsScreen;

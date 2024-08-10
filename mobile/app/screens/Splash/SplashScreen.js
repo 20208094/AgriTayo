@@ -1,11 +1,11 @@
 import React from 'react';
 import { View, Image, Text} from 'react-native';
-import ehh from "../../assets/ehh.png";
+import ehh from "../../assets/logolabel.png";
 
 function SplashScreen() {
   return (
-    <View className = 'flex-1 justify-center items-center bg-green-600'>
-      <Image source={ehh} className='w-50 h-70' />
+    <View className = 'flex-1 justify-center items-center bg-[#d9d9d9]'>
+      <Image source={ehh} className='w-80 h-80' />
     </View>
   );
 }
