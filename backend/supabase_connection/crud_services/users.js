@@ -1,5 +1,5 @@
-// supabase_connection/users.js
 const supabase = require('../db');
+const bcrypt = require('bcrypt');
 
 async function getUsers(req, res) {
     try {
@@ -22,9 +22,13 @@ async function getUsers(req, res) {
 async function addUser(req, res) {
     try {
         const { firstname, middlename, lastname, email, password, phone_number, gender, birthday, user_type_id, verified } = req.body;
+
+        // Hash the password before inserting it
+        const hashedPassword = await bcrypt.hash(password, 10);
+
         const { data, error } = await supabase
             .from('users')
-            .insert([{ firstname, middlename, lastname, email, password, phone_number, gender, birthday, user_type_id, verified }]);
+            .insert([{ firstname, middlename, lastname, email, password: hashedPassword, phone_number, gender, birthday, user_type_id, verified }]);
 
         if (error) {
             console.error('Supabase query failed:', error.message);
@@ -42,9 +46,27 @@ async function updateUser(req, res) {
     try {
         const { id } = req.params;
         const { firstname, middlename, lastname, email, password, phone_number, gender, birthday, user_type_id, verified } = req.body;
+
+        // Only hash the password if it is provided
+        const updateData = {
+            firstname,
+            middlename,
+            lastname,
+            email,
+            phone_number,
+            gender,
+            birthday,
+            user_type_id,
+            verified
+        };
+
+        if (password) {
+            updateData.password = await bcrypt.hash(password, 10);
+        }
+
         const { data, error } = await supabase
             .from('users')
-            .update({ firstname, middlename, lastname, email, password, phone_number, gender, birthday, user_type_id, verified })
+            .update(updateData)
             .eq('user_id', id);
 
         if (error) {

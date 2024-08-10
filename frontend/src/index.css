@@ -1,0 +1,198 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.main-content {
+    flex: 1;
+    margin-left: 80px; /* Adjust margin based on sidebar width */
+    padding: 16px; /* Adjust padding as needed */
+}
+
+/* For WebKit browsers (Chrome, Safari) */
+.scrollbar-hidden::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+}
+
+/* For Firefox */
+.scrollbar-hidden {
+    scrollbar-width: none; /* Hides scrollbar in Firefox */
+}
+
+/* Ensures content is still scrollable */
+.scrollbar-hidden {
+    -ms-overflow-style: none; /* Hides scrollbar in Internet Explorer and Edge */
+    overflow-y: scroll;
+}
+
+/* Sidebar container */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 85px; /* Collapsed width */
+    background-color: white;
+    border-right: 1px solid #e2e8f0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    transition: width 0.3s ease-in-out;
+    z-index: 1000;
+    padding-top: 10px;
+}
+
+/* Sidebar expanded on hover */
+.sidebar:hover {
+    width: 240px; /* Expanded width */
+}
+
+/* Hide scrollbar */
+.sidebar::-webkit-scrollbar {
+    display: none;
+}
+
+.sidebar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+}
+
+/* Sidebar title */
+.sidebar-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #4a5568;
+    margin-bottom: 20px;
+    padding-left: 16px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+}
+
+/* Show title on hover */
+.sidebar:hover .sidebar-title {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Sidebar section */
+.sidebar-section {
+    width: 100%;
+}
+
+/* Sidebar item */
+.sidebar-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 10px;
+    color: #4a5568;
+    text-decoration: none;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
+}
+
+/* Sidebar item hover state */
+.sidebar-item:hover {
+    background-color: #edf2f7;
+    color: #2d3748;
+    transform: translateX(10px); /* Move the item slightly to the right */
+}
+
+/* Sidebar icon */
+.sidebar-icon {
+    font-size: 24px;
+    min-width: 60px; /* Align icons in collapsed state */
+    text-align: center;
+    color: #48bb78;
+}
+
+/* Sidebar text */
+.sidebar-text {
+    white-space: nowrap;
+    margin-left: 10px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+/* Show text on hover */
+.sidebar:hover .sidebar-text {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Sidebar dropdown section */
+.sidebar-dropdown {
+    transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+    overflow: hidden;
+}
+
+/* Collapsed dropdown state */
+.sidebar-dropdown.collapsed {
+    max-height: 0;
+    opacity: 0;
+}
+
+/* Expanded dropdown state */
+.sidebar-dropdown.expanded {
+    max-height: 500px; /* Adjust based on content height */
+    opacity: 1;
+}
+
+/* Chevron icon for dropdown */
+.sidebar-chevron {
+    margin-left: auto;
+    width: 20px;
+    height: 20px;
+    transition: transform 0.3s ease;
+}
+
+.sidebar-chevron.rotate-180 {
+    transform: rotate(180deg);
+}
+
+/* Custom styles for the dropdown items */
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 16px;
+    color: #4a5568;
+    text-decoration: none;
+    border-left: 4px solid transparent;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
+    transform: translateX(0); /* Start with no movement */
+}
+
+/* Highlight dropdown item on hover with moving animation */
+.dropdown-item:hover {
+    background-color: #f0f4f8;
+    color: #2d3748;
+    border-left: 4px solid #48bb78; /* Add color to the left border for visual emphasis */
+    transform: translateX(10px); /* Move the item slightly to the right */
+}
+
+
+/* Custom styles for the menu button */
+.menu-button {
+    transition: background-color 0.3s;
+    display: flex;
+    align-items: center;
+    padding: 10px 16px;
+    color: #4a5568;
+    text-decoration: none;
+}
+
+/* Menu button hover state */
+.menu-button:hover {
+    background-color: #f7f7f7;
+}
+
+/* Custom styles for the dropdown container */
+.menu-dropdown {
+    width: calc(100% - 1rem); /* Adjust as needed to fit sidebar padding */
+    padding: 0.5rem 0; /* Padding for the dropdown items */
+}
+
+/* Optional: Add a subtle shadow to dropdown items */
+.menu-dropdown .dropdown-item {
+    box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+}

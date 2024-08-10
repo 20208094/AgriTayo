@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 function LoginPage() {
@@ -7,7 +7,38 @@ function LoginPage() {
         password: ''
     });
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
+
+    // Function to fetch the user session
+    const fetchUserSession = async () => {
+        try {
+            const response = await fetch('/api/session');
+            if (response.ok) {
+                const data = await response.json();
+                if (data.user) {
+                    // Redirect based on user type
+                    if (data.user.user_type_id === '1') {
+                        navigate('/dashboard-admin');
+                    } else if (data.user.user_type_id === '2') {
+                        navigate('/dashboard-seller');
+                    } else {
+                        navigate('/dashboard-buyer');
+                    }
+                }
+            } else {
+                console.error('Failed to fetch user session:', response.statusText);
+            }
+        } catch (error) {
+            console.error('Error fetching user session:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchUserSession();
+    }, []);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -30,23 +61,30 @@ function LoginPage() {
                 return;
             }
             const data = await response.json();
-
+    
             // Store the token in localStorage
             localStorage.setItem('token', data.token);
-
-            // Redirect based on user type or default path
+    
+            // Redirect based on user type
             if (data.user.user_type_id === 1) {
-                navigate('/dashboard-admin'); // Example path for admin dashboard
-            } if (data.user.user_type_id === 2) {
-                navigate('/dashboard-seller'); // Example path for admin dashboard
+                navigate('/dashboard-admin');
+            } else if (data.user.user_type_id === 2) {
+                navigate('/dashboard-seller');
             } else {
-                navigate('/dashboard-buyer'); // Example path for regular user dashboard
-            } 
+                navigate('/dashboard-buyer');
+            }
+    
+            // Refresh the page
+            window.location.reload();  // <-- This will refresh the page
         } catch (error) {
             console.error('Error during login:', error);
             setError('An error occurred. Please try again.');
         }
     };
+    
+    if (loading) {
+        return <p>Loading...</p>; // Optional: Add a loading state or spinner
+    }
 
     return (
         <div style={{ padding: '50px', maxWidth: '400px', margin: 'auto' }}>

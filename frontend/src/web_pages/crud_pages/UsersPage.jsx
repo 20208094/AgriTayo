@@ -209,6 +209,7 @@ function UsersPage() {
                         <th style={{ border: '1px solid black', padding: '8px' }}>Birthday</th>
                         <th style={{ border: '1px solid black', padding: '8px' }}>User Type</th>
                         <th style={{ border: '1px solid black', padding: '8px' }}>Verified</th>
+                        <th style={{ border: '1px solid black', padding: '8px' }}>Password</th>
                         <th style={{ border: '1px solid black', padding: '8px' }}>Actions</th>
                     </tr>
                 </thead>
@@ -227,6 +228,7 @@ function UsersPage() {
                                 {userTypes.find((type) => type.user_type_id === user.user_type_id)?.user_type_name || 'Unknown'}
                             </td>
                             <td style={{ border: '1px solid black', padding: '8px' }}>{user.verified ? 'Yes' : 'No'}</td>
+                            <td style={{ border: '1px solid black', padding: '8px' }}>{user.password}</td>
                             <td style={{ border: '1px solid black', padding: '8px' }}>
                                 <button onClick={() => handleEdit(user)}>Edit</button>
                                 <button onClick={() => handleDelete(user.user_id)}>Delete</button>

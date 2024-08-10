@@ -22,6 +22,8 @@ function LogoutButton() {
         } catch (error) {
             console.error('Error during logout:', error);
         }
+
+        window.location.reload();  // <-- This will refresh the page
     };
 
     return (
