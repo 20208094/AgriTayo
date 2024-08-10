@@ -1,65 +1,26 @@
 import React from "react";
-import { View, Text, Image, TouchableOpacity, ScrollView} from "react-native";
+import { View, Text, Image, TouchableOpacity } from "react-native"; // Double-check these imports
 import { SafeAreaView } from "react-native-safe-area-context";
 import logo from "../../assets/logo.png";
 import { useNavigation } from "@react-navigation/native";
 
 const marketCategories = [
-  {
-    id: 1,
-    title: "Vegetables",
-    image: logo,
-  },
-  {
-    id: 2,
-    title: "Fruits",
-    image: logo,
-  },
-  {
-    id: 3,
-    title: "Spices",
-    image: logo,
-  },
-  {
-    id: 4, 
-    title: 'Seedlings',
-    image: logo
-  },
-  {
-    id: 5, 
-    title: 'Plants',
-    image: logo
-  },
-  {
-    id: 6, 
-    title: 'Flowers',
-    image: logo
-  },
+  { id: 1, title: "Vegetables", image: logo },
+  { id: 2, title: "Fruits", image: logo },
+  { id: 3, title: "Spices", image: logo },
+  { id: 4, title: "Seedlings", image: logo },
+  { id: 5, title: "Plants", image: logo },
+  { id: 6, title: "Flowers", image: logo },
 ];
-
-const navigationTargets = {
-  1: 'Vegetable List',
-  2: 'Fruit List',
-  3: 'Spice List',
-  4: 'Seedling List',
-  5: 'Plant List',
-  6: 'Flower List'
-};
 
 const MarketCategoryCard = ({ marketCategory }) => {
   const navigation = useNavigation();
 
-  const handlePress = () => {
-    const target = navigationTargets[marketCategory.id];
-    if (target) {
-      navigation.navigate(target);
-    }
-  };
-
   return (
     <SafeAreaView className="bg-white rounded-lg shadow m-2 w-[45%] mb-3">
-      <ScrollView>
-      <TouchableOpacity onPress={handlePress}>
+      <TouchableOpacity
+        onPress={() => navigation.navigate("Market List", { category: marketCategory.title })}
+      >
         <View className="rounded-t-lg overflow-hidden">
           <Image source={marketCategory.image} className="w-full h-28" />
           <View className="p-2.5">
@@ -69,7 +30,6 @@ const MarketCategoryCard = ({ marketCategory }) => {
           </View>
         </View>
       </TouchableOpacity>
-      </ScrollView>
     </SafeAreaView>
   );
 };

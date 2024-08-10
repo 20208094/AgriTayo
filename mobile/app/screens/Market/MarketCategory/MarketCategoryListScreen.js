@@ -1,12 +1,7 @@
 import React from "react";
-import {
-  SafeAreaView,
-  View,
-  Text,
-  TouchableOpacity,
-  ScrollView,
-} from "react-native";
+import { SafeAreaView, TouchableOpacity, Text } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
+
 
 const categoryData = {
   Vegetables: [
@@ -263,31 +258,30 @@ const categoryData = {
   ],
 };
 
-function AnalyticScreen({ navigation }) {
-  return (
-    <SafeAreaView>
-      <ScrollView>
-        {Object.keys(categoryData).map((categoryKey) => (
-          <View key={categoryKey}>
-            <Text>{categoryKey}</Text>
-            {categoryData[categoryKey].map((item) => (
-              <TouchableOpacity
-                key={item.id}
-                onPress={() =>
-                  navigation.navigate("Market Analytics", {
-                    category: categoryData[categoryKey],
-                    selectedItemId: item.id,
-                  })
-                }
-              >
-                <Text>{item.name}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
+function MarketCategoryListScreen() {
+    const navigation = useNavigation();
+    const route = useRoute();
+    const { category } = route.params;
+  
+    const items = categoryData[category] || [];
+  
+    return (
+      <SafeAreaView>
+        {items.map((item) => (
+          <TouchableOpacity
+            key={item.id}
+            onPress={() =>
+              navigation.navigate("Market Category", {
+                category: items, 
+                selectedItemId: item.id,
+              })
+            }
+          >
+            <Text>{item.name}</Text>
+          </TouchableOpacity>
         ))}
-      </ScrollView>
-    </SafeAreaView>
-  );
-}
-
-export default AnalyticScreen;
+      </SafeAreaView>
+    );
+  }
+  
+  export default MarketCategoryListScreen;

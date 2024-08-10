@@ -2,6 +2,8 @@ import * as React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { useEffect, useState } from "react";
+import { Alert} from "react-native";
+import NetInfo from "@react-native-community/netinfo"; 
 import SplashScreen from "./app/screens/Splash/SplashScreen";
 import LoginScreen from "./app/screens/Login/LoginScreen";
 import RegisterScreenBuyers from "./app/screens/Register/RegisterScreenBuyers";
@@ -30,28 +32,36 @@ import CheckOutScreen from "./app/screens/Cart/CheckOutScreen";
 import PhoneAuthenticationScreen from "./app/screens/farmers/PhoneAuthenticationScreen";
 import EmailAuthenticationScreen from "./app/screens/farmers/EmailAuthenticationScreen";
 import PickUpAddressScreen from "./app/screens/farmers/PickUpAddressScreen";
-import FruitCategoryScreen from "./app/screens/Market/MarketCategory/Fruits/FruitCategoryScreen";
-import VegetableCategoryScreen from "./app/screens/Market/MarketCategory/Vegetables/VegetableCategoryScreen";
-import SeedlingCategoryScreen from "./app/screens/Market/MarketCategory/Seedlings/SeedlingCategoryScreen";
-import PlantCategoryScreen from "./app/screens/Market/MarketCategory/Plants/PlantCategoryScreen";
-import FlowerCategoryScreen from "./app/screens/Market/MarketCategory/Flowers/FlowerCategoryScreen";
-import VegetableCategoryListScreen from "./app/screens/Market/MarketCategory/Vegetables/VegetableCategoryListScreen";
-import FruitCategoryListScreen from "./app/screens/Market/MarketCategory/Fruits/FruitCategoryListScreen";
-import SpiceCategoryListScreen from "./app/screens/Market/MarketCategory/Spices/SpiceCategoryListScreen";
-import SeedlingCategotyList from "./app/screens/Market/MarketCategory/Seedlings/SeedlingCategoryListScreen";
-import PlantCategoryListScreen from "./app/screens/Market/MarketCategory/Plants/PlantCategoryListScreen";
-import FlowerCategoryListScreen from "./app/screens/Market/MarketCategory/Flowers/FlowerCategoryListScreen";
-import FlowerAnalyticsScreen from "./app/screens/Analytics/FlowerAnalyticsScreen";
-import FruitAnalyticsScreen from "./app/screens/Analytics/FruitAnalyticsScreen";
-import PlantAnalyticsScreen from "./app/screens/Analytics/PlantAnalyticsScreen";
-import SeedlingAnalyticsScreen from "./app/screens/Analytics/SeedlingAnalyticsScreen";
-import SpiceAnalyticsScreen from "./app/screens/Analytics/SpiceAnalyticsScreen";
-import VegetableAnalyticsScreen from "./app/screens/Analytics/VegetableAnalyticsScreen";
+import MarketCategoryListScreen from "./app/screens/Market/MarketCategory/MarketCategoryListScreen";
+import MarketCategoryScreen from "./app/screens/Market/MarketCategory/MarketCategoryScreen";
+import MarketAnalyticScreen from "./app/screens/Analytics/MarketAnalyticScreen";
+
 
 const Stack = createStackNavigator();
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
+  const [isConnected, setConnected] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = NetInfo.addEventListener((state) => {
+      setConnected(state.isConnected);
+      if (!state.isConnected) {
+        showAlert();
+      }
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+
+  const showAlert = () => {
+    Alert.alert(
+      'Internet Connection',
+      'You are offline. Some features may not be available.'
+    );
+  };
 
   useEffect(() => {
     setTimeout(() => {
@@ -177,76 +187,16 @@ function App() {
               component={PickUpAddressScreen}
             />
             <Stack.Screen
-            name='Fruit Category'
-            component={FruitCategoryScreen}
+            name='Market List'
+            component={MarketCategoryListScreen}
             />
             <Stack.Screen
-            name='Vegetable Category'
-            component={VegetableCategoryScreen}
+            name='Market Category'
+            component={MarketCategoryScreen}
             />
             <Stack.Screen
-            name='Seedling Category'
-            component={SeedlingCategoryScreen}
-            />
-            <Stack.Screen
-            name='Spice Category'
-            component={SpiceCategoryListScreen}
-            />
-            <Stack.Screen
-            name='Plant Category'
-            component={PlantCategoryScreen}
-            />
-            <Stack.Screen
-            name='Flower Category'
-            component={FlowerCategoryScreen}
-            />
-            <Stack.Screen
-            name = 'Vegetable List'
-            component={VegetableCategoryListScreen}
-            />
-            <Stack.Screen
-            name='Fruit List'
-            component = {FruitCategoryListScreen}
-            />
-            <Stack.Screen
-            name='Spice List'
-            component= {SpiceCategoryListScreen}
-            />
-            <Stack.Screen
-            name='Seedling List'
-            component={SeedlingCategotyList}
-            />
-            <Stack.Screen
-            name='Plant List'
-            component={PlantCategoryListScreen}
-            />
-            <Stack.Screen
-            name='Flower List'
-            component={FlowerCategoryListScreen}
-            />
-            <Stack.Screen
-            name='Flower Analytics'
-            component={FlowerAnalyticsScreen}
-            />
-            <Stack.Screen
-            name='Fruit Analytics'
-            component={FruitAnalyticsScreen}
-            />
-            <Stack.Screen
-            name='Plant Analytics'
-            component={PlantAnalyticsScreen}
-            />
-            <Stack.Screen
-            name='Seedling Analytics'
-            component={SeedlingAnalyticsScreen}
-            />
-            <Stack.Screen
-            name='Spice Analytics'
-            component={SpiceAnalyticsScreen}
-            />
-            <Stack.Screen
-            name='Vegetable Analytics'
-            component={VegetableAnalyticsScreen}
+            name='Market Analytics'
+            component={MarketAnalyticScreen}
             />
           </>
         )}

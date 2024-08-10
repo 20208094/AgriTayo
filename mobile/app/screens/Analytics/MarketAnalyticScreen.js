@@ -5,11 +5,11 @@ import { LineChart } from "react-native-chart-kit";
 
 const Tab = createMaterialTopTabNavigator();
 
-function VegetableAnalyticsScreen({ route }) {
-  const { vegetablesCategory, selectedVegetableId } = route.params;
+function MarketAnalyticScreen({ route }) {
+const { category, selectedItemId } = route.params;
   const screenWidth = Dimensions.get("window").width;
 
-  const getDataForVegetable = (id) => {
+  const getDataForItem = (id) => {
     const data = {
       1: [
         { month: "Aug", price: 120 },
@@ -165,18 +165,18 @@ function VegetableAnalyticsScreen({ route }) {
     return data[id];
   };
 
-  const renderAnalyticsChart = (vegetableId) => {
-    const cropData = getDataForVegetable(vegetableId);
-    const labels = cropData.map((crop) => crop.month);
-    const data = cropData.map((crop) => crop.price);
+  const renderAnalyticsChart = (itemId) => {
+    const itemData = getDataForItem(itemId);
+    const labels = itemData.map((item) => item.month);
+    const data = itemData.map((item) => item.price);
 
     return (
       <LineChart
         data={{
-          labels: labels,
+          labels,
           datasets: [
             {
-              data: data,
+              data,
             },
           ],
         }}
@@ -216,17 +216,16 @@ function VegetableAnalyticsScreen({ route }) {
         lazy: true,
       }}
       initialRouteName={
-        vegetablesCategory.find(
-          (vegetable) => vegetable.id === selectedVegetableId
-        ).name
+        category.find((item) => item.id === selectedItemId)?.name ??
+        category[0]?.name
       }
     >
-      {vegetablesCategory.map((vegetable) => (
-        <Tab.Screen key={vegetable.id} name={vegetable.name}>
+      {category.map((item) => (
+        <Tab.Screen key={item.id} name={item.name}>
           {() => (
             <View>
-              <Text>Analytics for {vegetable.name}</Text>
-              {renderAnalyticsChart(vegetable.id)}
+              <Text>Analytics for {item.name}</Text>
+              {renderAnalyticsChart(item.id)}
             </View>
           )}
         </Tab.Screen>
@@ -235,4 +234,4 @@ function VegetableAnalyticsScreen({ route }) {
   );
 }
 
-export default VegetableAnalyticsScreen;
+export default MarketAnalyticScreen;
