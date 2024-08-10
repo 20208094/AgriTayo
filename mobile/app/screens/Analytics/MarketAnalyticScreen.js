@@ -2,11 +2,12 @@ import React from "react";
 import { View, Text, Dimensions } from "react-native";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { LineChart } from "react-native-chart-kit";
+import { FontAwesome } from "@expo/vector-icons"; // For the gear icon
 
 const Tab = createMaterialTopTabNavigator();
 
 function MarketAnalyticScreen({ route }) {
-const { category, selectedItemId } = route.params;
+  const { category, selectedItemId } = route.params;
   const screenWidth = Dimensions.get("window").width;
 
   const getDataForItem = (id) => {
@@ -174,36 +175,43 @@ const { category, selectedItemId } = route.params;
       <LineChart
         data={{
           labels,
-          datasets: [
-            {
-              data,
-            },
-          ],
+          datasets: [{ data }],
         }}
-        width={screenWidth - 16}
-        height={220}
+        width={screenWidth - 32} // Responsive width with some padding
+        height={screenWidth * 0.6} // Adjusted height to be more responsive
         yAxisLabel="₱"
+        yAxisSuffix="" // Remove any suffix if necessary
+        yAxisInterval={1} // Sets the gap between each label on the y-axis
         chartConfig={{
-          backgroundColor: "#00B251",
-          backgroundGradientFrom: "#00B251",
-          backgroundGradientTo: "#00B251",
-          decimalPlaces: 2,
-          color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-          labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+          backgroundColor: "#ffffff",
+          backgroundGradientFrom: "#ffffff",
+          backgroundGradientTo: "#ffffff",
+          decimalPlaces: 0, // No decimals in price
+          color: (opacity = 1) => `rgba(0, 178, 81, ${opacity})`,
+          labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
           style: {
             borderRadius: 16,
           },
           propsForDots: {
-            r: "6",
+            r: "5",
             strokeWidth: "2",
-            stroke: "#00B251",
+            stroke: "#000000",
           },
+          fillShadowGradient: `rgba(0, 178, 81, 0.3)`,
+          fillShadowGradientOpacity: 1,
+          paddingRight: 32, // Additional padding for y-axis labels
         }}
         bezier
         style={{
           marginVertical: 8,
           borderRadius: 16,
+          paddingRight: 32, // Add padding to prevent overlay on y-axis
         }}
+        formatYLabel={(value) => `${value}`} // Formats y-axis labels with "₱"
+        fromZero // Starts y-axis from zero
+        segments={6} // Number of segments on the Y-axis (adjust for more granularity)
+        xLabelsOffset={-10} // Adjust this if your X-axis labels are cut off
+        yLabelsOffset={2} // Ensure y-axis labels are not cut off
       />
     );
   };
@@ -216,15 +224,55 @@ const { category, selectedItemId } = route.params;
         lazy: true,
       }}
       initialRouteName={
-        category.find((item) => item.id === selectedItemId)?.name ??
-        category[0]?.name
+        category.find((item) => item.id === selectedItemId)?.name ?? category[0]?.name
       }
     >
       {category.map((item) => (
         <Tab.Screen key={item.id} name={item.name}>
           {() => (
-            <View>
-              <Text>Analytics for {item.name}</Text>
+            <View className="bg-white p-4 rounded-lg shadow-md">
+              <Text className="text-xl font-bold text-green-700 text-center mb-4">
+                {item.name.toUpperCase()} SUMMARY
+              </Text>
+
+              <Text className="text-sm font-bold text-green-500 mb-2">
+                Current Available Listings{" "}
+                <Text className="text-green-700">30 Listings</Text>
+              </Text>
+              <Text className="text-sm font-bold text-green-500 mb-2">
+                Current Highest Price/Kilo{" "}
+                <Text className="text-green-700">₱70/kilo</Text>
+              </Text>
+              <Text className="text-sm font-bold text-green-500 mb-4">
+                Current Lowest Price/Kilo{" "}
+                <Text className="text-green-700">₱50/kilo</Text>
+              </Text>
+
+              <View
+                className="bg-green-500 p-2 rounded-lg flex-row items-center justify-center mb-4"
+                style={{ width: "100%", alignItems: "center" }}
+              >
+                <FontAwesome name="cog" size={18} color="white" />
+                <Text className="text-white text-sm ml-2">14 Days Summary</Text>
+              </View>
+
+              <Text className="text-sm font-bold text-green-500 mb-2">
+                Total bought{" "}
+                <Text className="text-green-700">500 KG</Text>
+              </Text>
+              <Text className="text-sm font-bold text-green-500 mb-2">
+                Highest Price/Kilo{" "}
+                <Text className="text-green-700">₱70/kilo</Text>
+              </Text>
+              <Text className="text-sm font-bold text-green-500 mb-4">
+                Lowest Price/Kilo{" "}
+                <Text className="text-green-700">₱50/kilo</Text>
+              </Text>
+
+              <Text className="text-sm font-bold text-green-700 mb-2">
+                Price Movement per Day
+              </Text>
+
               {renderAnalyticsChart(item.id)}
             </View>
           )}
