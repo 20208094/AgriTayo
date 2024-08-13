@@ -3,6 +3,8 @@ import { View, Text, TouchableOpacity, Alert, TextInput, KeyboardAvoidingView, S
 import { Icon } from "react-native-elements";
 import EditMap from "../../../components/EditMap";
 import { styled } from "nativewind";
+import { useNavigation } from "@react-navigation/native";
+import { NotificationIcon, MessagesIcon, MarketIcon } from "../../../components/SearchBarC";
 
 function EditAddress({ route, navigation }) {
   const {profile} = route.params
@@ -61,6 +63,18 @@ function EditAddress({ route, navigation }) {
   const handleLabelSelect = (selectedLabel) => {
     setLabelText(selectedLabel);
   };
+
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <View style={{ flexDirection: "row", marginRight: 15 }}>
+          <NotificationIcon onPress={() => navigation.navigate("Notifications")} />
+          <MessagesIcon onPress={() => navigation.navigate("Messages")} />
+          <MarketIcon onPress={() => navigation.navigate("Market")} />
+        </View>
+      ),
+    });
+  }, [navigation]);
 
   return (
     <KeyboardAvoidingView className="flex-1 bg-white" behavior="padding">

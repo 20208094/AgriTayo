@@ -77,9 +77,6 @@ function ViewProfileScreen({ route, navigation }) {
     <SafeAreaView className="flex-1 bg-gray-100">
       <ScrollView className="flex-1 px-4">
         <View className="bg-white p-4 rounded-lg shadow-sm relative">
-          {/* Back Button */}
-          <GoBack navigation={navigation} />
-
           {/* Circular frame with user image and shadow effect */}
           <View className="items-center mb-4 mt-8">
             <View className="relative w-24 h-24 rounded-full border-4 border-green-500 shadow-lg bg-white">

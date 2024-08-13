@@ -2,7 +2,7 @@ import * as React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { useEffect, useState } from "react";
-import { Alert} from "react-native";
+import { Alert } from "react-native";
 import NetInfo from "@react-native-community/netinfo"; 
 import SplashScreen from "./app/screens/Splash/SplashScreen";
 import LoginScreen from "./app/screens/Login/LoginScreen";
@@ -37,7 +37,6 @@ import MarketCategoryScreen from "./app/screens/Market/MarketCategory/MarketCate
 import MarketAnalyticScreen from "./app/screens/Analytics/MarketAnalyticScreen";
 import ShopScreen from "./app/screens/farmers/Shop/ShopScreen";
 
-
 const Stack = createStackNavigator();
 
 function App() {
@@ -70,6 +69,13 @@ function App() {
     }, 3000);
   }, []);
 
+  const screenOptions = {
+    headerTitleStyle: {
+      color: "#2E7D32",
+    },
+    headerTintColor: "#2E7D32",
+  };
+
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Splash">
@@ -84,120 +90,152 @@ function App() {
             <Stack.Screen
               name="Login"
               component={LoginScreen}
-              options={{ headerShown: false }}
+              options={{ ...screenOptions, headerShown: false }}
             />
             <Stack.Screen
               name="Register"
               component={RegisterScreenBuyers}
-              options={{ headerShown: false }}
+              options={{ ...screenOptions, headerShown: false }}
             />
-            <Stack.Screen name="HomePageScreen" component={HomePageScreen} />
+            <Stack.Screen
+              name="HomePageScreen"
+              component={HomePageScreen}
+              options={screenOptions}
+            />
             <Stack.Screen
               name="CartScreen"
               component={CartScreen}
-              options={{ headerShown: false }}
+              options={{ ...screenOptions, headerShown: false }}
             />
-            <Stack.Screen name="Messages" component={MessageScreen} />
-            <Stack.Screen name="Notifications" component={NotificationScreen} />
+            <Stack.Screen
+              name="Messages"
+              component={MessageScreen}
+              options={screenOptions}
+            />
+            <Stack.Screen
+              name="Notifications"
+              component={NotificationScreen}
+              options={screenOptions}
+            />
             <Stack.Screen
               name="Product Details"
               component={ProductDetailsScreen}
+              options={screenOptions}
             />
             <Stack.Screen
               name="Notification Details"
               component={NotificationDetailsScreen}
+              options={screenOptions}
             />
             <Stack.Screen
               name="NavigationBar"
               component={NavigationBar}
-              options={{ headerShown: false }}
+              options={{ ...screenOptions, headerShown: false }}
             />
             <Stack.Screen
               name="OTP Screen"
               component={OTPScreen}
-              options={{ headerShown: false }}
+              options={{ ...screenOptions, headerShown: false }}
             />
             <Stack.Screen
               name="Change Email"
               component={ChangeEmailScreen}
-              options={{ headerShown: false }}
+              options={{ ...screenOptions, headerShown: false }}
             />
             <Stack.Screen
               name="Forgot Password"
               component={ForgotPasswordScreen}
-              options={{ headerShown: false }}
+              options={{ ...screenOptions, headerShown: false }}
             />
             <Stack.Screen
               name="Change Password OTP"
               component={ChangePasswordOTPSCreen}
-              options={{ headerShown: false }}
+              options={{ ...screenOptions, headerShown: false }}
             />
             <Stack.Screen
               name="New Password"
               component={NewPasswordScreen}
-              options={{ headerShown: false }}
+              options={{ ...screenOptions, headerShown: false }}
             />
             <Stack.Screen
               name="View Profile"
               component={ViewProfileScreen}
-              options={{ headerShown: false }}
+              options={screenOptions}
             />
             <Stack.Screen
               name="Address"
               component={AddressScreen}
-              options={{ headerShown: false }}
+              options={screenOptions}
             />
-            <Stack.Screen name="Add Address" component={AddAddressScreen} />
+            <Stack.Screen
+              name="Add Address"
+              component={AddAddressScreen}
+              options={screenOptions}
+            />
             <Stack.Screen
               name="View Address"
               component={ViewAddressScreen}
-              options={{ headerShown: false }}
+              options={{ ...screenOptions, headerShown: false }}
             />
-            <Stack.Screen name="Edit Profile" component={EditProfileScreen} />
-            <Stack.Screen name="Edit Address" component={EditAddress} />
+            <Stack.Screen
+              name="Edit Profile"
+              component={EditProfileScreen}
+              options={screenOptions}
+            />
+            <Stack.Screen
+              name="Edit Address"
+              component={EditAddress}
+              options={screenOptions}
+            />
             <Stack.Screen
               name="Welcome To Agritayo!"
               component={StartSelling}
+              options={{ ...screenOptions, headerShown: false }}
             />
             <Stack.Screen
               name="Shop Information"
               component={ShopInformationScreen}
-              options={{ headerShown: false }}
+              options={{ ...screenOptions, headerShown: false }}
             />
             <Stack.Screen
               name="Business Information"
               component={BusinessInformationScreen}
-              options={{ headerShown: false }}
+              options={{ ...screenOptions, headerShown: false }}
             />
             <Stack.Screen
               name="CheckOutScreen"
               component={CheckOutScreen}
-              options={{ headerShown: false }}
+              options={{ ...screenOptions, headerShown: false }}
             />
             <Stack.Screen
               name="Authentication"
               component={PhoneAuthenticationScreen}
+              options={screenOptions}
             />
             <Stack.Screen
               name="Email Authentication"
               component={EmailAuthenticationScreen}
-              options={{ headerShown: false }}
+              options={{ ...screenOptions, headerShown: false }}
             />
             <Stack.Screen
               name="Pickup Address"
               component={PickUpAddressScreen}
+              options={screenOptions}
             />
             <Stack.Screen
-            name='Market List'
-            component={MarketCategoryListScreen}
+              name="Market List"
+              component={MarketCategoryListScreen}
+              options={screenOptions}
             />
             <Stack.Screen
-            name='Market Category'
-            component={MarketCategoryScreen}
+              name="Market Category"
+              component={MarketCategoryScreen}
+              options={screenOptions}
             />
             <Stack.Screen
-            name='Market Analytics'
-            component={MarketAnalyticScreen}
+              name="Market Analytics"
+              component={MarketAnalyticScreen}
+              options={screenOptions}
             />
             <Stack.Screen
             name='Shop'
