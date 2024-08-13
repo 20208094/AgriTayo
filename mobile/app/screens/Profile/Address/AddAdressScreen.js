@@ -11,6 +11,8 @@ import {
 import { styled } from "nativewind";
 import { Icon } from "react-native-elements";
 import Map from "../../../components/Map";
+import { useNavigation } from "@react-navigation/native";
+import { NotificationIcon, MessagesIcon, MarketIcon } from "../../../components/SearchBarC";
 
 function AddAddressScreen({
   route,
@@ -20,6 +22,7 @@ function AddAddressScreen({
   const [address, setAddress] = useState("");
   const [note, setNote] = useState("");
   const [label, setLabel] = useState("Partner");
+  const navigation = useNavigation();
 
   useEffect(() => {
     if (!currentLocation) {
@@ -38,6 +41,18 @@ function AddAddressScreen({
       })();
     }
   }, [currentLocation]);
+
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <View style={{ flexDirection: "row", marginRight: 15 }}>
+          <NotificationIcon onPress={() => navigation.navigate("Notifications")} />
+          <MessagesIcon onPress={() => navigation.navigate("Messages")} />
+          <MarketIcon onPress={() => navigation.navigate("Market")} />
+        </View>
+      ),
+    });
+  }, [navigation]);
 
   const handleLabelSelect = (selectedLabel) => {
     setLabel(selectedLabel);

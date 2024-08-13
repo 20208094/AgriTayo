@@ -26,7 +26,7 @@ const SearchBarC = ({ showSearchBar = true }) => {
             name="filter-outline"
             type="ionicon"
             size={30}
-            color="green"
+            color="#2E7D32"
             containerStyle={styles.filterIconContainer}
           />
         </View>
@@ -41,7 +41,7 @@ const NotificationIcon = ({ onPress }) => (
     name="notifications-outline"
     type="ionicon"
     size={30}
-    color="green"
+    color="#2E7D32"
     onPress={onPress}
     containerStyle={styles.iconContainer}
   />
@@ -52,7 +52,7 @@ const MessagesIcon = ({ onPress }) => (
     name="mail-outline"
     type="ionicon"
     size={30}
-    color="green"
+    color="#2E7D32"
     onPress={onPress}
     containerStyle={styles.iconContainer}
   />
@@ -110,7 +110,7 @@ const MarketIcon = ({ onPress }) => (
     name="cart-outline"
     type="ionicon"
     size={30}
-    color="green"
+    color="#2E7D32"
     onPress={onPress}
     containerStyle={styles.iconContainer}
   />

@@ -1,4 +1,5 @@
 import React from "react";
+import { View } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Icon from "react-native-vector-icons/Ionicons";
 import HomePageScreen from "../screens/Home/HomePageScreen";
@@ -6,10 +7,14 @@ import CropsScreen from "../screens/Market/CropsScreen";
 import ProfileScreen from "../screens/Profile/ProfileScreen";
 import OrdersScreen from "../screens/Orders/OrdersScreen";
 import AnalyticScreen from "../screens/Analytics/AnalyticScreen";
+import { NotificationIcon, MessagesIcon, MarketIcon } from "../components/SearchBarC";
+import { useNavigation } from "@react-navigation/native";
 
 const Tab = createBottomTabNavigator();
 
 const NavigationBar = () => {
+  const navigation = useNavigation();  // Use the hook here
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -39,8 +44,12 @@ const NavigationBar = () => {
 
           return <Icon name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: "green",
+        tabBarActiveTintColor: "#2E7D32", // Set active tab color to green
         tabBarInactiveTintColor: "gray",
+        headerTitleStyle: {
+          color: "#2E7D32", // Set header title color to green
+        },
+        headerTintColor: "#2E7D32", // Set the color of the header's back button and other icons to green
       })}
     >
       <Tab.Screen
@@ -48,13 +57,57 @@ const NavigationBar = () => {
         component={HomePageScreen}
         options={{ headerShown: false }}
       />
-      <Tab.Screen name="Market" component={CropsScreen} />
-      <Tab.Screen name="Analytics" component={AnalyticScreen} />
-      <Tab.Screen name="Orders" component={OrdersScreen} />
+      <Tab.Screen
+        name="Market"
+        component={CropsScreen}
+        options={{
+          headerRight: () => (
+            <View style={{ flexDirection: "row", marginRight: 15 }}>
+              <MarketIcon onPress={() => navigation.navigate("CartScreen")} />
+              <NotificationIcon onPress={() => navigation.navigate("Notifications")} />
+              <MessagesIcon onPress={() => navigation.navigate("Messages")} />
+            </View>
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Analytics"
+        component={AnalyticScreen}
+        options={{
+          headerRight: () => (
+            <View style={{ flexDirection: "row", marginRight: 15 }}>
+              <MarketIcon onPress={() => navigation.navigate("CartScreen")} />
+              <NotificationIcon onPress={() => navigation.navigate("Notifications")} />
+              <MessagesIcon onPress={() => navigation.navigate("Messages")} />
+            </View>
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Orders"
+        component={OrdersScreen}
+        options={{
+          headerRight: () => (
+            <View style={{ flexDirection: "row", marginRight: 15 }}>
+              <MarketIcon onPress={() => navigation.navigate("CartScreen")} />
+              <NotificationIcon onPress={() => navigation.navigate("Notifications")} />
+              <MessagesIcon onPress={() => navigation.navigate("Messages")} />
+            </View>
+          ),
+        }}
+      />
       <Tab.Screen
         name="Profile"
         component={ProfileScreen}
-        options={{ headerShown: false }}
+        options={{
+          headerRight: () => (
+            <View style={{ flexDirection: "row", marginRight: 15 }}>
+              <MarketIcon onPress={() => navigation.navigate("CartScreen")} />
+              <NotificationIcon onPress={() => navigation.navigate("Notifications")} />
+              <MessagesIcon onPress={() => navigation.navigate("Messages")} />
+            </View>
+          ),
+        }}
       />
     </Tab.Navigator>
   );

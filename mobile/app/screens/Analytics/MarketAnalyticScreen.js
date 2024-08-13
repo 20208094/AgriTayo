@@ -3,16 +3,32 @@ import { View, Text, Dimensions, TouchableOpacity, Modal, Button } from "react-n
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { LineChart } from "react-native-chart-kit";
 import { FontAwesome } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+import { MarketIcon, NotificationIcon, MessagesIcon } from "../../components/SearchBarC";
 
 const Tab = createMaterialTopTabNavigator();
 
 function MarketAnalyticScreen({ route }) {
   const { category, selectedItemId } = route.params;
   const screenWidth = Dimensions.get("window").width;
-  const chartHeight = screenWidth * 0.6; // height of the chart
+  const chartHeight = screenWidth * 0.6;
   const [selectedFilter, setSelectedFilter] = useState("12 Months");
   const [modalVisible, setModalVisible] = useState(false);
   const [tooltip, setTooltip] = useState({ visible: false, x: 0, y: 0, value: '', date: '', sold: 0 });
+
+  const navigation = useNavigation();
+
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <View style={{ flexDirection: "row", marginRight: 15 }}>
+          <MarketIcon onPress={() => navigation.navigate("CartScreen")} />
+          <NotificationIcon onPress={() => navigation.navigate("Notifications")} />
+          <MessagesIcon onPress={() => navigation.navigate("Messages")} />
+        </View>
+      ),
+    });
+  }, [navigation]);
 
   const getDataForItem = (id, filter) => {
     const data = {
@@ -134,7 +150,7 @@ function MarketAnalyticScreen({ route }) {
               position: "absolute",
               top: tooltip.y - 30, // Adjusts the Y position of the tooltip
               left: Math.max(5, Math.min(tooltip.x - 50, screenWidth - 100)),
-              backgroundColor: "white",
+              backgroundColor: "green",
               borderColor: "black",
               borderWidth: 1,
               borderRadius: 8,
@@ -160,7 +176,7 @@ function MarketAnalyticScreen({ route }) {
                 borderTopWidth: 10,
                 borderLeftColor: "transparent",
                 borderRightColor: "transparent",
-                borderTopColor: "black", // Adjust color to match tooltip border or background
+                borderTopColor: "green", // Adjust color to match tooltip border or background
               }}
             />
           </View>

@@ -25,19 +25,7 @@ function ProfileScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-gray-100 pt-0">
-      {/* Add Notification and Messages icons */}
-      <View className="px-4 mt-8 flex-row justify-between items-center">
-        {/* Empty View to push icons to the right */}
-        <View className="flex-1"></View>
-        <View className="flex-row space-x-4">
-          <NotificationIcon
-            onPress={() => navigation.navigate("Notifications")}
-          />
-          <MessagesIcon onPress={() => navigation.navigate("Messages")} />
-        </View>
-      </View>
-
-      <View className="mt-6 bg-green-200 pt-0 pb-6 rounded-b-lg">
+      <View className="mt-1 bg-green-200 pt-0 pb-6 rounded-b-lg">
         <View className="flex-row items-center px-4">
           <View className="relative mr-4">
             <Image source={michael} className="w-24 h-24 rounded-full" />
