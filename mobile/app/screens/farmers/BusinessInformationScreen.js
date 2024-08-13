@@ -12,6 +12,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { FontAwesome } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { Ionicons } from "@expo/vector-icons";
+import { Icon } from "react-native-elements";
 
 function BusinessInformationScreen({ navigation, route }) {
   const { profile } = route.params;
@@ -292,20 +293,25 @@ function BusinessInformationScreen({ navigation, route }) {
           Last Name, First Name (e.g. Dela Cruz, Juan)
         </Text>
 
-        <TouchableOpacity
-          style={{
-            borderWidth: 1,
-            borderColor: "#ccc",
-            borderRadius: 4,
-            padding: 8,
-            marginBottom: 16,
-          }}
-          onPress={() => navigation.navigate("Address", { profile })}
-        >
-          <Text style={{ fontSize: 14, color: "#999", marginBottom: 16 }}>
+        <View style={{ marginTop: 1 }}>
+          <Text
+            style={{
+              fontSize: 18,
+              fontWeight: "600",
+              color: "#2F855A",
+              marginBottom: 1,
+            }}
+          >
             Registered Address
           </Text>
+        <TouchableOpacity 
+          className='bg-gray-100 rounded-md p-3 my-2 flex-row justify-between items-center'
+          onPress={() => navigation.navigate("Address", {profile})}
+        >
+          <Text className='text-base text-black'>Registered Address: {profile.address}</Text>
+          <Icon name="chevron-right" type="font-awesome" size={24} color="#2F855A" />
         </TouchableOpacity>
+        </View>
 
         <Text style={{ fontSize: 18, fontWeight: "600", color: "#2F855A" }}>
           Taxpayer Identification Number (TIN)
