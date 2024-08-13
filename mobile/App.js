@@ -35,6 +35,7 @@ import PickUpAddressScreen from "./app/screens/farmers/PickUpAddressScreen";
 import MarketCategoryListScreen from "./app/screens/Market/MarketCategory/MarketCategoryListScreen";
 import MarketCategoryScreen from "./app/screens/Market/MarketCategory/MarketCategoryScreen";
 import MarketAnalyticScreen from "./app/screens/Analytics/MarketAnalyticScreen";
+import ShopScreen from "./app/screens/farmers/Shop/ShopScreen";
 
 
 const Stack = createStackNavigator();
@@ -197,6 +198,10 @@ function App() {
             <Stack.Screen
             name='Market Analytics'
             component={MarketAnalyticScreen}
+            />
+            <Stack.Screen
+            name='Shop'
+            component={ShopScreen}
             />
           </>
         )}

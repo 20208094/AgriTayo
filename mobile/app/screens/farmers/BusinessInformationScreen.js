@@ -11,7 +11,6 @@ import { ScrollView } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { FontAwesome } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
-import { Ionicons } from "@expo/vector-icons";
 
 function BusinessInformationScreen({ navigation, route }) {
   const { profile } = route.params;
@@ -21,13 +20,22 @@ function BusinessInformationScreen({ navigation, route }) {
   const [selectedBusinessInformation, setSelectedBusinessInformation] =
     useState("");
   const [selectedSellerType, setSelectedSellerType] = useState("");
-  const [
-    selectedValueAddedTaxRegistrationStatus,
-    setSelectedValueAddedTaxRegistrationStatus,
-  ] = useState("");
-  const [selectedSubmitSwornDeclaration, setSelectedSubmitSwornDeclaration] =
-    useState("");
+  const [registeredName, setRegisteredName] = useState("");
+  const [tin, setTin] = useState("");
+  const [vatStatus, setVatStatus] = useState("");
+  const [swornDeclaration, setSwornDeclaration] = useState("");
   const [isTermsAccepted, setIsTermsAccepted] = useState(false);
+
+  const [errors, setErrors] = useState({
+    businessInformation: "",
+    sellerType: "",
+    registeredName: "",
+    tin: "",
+    vatStatus: "",
+    swornDeclaration: "",
+    termsAccepted: "",
+    birCertificate: "",
+  });
 
   const submitBusinessInformationOptions = [
     { label: "Submit Now", value: "now" },
@@ -85,6 +93,85 @@ function BusinessInformationScreen({ navigation, route }) {
     if (!result.canceled) {
       setBirCertificate({ uri: result.assets[0].uri });
       setModalVisible(false);
+    }
+  };
+
+  const validateForm = () => {
+    let isValid = true;
+    const newErrors = { ...errors };
+
+    if (!selectedBusinessInformation) {
+      newErrors.businessInformation =
+        "Business Information option is required.";
+      isValid = false;
+    } else {
+      newErrors.businessInformation = "";
+    }
+
+    if (!selectedSellerType) {
+      newErrors.sellerType = "Seller Type is required.";
+      isValid = false;
+    } else {
+      newErrors.sellerType = "";
+    }
+
+    const nameRegex = /^[a-zA-Z\s'-]+$/;
+    if (!registeredName) {
+      newErrors.registeredName = "Registered Name is required";
+      isValid = false;
+    } else if (!nameRegex.test(registeredName)) {
+      newErrors.registeredName =
+        "Registered Name must contain only letters, spaces, hyphens, and apostrophes.";
+      isValid = false;
+    } else {
+      newErrors.registeredName = "";
+    }
+
+    const tinRegex = /^[0-9]{3}-?[0-9]{3}-?[0-9]{3}$/;
+    if (!tin) {
+      newErrors.tin = "TIN is required";
+      isValid = false;
+    } else if (!tinRegex.test(tin)) {
+      newErrors.tin = "Tin must be 9 digits (e.g., 123456789 or 123-456-789)";
+    } else {
+      newErrors.tin = "";
+    }
+
+    if (!vatStatus) {
+      newErrors.vatStatus = "VAT Status is required.";
+      isValid = false;
+    } else {
+      newErrors.vatStatus = "";
+    }
+
+    if (!swornDeclaration) {
+      newErrors.swornDeclaration = "Sworn Declaration option is required.";
+      isValid = false;
+    } else {
+      newErrors.swornDeclaration = "";
+    }
+
+    if (!isTermsAccepted) {
+      newErrors.termsAccepted = "You must agree to the Terms and Conditions.";
+      isValid = false;
+    } else {
+      newErrors.termsAccepted = "";
+    }
+
+    if (!birCertificate) {
+      newErrors.birCertificate = "BIR Certificate of Registration is required.";
+      isValid = false;
+    } else {
+      newErrors.birCertificate = "";
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  };
+
+  const handleSubmit = () => {
+    if (validateForm()) {
+      navigation.navigate("Shop");
     }
   };
 
@@ -213,6 +300,11 @@ function BusinessInformationScreen({ navigation, route }) {
               </Text>
             </TouchableOpacity>
           ))}
+          {errors.businessInformation ? (
+            <Text style={{ color: "red", marginTop: 4 }}>
+              {errors.businessInformation}
+            </Text>
+          ) : null}
         </View>
 
         <Text style={{ fontSize: 14, color: "#999", marginBottom: 16 }}>
@@ -263,6 +355,11 @@ function BusinessInformationScreen({ navigation, route }) {
               </Text>
             </TouchableOpacity>
           ))}
+          {errors.sellerType ? (
+            <Text style={{ color: "red", marginTop: 4 }}>
+              {errors.sellerType}
+            </Text>
+          ) : null}
         </View>
 
         <View style={{ marginTop: 16 }}>
@@ -285,7 +382,14 @@ function BusinessInformationScreen({ navigation, route }) {
               marginBottom: 8,
             }}
             placeholder="Input"
+            value={registeredName}
+            onChangeText={setRegisteredName}
           />
+          {errors.registeredName ? (
+            <Text style={{ color: "red", marginTop: 4 }}>
+              {errors.registeredName}
+            </Text>
+          ) : null}
         </View>
 
         <Text style={{ fontSize: 14, color: "#999", marginBottom: 16 }}>
@@ -318,9 +422,14 @@ function BusinessInformationScreen({ navigation, route }) {
             padding: 8,
             marginVertical: 8,
           }}
+          keyboardType="numeric"
           placeholder="TIN"
+          value={tin}
+          onChangeText={setTin}
         />
-
+        {errors.tin ? (
+          <Text style={{ color: "red", marginTop: 4 }}>{errors.tin}</Text>
+        ) : null}
         <Text style={{ fontSize: 14, color: "#999", marginBottom: 16 }}>
           Your 9-digit TIN and 3 to 5 digit branch code. Please use '000' as
           your branch code if you don't have one (e.g. 999-999-999-000)
@@ -340,9 +449,7 @@ function BusinessInformationScreen({ navigation, route }) {
           {valueAddedTaxRegistrationStatusOptions.map((option) => (
             <TouchableOpacity
               key={option.value}
-              onPress={() =>
-                setSelectedValueAddedTaxRegistrationStatus(option.value)
-              }
+              onPress={() => setVatStatus(option.value)}
               style={{
                 flexDirection: "row",
                 alignItems: "center",
@@ -355,15 +462,12 @@ function BusinessInformationScreen({ navigation, route }) {
                   height: 24,
                   borderRadius: 12,
                   borderWidth: 2,
-                  borderColor:
-                    selectedValueAddedTaxRegistrationStatus === option.value
-                      ? "#2F855A"
-                      : "#ccc",
+                  borderColor: vatStatus === option.value ? "#2F855A" : "#ccc",
                   justifyContent: "center",
                   alignItems: "center",
                 }}
               >
-                {selectedValueAddedTaxRegistrationStatus === option.value && (
+                {vatStatus === option.value && (
                   <FontAwesome name="check-circle" size={20} color="#2F855A" />
                 )}
               </View>
@@ -372,6 +476,11 @@ function BusinessInformationScreen({ navigation, route }) {
               </Text>
             </TouchableOpacity>
           ))}
+          {errors.vatStatus ? (
+            <Text style={{ color: "red", marginTop: 4 }}>
+              {errors.vatStatus}
+            </Text>
+          ) : null}
         </View>
 
         <Text style={{ fontSize: 18, fontWeight: "600", color: "#2F855A" }}>
@@ -400,7 +509,11 @@ function BusinessInformationScreen({ navigation, route }) {
             style={{ width: 100, height: 100, marginBottom: 16 }}
           />
         )}
-
+        {errors.birCertificate ? (
+          <Text style={{ color: "red", marginTop: 4 }}>
+            {errors.birCertificate}
+          </Text>
+        ) : null}
         <Text style={{ fontSize: 14, color: "#999", marginBottom: 16 }}>
           Choose a file that is not more than 1 MB in size.
         </Text>
@@ -423,7 +536,7 @@ function BusinessInformationScreen({ navigation, route }) {
           {submitSwornDeclarationOptions.map((option) => (
             <TouchableOpacity
               key={option.value}
-              onPress={() => setSelectedSubmitSwornDeclaration(option.value)}
+              onPress={() => setSwornDeclaration(option.value)}
               style={{
                 flexDirection: "row",
                 alignItems: "center",
@@ -437,14 +550,12 @@ function BusinessInformationScreen({ navigation, route }) {
                   borderRadius: 12,
                   borderWidth: 2,
                   borderColor:
-                    selectedSubmitSwornDeclaration === option.value
-                      ? "#2F855A"
-                      : "#ccc",
+                    swornDeclaration === option.value ? "#2F855A" : "#ccc",
                   justifyContent: "center",
                   alignItems: "center",
                 }}
               >
-                {selectedSubmitSwornDeclaration === option.value && (
+                {swornDeclaration === option.value && (
                   <FontAwesome name="check-circle" size={20} color="#2F855A" />
                 )}
               </View>
@@ -453,6 +564,11 @@ function BusinessInformationScreen({ navigation, route }) {
               </Text>
             </TouchableOpacity>
           ))}
+          {errors.swornDeclaration ? (
+            <Text style={{ color: "red", marginTop: 4 }}>
+              {errors.swornDeclaration}
+            </Text>
+          ) : null}
         </View>
         <Text style={{ fontSize: 14, color: "#999", marginBottom: 8 }}>
           Submission of Sworn Declaration is required to be exempted from
@@ -501,8 +617,12 @@ function BusinessInformationScreen({ navigation, route }) {
               </TouchableOpacity>
             </View>
           </TouchableOpacity>
+          {errors.termsAccepted ? (
+            <Text style={{ color: "red", marginTop: 4 }}>
+              {errors.termsAccepted}
+            </Text>
+          ) : null}
         </View>
-
         <View className="flex-row justify-between mt-6">
           <TouchableOpacity
             className="bg-gray-300 rounded-full py-4 px-8"
@@ -512,7 +632,7 @@ function BusinessInformationScreen({ navigation, route }) {
           </TouchableOpacity>
           <TouchableOpacity
             className="bg-green-600 rounded-full py-4 px-8"
-            onPress={() => {}}
+            onPress={handleSubmit}
           >
             <Text className="text-white text-lg font-semibold">Submit</Text>
           </TouchableOpacity>
