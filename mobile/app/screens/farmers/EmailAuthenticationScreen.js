@@ -9,12 +9,37 @@ import {
 } from "react-native";
 import pic from "../../assets/emailotp.png";
 
-function EmailAuthenticationScreen({ navigation , route}) {
-    const {profile} = route.params
-  // Dummy data for email
-  const email = "example@gmail.com";
+function EmailAuthenticationScreen({ navigation, route }) {
+  const { profile } = route.params;
 
-  // Timer state
+  const [emailAuthentication, setEmailAuthentication] = useState([
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+  ]);
+  const [emailAuthenticationError, setEmailAuthenticationError] = useState("");
+
+  const handleEmailAuthentication = () => {
+    setEmailAuthenticationError("");
+    const emailAuthenticationString = emailAuthentication.join("");
+
+    if (emailAuthenticationString.length < 6) {
+      setEmailAuthenticationError("Enter the 6 digit code");
+    } else {
+      navigation.navigate("Shop Information", { profile });
+    }
+  };
+
+  const handleChangeText = (index, text) => {
+    const newEmailAuthentication = [...emailAuthentication];
+    newEmailAuthentication[index] = text;
+    setEmailAuthentication(newEmailAuthentication);
+  };
+
+  const email = "example@gmail.com";
   const [seconds, setSeconds] = useState(10 * 60);
   const [isResendEnabled, setIsResendEnabled] = useState(false);
 
@@ -68,43 +93,24 @@ function EmailAuthenticationScreen({ navigation , route}) {
         </View>
 
         <View className="flex-row justify-between w-full max-w-xs mb-4">
-          <TextInput
-            className="w-14 p-3 bg-white rounded-lg shadow-md text-center"
-            placeholder=""
-            keyboardType="numeric"
-            maxLength={1}
-          />
-          <TextInput
-            className="w-14 p-3 bg-white rounded-lg shadow-md text-center"
-            placeholder=""
-            keyboardType="numeric"
-            maxLength={1}
-          />
-          <TextInput
-            className="w-14 p-3 bg-white rounded-lg shadow-md text-center"
-            placeholder=""
-            keyboardType="numeric"
-            maxLength={1}
-          />
-          <TextInput
-            className="w-14 p-3 bg-white rounded-lg shadow-md text-center"
-            placeholder=""
-            keyboardType="numeric"
-            maxLength={1}
-          />
-          <TextInput
-            className="w-14 p-3 bg-white rounded-lg shadow-md text-center"
-            placeholder=""
-            keyboardType="numeric"
-            maxLength={1}
-          />
-          <TextInput
-            className="w-14 p-3 bg-white rounded-lg shadow-md text-center"
-            placeholder=""
-            keyboardType="numeric"
-            maxLength={1}
-          />
+          {emailAuthentication.map((value, index) => (
+            <TextInput
+              key={index}
+              className="w-14 p-3 bg-white rounded-lg shadow-md text-center"
+              placeholder=""
+              keyboardType="numeric"
+              maxLength={1}
+              onChangeText={(text) => handleChangeText(index, text)}
+              value={value}
+            />
+          ))}
         </View>
+
+        {emailAuthenticationError ? (
+          <Text className="text-center text w-4/5 text-red-500 mb-4 ">
+            {emailAuthenticationError}
+          </Text>
+        ) : null}
 
         <Text className="text-gray-600 mb-4">
           - The OTP will expire in {formatTime(seconds)}
@@ -118,7 +124,7 @@ function EmailAuthenticationScreen({ navigation , route}) {
         </View>
 
         <TouchableOpacity
-          onPress={() => navigation.navigate("Shop Information", {profile})}
+          onPress={handleEmailAuthentication}
           className="w-4/5 p-3 bg-[#00B251] rounded-lg shadow-md"
         >
           <Text className="text-white text-center text-lg">Verify</Text>

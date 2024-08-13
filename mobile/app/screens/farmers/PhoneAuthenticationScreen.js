@@ -7,12 +7,40 @@ import {
   SafeAreaView,
   Image,
 } from "react-native";
-import pic from "../../assets/emailotp.png"; // Update with the correct image for phone OTP
+import pic from "../../assets/emailotp.png"; 
 
 function PhoneAuthenticationScreen({ navigation, route }) {
+
+  const [phoneAuthentication, setPhoneAuthentication] = useState([
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+  ]);
+  const [phoneAuthenticationError, setPhoneAuthenticationError] = useState("");
+
+  const handlePhoneAuthentication = () => {
+    setPhoneAuthenticationError("");
+    const phoneAuthenticationString = phoneAuthentication.join("");
+
+    if (phoneAuthenticationString.length < 6) {
+      setPhoneAuthenticationError("Enter the 6 digit code");
+    } else {
+      navigation.navigate("Shop Information", { profile });
+    }
+  };
+
+  const handleChangeText = (index, text) => {
+    const newPhoneAuthentication = [...phoneAuthentication];
+    newPhoneAuthentication[index] = text;
+    setPhoneAuthentication(newPhoneAuthentication);
+  };
+
+
   const { profile } = route.params;
 
-  // Timer state
   const [seconds, setSeconds] = useState(10 * 60);
   const [isResendEnabled, setIsResendEnabled] = useState(false);
 
@@ -60,43 +88,24 @@ function PhoneAuthenticationScreen({ navigation, route }) {
         </Text>
 
         <View className="flex-row justify-between w-full max-w-xs mb-4">
-          <TextInput
-            className="w-14 p-3 bg-white rounded-lg shadow-md text-center"
-            placeholder=""
-            keyboardType="numeric"
-            maxLength={1}
-          />
-          <TextInput
-            className="w-14 p-3 bg-white rounded-lg shadow-md text-center"
-            placeholder=""
-            keyboardType="numeric"
-            maxLength={1}
-          />
-          <TextInput
-            className="w-14 p-3 bg-white rounded-lg shadow-md text-center"
-            placeholder=""
-            keyboardType="numeric"
-            maxLength={1}
-          />
-          <TextInput
-            className="w-14 p-3 bg-white rounded-lg shadow-md text-center"
-            placeholder=""
-            keyboardType="numeric"
-            maxLength={1}
-          />
-          <TextInput
-            className="w-14 p-3 bg-white rounded-lg shadow-md text-center"
-            placeholder=""
-            keyboardType="numeric"
-            maxLength={1}
-          />
-          <TextInput
-            className="w-14 p-3 bg-white rounded-lg shadow-md text-center"
-            placeholder=""
-            keyboardType="numeric"
-            maxLength={1}
-          />
+          {phoneAuthentication.map((value, index) => (
+            <TextInput
+              key={index}
+              className="w-14 p-3 bg-white rounded-lg shadow-md text-center"
+              placeholder=""
+              keyboardType="numeric"
+              maxLength={1}
+              onChangeText={(text) => handleChangeText(index, text)}
+              value={value}
+            />
+          ))}
         </View>
+
+        {phoneAuthenticationError ? (
+          <Text className="text-center text w-4/5 text-red-500 mb-4 ">
+            {phoneAuthenticationError}
+          </Text>
+        ) : null}
 
         <Text className="text-gray-600 mb-4">
           - The OTP will expire in {formatTime(seconds)}
@@ -112,7 +121,7 @@ function PhoneAuthenticationScreen({ navigation, route }) {
         </View>
 
         <TouchableOpacity
-          onPress={() => navigation.navigate("Shop Information", { profile })}
+          onPress={handlePhoneAuthentication}
           className="w-4/5 p-3 bg-[#00B251] rounded-lg shadow-md"
         >
           <Text className="text-white text-center text-lg">Verify</Text>

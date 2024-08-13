@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { View, Text, TouchableOpacity, Alert, TextInput, KeyboardAvoidingView, ScrollView } from "react-native";
 import { Icon } from "react-native-elements";
@@ -6,9 +5,54 @@ import EditMap from "../../../components/EditMap";
 import { styled } from "nativewind";
 
 function EditAddress({ route, navigation }) {
+  const {profile} = route.params
   const { address } = route.params;
-  const { label, address: addressDetail, note, latitude, longitude } = address;
 
+  const [addressInput, setAddressInput] = useState('');
+  const [secondAddressInput, setSecondAddressInput] = useState('');
+  const addressInput_regex = /^.{5,}$/;
+  const secondAddressInput_regex = /^.{5,}$/;
+
+  const [errors, setErrors] = useState({
+    addressInputError: '',
+    secondAddressInputError: ''
+  });
+
+  const validateAddressForm = () => {
+    let isValid = true;
+    const newErrors = { ...errors };
+
+    if (!addressInput) {
+      newErrors.addressInputError = "Enter your Address";
+      isValid = false;
+    } else if (!addressInput_regex.test(addressInput)) {
+      newErrors.addressInputError = "Invalid Address, Please Try Again.";
+      isValid = false;
+    } else {
+      newErrors.addressInputError = "";
+    }
+
+    if (!secondAddressInput) {
+      newErrors.secondAddressInputError = "Enter your Floor/Unit/Room";
+      isValid = false;
+    } else if (!secondAddressInput_regex.test(secondAddressInput)) {
+      newErrors.secondAddressInputError = "Invalid Floor/Unit/Room, Please Try Again";
+      isValid = false;
+    } else {
+      newErrors.secondAddressInputError = "";
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  };
+
+  const handleSubmit = () => {
+    if (validateAddressForm()) {
+      navigation.navigate("Address", {profile});
+    }
+  };
+
+  const { label, address: addressDetail, note, latitude, longitude } = address;
   const [position, setPosition] = useState({ latitude, longitude });
   const [addressText, setAddressText] = useState(addressDetail);
   const [noteText, setNoteText] = useState(note);
@@ -33,17 +77,27 @@ function EditAddress({ route, navigation }) {
             <TextInput
               className="flex-1 border-b border-gray-300 mx-2 py-1 text-black"
               placeholder="St. John Inn Dominican Hill Rd"
-              value={addressText}
-              onChangeText={setAddressText}
+              value={addressInput}
+              onChangeText={setAddressInput}
             />
             <Icon name="edit" type="font-awesome" size={20} color="#00B251" />
           </View>
+          {errors.addressInputError ? (
+            <Text style={{ color: "red", marginTop: 4 }}>
+              {errors.addressInputError}
+            </Text>
+          ) : null}
           <TextInput
             className="border-b border-gray-300 py-2 mb-2 text-black"
             placeholder="Floor/Unit/Room #"
-            value={noteText}
-            onChangeText={setNoteText}
+            value={secondAddressInput}
+            onChangeText={setSecondAddressInput}
           />
+          {errors.secondAddressInputError ? (
+            <Text style={{ color: "red", marginTop: 4 }}>
+              {errors.secondAddressInputError}
+            </Text>
+          ) : null}
           <TextInput
             className="border border-gray-300 rounded-lg p-2 mb-2 text-black"
             placeholder="Give us more information about your address. Note to rider - e.g. landmark"
@@ -94,12 +148,7 @@ function EditAddress({ route, navigation }) {
           </View>
           <TouchableOpacity
             className="bg-green-600 py-4 rounded-full items-center"
-            onPress={() => {
-              Alert.alert(
-                "Address Saved",
-                `Address: ${addressText}, Note: ${noteText}, Label: ${labelText}`
-              );
-            }}
+            onPress={handleSubmit}
           >
             <Text className="text-white text-lg font-semibold">Save and continue</Text>
           </TouchableOpacity>

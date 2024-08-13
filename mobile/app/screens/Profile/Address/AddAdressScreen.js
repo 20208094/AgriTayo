@@ -13,13 +13,24 @@ import { Icon } from "react-native-elements";
 import Map from "../../../components/Map";
 
 function AddAddressScreen({
+  navigation,
   route,
   onLocationSelect: handleLocationSelect = () => {},
 }) {
-  const { currentLocation } = route.params;
-  const [address, setAddress] = useState("");
+  const { profile, currentLocation } = route.params;
+
+  const [addressInput, setAddressInput] = useState("");
+  const [secondAddressInput, setSecondAddressInput] = useState("");
   const [note, setNote] = useState("");
   const [label, setLabel] = useState("Partner");
+
+  const addressInput_regex = /^.{5,}$/;
+  const secondAddressInput_regex = /^.{5,}$/;
+
+  const [errors, setErrors] = useState({
+    addressInputError: "",
+    secondAddressInputError: "",
+  });
 
   useEffect(() => {
     if (!currentLocation) {
@@ -34,10 +45,48 @@ function AddAddressScreen({
         }
 
         let { coords } = await Location.getCurrentPositionAsync({});
-        setPosition({ latitude: coords.latitude, longitude: coords.longitude });
+        handleLocationSelect({
+          latitude: coords.latitude,
+          longitude: coords.longitude,
+        });
       })();
     }
   }, [currentLocation]);
+
+  const validateAddressForm = () => {
+    let isValid = true;
+    const newErrors = { ...errors };
+
+    if (!addressInput) {
+      newErrors.addressInputError = "Enter your Address";
+      isValid = false;
+    } else if (!addressInput_regex.test(addressInput)) {
+      newErrors.addressInputError = "Invalid Address, Please Try Again.";
+      isValid = false;
+    } else {
+      newErrors.addressInputError = "";
+    }
+
+    if (!secondAddressInput) {
+      newErrors.secondAddressInputError = "Enter your Floor/Unit/Room";
+      isValid = false;
+    } else if (!secondAddressInput_regex.test(secondAddressInput)) {
+      newErrors.secondAddressInputError =
+        "Invalid Floor/Unit/Room, Please Try Again";
+      isValid = false;
+    } else {
+      newErrors.secondAddressInputError = "";
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  };
+
+  const handleSubmit = () => {
+    if (validateAddressForm()) {
+      navigation.navigate("Address", { profile });
+    }
+  };
 
   const handleLabelSelect = (selectedLabel) => {
     setLabel(selectedLabel);
@@ -51,23 +100,40 @@ function AddAddressScreen({
           onLocationSelect={handleLocationSelect}
         />
         <View className="p-5">
-          <Text className="text-2xl font-bold text-black mb-2">Add your address</Text>
+          <Text className="text-2xl font-bold text-black mb-2">
+            Add your address
+          </Text>
           <View className="flex-row items-center mb-2">
-            <Icon name="map-marker" type="font-awesome" size={20} color="#00B251" />
+            <Icon
+              name="map-marker"
+              type="font-awesome"
+              size={20}
+              color="#00B251"
+            />
             <TextInput
               className="flex-1 border-b border-gray-300 mx-2 py-1 text-black"
               placeholder="St. John Inn Dominican Hill Rd"
-              value={address}
-              onChangeText={setAddress}
+              value={addressInput}
+              onChangeText={setAddressInput}
             />
             <Icon name="edit" type="font-awesome" size={20} color="#00B251" />
           </View>
+          {errors.addressInputError ? (
+            <Text style={{ color: "red", marginTop: 4 }}>
+              {errors.addressInputError}
+            </Text>
+          ) : null}
           <TextInput
             className="border-b border-gray-300 py-2 mb-2 text-black"
             placeholder="Floor/Unit/Room #"
-            value={note}
-            onChangeText={setNote}
+            value={secondAddressInput}
+            onChangeText={setSecondAddressInput}
           />
+          {errors.secondAddressInputError ? (
+            <Text style={{ color: "red", marginTop: 4 }}>
+              {errors.secondAddressInputError}
+            </Text>
+          ) : null}
           <TextInput
             className="border border-gray-300 rounded-lg p-2 mb-2 text-black"
             placeholder="Give us more information about your address. Note to rider - e.g. landmark"
@@ -91,7 +157,11 @@ function AddAddressScreen({
                 size={20}
                 color={label === "Home" ? "white" : "#00B251"}
               />
-              <Text className={`ml-2 ${label === "Home" ? "text-white" : "text-green-600"}`}>
+              <Text
+                className={`ml-2 ${
+                  label === "Home" ? "text-white" : "text-green-600"
+                }`}
+              >
                 Home
               </Text>
             </TouchableOpacity>
@@ -107,7 +177,11 @@ function AddAddressScreen({
                 size={20}
                 color={label === "Work" ? "white" : "#00B251"}
               />
-              <Text className={`ml-2 ${label === "Work" ? "text-white" : "text-green-600"}`}>
+              <Text
+                className={`ml-2 ${
+                  label === "Work" ? "text-white" : "text-green-600"
+                }`}
+              >
                 Work
               </Text>
             </TouchableOpacity>
@@ -123,7 +197,11 @@ function AddAddressScreen({
                 size={20}
                 color={label === "Partner" ? "white" : "#00B251"}
               />
-              <Text className={`ml-2 ${label === "Partner" ? "text-white" : "text-green-600"}`}>
+              <Text
+                className={`ml-2 ${
+                  label === "Partner" ? "text-white" : "text-green-600"
+                }`}
+              >
                 Partner
               </Text>
             </TouchableOpacity>
@@ -139,19 +217,18 @@ function AddAddressScreen({
                 size={20}
                 color={label === "Other" ? "white" : "#00B251"}
               />
-              <Text className={`ml-2 ${label === "Other" ? "text-white" : "text-green-600"}`}>
+              <Text
+                className={`ml-2 ${
+                  label === "Other" ? "text-white" : "text-green-600"
+                }`}
+              >
                 Other
               </Text>
             </TouchableOpacity>
           </View>
           <TouchableOpacity
             className="bg-green-600 py-4 rounded-full items-center"
-            onPress={() => {
-              Alert.alert(
-                "Address Saved",
-                `Address: ${address}, Note: ${note}, Label: ${label}`
-              );
-            }}
+            onPress={handleSubmit}
           >
             <Text className="text-white text-lg font-semibold">
               Save and continue

@@ -10,10 +10,23 @@ import {
 import pic from "../../assets/emailotp.png";
 
 function OTPScreen({ navigation }) {
-  // Dummy data for email
   const email = "example@gmail.com";
 
-  // Timer state
+  // for validation
+  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+  const [otpError, setOtpError] = useState("");
+
+  const handleOtp = () => {
+    setOtpError("");
+    const otpString = otp.join("");
+
+    if (otpString.length < 6) {
+      setOtpError("Enter the 6 digit code");
+    } else {
+      navigation.navigate("NavigationBar");
+    }
+  };
+
   const [seconds, setSeconds] = useState(10 * 60);
   const [isResendEnabled, setIsResendEnabled] = useState(false);
 
@@ -44,6 +57,12 @@ function OTPScreen({ navigation }) {
     setIsResendEnabled(false);
   };
 
+  const handleChangeText = (index, text) => {
+    const newOtp = [...otp];
+    newOtp[index] = text;
+    setOtp(newOtp);
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
       <View className="flex-1 justify-center items-center p-6">
@@ -55,7 +74,7 @@ function OTPScreen({ navigation }) {
 
         <View className="mb-6">
           <Text className="text-gray-600 text-center">
-            A 6-digit code has been sent to {email}{" "}
+            A 6-digit code has been sent to {email}
           </Text>
           <View className="flex-row justify-center">
             <TouchableOpacity
@@ -67,57 +86,36 @@ function OTPScreen({ navigation }) {
         </View>
 
         <View className="flex-row justify-between w-full max-w-xs mb-4">
-          <TextInput
-            className="w-14 p-3 bg-white rounded-lg shadow-md text-center"
-            placeholder=""
-            keyboardType="numeric"
-            maxLength={1}
-          />
-          <TextInput
-            className="w-14 p-3 bg-white rounded-lg shadow-md text-center"
-            placeholder=""
-            keyboardType="numeric"
-            maxLength={1}
-          />
-          <TextInput
-            className="w-14 p-3 bg-white rounded-lg shadow-md text-center"
-            placeholder=""
-            keyboardType="numeric"
-            maxLength={1}
-          />
-          <TextInput
-            className="w-14 p-3 bg-white rounded-lg shadow-md text-center"
-            placeholder=""
-            keyboardType="numeric"
-            maxLength={1}
-          />
-          <TextInput
-            className="w-14 p-3 bg-white rounded-lg shadow-md text-center"
-            placeholder=""
-            keyboardType="numeric"
-            maxLength={1}
-          />
-          <TextInput
-            className="w-14 p-3 bg-white rounded-lg shadow-md text-center"
-            placeholder=""
-            keyboardType="numeric"
-            maxLength={1}
-          />
+          {otp.map((value, index) => (
+            <TextInput
+              key={index}
+              className="w-14 p-3 bg-white rounded-lg shadow-md text-center"
+              placeholder=""
+              keyboardType="numeric"
+              maxLength={1}
+              onChangeText={(text) => handleChangeText(index, text)}
+              value={value}
+            />
+          ))}
         </View>
-
+        {otpError ? (
+          <Text className="text-center text w-4/5 text-red-500 mb-4 ">
+            {otpError}
+          </Text>
+        ) : null}
         <Text className="text-gray-600 mb-4">
           - The OTP will expire in {formatTime(seconds)}
         </Text>
 
         <View className="flex-row items-center mb-6">
-          <Text className="text-gray-600">-Didn’t receive the code? </Text>
+          <Text className="text-gray-600">- Didn’t receive the code? </Text>
           <TouchableOpacity onPress={handleResend}>
             <Text className="text-green-500">Resend</Text>
           </TouchableOpacity>
         </View>
 
         <TouchableOpacity
-          onPress={() => navigation.navigate("NavigationBar")}
+          onPress={handleOtp}
           className="w-4/5 p-3 bg-[#00B251] rounded-lg shadow-md"
         >
           <Text className="text-white text-center text-lg">Verify</Text>
