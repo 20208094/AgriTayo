@@ -1,5 +1,5 @@
 const supabase = require('../db');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 
 async function login(req, res) {
     const { email, password } = req.body;

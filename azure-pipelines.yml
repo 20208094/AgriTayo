@@ -20,11 +20,18 @@ steps:
   inputs:
     command: 'install'
     workingDir: 'frontend'
+
+- script: |
+    rm -rf backend/node_modules
+    rm -f backend/package-lock.json
+  displayName: 'Clean backend dependencies'
+
 - task: Npm@1
   displayName: 'install modules in /backend'
   inputs:
     command: 'install'
     workingDir: 'backend'
+
 - task: Npm@1
   displayName: 'building modules in /frontend'
   inputs:
