@@ -1,24 +1,25 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { NavLink } from 'react-router-dom';
+import { IoLogIn, IoLogOut } from 'react-icons/io5';
+import AdminSidebar from './Sidebar/AdminSidebar';
+import SellerSidebar from './Sidebar/SellerSidebar';
+import BuyerSidebar from './Sidebar/BuyerSidebar';
 
-function LeftSidebar() {
+function LeftSidebar({ userType }) {
     return (
         <div className="sidebar">
-            <link rel="icon" type="image/svg+xml" href="/AgriTayo_Logo.svg" className='sidebar-icon' />
-
+            {/* Logo */}
             <div className="flex items-center mb-5">
-                <img src="/AgriTayo_Logo.svg" alt="AgriTayoLogo" className="ml-5 h-11" />
+                <img src="/AgriTayo_Logo.svg" alt="AgriTayo Logo" className="ml-5 h-11" />
                 <h2 className="sidebar-title">AgriTayo</h2>
             </div>
 
-            {/* ADMIN NAVIGATION */}
+            {/* Conditional Sidebar Content */}
             {userType === 1 && <AdminSidebar />}
-            {/* SELLER NAVIGATION */}
             {userType === 2 && <SellerSidebar />}
-            {/* BUYER NAVIGATION */}
             {userType === 3 && <BuyerSidebar />}
 
-            {/* LOGIN AND LOGOUT */}
+            {/* Login/Logout Link */}
             {userType ? (
                 <NavLink to="/logout" className="sidebar-item">
                     <IoLogOut className="sidebar-icon" />

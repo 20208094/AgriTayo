@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { FaBox, FaUser, FaShoppingCart, FaTag, FaTasks, FaCheckCircle, FaShippingFast, FaClipboardList, FaMoneyBillWave, FaTruck, FaBell } from 'react-icons/fa';
 import { MdSpaceDashboard } from "react-icons/md";
+import { GiThreeLeaves } from "react-icons/gi";
+
 
 function AdminSidebar() {
     const [showDevLinks, setShowDevLinks] = useState(false); // Define state for dropdown
@@ -9,12 +11,19 @@ function AdminSidebar() {
     return (
         <div className="w-full">
             <NavLink
-                    to="/admin/dashboard"
-                    className="sidebar-item"
-                >
-                    <MdSpaceDashboard className="sidebar-icon" />
-                    <span className="sidebar-text">Dashboard</span>
-                </NavLink>
+                to="/admin/dashboard"
+                className="sidebar-item"
+            >
+                <MdSpaceDashboard className="sidebar-icon" />
+                <span className="sidebar-text">Dashboard</span>
+            </NavLink>
+            <NavLink
+                to="/admin/market"
+                className="sidebar-item"
+            >
+                <GiThreeLeaves className="sidebar-icon" />
+                <span className="sidebar-text">Market</span>
+            </NavLink>
             {/* Dev Menu Dropdown */}
             <button
                 className="w-full flex items-center p-2 hover:bg-gray-100 rounded-lg"

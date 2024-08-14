@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, NavLink, Route, Routes } from 'react-router-dom';
-import { IoLogIn, IoLogOut } from "react-icons/io5";
 import SamplePage from './screens/Users/AdminPages/CrudPages/SamplePage';
 import LoginPage from './AuthPages/LoginPage';
 import LogoutButton from './AuthPages/LogoutPage';
@@ -21,11 +20,12 @@ import ReviewsPage from './screens/Users/AdminPages/CrudPages/ReviewsPage';
 import OrderTrackingPage from './screens/Users/AdminPages/CrudPages/OrderTrackingPage';
 import PaymentsPage from './screens/Users/AdminPages/CrudPages/PaymentsPage';
 import NotificationsPage from './screens/Users/AdminPages/CrudPages/NotificationsPage';
-import AdminDashboardPage from './screens/Users/AdminPages/AdminDashboard';
-import AdminSidebar from './components/Sidebar/AdminSidebar';
-import SellerSidebar from './components/Sidebar/SellerSidebar';
-import BuyerSidebar from './components/Sidebar/BuyerSidebar';
 import LeftSidebar from './components/LeftSidebar';
+import AdminDashboardPage from './screens/Users/AdminPages/AdminDashboard';
+import SellerDashboardPage from './screens/Users/SellerPages/SellerDashboard';
+import BuyerDashboardPage from './screens/Users/BuyerPages/BuyerDashboard';
+import MarketPage from './screens/Market/MarketPage';
+
 
 function App() {
   const [userType, setUserType] = useState(null);
@@ -52,13 +52,15 @@ function App() {
   return (
     <Router>
       <div className="flex">
+        
         {/* Left Sidebar */}
-        <LeftSidebar />
+        <LeftSidebar userType={userType} />
 
         {/* Main Content */}
         <div className="main-content">
           <Routes>
-            <Route exact path="/" element={<SamplePage />} />
+            <Route exact path="/sample" element={<SamplePage />} />
+            <Route exact path="/market" element={<MarketPage />} />
             <Route exact path="/login" element={<LoginPage />} />
             <Route exact path="/register" element={<RegisterPage />} />
             <Route exact path="/logout" element={<LogoutButton />} />
@@ -82,15 +84,22 @@ function App() {
                 <Route exact path="/admin/order_tracking" element={<OrderTrackingPage />} />
                 <Route exact path="/admin/payments" element={<PaymentsPage />} />
                 <Route exact path="/admin/notifications" element={<NotificationsPage />} />
+                <Route exact path="/admin/market" element={<MarketPage />} />
               </>
             )}
             {/* SELLER ROUTES */}
             {userType === 2 && (
-              <Route exact path="/seller/sample" element={<SamplePage />} />
+              <>
+                <Route exact path="/seller/sample" element={<SamplePage />} />
+                <Route exact path="/seller/dashboard" element={<SellerDashboardPage />} />
+              </>
             )}
             {/* BUYER ROUTES */}
             {userType === 3 && (
-              <Route exact path="/buyer/sample" element={<SamplePage />} />
+              <>
+                <Route exact path="/buyer/sample" element={<SamplePage />} />
+                <Route exact path="/buyer/dashboard" element={<BuyerDashboardPage />} />
+              </>
             )}
           </Routes>
         </div>
