@@ -4,7 +4,7 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
 
 trigger:
-- Deployed
+- Deployed-Azure
 
 pool:
   vmImage: ubuntu-latest
