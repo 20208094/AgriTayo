@@ -95,6 +95,7 @@ function App() {
             <Stack.Screen
             name='My Shop'
             component={ShopScreen}
+            options={screenOptions}
             />
             <Stack.Screen
               name="Login"
