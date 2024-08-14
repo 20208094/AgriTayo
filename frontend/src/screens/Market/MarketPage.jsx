@@ -9,7 +9,6 @@ const marketCategories = [
   { id: 4, title: 'Seedlings', image: logo },
   { id: 5, title: 'Plants', image: logo },
   { id: 6, title: 'Flowers', image: logo },
-  { id: 7, title: 'BANANAAAA', image: logo },
 ];
 
 const MarketCategoryCard = ({ marketCategory }) => {
