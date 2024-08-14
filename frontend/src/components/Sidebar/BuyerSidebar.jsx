@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { FaBox, FaUser, FaShoppingCart, FaTag, FaTasks, FaCheckCircle, FaShippingFast } from 'react-icons/fa';
 
-function NavUserType2() {
+function BuyerSidebar() {
     const [showDevLinks, setShowDevLinks] = useState(false); // Define state for dropdown
 
     return (
@@ -21,7 +21,7 @@ function NavUserType2() {
 
             <div className={`transition-all duration-300 ease-in-out ${showDevLinks ? 'max-h-screen' : 'max-h-0 overflow-hidden'}`}>
                 <NavLink
-                    to="/seller/sample"
+                    to="/buyer/sample"
                     className="dropdown-item"
                 >
                     <FaShoppingCart className="sidebar-icon" />
@@ -32,4 +32,4 @@ function NavUserType2() {
     );
 }
 
-export default NavUserType2;
+export default BuyerSidebar;

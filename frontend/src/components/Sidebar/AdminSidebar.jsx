@@ -3,7 +3,7 @@ import { NavLink } from 'react-router-dom';
 import { FaBox, FaUser, FaShoppingCart, FaTag, FaTasks, FaCheckCircle, FaShippingFast, FaClipboardList, FaMoneyBillWave, FaTruck, FaBell } from 'react-icons/fa';
 import { MdSpaceDashboard } from "react-icons/md";
 
-function NavUserType1() {
+function AdminSidebar() {
     const [showDevLinks, setShowDevLinks] = useState(false); // Define state for dropdown
 
     return (
@@ -111,4 +111,4 @@ function NavUserType1() {
     );
 }
 
-export default NavUserType1;
+export default AdminSidebar;
