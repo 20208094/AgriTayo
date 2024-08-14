@@ -173,7 +173,7 @@ function BusinessInformationScreen({ navigation, route }) {
 
   const handleSubmit = () => {
     if (validateForm()) {
-      navigation.navigate("Shop");
+      navigation.navigate("My Shop");
     }
   };
 

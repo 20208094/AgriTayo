@@ -36,6 +36,11 @@ import MarketCategoryListScreen from "./app/screens/Market/MarketCategory/Market
 import MarketCategoryScreen from "./app/screens/Market/MarketCategory/MarketCategoryScreen";
 import MarketAnalyticScreen from "./app/screens/Analytics/MarketAnalyticScreen";
 import ShopScreen from "./app/screens/farmers/Shop/ShopScreen";
+import ViewShopScreen from "./app/screens/farmers/Shop/ViewShopScreen";
+import ViewSalesHistoryScreen from "./app/screens/farmers/Shop/ViewSalesHistory/ViewSalesHistoryScreen";
+import MyProductsScreen from "./app/screens/farmers/Shop/MyProducts/MyProductsScreen";
+import FinanceScreen from "./app/screens/farmers/Shop/FinanceScreen";
+
 
 const Stack = createStackNavigator();
 
@@ -238,8 +243,24 @@ function App() {
               options={screenOptions}
             />
             <Stack.Screen
-            name='Shop'
+            name='My Shop'
             component={ShopScreen}
+            />
+            <Stack.Screen
+            name='View Shop'
+            component={ViewShopScreen}
+            />
+            <Stack.Screen
+            name='Sales History'
+            component={ViewSalesHistoryScreen}
+            />
+            <Stack.Screen
+            name='My Products'
+            component={MyProductsScreen}
+            />
+            <Stack.Screen
+            name='My Finance'
+            component={FinanceScreen}
             />
           </>
         )}

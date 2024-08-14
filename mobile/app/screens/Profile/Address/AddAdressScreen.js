@@ -11,7 +11,7 @@ import {
 import { styled } from "nativewind";
 import { Icon } from "react-native-elements";
 import Map from "../../../components/Map";
-import { useNavigation } from "@react-navigation/native";
+import * as Location from "expo-location";
 import { NotificationIcon, MessagesIcon, MarketIcon } from "../../../components/SearchBarC";
 
 function AddAddressScreen({
@@ -33,7 +33,6 @@ function AddAddressScreen({
     addressInputError: "",
     secondAddressInputError: "",
   });
-  const navigation = useNavigation();
 
   useEffect(() => {
     if (!currentLocation) {

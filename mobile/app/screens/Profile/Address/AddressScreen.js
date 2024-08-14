@@ -135,7 +135,7 @@ function AddressScreen({ route }) {
         <TouchableOpacity
           className="bg-green-600 rounded-full py-4 items-center"
           onPress={() =>
-            navigation.navigate("Add Address", { currentLocation })
+            navigation.navigate("Add Address", { currentLocation  })
           }
         >
           <Text className="text-white text-lg font-semibold">
