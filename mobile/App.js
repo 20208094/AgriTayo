@@ -99,11 +99,7 @@ function App() {
           />
         ) : (
           <>
-            <Stack.Screen
-            name='My Shop'
-            component={ShopScreen}
-            options={screenOptions}
-            />
+
             <Stack.Screen
               name="Login"
               component={LoginScreen}
@@ -220,6 +216,11 @@ function App() {
               options={{ ...screenOptions, headerShown: false }}
             />
             <Stack.Screen
+            name='My Shop'
+            component={ShopScreen}
+            options={screenOptions}
+            />
+            <Stack.Screen
               name="CheckOutScreen"
               component={CheckOutScreen}
               options={{ ...screenOptions, headerShown: false }}
@@ -258,42 +259,52 @@ function App() {
             <Stack.Screen
             name='View Shop'
             component={ViewShopScreen}
+            options={screenOptions}
             />
             <Stack.Screen
             name='Sales History'
             component={ViewSalesHistoryScreen}
+            options={screenOptions}
             />
             <Stack.Screen
             name='My Products'
             component={MyProductsScreen}
+            options={screenOptions}
             />
             <Stack.Screen
             name='My Finance'
             component={FinanceScreen}
+            options={screenOptions}
             />
             <Stack.Screen
             name='Shop Performance'
             component={ShopPerformaceScreen}
+            options={screenOptions}
             />
             <Stack.Screen
             name='Bidding'
             component={BiddingScreen}
+            options={screenOptions}
             />
             <Stack.Screen
             name='Learn and Help'
             component={LearnAndHelpScreen}
+            options={screenOptions}
             />
             <Stack.Screen
             name='Shop Rating'
             component={ShopRatingScreen}
+            options={screenOptions}
             />
             <Stack.Screen
             name='Bussiness Insights'
             component={BusinessInsightsScreen}
+            options={screenOptions}
             />
             <Stack.Screen
             name='Account Health'
             component={AccountHealthScreen}
+            options={screenOptions}
             />
           </>
         )}
