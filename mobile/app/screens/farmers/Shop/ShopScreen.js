@@ -26,7 +26,7 @@ function ShopScreen({ navigation }) {
           <Image source={michael} className="w-12 h-12 rounded-full" />
           <View className="ml-3">
             <Text className="text-lg font-semibold">{information.name}</Text>
-            <Text className="text-gray-500 text-sm">shopee.ph/{information.name.toLowerCase()}</Text>
+            <Text className="text-gray-500 text-sm">AgriTayo/{information.name.toLowerCase()}</Text>
           </View>
         </View>
         <TouchableOpacity
