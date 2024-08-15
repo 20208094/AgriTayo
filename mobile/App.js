@@ -35,11 +35,18 @@ import PickUpAddressScreen from "./app/screens/farmers/PickUpAddressScreen";
 import MarketCategoryListScreen from "./app/screens/Market/MarketCategory/MarketCategoryListScreen";
 import MarketCategoryScreen from "./app/screens/Market/MarketCategory/MarketCategoryScreen";
 import MarketAnalyticScreen from "./app/screens/Analytics/MarketAnalyticScreen";
+// for farmers
 import ShopScreen from "./app/screens/farmers/Shop/ShopScreen";
 import ViewShopScreen from "./app/screens/farmers/Shop/ViewShopScreen";
 import ViewSalesHistoryScreen from "./app/screens/farmers/Shop/ViewSalesHistory/ViewSalesHistoryScreen";
 import MyProductsScreen from "./app/screens/farmers/Shop/MyProducts/MyProductsScreen";
 import FinanceScreen from "./app/screens/farmers/Shop/FinanceScreen";
+import ShopPerformaceScreen from "./app/screens/farmers/Shop/ShopPerformanceScreen";
+import BiddingScreen from "./app/screens/farmers/Shop/BiddingScreen";
+import LearnAndHelpScreen from "./app/screens/farmers/Shop/LearnAndHelpScreen";
+import ShopRatingScreen from "./app/screens/farmers/Shop/ShopPerformance/ShopRatingScreen";
+import BusinessInsightsScreen from "./app/screens/farmers/Shop/ShopPerformance/BusinessInsightsScreen";
+import AccountHealthScreen from "./app/screens/farmers/Shop/ShopPerformance/AccountHealthScreen";
 
 
 const Stack = createStackNavigator();
@@ -263,6 +270,30 @@ function App() {
             <Stack.Screen
             name='My Finance'
             component={FinanceScreen}
+            />
+            <Stack.Screen
+            name='Shop Performance'
+            component={ShopPerformaceScreen}
+            />
+            <Stack.Screen
+            name='Bidding'
+            component={BiddingScreen}
+            />
+            <Stack.Screen
+            name='Learn and Help'
+            component={LearnAndHelpScreen}
+            />
+            <Stack.Screen
+            name='Shop Rating'
+            component={ShopRatingScreen}
+            />
+            <Stack.Screen
+            name='Bussiness Insights'
+            component={BusinessInsightsScreen}
+            />
+            <Stack.Screen
+            name='Account Health'
+            component={AccountHealthScreen}
             />
           </>
         )}
