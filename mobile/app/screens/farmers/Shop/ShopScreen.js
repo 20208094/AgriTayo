@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Image,
 } from "react-native";
+import { FontAwesome5 } from '@expo/vector-icons';
 import michael from "../../../assets/ehh.png";
 
 function ShopScreen({ navigation }) {
@@ -18,101 +19,75 @@ function ShopScreen({ navigation }) {
   };
 
   return (
-    <SafeAreaView className="">
-      <View className="">
-        <Image source={michael} className="w-24 h-24 rounded-full" />
-        <Text className="">{information.name}</Text>
+    <SafeAreaView className="bg-white flex-1">
+      {/* Header Section */}
+      <View className="flex-row items-center justify-between p-4">
+        <View className="flex-row items-center">
+          <Image source={michael} className="w-12 h-12 rounded-full" />
+          <View className="ml-3">
+            <Text className="text-lg font-semibold">{information.name}</Text>
+            <Text className="text-gray-500 text-sm">shopee.ph/{information.name.toLowerCase()}</Text>
+          </View>
+        </View>
         <TouchableOpacity
-          className
+          className="px-4 py-1 border border-[#00B251] rounded-full"
           onPress={() => navigation.navigate("View Shop", { information })}
         >
-          <Text className="">View Shop</Text>
+          <Text className="text-[#00B251]">View Shop</Text>
         </TouchableOpacity>
-        <View className="">
-          <Text className="">Order Status</Text>
+      </View>
+
+      {/* Banner Placeholder */}
+      <View className="bg-[#00B251] w-full h-20 mt-2 mb-4" />
+
+      {/* Order Status Section */}
+      <View className="flex-row justify-between px-6">
+        <Text className="text-lg font-semibold">Order Status</Text>
+        <TouchableOpacity
+          onPress={() =>
+            navigation.navigate("Sales History", { screen: "Completed" })
+          }
+        >
+          <Text className="text-lg text-[#00B251]">View Sales History</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View className="flex-row justify-around mt-4 px-6">
+        {["To Ship", "Cancelled", "Return", "Review"].map((status) => (
           <TouchableOpacity
-            className=""
+            key={status}
+            className="items-center"
             onPress={() =>
-              navigation.navigate("Sales History", { screen: "Completed" })
+              navigation.navigate("Sales History", { screen: status })
             }
           >
-            <Text className="">View Sales History</Text>
+            <Text className="text-lg font-bold">0</Text>
+            <Text className="text-gray-500">{status}</Text>
           </TouchableOpacity>
+        ))}
+      </View>
+
+      {/* Grid Section */}
+      <View className="mt-6 px-6 flex-wrap flex-row justify-between">
+        {[
+          { label: "My Products", icon: "box", screen: "My Products" },
+          { label: "My Finance", icon: "wallet", screen: "My Finance" },
+          { label: "Shop Performance", icon: "chart-line", screen: "" },
+          { label: "Marketing Centre", icon: "bullhorn", screen: "" },
+          { label: "Seller Programme", icon: "tasks", screen: "" },
+          { label: "Learn and Help", icon: "info-circle", screen: "" },
+        ].map(({ label, icon, screen }) => (
           <TouchableOpacity
-            className=""
-            onPress={() =>
-              navigation.navigate("Sales History", { screen: "To Ship" })
-            }
+            key={label}
+            className="w-[30%] items-center my-2"
+            onPress={() => navigation.navigate(screen, { information })}
           >
-            <Text className="">0</Text>
-            <Text className="">To Ship</Text>
+            <View className="h-12 w-12 justify-center items-center bg-gray-200 rounded-full mb-2">
+              <FontAwesome5 name={icon} size={24} color="#00B251" />
+            </View>
+            <Text className="text-center text-sm text-gray-600">{label}</Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            className=""
-            onPress={() =>
-              navigation.navigate("Sales History", { screen: "Cancelled" })
-            }
-          >
-            <Text className="">0</Text>
-            <Text className="">Cancelled</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            className=""
-            onPress={() =>
-              navigation.navigate("Sales History", { screen: "Return" })
-            }
-          >
-            <Text className="">0</Text>
-            <Text className="">Return</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            className=""
-            onPress={() =>
-              navigation.navigate("Sales History", { screen: "Review" })
-            }
-          >
-            <Text className="">0</Text>
-            <Text className="">Review</Text>
-          </TouchableOpacity>
-        </View>
-        <View className="">
-          <TouchableOpacity
-            className=""
-            onPress={() => navigation.navigate("My Products")}
-          >
-            <Text className="">My Products</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            className=""
-            onPress={() => navigation.navigate("My Finance", { information })}
-          >
-            <Text className="">My Finance</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            className=""
-            onPress={() => navigation.navigate("")}
-          >
-            <Text className="">Shop Performance</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            className=""
-            onPress={() => navigation.navigate("")}
-          >
-            <Text className="">Marketing Centre</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            className=""
-            onPress={() => navigation.navigate("")}
-          >
-            <Text className="">Seller Programme</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            className=""
-            onPress={() => navigation.navigate("")}
-          >
-            <Text className="">Learn and Help</Text>
-          </TouchableOpacity>
-        </View>
+        ))}
       </View>
     </SafeAreaView>
   );

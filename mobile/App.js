@@ -93,6 +93,10 @@ function App() {
         ) : (
           <>
             <Stack.Screen
+            name='My Shop'
+            component={ShopScreen}
+            />
+            <Stack.Screen
               name="Login"
               component={LoginScreen}
               options={{ ...screenOptions, headerShown: false }}
@@ -242,10 +246,7 @@ function App() {
               component={MarketAnalyticScreen}
               options={screenOptions}
             />
-            <Stack.Screen
-            name='My Shop'
-            component={ShopScreen}
-            />
+
             <Stack.Screen
             name='View Shop'
             component={ViewShopScreen}
