@@ -21,10 +21,10 @@ async function getAddresses(req, res) {
 
 async function addAddress(req, res) {
     try {
-        const { user_id, address } = req.body;
+        const { user_id, address, label, note, latitude, longitude } = req.body;
         const { data, error } = await supabase
             .from('addresses')
-            .insert([{ user_id, address }]);
+            .insert([{ user_id, address, label, note, latitude, longitude }]);
 
         if (error) {
             console.error('Supabase query failed:', error.message);
@@ -41,10 +41,10 @@ async function addAddress(req, res) {
 async function updateAddress(req, res) {
     try {
         const { id } = req.params;
-        const { user_id, address } = req.body;
+        const { user_id, address, label, note, latitude, longitude } = req.body;
         const { data, error } = await supabase
             .from('addresses')
-            .update({ user_id, address })
+            .update({ user_id, address, label, note, latitude, longitude })
             .eq('address_id', id);
 
         if (error) {

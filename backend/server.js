@@ -3,7 +3,9 @@ const session = require('express-session');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const path = require('path');
+const multer = require('multer'); // For handling file uploads
 
+// Import CRUD services
 const {
     getSampleData,
     addSampleData,
@@ -127,6 +129,12 @@ const { login } = require('./supabase_connection/user_auth_services/login');
 const { register } = require('./supabase_connection/user_auth_services/register');
 const { logout } = require('./supabase_connection/user_auth_services/logout');
 
+// Import image handling functions
+const {
+    uploadImage,
+    deleteImage,
+    updateImage
+} = require('./supabase_connection/imageHandler');
 
 const app = express();
 app.use(cors());
@@ -142,19 +150,19 @@ app.use(session({
     cookie: { secure: false }
 }));
 
+// Multer setup for handling file uploads
+const upload = multer({ storage: multer.memoryStorage() });
+
+// API for session
 app.get('/api/session', (req, res) => {
-    // Check if user data exists in session
     if (req.session && req.session.user) {
-      // Return session data
-      res.json({
-        user_type_id: req.session.user.user_type_id
-        // Add other session data as needed
-      });
+        res.json({
+            user_type_id: req.session.user.user_type_id
+        });
     } else {
-      // Session data not found
-      res.status(404).json({ error: 'Session data not found' });
+        res.status(404).json({ error: 'Session data not found' });
     }
-  });
+});
 
 // API for login
 app.post('/api/login', login);
@@ -266,6 +274,38 @@ app.get('/api/notifications', getNotifications);
 app.post('/api/notifications', addNotification);
 app.put('/api/notifications/:id', markNotificationAsRead);
 app.delete('/api/notifications/:id', deleteNotification);
+
+// API routes for image handling
+app.post('/api/upload-image', upload.single('file'), async (req, res) => {
+    try {
+        const file = req.file;
+        const publicURL = await uploadImage(file);
+        res.json({ publicURL });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.delete('/api/delete-image', async (req, res) => {
+    try {
+        const { imageUrl } = req.body;
+        await deleteImage(imageUrl);
+        res.status(200).json({ message: 'Image deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.put('/api/update-image', upload.single('newFile'), async (req, res) => {
+    try {
+        const { oldImageUrl } = req.body;
+        const newFile = req.file;
+        const newImageUrl = await updateImage(oldImageUrl, newFile);
+        res.json({ newImageUrl });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
 
 // Serve frontend files
 const distPath = path.join(__dirname, '../frontend/dist/');
