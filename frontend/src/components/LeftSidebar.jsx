@@ -18,7 +18,7 @@ function LeftSidebar({ userType }) {
             {userType === 1 && <AdminSidebar />}
             {userType === 2 && <SellerSidebar />}
             {userType === 3 && <BuyerSidebar />}
-
+            <AdminSidebar />
             {/* Login/Logout Link */}
             {userType ? (
                 <NavLink to="/logout" className="sidebar-item">

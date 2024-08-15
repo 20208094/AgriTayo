@@ -59,7 +59,7 @@ function App() {
         {/* Main Content */}
         <div className="main-content">
           <Routes>
-            <Route exact path="/sample" element={<SamplePage />} />
+            <Route exact path="/sample" element={<CropCategoryPage />} />
             <Route exact path="/market" element={<MarketPage />} />
             <Route exact path="/login" element={<LoginPage />} />
             <Route exact path="/register" element={<RegisterPage />} />
