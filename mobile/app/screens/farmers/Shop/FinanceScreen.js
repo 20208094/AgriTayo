@@ -4,7 +4,6 @@ import { styled } from "nativewind";
 
 function FinanceScreen({ route, navigation }) {
     const { information } = route.params;
-    console.log("FinanceScreen information:", information);
 
     return (
         <SafeAreaView className="flex-1 p-4 bg-gray-100">

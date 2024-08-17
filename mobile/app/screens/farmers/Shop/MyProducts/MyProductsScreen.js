@@ -5,12 +5,13 @@ import SoldOutScreen from "./SoldOutScreen";
 import ReviewingScreen from "./ReviewingScreen";
 import ViolationScreen from "./ViolationScreen";
 import DelistedScreen from "./DelistedScreen";
+import LiveScreen from "./LiveScreen";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons"; // For icons
 
 const Tab = createMaterialTopTabNavigator();
 
 function MyProductsScreen({ route }) {
-  const initialRouteName = route.params?.screen || "Sold Out";
+  const initialRouteName = route.params?.screen || "Live";
 
   return (
     <Tab.Navigator
@@ -30,6 +31,14 @@ function MyProductsScreen({ route }) {
         },
         tabBarLabel: ({ focused, color }) => (
           <View className="flex-row items-center">
+            {route.name === "Live" && (
+              <Icon
+                name="play-circle-outline"
+                size={16}
+                color={focused ? "#00b251" : "gray"}
+                style={{ marginRight: 4 }}
+              />
+            )}
             {route.name === "Sold Out" && (
               <Icon
                 name="package-variant-closed"
@@ -75,6 +84,7 @@ function MyProductsScreen({ route }) {
         ),
       })}
     >
+      <Tab.Screen name="Live" component={LiveScreen} />
       <Tab.Screen name="Sold Out" component={SoldOutScreen} />
       <Tab.Screen name="Reviewing" component={ReviewingScreen} />
       <Tab.Screen name="Violation" component={ViolationScreen} />

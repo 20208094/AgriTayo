@@ -72,10 +72,9 @@ function ShopScreen({ navigation }) {
         {[
           { label: "My Products", icon: "box", screen: "My Products" },
           { label: "My Finance", icon: "wallet", screen: "My Finance" },
-          { label: "Shop Performance", icon: "chart-line", screen: "" },
-          { label: "Marketing Centre", icon: "bullhorn", screen: "" },
-          { label: "Seller Programme", icon: "tasks", screen: "" },
-          { label: "Learn and Help", icon: "info-circle", screen: "" },
+          { label: "Shop Performance", icon: "chart-line", screen: "Shop Performance" },
+          { label: "Bidding", icon: "file-contract", screen: "Bidding" },
+          { label: "Learn and Help", icon: "info-circle", screen: "Learn and Help" },
         ].map(({ label, icon, screen }) => (
           <TouchableOpacity
             key={label}
