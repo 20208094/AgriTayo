@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate, useLocation, Outlet } from 'react-router-dom';
 import SamplePage from './screens/Users/AdminPages/CrudPages/SamplePage';
 import LoginPage from './AuthPages/LoginPage';
 import LogoutButton from './AuthPages/LogoutPage';
@@ -30,11 +30,12 @@ import SampleSearch from './screens/Users/AdminPages/CrudPages/SearchSample';
 
 function App() {
   const [userType, setUserType] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchUserSession() {
       try {
-        const response = await fetch('/api/session'); // Adjust URL based on your server setup
+        const response = await fetch('/api/session');
         if (response.ok) {
           const data = await response.json();
           setUserType(data.user_type_id);
@@ -43,11 +44,17 @@ function App() {
         }
       } catch (err) {
         console.error('Error fetching user session:', err.message);
+      } finally {
+        setLoading(false);
       }
     }
 
     fetchUserSession();
   }, []);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <Router>
@@ -55,6 +62,29 @@ function App() {
     </Router>
   );
 }
+
+function ProtectedRoute({ allowedUserType, userType, element }) {
+  if (userType === null) {
+    // Redirect to login if userType is null (not logged in)
+    return <Navigate to="/login" />;
+  }
+
+  if (userType === allowedUserType) {
+    return <Outlet />;
+  }
+
+  // Redirect users to their appropriate dashboard based on userType
+  if (userType === 1) {
+    return <Navigate to="/admin/dashboard" />;
+  } else if (userType === 2) {
+    return <Navigate to="/seller/dashboard" />;
+  } else if (userType === 3) {
+    return <Navigate to="/buyer/dashboard" />;
+  } else {
+    return <Navigate to="/login" />;
+  }
+}
+
 
 function Layout({ userType }) {
   const location = useLocation();
@@ -64,53 +94,65 @@ function Layout({ userType }) {
     <div className="flex">
       {!isAuthPage && <TopNavbar userType={userType} />}
       {!isAuthPage && <LeftSidebar userType={userType} />}
-      
+
       {/* Main Content */}
       <div className="main-content">
         <Routes>
+          {/* FREE ROUTES used for development */}
           <Route exact path="/sample" element={<SampleSearch />} />
           <Route exact path="/crop-category" element={<CropCategoryPage />} />
           <Route exact path="/admin-dash" element={<AdminDashboardPage />} />
-          <Route exact path="/login" element={<LoginPage />} />
-          <Route exact path="/register" element={<RegisterPage />} />
-          <Route exact path="/logout" element={<LogoutButton />} />
+          {/* AUTHENTICATION ROUTES */}
+          {!userType && (
+            <>
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+            </>
+          )}
+          <Route path="/logout" element={<LogoutButton />} />
+
           {/* ADMIN ROUTES */}
-          {userType === 1 && (
-            <>
-              <Route exact path="/admin/dashboard" element={<AdminDashboardPage />} />
-              <Route exact path="/admin/user_type" element={<UserTypePage />} />
-              <Route exact path="/admin/addresses" element={<AddressesPage />} />
-              <Route exact path="/admin/users" element={<UsersPage />} />
-              <Route exact path="/admin/shops" element={<ShopPage />} />
-              <Route exact path="/admin/crop_category" element={<CropCategoryPageCRUD />} />
-              <Route exact path="/admin/metric_system" element={<MetricSystemPage />} />
-              <Route exact path="/admin/crops" element={<CropsPage />} />
-              <Route exact path="/admin/order_status" element={<OrderStatusPage />} />
-              <Route exact path="/admin/orders" element={<OrdersPage />} />
-              <Route exact path="/admin/order_products" element={<OrderProductsPage />} />
-              <Route exact path="/admin/carts" element={<CartPage />} />
-              <Route exact path="/admin/cart_products" element={<CartProductsPage />} />
-              <Route exact path="/admin/reviews" element={<ReviewsPage />} />
-              <Route exact path="/admin/order_tracking" element={<OrderTrackingPage />} />
-              <Route exact path="/admin/payments" element={<PaymentsPage />} />
-              <Route exact path="/admin/notifications" element={<NotificationsPage />} />
-              <Route exact path="/admin/crop-category" element={<CropCategoryPage />} />
-            </>
-          )}
+          <Route
+            path="/admin/*"
+            element={<ProtectedRoute element={<AdminDashboardPage />} allowedUserType={1} userType={userType} />}
+          >
+            <Route path="dashboard" element={<AdminDashboardPage />} />
+            <Route path="user_type" element={<UserTypePage />} />
+            <Route path="addresses" element={<AddressesPage />} />
+            <Route path="users" element={<UsersPage />} />
+            <Route path="shops" element={<ShopPage />} />
+            <Route path="crop_category" element={<CropCategoryPageCRUD />} />
+            <Route path="metric_system" element={<MetricSystemPage />} />
+            <Route path="crops" element={<CropsPage />} />
+            <Route path="order_status" element={<OrderStatusPage />} />
+            <Route path="orders" element={<OrdersPage />} />
+            <Route path="order_products" element={<OrderProductsPage />} />
+            <Route path="carts" element={<CartPage />} />
+            <Route path="cart_products" element={<CartProductsPage />} />
+            <Route path="reviews" element={<ReviewsPage />} />
+            <Route path="order_tracking" element={<OrderTrackingPage />} />
+            <Route path="payments" element={<PaymentsPage />} />
+            <Route path="notifications" element={<NotificationsPage />} />
+            <Route path="crop-category" element={<CropCategoryPage />} />
+          </Route>
           {/* SELLER ROUTES */}
-          {userType === 2 && (
-            <>
-              <Route exact path="/seller/sample" element={<SamplePage />} />
-              <Route exact path="/seller/dashboard" element={<SellerDashboardPage />} />
-            </>
-          )}
+          <Route
+            path="/seller/*"
+            element={<ProtectedRoute element={<SellerDashboardPage />} allowedUserType={2} userType={userType} />}
+          >
+            <Route path="sample" element={<SamplePage />} />
+            <Route path="dashboard" element={<SellerDashboardPage />} />
+          </Route>
           {/* BUYER ROUTES */}
-          {userType === 3 && (
-            <>
-              <Route exact path="/buyer/sample" element={<SamplePage />} />
-              <Route exact path="/buyer/dashboard" element={<BuyerDashboardPage />} />
-            </>
-          )}
+          <Route
+            path="/buyer/*"
+            element={<ProtectedRoute element={<BuyerDashboardPage />} allowedUserType={3} userType={userType} />}
+          >
+            <Route path="sample" element={<SamplePage />} />
+            <Route path="dashboard" element={<BuyerDashboardPage />} />
+          </Route>
+          {/* Default route */}
+          <Route path="*" element={<Navigate to={userType === null ? "/login" : "/admin/dashboard"} />} />
         </Routes>
       </div>
     </div>

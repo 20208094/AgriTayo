@@ -1,12 +1,22 @@
-import React from 'react';
+import React, { useState } from 'react';
 import SidebarItem from './Sidebar/SidebarTemplates/SidebarItem';
 import { IoLogIn, IoLogOut } from 'react-icons/io5';
 import { FaDev } from "react-icons/fa6";
 import AdminSidebar from './Sidebar/AdminSidebar';
 import SellerSidebar from './Sidebar/SellerSidebar';
 import BuyerSidebar from './Sidebar/BuyerSidebar';
+import LogoutModal from './LogoutModal'; // Import the new LogoutModal component
+import { useNavigate } from 'react-router-dom';
 
 function LeftSidebar({ userType }) {
+    const [showLogoutModal, setShowLogoutModal] = useState(false);
+    const navigate = useNavigate();
+
+    const handleConfirmLogout = () => {
+        setShowLogoutModal(false);
+        navigate('/logout');  // Navigate to the logout page
+    };
+
     return (
         <div className="sidebar">
             {/* Logo */}
@@ -27,7 +37,20 @@ function LeftSidebar({ userType }) {
 
             {/* Login/Logout Link */}
             {userType ? (
-                <SidebarItem to="/logout" icon={IoLogOut} text="Logout" />
+                <>
+                    <SidebarItem
+                        to="#"
+                        icon={IoLogOut}
+                        text="Logout"
+                        onClick={() => setShowLogoutModal(true)}
+                    />
+                    {showLogoutModal && (
+                        <LogoutModal
+                            onConfirm={handleConfirmLogout}
+                            onCancel={() => setShowLogoutModal(false)}
+                        />
+                    )}
+                </>
             ) : (
                 <SidebarItem to="/login" icon={IoLogIn} text="Login" />
             )}
