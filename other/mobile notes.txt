@@ -12,11 +12,11 @@ MOBILE FRONTEND:
         Product Information
         Checkout Confirmation
         Notifications
-
-    Finished:
         Login
         Register
         Email Verification
         Home
+
+    Finished:
 ======================================================
 MOBILE BACKEND:
