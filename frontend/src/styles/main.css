@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.main-content {
+    flex: 1;
+    margin-left: 80px; /* Adjust margin based on sidebar width */
+    padding: 16px; /* Adjust padding as needed */
+}

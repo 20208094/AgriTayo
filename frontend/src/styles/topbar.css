@@ -1,0 +1,233 @@
+/* Top Navbar Container */
+.topnavbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    background-color: #f7f7f7;
+    /* Matches sidebar background color */
+    height: 60px;
+    border-bottom: 1px solid #00b250;
+    /* Green border to match sidebar */
+    color: #01a149;
+    /* Green text color */
+    z-index: 1000;
+    width: 100%;
+    /* Fill the entire screen width */
+    position: fixed;
+    /* Fix the top navbar to the top of the screen */
+    top: 0;
+    /* Align the navbar to the top */
+    left: 0;
+    /* Start from the very left of the screen */
+    box-sizing: border-box;
+    /* Ensure padding is included in the width */
+}
+
+/* Spacer for alignment */
+.topspacer {
+    width: 80px;
+}
+
+/* Search Bar Container */
+.topnav-search-container {
+    flex: 1;
+    /* Take up remaining space */
+    display: flex;
+    justify-content: center;
+}
+
+/* General styles for Search Bar */
+.topnav-search-bar {
+    width: 100%;
+    /* Full width within its container */
+    max-width: 800px;
+    /* Max width for larger screens */
+    padding: 8px 12px;
+    font-size: 16px;
+    border: 1px solid #00b250;
+    /* Green border */
+    border-radius: 4px;
+    outline: none;
+    box-sizing: border-box;
+    /* Ensures padding is included in the width */
+}
+
+/* Navigation Links Container */
+.topnav-links {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    /* Space between navigation items */
+}
+
+/* Individual Nav Items */
+.topnav-item {
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    color: #01a149;
+    /* Green text color */
+    text-decoration: none;
+    padding: 10px 15px;
+    transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
+    position: relative;
+    /* Ensure absolute positioning of badge is relative to this item */
+    border-radius: 20px;
+}
+
+
+
+/* Nav Icons */
+.topnav-item:hover {
+    background-color: #00b25054;
+}
+
+/* Nav Icons */
+.topnav-icon,
+.topnav-icon-cart {
+    font-size: 24px;
+    color: #00B251;
+    /* Green for icons */
+    position: relative;
+    /* Ensure badge is positioned relative to this icon */
+    border-radius: 20px;
+    margin-right: 8px;
+    border-radius: 20px;
+}
+
+/* Cart Badge */
+.cart-badge {
+    position: absolute;
+    top: -2px;
+    /* Adjust to position the badge correctly above the icon */
+    right: -2px;
+    /* Adjust to position the badge correctly to the right of the icon */
+    width: auto;
+    /* Badge size */
+    min-width: 20px;
+    height: 20px;
+    /* Badge size */
+    border-radius: 50%;
+    /* Circular badge */
+    background-color: red;
+    /* Red background for badge */
+    color: white;
+    /* White text color */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    /* Text size */
+    font-weight: bold;
+    /* Bold text */
+    box-sizing: border-box;
+    /* Ensure padding is included in the badge size */
+}
+
+/* Nav Text */
+.topnav-text {
+    font-size: 16px;
+    white-space: nowrap;
+}
+
+/* Responsive styles */
+@media (max-width: 1200px) {
+    .topnav-search-bar {
+        max-width: 70%;
+        /* Adjust max width for medium screens */
+    }
+
+    .topnav-links {
+        gap: 15px;
+        /* Reduce gap between items for medium screens */
+    }
+
+    .topspacer {
+        width: 60px;
+    }
+}
+
+@media (max-width: 992px) {
+    .topnav-search-bar {
+        max-width: 80%;
+        /* Adjust max width for smaller screens */
+        font-size: 14px;
+        /* Smaller font size */
+    }
+
+    .topnav-links {
+        gap: 10px;
+        /* Reduce gap between items for smaller screens */
+    }
+    
+    .topspacer {
+        width: 40px;
+    }
+}
+
+@media (max-width: 768px) {
+    .topnav-search-bar {
+        max-width: 80%;
+        /* Further adjust max width for mobile screens */
+        font-size: 12px;
+        /* Smaller font size for better fit */
+    }
+
+    .topnav-links {
+        gap: 8px;
+        /* Further reduce gap between items for mobile screens */
+    }
+    
+    .topspacer {
+        width: 20px;
+    }
+}
+
+@media (max-width: 576px) {
+    .topnav-search-bar {
+        max-width: 70%;
+        /* Almost full width for very small screens */
+        font-size: 10px;
+        /* Keep font size smaller for very small screens */
+    }
+
+    .topnav-text {
+        font-size: 10px;
+        /* Even smaller text size for very small screens */
+    }
+
+    .topspacer {
+        width: 20px;
+    }
+
+
+    /* Cart Badge */
+    .cart-badge {
+        position: absolute;
+        top: -4px;
+        /* Adjust to position the badge correctly above the icon */
+        right: -4px;
+        /* Adjust to position the badge correctly to the right of the icon */
+        width: auto;
+        /* Badge size */
+        min-width: 20px;
+        height: 20px;
+        /* Badge size */
+        border-radius: 50%;
+        /* Circular badge */
+        background-color: red;
+        /* Red background for badge */
+        color: white;
+        /* White text color */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        /* Text size */
+        font-weight: bold;
+        /* Bold text */
+        box-sizing: border-box;
+        /* Ensure padding is included in the badge size */
+    }
+}

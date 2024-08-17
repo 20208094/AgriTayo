@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-function CropCategoryPage() {
+function CropCategoryPageCRUD() {
   const [categories, setCategories] = useState([]);
   const [formData, setFormData] = useState({
     crop_category_name: '',
@@ -161,4 +161,4 @@ function CropCategoryPage() {
   );
 }
 
-export default CropCategoryPage;
+export default CropCategoryPageCRUD;

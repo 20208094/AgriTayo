@@ -1,30 +1,21 @@
 import React, { useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import SidebarItem from './SidebarTemplates/SidebarItem';
+import DropdownItem from './SidebarTemplates/DropdownItem';
 import { FaBox, FaUser, FaShoppingCart, FaTag, FaTasks, FaCheckCircle, FaShippingFast, FaClipboardList, FaMoneyBillWave, FaTruck, FaBell } from 'react-icons/fa';
 import { MdSpaceDashboard } from "react-icons/md";
 import { GiThreeLeaves } from "react-icons/gi";
 import { RiSettings3Fill } from "react-icons/ri";
+import { IoMdArrowDropdown } from "react-icons/io";
 
 
 function AdminSidebar() {
-    const [showDevLinks, setShowDevLinks] = useState(false); // Define state for dropdown
+    const [showDevLinks, setShowDevLinks] = useState(false);
 
     return (
         <div className="w-full">
-            <NavLink
-                to="/admin/dashboard"
-                className="sidebar-item"
-            >
-                <MdSpaceDashboard className="sidebar-icon" />
-                <span className="sidebar-text">Dashboard</span>
-            </NavLink>
-            <NavLink
-                to="/admin/market"
-                className="sidebar-item"
-            >
-                <GiThreeLeaves className="sidebar-icon" />
-                <span className="sidebar-text">Market</span>
-            </NavLink>
+            <SidebarItem to="/admin/dashboard" icon={MdSpaceDashboard} text="Dashboard" />
+            <SidebarItem to="/admin/crop-category" icon={GiThreeLeaves} text="Crop Category" />
+            
             {/* Dev Menu Dropdown */}
             <button
                 className="sidebar-item w-full"
@@ -32,91 +23,25 @@ function AdminSidebar() {
             >
                 <RiSettings3Fill className="sidebar-icon" />
                 <span className="sidebar-text">Dev Menu</span>
-                <svg className={`ml-auto w-4 h-4 ${showDevLinks ? 'rotate-180' : 'rotate-0'} transition-transform`} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M19 9l-7 7-7-7" />
-                </svg>
+                
+                <IoMdArrowDropdown
+                    className={`${showDevLinks ? 'rotate-180' : 'rotate-0'} dropdown-arrow`}
+                />
             </button>
-
             <div className={`transition-all duration-300 ease-in-out ${showDevLinks ? 'max-h-screen' : 'max-h-0 overflow-hidden'}`}>
-                <NavLink
-                    to="/admin/user_type"
-                    className="dropdown-item"
-                >
-                    
-                    <FaUser className="sidebar-dropdown-icon" />
-                    <span className="sidebar-text">User Type</span>
-                </NavLink>
-                <NavLink
-                    to="/admin/users"
-                    className="dropdown-item"
-                >
-                    
-                    <FaUser className="sidebar-dropdown-icon" />
-                    <span className="sidebar-text">Users</span>
-                </NavLink>
-                <NavLink
-                    to="/admin/addresses"
-                    className="dropdown-item"
-                >
-                    
-                    <FaBox className="sidebar-dropdown-icon" />
-                    <span className="sidebar-text">Addresses</span>
-                </NavLink>
-                <NavLink
-                    to="/admin/shops"
-                    className="dropdown-item"
-                >
-                    <FaShoppingCart className="sidebar-dropdown-icon" />
-                    <span className="sidebar-text">Shops</span>
-                </NavLink>
-                <NavLink
-                    to="/admin/crop_category"
-                    className="dropdown-item"
-                >
-                    <FaTag className="sidebar-dropdown-icon" />
-                    <span className="sidebar-text">Crop Category</span>
-                </NavLink>
-                <NavLink
-                    to="/admin/metric_system"
-                    className="dropdown-item"
-                >
-                    <FaTasks className="sidebar-dropdown-icon" />
-                    <span className="sidebar-text">Metric System</span>
-                </NavLink>
-                <NavLink
-                    to="/admin/crops"
-                    className="dropdown-item"
-                >
-                    <FaCheckCircle className="sidebar-dropdown-icon" />
-                    <span className="sidebar-text">Crops</span>
-                </NavLink>
-                <NavLink
-                    to="/admin/order_status"
-                    className="dropdown-item"
-                >
-                    <FaShippingFast className="sidebar-dropdown-icon" />
-                    <span className="sidebar-text">Order Status</span>
-                </NavLink>
-                <NavLink to="/admin/orders" className="dropdown-item">
-                    <FaMoneyBillWave className="sidebar-dropdown-icon" />
-                    <span className="sidebar-text">Orders</span>
-                </NavLink>
-                <NavLink to="/admin/order_products" className="dropdown-item">
-                    <FaClipboardList className="sidebar-dropdown-icon" />
-                    <span className="sidebar-text">Order Products</span>
-                </NavLink>
-                <NavLink to="/admin/order_tracking" className="dropdown-item">
-                    <FaTruck className="sidebar-dropdown-icon" />
-                    <span className="sidebar-text">Order Tracking</span>
-                </NavLink>
-                <NavLink to="/admin/payments" className="dropdown-item">
-                    <FaMoneyBillWave className="sidebar-dropdown-icon" />
-                    <span className="sidebar-text">Payments</span>
-                </NavLink>
-                <NavLink to="/admin/notifications" className="dropdown-item">
-                    <FaBell className="sidebar-dropdown-icon" />
-                    <span className="sidebar-text">Notifications</span>
-                </NavLink>
+                <DropdownItem to="/admin/user_type" icon={FaUser} text="User Type" />
+                <DropdownItem to="/admin/users" icon={FaUser} text="Users" />
+                <DropdownItem to="/admin/addresses" icon={FaBox} text="Addresses" />
+                <DropdownItem to="/admin/shops" icon={FaShoppingCart} text="Shops" />
+                <DropdownItem to="/admin/crop_category" icon={FaTag} text="Crop Category" />
+                <DropdownItem to="/admin/metric_system" icon={FaTasks} text="Metric System" />
+                <DropdownItem to="/admin/crops" icon={FaCheckCircle} text="Crops" />
+                <DropdownItem to="/admin/order_status" icon={FaShippingFast} text="Order Status" />
+                <DropdownItem to="/admin/orders" icon={FaMoneyBillWave} text="Orders" />
+                <DropdownItem to="/admin/order_products" icon={FaClipboardList} text="Order Products" />
+                <DropdownItem to="/admin/order_tracking" icon={FaTruck} text="Order Tracking" />
+                <DropdownItem to="/admin/payments" icon={FaMoneyBillWave} text="Payments" />
+                <DropdownItem to="/admin/notifications" icon={FaBell} text="Notifications" />
             </div>
         </div>
     );
