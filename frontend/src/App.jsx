@@ -26,6 +26,7 @@ import AdminDashboardPage from './screens/Users/AdminPages/AdminDashboard';
 import SellerDashboardPage from './screens/Users/SellerPages/SellerDashboard';
 import BuyerDashboardPage from './screens/Users/BuyerPages/BuyerDashboard';
 import CropCategoryPage from './screens/CropCategory/CropCategoryPage';
+import SampleSearch from './screens/Users/AdminPages/CrudPages/SearchSample';
 
 function App() {
   const [userType, setUserType] = useState(null);
@@ -67,7 +68,7 @@ function Layout({ userType }) {
       {/* Main Content */}
       <div className="main-content">
         <Routes>
-          <Route exact path="/sample" element={<CropCategoryPageCRUD />} />
+          <Route exact path="/sample" element={<SampleSearch />} />
           <Route exact path="/crop-category" element={<CropCategoryPage />} />
           <Route exact path="/admin-dash" element={<AdminDashboardPage />} />
           <Route exact path="/login" element={<LoginPage />} />

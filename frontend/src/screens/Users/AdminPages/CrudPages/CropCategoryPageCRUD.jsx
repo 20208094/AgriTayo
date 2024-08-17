@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 
 function CropCategoryPageCRUD() {
   const [categories, setCategories] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
   const [formData, setFormData] = useState({
+    crop_category_id: '',
     crop_category_name: '',
     crop_category_description: '',
     image: null
@@ -57,6 +59,7 @@ function CropCategoryPageCRUD() {
       }
       fetchCategories();
       setFormData({
+        crop_category_id: '',
         crop_category_name: '',
         crop_category_description: '',
         image: null
@@ -77,7 +80,6 @@ function CropCategoryPageCRUD() {
     setIsEdit(true);
   };
 
-
   const handleDelete = async (id) => {
     try {
       const response = await fetch(`/api/crop_categories/${id}`, { method: 'DELETE' });
@@ -90,9 +92,26 @@ function CropCategoryPageCRUD() {
     }
   };
 
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value.toLowerCase());
+  };
+
+  const filteredCategories = categories.filter((category) =>
+    category.crop_category_name.toLowerCase().includes(searchQuery) ||
+    category.crop_category_description.toLowerCase().includes(searchQuery)
+  );
+
   return (
     <div style={{ padding: '50px' }}>
       <h1>Crop Categories Management</h1>
+
+      <input
+        type="text"
+        placeholder="Search..."
+        value={searchQuery}
+        onChange={handleSearchChange}
+        style={{ marginBottom: '20px', padding: '8px', width: '300px' }}
+      />
 
       <form onSubmit={handleSubmit} encType="multipart/form-data">
         <input
@@ -123,7 +142,6 @@ function CropCategoryPageCRUD() {
         <button type="submit">{isEdit ? 'Update' : 'Create'}</button>
       </form>
 
-
       <table style={{ border: '1px solid black', width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
         <thead>
           <tr>
@@ -135,7 +153,7 @@ function CropCategoryPageCRUD() {
           </tr>
         </thead>
         <tbody>
-          {categories.map((category) => (
+          {filteredCategories.map((category) => (
             <tr key={category.crop_category_id}>
               <td style={{ border: '1px solid black', padding: '8px' }}>{category.crop_category_id}</td>
               <td style={{ border: '1px solid black', padding: '8px' }}>{category.crop_category_name}</td>
