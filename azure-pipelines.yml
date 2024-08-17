@@ -15,6 +15,13 @@ steps:
     versionSpec: '20.x'
   displayName: 'Install Node.js'
 
+- script: |
+    # Delete vite.config.js if it exists
+    rm -f frontend/vite.config.js
+    # Rename vite.config2.js to vite.config.js
+    mv frontend/vite.config2.js frontend/vite.config.js
+  displayName: 'Update Vite Config'
+
 - task: Npm@1
   displayName: 'install modules in /frontend'
   inputs:
