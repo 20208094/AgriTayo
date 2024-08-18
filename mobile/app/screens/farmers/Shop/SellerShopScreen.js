@@ -103,7 +103,6 @@ function SellerShopScreen({ route, navigation }) {
                 <TouchableOpacity
                   className=""
                   key={subCategory.id}
-                  onPress={() => console.log(`Clicked on ${subCategory.name}`)}
                 >
                   <Text className="">{subCategory.name}</Text>
                 </TouchableOpacity>
