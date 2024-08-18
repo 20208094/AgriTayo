@@ -81,31 +81,11 @@ function RegisterPage() {
                     />
                 </div>
                 <div>
-                    <label>Email:</label>
+                    <label>Birthday:</label>
                     <input
-                        type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleInputChange}
-                        required
-                    />
-                </div>
-                <div>
-                    <label>Password:</label>
-                    <input
-                        type="password"
-                        name="password"
-                        value={formData.password}
-                        onChange={handleInputChange}
-                        required
-                    />
-                </div>
-                <div>
-                    <label>Phone Number:</label>
-                    <input
-                        type="text"
-                        name="phone_number"
-                        value={formData.phone_number}
+                        type="date"
+                        name="birthday"
+                        value={formData.birthday}
                         onChange={handleInputChange}
                     />
                 </div>
@@ -123,12 +103,42 @@ function RegisterPage() {
                     </select>
                 </div>
                 <div>
-                    <label>Birthday:</label>
+                    <label>Email:</label>
                     <input
-                        type="date"
-                        name="birthday"
-                        value={formData.birthday}
+                        type="email"
+                        name="email"
+                        value={formData.email}
                         onChange={handleInputChange}
+                        required
+                    />
+                </div>
+                <div>
+                    <label>Phone Number:</label>
+                    <input
+                        type="text"
+                        name="phone_number"
+                        value={formData.phone_number}
+                        onChange={handleInputChange}
+                    />
+                </div>
+                <div>
+                    <label>Password:</label>
+                    <input
+                        type="password"
+                        name="password"
+                        value={formData.password}
+                        onChange={handleInputChange}
+                        required
+                    />
+                </div>
+                <div>
+                    <label>Confirm Password:</label>
+                    <input
+                        type="password"
+                        name="confirm_password"
+                        value={formData.confirm_password}
+                        onChange={handleInputChange}
+                        required
                     />
                 </div>
                 <div>

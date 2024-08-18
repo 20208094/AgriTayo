@@ -17,7 +17,6 @@ function RegisterScreenBuyers({ navigation }) {
   const [lastName, setLastName] = useState("");
   const [birthDay, setBirthDay] = useState("");
   const [gender, setGender] = useState("");
-  const [address, setAddress] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -28,7 +27,6 @@ function RegisterScreenBuyers({ navigation }) {
   const [lastNameError, setLastNameError] = useState("");
   const [birthDayError, setBirthDayError] = useState("");
   const [genderError, setGenderError] = useState("");
-  const [addressError, setAddressError] = useState("");
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [confirmPasswordError, setConfirmPasswordError] = useState("");
@@ -37,7 +35,6 @@ function RegisterScreenBuyers({ navigation }) {
   const firstname_regex = /^[A-Za-z\s]{2,}$/;
   const middlename_regex = /^[A-Za-z\s]{2,}$/;
   const lastname_regex = /^[A-Za-z\s]{2,}$/;
-  const address_regex = /^.{5,}$/;
   const password_regex = /^[A-Za-z\d@.#$!%*?&^]{8,30}$/;
   const email_regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const phone_regex = /^(?:\+63|0)?9\d{9}$/;
@@ -48,7 +45,6 @@ function RegisterScreenBuyers({ navigation }) {
     setLastNameError("");
     setBirthDayError("");
     setGenderError("");
-    setAddressError("");
     setEmailError("");
     setPasswordError("");
     setConfirmPasswordError("");
@@ -87,14 +83,6 @@ function RegisterScreenBuyers({ navigation }) {
 
     if (!gender) {
       setGenderError("Select your Gender");
-      hasError = true;
-    }
-
-    if (!address) {
-      setAddressError("Enter your Address");
-      hasError = true;
-    } else if (!address_regex.test(address)) {
-      setAddressError("Invalid Address. Please try again.");
       hasError = true;
     }
 
@@ -236,18 +224,6 @@ function RegisterScreenBuyers({ navigation }) {
           </View>
           {genderError ? (
             <Text className="w-4/5 text-red-500 mb-4">{genderError}</Text>
-          ) : null}
-
-          <TextInput
-            className="w-full p-3 mb-4 bg-white rounded-lg shadow-md"
-            placeholder="Address"
-            multiline={true}
-            numberOfLines={3}
-            value={address}
-            onChangeText={setAddress}
-          />
-          {addressError ? (
-            <Text className="w-4/5 text-red-500 mb-4">{addressError}</Text>
           ) : null}
 
           <TextInput

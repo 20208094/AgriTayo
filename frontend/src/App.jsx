@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate, useLocation, Outlet } from 'react-router-dom';
 import SamplePage from './screens/Users/AdminPages/CrudPages/SamplePage';
-import LoginPage from './AuthPages/LoginPage';
-import LogoutButton from './AuthPages/LogoutPage';
-import RegisterPage from './AuthPages/RegisterPage';
+import LoginPage from './screens/AuthPages/LoginPage';
+import LogoutButton from './screens/AuthPages/LogoutPage';
+import RegisterPage from './screens/AuthPages/RegisterPage';
 import UserTypePage from './screens/Users/AdminPages/CrudPages/UserTypePage';
 import UsersPage from './screens/Users/AdminPages/CrudPages/UsersPage';
 import AddressesPage from './screens/Users/AdminPages/CrudPages/AdressesPage';
@@ -85,7 +85,6 @@ function ProtectedRoute({ allowedUserType, userType, element }) {
   }
 }
 
-
 function Layout({ userType }) {
   const location = useLocation();
   const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
@@ -102,6 +101,7 @@ function Layout({ userType }) {
           <Route exact path="/sample" element={<SampleSearch />} />
           <Route exact path="/crop-category" element={<CropCategoryPage />} />
           <Route exact path="/admin-dash" element={<AdminDashboardPage />} />
+
           {/* AUTHENTICATION ROUTES */}
           {!userType && (
             <>

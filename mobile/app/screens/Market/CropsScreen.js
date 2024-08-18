@@ -1,31 +1,36 @@
-import React from "react";
-import { View, Text, Image, TouchableOpacity, ScrollView, StyleSheet } from "react-native"; // Import ScrollView
-import { SafeAreaView } from "react-native-safe-area-context";
-import logo from "../../assets/logo.png";
-import { useNavigation } from "@react-navigation/native";
+import React, { useState, useCallback } from 'react';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Image } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import logo from '../../assets/logo.png'; // Placeholder image
 
-const marketCategories = [
-  { id: 1, title: "Vegetables", image: logo },
-  { id: 2, title: "Fruits", image: logo },
-  { id: 3, title: "Spices", image: logo },
-  { id: 4, title: "Seedlings", image: logo },
-  { id: 5, title: "Plants", image: logo },
-  { id: 6, title: "Flowers", image: logo },
-];
-
-const MarketCategoryCard = ({ marketCategory }) => {
+const MarketCategoryCard = ({ cropCategory }) => {
   const navigation = useNavigation();
+
+  const getImageSource = () => {
+    const { crop_category_image_url } = cropCategory;
+
+    if (typeof crop_category_image_url === 'string' && crop_category_image_url.trim() !== '') {
+      return { uri: crop_category_image_url };
+    }
+    
+    // If not a valid URL, return the default image
+    return logo;
+  };
 
   return (
     <SafeAreaView className="bg-white rounded-lg shadow m-2 w-[45%] mb-3">
       <TouchableOpacity
-        onPress={() => navigation.navigate("Market List", { category: marketCategory.title })}
+        onPress={() => navigation.navigate('Market List', { category: cropCategory.crop_category_id })}
       >
         <View className="rounded-t-lg overflow-hidden">
-          <Image source={marketCategory.image} className="w-full h-28" />
+          <Image 
+            source={getImageSource()} 
+            className="w-full h-28" 
+          />
           <View className="p-2.5">
             <Text className="text-base font-bold mb-1.5">
-              {marketCategory.title}
+              {cropCategory.crop_category_name}
             </Text>
           </View>
         </View>
@@ -35,13 +40,36 @@ const MarketCategoryCard = ({ marketCategory }) => {
 };
 
 function CropsScreen() {
+  const [categories, setCategories] = useState([]);
+
+  // Fetch categories function
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch(`https://agritayo.azurewebsites.net/api/crop_categories`); // Use environment variable
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const data = await response.json();
+      setCategories(data);
+    } catch (error) {
+      console.error('Error fetching crop categories:', error);
+    }
+  };
+
+  // Fetch categories when screen is focused
+  useFocusEffect(
+    useCallback(() => {
+      fetchCategories();
+    }, [])
+  );
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View className="flex-row flex-wrap justify-between">
-        {marketCategories.map((marketCategory) => (
+        {categories.map((category) => (
           <MarketCategoryCard
-            key={marketCategory.id}
-            marketCategory={marketCategory}
+            key={category.crop_category_id}
+            cropCategory={category}
           />
         ))}
       </View>

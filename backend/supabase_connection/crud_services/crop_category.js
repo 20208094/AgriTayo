@@ -35,11 +35,20 @@ async function addCropCategory(req, res) {
 
             const crop_category_name = fields.crop_category_name[0];
             const crop_category_description = fields.crop_category_description[0];
-            const image = files.image[0];
+            const image = files.image ? files.image[0] : null;
+
+            let crop_category_image_url = null;
+
+            if (image) {
+                try {
+                    crop_category_image_url = await imageHandler.uploadImage(image);
+                } catch (uploadError) {
+                    console.error('Image upload error:', uploadError.message);
+                    return res.status(500).json({ error: 'Image upload failed' });
+                }
+            }
 
             try {
-                const crop_category_image_url = await imageHandler.uploadImage(image);
-
                 const { data, error } = await supabase
                     .from('crop_category')
                     .insert([{ crop_category_name, crop_category_description, crop_category_image_url }]);
@@ -50,9 +59,9 @@ async function addCropCategory(req, res) {
                 }
 
                 res.status(201).json({ message: 'Crop category added successfully', data });
-            } catch (uploadError) {
-                console.error('Image upload error:', uploadError.message);
-                res.status(500).json({ error: 'Image upload failed' });
+            } catch (err) {
+                console.error('Error executing Supabase query:', err.message);
+                res.status(500).json({ error: 'Internal server error' });
             }
         });
     } catch (err) {
@@ -60,6 +69,7 @@ async function addCropCategory(req, res) {
         res.status(500).json({ error: 'Internal server error' });
     }
 }
+
 
 async function updateCropCategory(req, res) {
     try {

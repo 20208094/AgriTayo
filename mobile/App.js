@@ -102,16 +102,22 @@ function App() {
           />
         ) : (
           <>
+          
+          <Stack.Screen
+              name="NavigationBar"
+              component={NavigationBar}
+              options={{ ...screenOptions, headerShown: false }}
+            />
            <Stack.Screen
               name="HomePageScreen"
               component={HomePageScreen}
               options={screenOptions}
             />
             <Stack.Screen
-              name="Login"
-              component={LoginScreen}
-              options={{ ...screenOptions, headerShown: false }}
-            />
+                name="Login"
+                component={LoginScreen}
+                options={{ ...screenOptions, headerShown: false }}
+              />
             <Stack.Screen
               name="Register"
               component={RegisterScreenBuyers}
@@ -143,11 +149,6 @@ function App() {
               name="Notification Details"
               component={NotificationDetailsScreen}
               options={screenOptions}
-            />
-            <Stack.Screen
-              name="NavigationBar"
-              component={NavigationBar}
-              options={{ ...screenOptions, headerShown: false }}
             />
             <Stack.Screen
               name="OTP Screen"
