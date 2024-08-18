@@ -102,11 +102,7 @@ function App() {
           />
         ) : (
           <>
-           <Stack.Screen
-              name="HomePageScreen"
-              component={HomePageScreen}
-              options={screenOptions}
-            />
+
             <Stack.Screen
               name="Login"
               component={LoginScreen}
@@ -117,8 +113,11 @@ function App() {
               component={RegisterScreenBuyers}
               options={{ ...screenOptions, headerShown: false }}
             />
-           {/*Homepage */}
-
+            <Stack.Screen
+              name="HomePageScreen"
+              component={HomePageScreen}
+              options={screenOptions}
+            />
             <Stack.Screen
               name="CartScreen"
               component={CartScreen}
@@ -144,6 +143,7 @@ function App() {
               component={NotificationDetailsScreen}
               options={screenOptions}
             />
+            
             <Stack.Screen
               name="NavigationBar"
               component={NavigationBar}
@@ -313,14 +313,17 @@ function App() {
             <Stack.Screen
             name='Message Seller'
             component={MessageSellerScreen}
+            options={screenOptions}
             />
             <Stack.Screen
             name='Negotiate To Seller'
             component={NegotiateToSellerScreen}
+            options={screenOptions}
             />
             <Stack.Screen
             name='Seller Shop'
             component={SellerShopScreen}
+            options={screenOptions}
             />
           </>
         )}

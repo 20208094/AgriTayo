@@ -13,6 +13,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
 import { Ionicons } from "@expo/vector-icons"; // Ensure you have this package installed
 import GoBack from "../../components/GoBack";
+import { NotificationIcon, MessagesIcon, MarketIcon } from "../../components/SearchBarC"; // Import your custom icons
 
 const editButton = require("../../assets/edit.png");
 const userImage = require("../../assets/user.png"); // Import the user image
@@ -72,6 +73,18 @@ function ViewProfileScreen({ route, navigation }) {
       setModalVisible(false);
     }
   };
+
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <View style={{ flexDirection: "row", marginRight: 15 }}>
+          <MarketIcon onPress={() => navigation.navigate("CartScreen")} />
+          <NotificationIcon onPress={() => navigation.navigate("Notifications")} />
+          <MessagesIcon onPress={() => navigation.navigate("Messages")} />
+        </View>
+      ),
+    });
+  }, [navigation]);
 
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
