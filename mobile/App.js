@@ -35,6 +35,8 @@ import PickUpAddressScreen from "./app/screens/farmers/PickUpAddressScreen";
 import MarketCategoryListScreen from "./app/screens/Market/MarketCategory/MarketCategoryListScreen";
 import MarketCategoryScreen from "./app/screens/Market/MarketCategory/MarketCategoryScreen";
 import MarketAnalyticScreen from "./app/screens/Analytics/MarketAnalyticScreen";
+import MessageSellerScreen from "./app/screens/Message/MessageSellerScreen";
+import NegotiateToSellerScreen from "./app/screens/Message/NegotiateToSellerScreen";
 // for farmers
 import ShopScreen from "./app/screens/farmers/Shop/ShopScreen";
 import ViewShopScreen from "./app/screens/farmers/Shop/ViewShopScreen";
@@ -47,6 +49,7 @@ import LearnAndHelpScreen from "./app/screens/farmers/Shop/LearnAndHelpScreen";
 import ShopRatingScreen from "./app/screens/farmers/Shop/ShopPerformance/ShopRatingScreen";
 import BusinessInsightsScreen from "./app/screens/farmers/Shop/ShopPerformance/BusinessInsightsScreen";
 import AccountHealthScreen from "./app/screens/farmers/Shop/ShopPerformance/AccountHealthScreen";
+import SellerShopScreen from "./app/screens/farmers/Shop/SellerShopScreen";
 
 
 const Stack = createStackNavigator();
@@ -99,7 +102,11 @@ function App() {
           />
         ) : (
           <>
-
+           <Stack.Screen
+              name="HomePageScreen"
+              component={HomePageScreen}
+              options={screenOptions}
+            />
             <Stack.Screen
               name="Login"
               component={LoginScreen}
@@ -110,11 +117,8 @@ function App() {
               component={RegisterScreenBuyers}
               options={{ ...screenOptions, headerShown: false }}
             />
-            <Stack.Screen
-              name="HomePageScreen"
-              component={HomePageScreen}
-              options={screenOptions}
-            />
+           {/*Homepage */}
+
             <Stack.Screen
               name="CartScreen"
               component={CartScreen}
@@ -305,6 +309,18 @@ function App() {
             name='Account Health'
             component={AccountHealthScreen}
             options={screenOptions}
+            />
+            <Stack.Screen
+            name='Message Seller'
+            component={MessageSellerScreen}
+            />
+            <Stack.Screen
+            name='Negotiate To Seller'
+            component={NegotiateToSellerScreen}
+            />
+            <Stack.Screen
+            name='Seller Shop'
+            component={SellerShopScreen}
             />
           </>
         )}

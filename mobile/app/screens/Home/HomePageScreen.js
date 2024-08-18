@@ -20,6 +20,44 @@ const products = [
     description: "Kamote Masarap",
     discount: 10,
     address: "Baguio",
+    seller: {
+      id: 1,
+      name: 'Michael',
+      shopName: 'Michael Shop',
+      followers: 1,
+      categories: {
+        category: [
+          {
+            id: 1,
+            name: 'Vegetables',
+            subCategories: [
+              {
+                id: 1,
+                name: 'Tomato'
+              },
+              {
+                id: 2, 
+                name: 'Potato'
+              }
+            ]
+          },
+          {
+            id : 2,
+            name: 'Fruits',
+            subCategories: [
+              {
+                id: 1,
+                name: 'Apple'
+              },
+              {
+                id: 2, 
+                name: 'Banana'
+              }
+            ]
+          },
+        ],
+      }
+    }
   },
   {
     id: 2,
@@ -30,6 +68,44 @@ const products = [
     description: "Patatas Masarap",
     discount: 5,
     address: "Trinidad",
+    seller: {
+      id: 2,
+      name: 'Joshua',
+      shopName: 'Joshua Shop',
+      followers: 2,
+      categories: {
+        category: [
+          {
+            id: 1,
+            name: 'Spices',
+            subCategories: [
+              {
+                id: 1,
+                name: 'Turmeric'
+              },
+              {
+                id: 2, 
+                name: 'Cumin'
+              }
+            ]
+          },
+          {
+            id : 2,
+            name: 'Seedlings',
+            subCategories: [
+              {
+                id: 1,
+                name: 'Tomato Seedlings'
+              },
+              {
+                id: 2, 
+                name: 'Basil Seedlings'
+              }
+            ]
+          },
+        ],
+      }
+    }
   },
   {
     id: 3,
@@ -40,6 +116,44 @@ const products = [
     description: "Patatas Masarap",
     discount: 5,
     address: "Trinidad",
+    seller: {
+      id: 3,
+      name: 'Calalo',
+      shopName: 'Calalo Shop',
+      followers: 3,
+      categories: {
+        category: [
+          {
+            id: 1,
+            name: 'Plants',
+            subCategories: [
+              {
+                id: 1,
+                name: 'Spider Plant'
+              },
+              {
+                id: 2, 
+                name: 'Aloe Vera'
+              }
+            ]
+          },
+          {
+            id : 2,
+            name: 'Flowers',
+            subCategories: [
+              {
+                id: 1,
+                name: 'Rose'
+              },
+              {
+                id: 2, 
+                name: 'Tulip'
+              }
+            ]
+          },
+        ],
+      }
+    }
   },
   {
     id: 4,
@@ -50,6 +164,44 @@ const products = [
     description: "Patatas Masarap",
     discount: 5,
     address: "Trinidad",
+    seller: {
+      id: 4,
+      name: 'Pogi',
+      shopName: 'Pogi Shop',
+      followers: 4,
+      categories: {
+        category: [
+          {
+            id: 1,
+            name: 'Sabon',
+            subCategories: [
+              {
+                id: 1,
+                name: 'Sabon Panlaba'
+              },
+              {
+                id: 2, 
+                name: 'Sabon Pankatawan'
+              }
+            ]
+          },
+          {
+            id : 2,
+            name: 'Lotion',
+            subCategories: [
+              {
+                id: 1,
+                name: 'Lotion ng Mukha'
+              },
+              {
+                id: 2, 
+                name: 'Lotion ng Katawan'
+              }
+            ]
+          },
+        ],
+      }
+    }
   },
 ];
 
