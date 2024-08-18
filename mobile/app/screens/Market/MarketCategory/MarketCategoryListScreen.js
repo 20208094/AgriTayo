@@ -107,7 +107,7 @@ function MarketCategoryListScreen() {
                 source={placeholderimg}
                 className="w-24 h-24 rounded-lg mr-4"
                 resizeMode="cover"
-              />
+              />  
               <View className="flex-1">
                 <Text className="text-lg font-semibold text-gray-800 mb-1">{item.name}</Text>
                 <Text className="text-sm text-gray-600">{item.description}</Text>

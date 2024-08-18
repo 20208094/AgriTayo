@@ -36,20 +36,22 @@ function ProductDetailsScreen({ navigation, route }) {
 
         {/* New Buttons */}
         <View className="flex-row justify-between mb-5">
-          <TouchableOpacity className="bg-[#00B251] p-3.5 rounded-lg items-center flex-1 mr-2.5 flex-row justify-center">
+          <TouchableOpacity className="bg-[#00B251] p-3.5 rounded-lg items-center flex-1 mr-2.5 flex-row justify-center"
+          onPress={() => navigation.navigate('Seller Shop', {product})}
+          >
             <FontAwesome name="shopping-bag" size={20} color="white" className="mr-2" />
             <Text className="text-gray-700 font-bold text-base"></Text>
           </TouchableOpacity>
           <TouchableOpacity 
             className="bg-[#00B251] p-3.5 rounded-lg items-center flex-1 mr-2.5 flex-row justify-center"
-            onPress={() => navigation.navigate("Messages")}
+            onPress={() => navigation.navigate("Negotiate To Seller", {product})}
           >
             <FontAwesome name="balance-scale" size={20} color="white" className="mr-2" />
             <Text className="text-white font-bold text-base"></Text>
           </TouchableOpacity>
           <TouchableOpacity 
             className="bg-[#00B251] p-3.5 rounded-lg items-center flex-1 flex-row justify-center"
-            onPress={() => navigation.navigate("Messages")}
+            onPress={() => navigation.navigate("Message Seller", {product})}
           >
             <FontAwesome name="envelope" size={20} color="white" className="mr-2" />
             <Text className="text-white font-bold text-base"></Text>
