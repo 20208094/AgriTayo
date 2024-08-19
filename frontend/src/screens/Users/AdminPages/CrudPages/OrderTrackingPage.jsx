@@ -1,5 +1,7 @@
-// frontend/src/web_pages/OrderTrackingPage.jsx
 import React, { useState, useEffect } from 'react';
+
+// API key (replace with your environment variable or API key as needed)
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 function OrderTrackingPage() {
     const [trackings, setTrackings] = useState([]);
@@ -15,7 +17,11 @@ function OrderTrackingPage() {
 
     const fetchOrderTrackings = async () => {
         try {
-            const response = await fetch('/api/order_trackings');
+            const response = await fetch('/api/order_trackings', {
+                headers: {
+                    'x-api-key': API_KEY,
+                },
+            });
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
@@ -40,7 +46,8 @@ function OrderTrackingPage() {
             const response = await fetch(url, {
                 method: method,
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'x-api-key': API_KEY,
                 },
                 body: JSON.stringify(formData)
             });
@@ -65,7 +72,12 @@ function OrderTrackingPage() {
 
     const handleDelete = async (id) => {
         try {
-            const response = await fetch(`/api/order_trackings/${id}`, { method: 'DELETE' });
+            const response = await fetch(`/api/order_trackings/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'x-api-key': API_KEY,
+                },
+            });
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }

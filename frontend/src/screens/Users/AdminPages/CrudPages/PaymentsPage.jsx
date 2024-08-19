@@ -1,5 +1,7 @@
-// frontend/src/web_pages/PaymentsPage.jsx
 import React, { useState, useEffect } from 'react';
+
+// API key (replace with your environment variable or API key as needed)
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 function PaymentsPage() {
     const [payments, setPayments] = useState([]);
@@ -19,7 +21,11 @@ function PaymentsPage() {
 
     const fetchPayments = async () => {
         try {
-            const response = await fetch('/api/payments');
+            const response = await fetch('/api/payments', {
+                headers: {
+                    'x-api-key': API_KEY,
+                },
+            });
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
@@ -32,7 +38,11 @@ function PaymentsPage() {
 
     const fetchOrders = async () => {
         try {
-            const response = await fetch('/api/orders');
+            const response = await fetch('/api/orders', {
+                headers: {
+                    'x-api-key': API_KEY,
+                },
+            });
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
@@ -57,7 +67,8 @@ function PaymentsPage() {
             const response = await fetch(url, {
                 method: method,
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'x-api-key': API_KEY,
                 },
                 body: JSON.stringify(formData)
             });
@@ -84,7 +95,12 @@ function PaymentsPage() {
 
     const handleDelete = async (id) => {
         try {
-            const response = await fetch(`/api/payments/${id}`, { method: 'DELETE' });
+            const response = await fetch(`/api/payments/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'x-api-key': API_KEY,
+                },
+            });
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }

@@ -33,6 +33,8 @@ function AdminSidebar() {
                 <DropdownItem to="/admin/users" icon={FaUser} text="Users" />
                 <DropdownItem to="/admin/addresses" icon={FaBox} text="Addresses" />
                 <DropdownItem to="/admin/shops" icon={FaShoppingCart} text="Shops" />
+                <DropdownItem to="/admin/carts" icon={FaShoppingCart} text="Cart" />
+                <DropdownItem to="/admin/cart_products" icon={FaShoppingCart} text="Cart Products" />
                 <DropdownItem to="/admin/crop_category" icon={FaTag} text="Crop Category" />
                 <DropdownItem to="/admin/metric_system" icon={FaTasks} text="Metric System" />
                 <DropdownItem to="/admin/crops" icon={FaCheckCircle} text="Crops" />
@@ -42,6 +44,7 @@ function AdminSidebar() {
                 <DropdownItem to="/admin/order_tracking" icon={FaTruck} text="Order Tracking" />
                 <DropdownItem to="/admin/payments" icon={FaMoneyBillWave} text="Payments" />
                 <DropdownItem to="/admin/notifications" icon={FaBell} text="Notifications" />
+                <DropdownItem to="/admin/reviews" icon={FaBell} text="Reviews" />
             </div>
         </div>
     );

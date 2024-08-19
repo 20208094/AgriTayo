@@ -28,6 +28,8 @@ import BuyerDashboardPage from './screens/Users/BuyerPages/BuyerDashboard';
 import CropCategoryPage from './screens/CropCategory/CropCategoryPage';
 import SampleSearch from './screens/Users/AdminPages/CrudPages/SearchSample';
 
+const API_KEY = import.meta.env.VITE_API_KEY;
+
 function App() {
   const [userType, setUserType] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -35,7 +37,11 @@ function App() {
   useEffect(() => {
     async function fetchUserSession() {
       try {
-        const response = await fetch('/api/session');
+        const response = await fetch('/api/session', {
+          headers: {
+              'x-api-key': API_KEY
+          }
+      });
         if (response.ok) {
           const data = await response.json();
           setUserType(data.user_type_id);

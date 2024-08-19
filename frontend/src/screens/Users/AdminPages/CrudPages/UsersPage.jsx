@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from 'react';
 
+// API key (replace with your environment variable or API key as needed)
+const API_KEY = import.meta.env.VITE_API_KEY;
+
 function UsersPage() {
     const [users, setUsers] = useState([]);
     const [userTypes, setUserTypes] = useState([]);
     const [formData, setFormData] = useState({
+        user_id: '',
         firstname: '',
         middlename: '',
         lastname: '',
@@ -24,7 +28,11 @@ function UsersPage() {
 
     const fetchUsers = async () => {
         try {
-            const response = await fetch('/api/users');
+            const response = await fetch('/api/users', {
+                headers: {
+                    'x-api-key': API_KEY,
+                },
+            });
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
@@ -37,7 +45,11 @@ function UsersPage() {
 
     const fetchUserTypes = async () => {
         try {
-            const response = await fetch('/api/user_types');
+            const response = await fetch('/api/user_types', {
+                headers: {
+                    'x-api-key': API_KEY,
+                },
+            });
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
@@ -62,7 +74,8 @@ function UsersPage() {
             const response = await fetch(url, {
                 method: method,
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'x-api-key': API_KEY,
                 },
                 body: JSON.stringify(formData)
             });
@@ -71,6 +84,7 @@ function UsersPage() {
             }
             fetchUsers();
             setFormData({
+                user_id: '',
                 firstname: '',
                 middlename: '',
                 lastname: '',
@@ -95,7 +109,12 @@ function UsersPage() {
 
     const handleDelete = async (id) => {
         try {
-            const response = await fetch(`/api/users/${id}`, { method: 'DELETE' });
+            const response = await fetch(`/api/users/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'x-api-key': API_KEY,
+                },
+            });
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
@@ -236,7 +255,6 @@ function UsersPage() {
                         </tr>
                     ))}
                 </tbody>
-
             </table>
         </div>
     );

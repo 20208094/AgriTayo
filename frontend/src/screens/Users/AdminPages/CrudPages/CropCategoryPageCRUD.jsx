@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 
+// API key (replace with your environment variable or API key as needed)
+const API_KEY = import.meta.env.VITE_API_KEY;
+
 function CropCategoryPageCRUD() {
   const [categories, setCategories] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -17,7 +20,11 @@ function CropCategoryPageCRUD() {
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch('/api/crop_categories');
+      const response = await fetch('/api/crop_categories', {
+        headers: {
+          'x-api-key': API_KEY,
+        },
+      });
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
@@ -52,6 +59,9 @@ function CropCategoryPageCRUD() {
     try {
       const response = await fetch(url, {
         method: method,
+        headers: {
+          'x-api-key': API_KEY,
+        },
         body: formPayload
       });
       if (!response.ok) {
@@ -82,7 +92,12 @@ function CropCategoryPageCRUD() {
 
   const handleDelete = async (id) => {
     try {
-      const response = await fetch(`/api/crop_categories/${id}`, { method: 'DELETE' });
+      const response = await fetch(`/api/crop_categories/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'x-api-key': API_KEY,
+        },
+      });
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }

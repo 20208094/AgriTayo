@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+const API_KEY = import.meta.env.VITE_API_KEY;
+
 function RegisterPage() {
     const [formData, setFormData] = useState({
         firstname: '',
@@ -28,7 +30,8 @@ function RegisterPage() {
             const response = await fetch('/api/register', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'x-api-key': API_KEY // Include the API key in the request headers
                 },
                 body: JSON.stringify(formData)
             });
@@ -37,7 +40,6 @@ function RegisterPage() {
                 setError(errorData.error + ": " + errorData.details);
                 return;
             }
-            const data = await response.json();
             // Redirect to login page after successful registration
             navigate('/login'); // Adjust the path as needed
         } catch (error) {
@@ -136,7 +138,7 @@ function RegisterPage() {
                     <input
                         type="password"
                         name="confirm_password"
-                        value={formData.confirm_password}
+                        value={formData.confirm_password || ''}
                         onChange={handleInputChange}
                         required
                     />

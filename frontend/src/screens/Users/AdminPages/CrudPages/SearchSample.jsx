@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 
+// API key (replace with your environment variable or API key as needed)
+const API_KEY = import.meta.env.VITE_API_KEY;
+
 function SampleSearch() {
   const [crops, setCrops] = useState([]);
   const [filteredCrops, setFilteredCrops] = useState([]);
@@ -19,7 +22,11 @@ function SampleSearch() {
 
   const fetchCrops = async () => {
     try {
-      const response = await fetch('/api/crops');
+      const response = await fetch('/api/crops', {
+        headers: {
+          'x-api-key': API_KEY,
+        },
+      });
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
@@ -32,7 +39,11 @@ function SampleSearch() {
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch('/api/crop_categories');
+      const response = await fetch('/api/crop_categories', {
+        headers: {
+          'x-api-key': API_KEY,
+        },
+      });
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
@@ -45,7 +56,11 @@ function SampleSearch() {
 
   const fetchShops = async () => {
     try {
-      const response = await fetch('/api/shops');
+      const response = await fetch('/api/shops', {
+        headers: {
+          'x-api-key': API_KEY,
+        },
+      });
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }

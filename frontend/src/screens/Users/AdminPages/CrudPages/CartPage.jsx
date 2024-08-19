@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 
+// API key (replace with your environment variable or API key as needed)
+const API_KEY = import.meta.env.VITE_API_KEY;
+
 function CartPage() {
     const [carts, setCarts] = useState([]);
     const [users, setUsers] = useState([]);
@@ -20,7 +23,11 @@ function CartPage() {
 
     const fetchCarts = async () => {
         try {
-            const response = await fetch('/api/carts');
+            const response = await fetch('/api/carts', {
+                headers: {
+                    'x-api-key': API_KEY,
+                },
+            });
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
@@ -33,7 +40,11 @@ function CartPage() {
 
     const fetchUsers = async () => {
         try {
-            const response = await fetch('/api/users');
+            const response = await fetch('/api/users', {
+                headers: {
+                    'x-api-key': API_KEY,
+                },
+            });
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
@@ -46,7 +57,11 @@ function CartPage() {
 
     const fetchMetricSystems = async () => {
         try {
-            const response = await fetch('/api/metric_systems');
+            const response = await fetch('/api/metric_systems', {
+                headers: {
+                    'x-api-key': API_KEY,
+                },
+            });
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
@@ -71,7 +86,8 @@ function CartPage() {
             const response = await fetch(url, {
                 method: method,
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'x-api-key': API_KEY,
                 },
                 body: JSON.stringify(formData)
             });
@@ -98,7 +114,12 @@ function CartPage() {
 
     const handleDelete = async (id) => {
         try {
-            const response = await fetch(`/api/carts/${id}`, { method: 'DELETE' });
+            const response = await fetch(`/api/carts/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'x-api-key': API_KEY,
+                },
+            });
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }

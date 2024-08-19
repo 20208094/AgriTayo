@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from 'react';
 
+// API key (replace with your environment variable or API key as needed)
+const API_KEY = import.meta.env.VITE_API_KEY;
+
 function ShopPage() {
   const [shops, setShops] = useState([]);
   const [users, setUsers] = useState([]);
   const [formData, setFormData] = useState({
+    shop_id: '',
     shop_name: '',
     shop_address: '',
     shop_description: '',
@@ -18,7 +22,11 @@ function ShopPage() {
 
   const fetchShops = async () => {
     try {
-      const response = await fetch('/api/shops');
+      const response = await fetch('/api/shops', {
+        headers: {
+          'x-api-key': API_KEY,
+        },
+      });
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
@@ -31,7 +39,11 @@ function ShopPage() {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch('/api/users');
+      const response = await fetch('/api/users', {
+        headers: {
+          'x-api-key': API_KEY,
+        },
+      });
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
@@ -56,15 +68,17 @@ function ShopPage() {
       const response = await fetch(url, {
         method: method,
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'x-api-key': API_KEY,
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(formData),
       });
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
       fetchShops();
       setFormData({
+        shop_id: '',
         shop_name: '',
         shop_address: '',
         shop_description: '',
@@ -83,7 +97,12 @@ function ShopPage() {
 
   const handleDelete = async (id) => {
     try {
-      const response = await fetch(`/api/shops/${id}`, { method: 'DELETE' });
+      const response = await fetch(`/api/shops/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'x-api-key': API_KEY,
+        },
+      });
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }

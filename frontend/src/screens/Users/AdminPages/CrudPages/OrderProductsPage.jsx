@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 
+// API key (replace with your environment variable or API key as needed)
+const API_KEY = import.meta.env.VITE_API_KEY;
+
 function OrderProductsPage() {
     const [orderProducts, setOrderProducts] = useState([]);
     const [orders, setOrders] = useState([]);
@@ -26,7 +29,11 @@ function OrderProductsPage() {
 
     const fetchOrderProducts = async () => {
         try {
-            const response = await fetch('/api/order_products');
+            const response = await fetch('/api/order_products', {
+                headers: {
+                    'x-api-key': API_KEY,
+                },
+            });
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
@@ -39,7 +46,11 @@ function OrderProductsPage() {
 
     const fetchOrders = async () => {
         try {
-            const response = await fetch('/api/orders');
+            const response = await fetch('/api/orders', {
+                headers: {
+                    'x-api-key': API_KEY,
+                },
+            });
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
@@ -52,7 +63,11 @@ function OrderProductsPage() {
 
     const fetchCrops = async () => {
         try {
-            const response = await fetch('/api/crops');
+            const response = await fetch('/api/crops', {
+                headers: {
+                    'x-api-key': API_KEY,
+                },
+            });
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
@@ -65,7 +80,11 @@ function OrderProductsPage() {
 
     const fetchUsers = async () => {
         try {
-            const response = await fetch('/api/users');
+            const response = await fetch('/api/users', {
+                headers: {
+                    'x-api-key': API_KEY,
+                },
+            });
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
@@ -78,7 +97,11 @@ function OrderProductsPage() {
 
     const fetchMetricSystems = async () => {
         try {
-            const response = await fetch('/api/metric_systems');
+            const response = await fetch('/api/metric_systems', {
+                headers: {
+                    'x-api-key': API_KEY,
+                },
+            });
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
@@ -103,7 +126,8 @@ function OrderProductsPage() {
             const response = await fetch(url, {
                 method: method,
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'x-api-key': API_KEY,
                 },
                 body: JSON.stringify(formData)
             });
@@ -132,7 +156,12 @@ function OrderProductsPage() {
 
     const handleDelete = async (id) => {
         try {
-            const response = await fetch(`/api/order_products/${id}`, { method: 'DELETE' });
+            const response = await fetch(`/api/order_products/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'x-api-key': API_KEY,
+                },
+            });
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }

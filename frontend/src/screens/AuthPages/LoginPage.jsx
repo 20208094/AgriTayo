@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 function LoginPage() {
     const [formData, setFormData] = useState({
@@ -13,7 +14,11 @@ function LoginPage() {
     // Function to fetch the user session
     const fetchUserSession = async () => {
         try {
-            const response = await fetch('/api/session');
+            const response = await fetch('/api/session', {
+                headers: {
+                    'x-api-key': API_KEY
+                }
+            });
             if (response.ok) {
                 const data = await response.json();
                 if (data.user) {
@@ -40,8 +45,6 @@ function LoginPage() {
         fetchUserSession();
     }, []);
 
-    
-
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
@@ -53,7 +56,8 @@ function LoginPage() {
             const response = await fetch('/api/login', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'x-api-key': API_KEY
                 },
                 body: JSON.stringify(formData)
             });

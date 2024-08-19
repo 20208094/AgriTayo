@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 
+// API key (replace with your environment variable or API key as needed)
+const API_KEY = import.meta.env.VITE_API_KEY;
+
 function OrderStatusPage() {
     const [orderStatuses, setOrderStatuses] = useState([]);
     const [formData, setFormData] = useState({
@@ -15,7 +18,11 @@ function OrderStatusPage() {
 
     const fetchOrderStatuses = async () => {
         try {
-            const response = await fetch('/api/order_statuses');
+            const response = await fetch('/api/order_statuses', {
+                headers: {
+                    'x-api-key': API_KEY,
+                },
+            });
             if (!response.ok) {
                 throw new Error('Failed to fetch order statuses');
             }
@@ -39,7 +46,8 @@ function OrderStatusPage() {
                 response = await fetch(`/api/order_statuses/${editId}`, {
                     method: 'PUT',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'x-api-key': API_KEY,
                     },
                     body: JSON.stringify(formData)
                 });
@@ -47,7 +55,8 @@ function OrderStatusPage() {
                 response = await fetch('/api/order_statuses', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'x-api-key': API_KEY,
                     },
                     body: JSON.stringify(formData)
                 });
@@ -73,7 +82,10 @@ function OrderStatusPage() {
     const handleDelete = async (id) => {
         try {
             const response = await fetch(`/api/order_statuses/${id}`, {
-                method: 'DELETE'
+                method: 'DELETE',
+                headers: {
+                    'x-api-key': API_KEY,
+                },
             });
             if (!response.ok) {
                 throw new Error('Failed to delete order status');

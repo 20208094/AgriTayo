@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 
+// API key (replace with your environment variable or API key as needed)
+const API_KEY = import.meta.env.VITE_API_KEY;
+
 function ReviewsPage() {
     const [reviews, setReviews] = useState([]);
     const [crops, setCrops] = useState([]);
@@ -20,7 +23,11 @@ function ReviewsPage() {
 
     const fetchReviews = async () => {
         try {
-            const response = await fetch('/api/reviews');
+            const response = await fetch('/api/reviews', {
+                headers: {
+                    'x-api-key': API_KEY,
+                },
+            });
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
@@ -33,7 +40,11 @@ function ReviewsPage() {
 
     const fetchCrops = async () => {
         try {
-            const response = await fetch('/api/crops');
+            const response = await fetch('/api/crops', {
+                headers: {
+                    'x-api-key': API_KEY,
+                },
+            });
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
@@ -46,7 +57,11 @@ function ReviewsPage() {
 
     const fetchUsers = async () => {
         try {
-            const response = await fetch('/api/users');
+            const response = await fetch('/api/users', {
+                headers: {
+                    'x-api-key': API_KEY,
+                },
+            });
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
@@ -71,7 +86,8 @@ function ReviewsPage() {
             const response = await fetch(url, {
                 method: method,
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'x-api-key': API_KEY,
                 },
                 body: JSON.stringify(formData)
             });
@@ -98,7 +114,12 @@ function ReviewsPage() {
 
     const handleDelete = async (id) => {
         try {
-            const response = await fetch(`/api/reviews/${id}`, { method: 'DELETE' });
+            const response = await fetch(`/api/reviews/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'x-api-key': API_KEY,
+                },
+            });
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }

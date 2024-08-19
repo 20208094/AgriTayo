@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 
+// API key (replace with your environment variable or API key as needed)
+const API_KEY = import.meta.env.VITE_API_KEY;
+
 function CropsPage() {
   const [crops, setCrops] = useState([]);
   const [formData, setFormData] = useState({
@@ -29,7 +32,11 @@ function CropsPage() {
 
   const fetchCrops = async () => {
     try {
-      const response = await fetch('/api/crops');
+      const response = await fetch('/api/crops', {
+        headers: {
+          'x-api-key': API_KEY,
+        },
+      });
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
@@ -42,7 +49,11 @@ function CropsPage() {
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch('/api/crop_categories');
+      const response = await fetch('/api/crop_categories', {
+        headers: {
+          'x-api-key': API_KEY,
+        },
+      });
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
@@ -55,7 +66,11 @@ function CropsPage() {
 
   const fetchShops = async () => {
     try {
-      const response = await fetch('/api/shops');
+      const response = await fetch('/api/shops', {
+        headers: {
+          'x-api-key': API_KEY,
+        },
+      });
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
@@ -68,7 +83,11 @@ function CropsPage() {
 
   const fetchMetricSystems = async () => {
     try {
-      const response = await fetch('/api/metric_systems');
+      const response = await fetch('/api/metric_systems', {
+        headers: {
+          'x-api-key': API_KEY,
+        },
+      });
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
@@ -93,7 +112,8 @@ function CropsPage() {
       const response = await fetch(url, {
         method: method,
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'x-api-key': API_KEY,
         },
         body: JSON.stringify(formData)
       });
@@ -127,7 +147,12 @@ function CropsPage() {
 
   const handleDelete = async (id) => {
     try {
-      const response = await fetch(`/api/crops/${id}`, { method: 'DELETE' });
+      const response = await fetch(`/api/crops/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'x-api-key': API_KEY,
+        },
+      });
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }

@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
 const cors = require('cors');
@@ -125,6 +126,7 @@ const {
     deleteNotification
 } = require('./supabase_connection/crud_services/notifications');
 
+
 const { login } = require('./supabase_connection/user_auth_services/login');
 const { register } = require('./supabase_connection/user_auth_services/register');
 const { logout } = require('./supabase_connection/user_auth_services/logout');
@@ -146,6 +148,21 @@ app.use(session({
 
 // Multer setup for handling file uploads
 const upload = multer({ storage: multer.memoryStorage() });
+
+// Log the API key to the console for debugging purposes
+console.log('API Key:', process.env.API_KEY);
+
+const apiKeyMiddleware = (req, res, next) => {
+    const apiKey = req.headers['x-api-key'];
+    if (apiKey && apiKey === process.env.API_KEY) {
+        next(); // API key is valid, proceed to the next middleware or route handler
+    } else {
+        res.status(403).json({ error: 'Forbidden - Invalid API Key' });
+    }
+};
+
+app.use('/api/', apiKeyMiddleware);
+
 
 // API for session
 app.get('/api/session', (req, res) => {

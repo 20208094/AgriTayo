@@ -1,5 +1,7 @@
-// frontend/src/web_pages/NotificationsPage.jsx
 import React, { useState, useEffect } from 'react';
+
+// API key (replace with your environment variable or API key as needed)
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 function NotificationsPage() {
     const [notifications, setNotifications] = useState([]);
@@ -16,7 +18,11 @@ function NotificationsPage() {
 
     const fetchNotifications = async () => {
         try {
-            const response = await fetch('/api/notifications');
+            const response = await fetch('/api/notifications', {
+                headers: {
+                    'x-api-key': API_KEY,
+                },
+            });
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
@@ -29,7 +35,11 @@ function NotificationsPage() {
 
     const fetchUsers = async () => {
         try {
-            const response = await fetch('/api/users');
+            const response = await fetch('/api/users', {
+                headers: {
+                    'x-api-key': API_KEY,
+                },
+            });
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
@@ -51,7 +61,8 @@ function NotificationsPage() {
             const response = await fetch('/api/notifications', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'x-api-key': API_KEY,
                 },
                 body: JSON.stringify(formData)
             });
@@ -67,7 +78,12 @@ function NotificationsPage() {
 
     const handleDelete = async (id) => {
         try {
-            const response = await fetch(`/api/notifications/${id}`, { method: 'DELETE' });
+            const response = await fetch(`/api/notifications/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'x-api-key': API_KEY,
+                },
+            });
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
@@ -82,8 +98,9 @@ function NotificationsPage() {
             const response = await fetch(`/api/notifications/${id}`, {
                 method: 'PUT',
                 headers: {
-                    'Content-Type': 'application/json'
-                }
+                    'Content-Type': 'application/json',
+                    'x-api-key': API_KEY,
+                },
             });
             if (!response.ok) {
                 throw new Error('Network response was not ok');

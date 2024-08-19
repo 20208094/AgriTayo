@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 
+// API key (replace with your environment variable or API key as needed)
+const API_KEY = import.meta.env.VITE_API_KEY;
+
 function SamplePage() {
   const [data, setData] = useState([]);
   const [formData, setFormData] = useState({ id: '', name: '', city: '' });
@@ -11,7 +14,11 @@ function SamplePage() {
 
   const fetchData = async () => {
     try {
-      const response = await fetch('/api/data/sample/');
+      const response = await fetch('/api/data/sample/', {
+        headers: {
+          'x-api-key': API_KEY,
+        },
+      });
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
@@ -36,7 +43,8 @@ function SamplePage() {
       const response = await fetch(url, {
         method: method,
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'x-api-key': API_KEY,
         },
         body: JSON.stringify(formData)
       });
@@ -58,7 +66,12 @@ function SamplePage() {
 
   const handleDelete = async (id) => {
     try {
-      const response = await fetch(`/api/data/sample/${id}`, { method: 'DELETE' });
+      const response = await fetch(`/api/data/sample/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'x-api-key': API_KEY,
+        },
+      });
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }

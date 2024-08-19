@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
+const API_KEY = import.meta.env.VITE_API_KEY;
+
 const CropCategoryCard = ({ cropCategory }) => {
   return (
     <div className="bg-white rounded-lg shadow m-2 w-[45%] mb-3">
@@ -25,7 +27,11 @@ function CropCategoryPage() {
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch('/api/crop_categories');
+      const response = await fetch('/api/crop_categories', {
+        headers: {
+          'x-api-key': API_KEY // Include the API key in the request headers
+        }
+      });
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
