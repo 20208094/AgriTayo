@@ -149,47 +149,70 @@
 }
 
 @media (max-width: 992px) {
+    .topnavbar {
+        height: 50px;
+    }
+
     .topnav-search-bar {
         max-width: 80%;
         /* Adjust max width for smaller screens */
         font-size: 14px;
         /* Smaller font size */
+        height: 35px;
     }
 
     .topnav-links {
         gap: 10px;
         /* Reduce gap between items for smaller screens */
     }
-    
+
     .topspacer {
         width: 40px;
     }
 }
 
 @media (max-width: 768px) {
+    .topnavbar {
+        height: 45px;
+    }
+
     .topnav-search-bar {
         max-width: 80%;
         /* Further adjust max width for mobile screens */
         font-size: 12px;
         /* Smaller font size for better fit */
+        height: 33px;
+    }
+
+    .topnav-icon,
+    .topnav-icon-cart {
+        font-size: 20px;
+        border-radius: 18px;
+        margin-right: 5px;
+        border-radius: 18px;
     }
 
     .topnav-links {
         gap: 8px;
         /* Further reduce gap between items for mobile screens */
     }
-    
+
     .topspacer {
         width: 20px;
     }
 }
 
 @media (max-width: 576px) {
+    .topnavbar {
+        height: 40px;
+    }
+
     .topnav-search-bar {
         max-width: 70%;
         /* Almost full width for very small screens */
         font-size: 10px;
         /* Keep font size smaller for very small screens */
+        height: 29px;
     }
 
     .topnav-text {

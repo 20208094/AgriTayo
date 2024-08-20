@@ -29,6 +29,7 @@ function LeftSidebar({ userType }) {
             <SidebarItem to="/sample" icon={FaDev} text="Sample" />
             <SidebarItem to="/crop-category" icon={FaDev} text="Crop Category" />
             <SidebarItem to="/admin-dash" icon={FaDev} text="Admin Dash" />
+            <SidebarItem to="/downloadapp" icon={FaDev} text="Download App" />
 
             {/* Conditional Sidebar Content */}
             {userType === 1 && <AdminSidebar />}

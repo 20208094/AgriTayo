@@ -25,8 +25,9 @@ import TopNavbar from './components/TopNavbar';
 import AdminDashboardPage from './screens/Users/AdminPages/AdminDashboard';
 import SellerDashboardPage from './screens/Users/SellerPages/SellerDashboard';
 import BuyerDashboardPage from './screens/Users/BuyerPages/BuyerDashboard';
-import CropCategoryPage from './screens/CropCategory/CropCategoryPage';
+import CropCategoryPage from './screens/Market/CropCategoryPage';
 import SampleSearch from './screens/Users/AdminPages/CrudPages/SearchSample';
+import DownloadAppPage from './screens/DownloadApp/DownloadAppPage';
 
 const API_KEY = import.meta.env.VITE_API_KEY;
 
@@ -107,6 +108,7 @@ function Layout({ userType }) {
           <Route exact path="/sample" element={<SampleSearch />} />
           <Route exact path="/crop-category" element={<CropCategoryPage />} />
           <Route exact path="/admin-dash" element={<AdminDashboardPage />} />
+          <Route exact path="/downloadapp" element={<DownloadAppPage />} />
 
           {/* AUTHENTICATION ROUTES */}
           {!userType && (
