@@ -125,11 +125,6 @@ function App() {
               options={{ ...screenOptions, headerShown: false }}
             />
             <Stack.Screen
-              name="HomePageScreen"
-              component={HomePageScreen}
-              options={screenOptions}
-            />
-            <Stack.Screen
               name="CartScreen"
               component={CartScreen}
               options={{ ...screenOptions, headerShown: false }}
@@ -153,12 +148,6 @@ function App() {
               name="Notification Details"
               component={NotificationDetailsScreen}
               options={screenOptions}
-            />
-            
-            <Stack.Screen
-              name="NavigationBar"
-              component={NavigationBar}
-              options={{ ...screenOptions, headerShown: false }}
             />
             <Stack.Screen
               name="OTP Screen"

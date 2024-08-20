@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Image } from 'rea
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import logo from '../../assets/logo.png'; // Placeholder image
+import { REACT_NATIVE_API_KEY } from '@env';
 
 const MarketCategoryCard = ({ cropCategory }) => {
   const navigation = useNavigation();
@@ -41,11 +42,16 @@ const MarketCategoryCard = ({ cropCategory }) => {
 
 function CropsScreen() {
   const [categories, setCategories] = useState([]);
+  const API_KEY = REACT_NATIVE_API_KEY;
 
   // Fetch categories function
   const fetchCategories = async () => {
     try {
-      const response = await fetch(`https://agritayo.azurewebsites.net/api/crop_categories`); // Use environment variable
+        const response = await fetch('https://agritayo.azurewebsites.net/api/crop_categories', {
+          headers: {
+              'x-api-key': API_KEY
+          }
+      });
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }

@@ -5,6 +5,7 @@
 .main-content {
     flex: 1;
     margin-left: 63px;
+    margin-top: 12px;
 }
 
 @media (max-width: 1200px) {

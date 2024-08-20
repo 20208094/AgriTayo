@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 function AdminDashboardPage() {
 
   return (
-    <div style={{ padding: '50px' }}>
+    <div style={{ padding: '50px' }} className='mt-3'>
       <h1>Admin Dashboard</h1>
 
       <h3>Hello</h3>

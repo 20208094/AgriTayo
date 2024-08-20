@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { SafeAreaView, TouchableOpacity, Text, View, Image, ScrollView, ActivityIndicator } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import placeholderimg from "../../../assets/placeholder.png"; // Import the placeholder image
+import { REACT_NATIVE_API_KEY } from '@env';
 
 function MarketCategoryListScreen() {
   const [items, setItems] = useState([]);
@@ -10,11 +11,16 @@ function MarketCategoryListScreen() {
   const navigation = useNavigation();
   const route = useRoute();
   const { category } = route.params;
+  const API_KEY = REACT_NATIVE_API_KEY;
 
   // Fetch crop data from API
   const fetchCrops = async () => {
     try {
-      const response = await fetch('https://agritayo.azurewebsites.net/api/crops'); // Use your API endpoint
+      const response = await fetch('https://agritayo.azurewebsites.net/api/crops', {
+        headers: {
+            'x-api-key': API_KEY
+        }
+    });
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }

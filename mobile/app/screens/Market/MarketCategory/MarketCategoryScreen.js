@@ -3,6 +3,7 @@ import { View, Text, SafeAreaView, ScrollView, TouchableOpacity, Image, Activity
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { styled } from 'nativewind';
 import placeholderimg from '../../../assets/placeholder.png'; // Import the placeholder image
+import { REACT_NATIVE_API_KEY } from '@env';
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -28,11 +29,16 @@ function MarketCategoryScreen({ route }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { category, selectedItemId } = route.params;
+  const API_KEY = REACT_NATIVE_API_KEY;
 
   // Fetch crop data from API
   const fetchCrops = async () => {
     try {
-      const response = await fetch('https://agritayo.azurewebsites.net/api/crops');
+      const response = await fetch('https://agritayo.azurewebsites.net/api/crops', {
+        headers: {
+            'x-api-key': API_KEY
+        }
+    });
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
