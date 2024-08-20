@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, ScrollView, Text, TouchableOpacity, Image } from "react-native";
 import SearchBarC, {
   NotificationIcon,
@@ -207,6 +207,7 @@ const products = [
 
 function HomePageScreen() {
   const navigation = useNavigation();
+  const [showAgriTutorial, setShowAgriTutorial] = useState(true);
 
   return (
     <ScrollView className="flex-1 bg-gray-100 pt-5">
@@ -226,20 +227,30 @@ function HomePageScreen() {
       <View className="mt-4 px-4">
         <SearchBarC />
       </View>
-      <View className="bg-green-200 p-4 rounded-lg mt-4 mx-4">
-        <View className="ml-4">
-          <Text className="text-2xl font-bold">AgriTutorial</Text>
-          <Text>Want to know how AgriTayo Works? </Text>
-          <TouchableOpacity className="bg-green-600 px-3 py-1.5 rounded mt-2 self-start">
-            <Text className="text-white font-bold text-sm">Click Here</Text>
+
+      {showAgriTutorial && (
+        <View className="bg-green-200 p-4 rounded-lg mt-4 mx-4 relative">
+          <TouchableOpacity
+            className="absolute top-2 right-2 p-2"
+            onPress={() => setShowAgriTutorial(false)}
+          >
+            <Text className="text-green-600 font-bold">X</Text>
           </TouchableOpacity>
+          <View className="ml-4">
+            <Text className="text-2xl font-bold">AgriTutorial</Text>
+            <Text>Want to know how AgriTayo Works? </Text>
+            <TouchableOpacity className="bg-green-600 px-3 py-1.5 rounded mt-2 self-start">
+              <Text className="text-white font-bold text-sm">Click Here</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
+      )}
+
       <View className="mt-4 px-4">
         <View className="flex-row justify-between items-center mb-2">
           <Text className="text-2xl font-bold">Featured Products</Text>
           <TouchableOpacity>
-            <Text className="text-blue-500">See All</Text>
+            <Text className="text-green-600">See All</Text>
           </TouchableOpacity>
         </View>
         <View className="flex-row flex-wrap justify-between">

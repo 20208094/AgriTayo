@@ -2,10 +2,24 @@ import React, { useState } from "react";
 import { View, Image, Text, ScrollView, TouchableOpacity } from "react-native";
 import { FontAwesome } from '@expo/vector-icons'; // Import FontAwesome icons
 import { styled } from "nativewind";
+import { useNavigation } from "@react-navigation/native";
+import { NotificationIcon, MessagesIcon, MarketIcon } from "../../components/SearchBarC"; // Import your custom icons
 
 function ProductDetailsScreen({ navigation, route }) {
   const { product } = route.params;
   const [quantity, setQuantity] = useState(1);
+
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <View style={{ flexDirection: "row", marginRight: 15 }}>
+          <MarketIcon onPress={() => navigation.navigate("CartScreen")} />
+          <NotificationIcon onPress={() => navigation.navigate("Notifications")} />
+          <MessagesIcon onPress={() => navigation.navigate("Messages")} />
+        </View>
+      ),
+    });
+  }, [navigation]);
 
   const increaseQuantity = () => setQuantity(quantity + 1);
   const decreaseQuantity = () => setQuantity(quantity > 1 ? quantity - 1 : 1);
