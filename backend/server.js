@@ -168,6 +168,7 @@ app.use('/api/', apiKeyMiddleware);
 app.get('/api/session', (req, res) => {
     if (req.session && req.session.user) {
         res.json({
+            user_id: req.session.user.user_id,
             user_type_id: req.session.user.user_type_id
         });
     } else {
