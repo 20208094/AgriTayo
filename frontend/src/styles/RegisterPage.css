@@ -1,0 +1,144 @@
+/* Container with Background Gradient */
+.register-page {
+    background: linear-gradient(to right, rgb(182, 244, 146), rgb(51, 139, 147));
+    height: 100vh; /* Fit exactly to the viewport height */
+    width: 100vw; /* Fit exactly to the viewport width */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden; /* Prevent scrolling */
+    position: absolute;
+    left: -1%;
+    top: -1%;
+}
+
+/* Register Container Styles */
+.register-container {
+    display: flex;
+    flex-direction: row;
+    background-color: rgba(255, 255, 255, 0.85); 
+    width: 80vw; /* Adjust width to fit screen size */
+    height: 90vh; /* Adjust height to fit screen size */
+    margin: auto;
+    border-radius: 20px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+/* Left side with Image */
+.register-image {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #fddaa6;
+}
+
+.register-image img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Right side with Form */
+.register-form-container {
+    flex: 1;
+    padding: 20px; /* Adjust padding to fit form sa loob ng container */
+    background-color: #ffffff;
+    color: #050000;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-width: 100%; /* Allow form container para mag full width */
+    height: 100%; /* Full height para sa container */
+    box-shadow: -5px 0px 15px rgba(34, 13, 13, 0.1);
+
+}
+
+.register-title {
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 15px;
+    color: #007535;
+    font-family: 'Roboto', sans-serif;
+}
+
+/* Grid Layout for Form Groups */
+.grid-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 2 equal columns */
+    gap: 10px; /* Reduce gap para sa maayos na fitting */
+}
+
+/* Form Group */
+.register-form .form-group {
+    margin-bottom: 10px; /* Reduce margin para sa maayos ba fitting */
+    color: #000000;
+}
+
+.register-form .form-input {
+    width: 100%;
+    padding: 8px;
+    border-radius: 8px;
+    border: 2px solid #00662e;
+    font-size: 0.9rem;
+    transition: border-color 0.3s;
+    font-family: 'Roboto', sans-serif;
+}
+
+/* Buttons */
+.register-button, .cancel-button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 8px;
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s;
+    font-family: 'Roboto', sans-serif;
+}
+
+.register-button {
+    background-color: #00B251;
+    color: white;
+}
+
+.register-button:hover {
+    background-color: #009844;
+    transform: translateY(-2px);
+}
+
+.cancel-button {
+    background-color: #ccc;
+    color: #333;
+}
+
+.cancel-button:hover {
+    background-color: #bbb;
+    transform: translateY(-2px);
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .register-container {
+        flex-direction: column;
+        width: 95vw;
+        height: 90vh;
+    }
+
+    .register-image {
+        display: none;
+    }
+
+    .register-form-container {
+        padding: 15px;
+    }
+
+    .register-title {
+        font-size: 1.5rem;
+    }
+
+    .grid-container {
+        grid-template-columns: 1fr;
+    }
+}

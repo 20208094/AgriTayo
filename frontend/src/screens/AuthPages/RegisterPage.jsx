@@ -8,11 +8,12 @@ function RegisterPage() {
         firstname: '',
         middlename: '',
         lastname: '',
-        email: '',
-        password: '',
-        phone_number: '',
-        gender: '',
         birthday: '',
+        gender: '',
+        email: '',
+        phone_number: '',
+        password: '',
+        confirm_password: '',
         user_type_id: 3, // Default user type ID
         verified: false
     });
@@ -49,121 +50,127 @@ function RegisterPage() {
     };
 
     return (
-        <div style={{ padding: '50px', maxWidth: '400px', margin: 'auto' }}>
-            <h1>Register</h1>
-            {error && <p style={{ color: 'red' }}>{error}</p>}
-            <form onSubmit={handleSubmit}>
-                <div>
-                    <label>First Name:</label>
-                    <input
-                        type="text"
-                        name="firstname"
-                        value={formData.firstname}
-                        onChange={handleInputChange}
-                        required
-                    />
+        <div className="register-page">
+            <div className="register-container">
+                <div className="register-image">
+                    <img src="/AgriTayo_Logo.png" alt="AgriTayo Logo" />
                 </div>
-                <div>
-                    <label>Middle Name:</label>
-                    <input
-                        type="text"
-                        name="middlename"
-                        value={formData.middlename}
-                        onChange={handleInputChange}
-                    />
+                <div className="register-form-container">
+                    <h1 className="register-title">Register</h1>
+                    {error && <p className="register-error">{error}</p>}
+                    <form onSubmit={handleSubmit} className="register-form">
+                        <div className="grid-container">
+                            <div className="form-group">
+                                <label>First Name:</label>
+                                <input
+                                    type="text"
+                                    name="firstname"
+                                    value={formData.firstname}
+                                    onChange={handleInputChange}
+                                    required
+                                    className="form-input"
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label>Middle Name:</label>
+                                <input
+                                    type="text"
+                                    name="middlename"
+                                    value={formData.middlename}
+                                    onChange={handleInputChange}
+                                    className="form-input"
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label>Last Name:</label>
+                                <input
+                                    type="text"
+                                    name="lastname"
+                                    value={formData.lastname}
+                                    onChange={handleInputChange}
+                                    required
+                                    className="form-input"
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label>Birthday:</label>
+                                <input
+                                    type="date"
+                                    name="birthday"
+                                    value={formData.birthday}
+                                    onChange={handleInputChange}
+                                    className="form-input"
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label>Gender:</label>
+                                <select
+                                    name="gender"
+                                    value={formData.gender}
+                                    onChange={handleInputChange}
+                                    className="form-input"
+                                >
+                                    <option value="">Select Gender</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Others">Others</option>
+                                </select>
+                            </div>
+                            <div className="form-group">
+                                <label>Email:</label>
+                                <input
+                                    type="email"
+                                    name="email"
+                                    value={formData.email}
+                                    onChange={handleInputChange}
+                                    required
+                                    className="form-input"
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label>Phone Number:</label>
+                                <input
+                                    type="text"
+                                    name="phone_number"
+                                    value={formData.phone_number}
+                                    onChange={handleInputChange}
+                                    className="form-input"
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label>Password:</label>
+                                <input
+                                    type="password"
+                                    name="password"
+                                    value={formData.password}
+                                    onChange={handleInputChange}
+                                    required
+                                    className="form-input"
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label>Confirm Password:</label>
+                                <input
+                                    type="password"
+                                    name="confirm_password"
+                                    value={formData.confirm_password}
+                                    onChange={handleInputChange}
+                                    required
+                                    className="form-input"
+                                />
+                            </div>
+                        </div>
+                        <button type="submit" className="register-button">Register</button>
+                        <button
+                            type="button"
+                            onClick={() => navigate('/login')}
+                            className="cancel-button"
+                        >
+                            Cancel
+                        </button>
+                    </form>
                 </div>
-                <div>
-                    <label>Last Name:</label>
-                    <input
-                        type="text"
-                        name="lastname"
-                        value={formData.lastname}
-                        onChange={handleInputChange}
-                        required
-                    />
-                </div>
-                <div>
-                    <label>Birthday:</label>
-                    <input
-                        type="date"
-                        name="birthday"
-                        value={formData.birthday}
-                        onChange={handleInputChange}
-                    />
-                </div>
-                <div>
-                    <label>Gender:</label>
-                    <select
-                        name="gender"
-                        value={formData.gender}
-                        onChange={handleInputChange}
-                    >
-                        <option value="">Select Gender</option>
-                        <option value="Male">Male</option>
-                        <option value="Female">Female</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-                <div>
-                    <label>Email:</label>
-                    <input
-                        type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleInputChange}
-                        required
-                    />
-                </div>
-                <div>
-                    <label>Phone Number:</label>
-                    <input
-                        type="text"
-                        name="phone_number"
-                        value={formData.phone_number}
-                        onChange={handleInputChange}
-                    />
-                </div>
-                <div>
-                    <label>Password:</label>
-                    <input
-                        type="password"
-                        name="password"
-                        value={formData.password}
-                        onChange={handleInputChange}
-                        required
-                    />
-                </div>
-                <div>
-                    <label>Confirm Password:</label>
-                    <input
-                        type="password"
-                        name="confirm_password"
-                        value={formData.confirm_password || ''}
-                        onChange={handleInputChange}
-                        required
-                    />
-                </div>
-                <div>
-                    <label>User Type ID:</label>
-                    <input
-                        type="text"
-                        name="user_type_id"
-                        value={formData.user_type_id}
-                        onChange={handleInputChange}
-                        readOnly
-                    />
-                </div>
-                <div>
-                    <label>Verified:</label>
-                    <input
-                        type="checkbox"
-                        name="verified"
-                        checked={formData.verified}
-                        onChange={() => setFormData({ ...formData, verified: !formData.verified })}
-                    />
-                </div>
-                <button type="submit">Register</button>
-            </form>
+            </div>
         </div>
     );
 }
