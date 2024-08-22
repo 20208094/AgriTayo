@@ -126,6 +126,19 @@ const {
     deleteNotification
 } = require('./supabase_connection/crud_services/notifications');
 
+const {
+    getCropSubCategories,
+    addCropSubCategory,
+    updateCropSubCategory,
+    deleteCropSubCategory
+} = require('./supabase_connection/crud_services/crop_sub_category.js');
+
+const {
+    getReviewImages,
+    addReviewImage,
+    updateReviewImage,
+    deleteReviewImage
+} = require('./supabase_connection/crud_services/review_images.js');
 
 const { login } = require('./supabase_connection/user_auth_services/login');
 const { register } = require('./supabase_connection/user_auth_services/register');
@@ -169,7 +182,8 @@ app.get('/api/session', (req, res) => {
     if (req.session && req.session.user) {
         res.json({
             user_id: req.session.user.user_id,
-            user_type_id: req.session.user.user_type_id
+            user_type_id: req.session.user.user_type_id,
+            user_hashed_password: req.session.user.password
         });
     } else {
         res.status(404).json({ error: 'Session data not found' });
@@ -286,6 +300,16 @@ app.get('/api/notifications', getNotifications);
 app.post('/api/notifications', addNotification);
 app.put('/api/notifications/:id', markNotificationAsRead);
 app.delete('/api/notifications/:id', deleteNotification);
+
+app.get('/api/crop_sub_categories', getCropSubCategories)
+app.post('/api/crop_sub_categories', addCropSubCategory);
+app.put('/api/crop_sub_categories/:id', updateCropSubCategory);
+app.delete('/api/crop_sub_categories/:id', deleteCropSubCategory);
+
+app.get('/api/review_images', getReviewImages)
+app.post('/api/review_images', addReviewImage);
+app.put('/api/review_images/:id', updateReviewImage);
+app.delete('/api/review_images/:id', deleteReviewImage);
 
 // Serve frontend files
 const distPath = path.join(__dirname, '../frontend/dist/');
