@@ -28,6 +28,8 @@ import BuyerDashboardPage from './screens/Users/BuyerPages/BuyerDashboard';
 import CropCategoryPage from './screens/Market/CropCategoryPage';
 import SampleSearch from './screens/Users/AdminPages/CrudPages/SearchSample';
 import DownloadAppPage from './screens/DownloadApp/DownloadAppPage';
+import Profile from './screens/Users/BuyerPages/Profile/Profile';
+import Addresses from './screens/Users/BuyerPages/Profile/Adresses';
 
 const API_KEY = import.meta.env.VITE_API_KEY;
 
@@ -109,6 +111,8 @@ function Layout({ userType }) {
           <Route exact path="/crop-category" element={<CropCategoryPage />} />
           <Route exact path="/admin-dash" element={<AdminDashboardPage />} />
           <Route exact path="/downloadapp" element={<DownloadAppPage />} />
+          <Route exact path='/profile' element={<Profile/>}/>
+          <Route exact path='addresses' element={<Addresses/>}/>
 
           {/* AUTHENTICATION ROUTES */}
           {!userType && (
