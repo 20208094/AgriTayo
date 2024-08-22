@@ -79,27 +79,45 @@ function AboutPage() {
     <div className="min-h-screen bg-gradient-to-b from-[#E6F5E1] to-[#ffffff] text-gray-800">
       
       <section className="flex flex-col items-center justify-center text-center py-16 bg-[#f0faff]">
-        <div className="grid grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 px-4">
           <div className="flex justify-center mt-8">
-            <img src={MainLogo} alt="AgriTayo" className="h-auto w-full max-w-[450px] drop-shadow-lg mx-auto" />
+            <img src={MainLogo} alt="AgriTayo" className="h-auto w-full max-w-[300px] md:max-w-[450px] drop-shadow-lg mx-auto" />
           </div>
-          <div className="flex items-center justify-center mt-12">
+          <div className="flex items-center justify-center mt-12 md:mt-0">
             <div>
-              <h1 className="text-4xl md:text-5xl font-bold text-[#00B251] mb-4">A Perfect Platform to Get Fresh Farm Products</h1>
-              <p className="text-lg md:text-xl mb-8 text-gray-700 mx-4 md:mx-16">
+              <h1 className="text-3xl md:text-5xl font-bold text-[#00B251] mb-4">
+                A Perfect Platform to Get Fresh Farm Products
+              </h1>
+              <p className="text-base md:text-xl mb-8 text-gray-700 mx-4 md:mx-8 lg:mx-16">
                 AgriTayo is a premier e-commerce platform dedicated to connecting farmers directly with consumers.
-                We bring fresh farm products straight from the source to your doorstep, ensuring quality, sustainability, and fair trade practices.
+                We bring fresh farm products straight from the source to your doorstep, ensuring quality, sustainability,
+                and fair trade practices.
               </p>
-              <a
-                href="/download"
-                className="bg-[#00B251] text-white rounded-lg px-6 py-3 text-base font-semibold hover:bg-[#00a144] transition-all shadow-md"
-              >
-                Download App
-              </a>
+              <div className="flex flex-col md:flex-row justify-center space-y-4 md:space-y-0 md:space-x-4 mb-12">
+                <a
+                  href="https://apps.apple.com" // Replace with actual link
+                  className="flex items-center bg-[#00B251] text-white rounded-lg px-4 py-2 md:px-6 md:py-3 text-xs md:text-base font-semibold hover:bg-[#00a144] transition-all"
+                  aria-label="Download on the App Store"
+                >
+                  <FaAppStore className="h-6 w-auto mr-2 md:mr-3" />
+                  <span className="flex-1">Download on the App Store</span>
+                </a>
+
+                <a
+                  href="https://play.google.com" // Replace with actual link
+                  className="flex items-center bg-[#00B251] text-white rounded-lg px-4 py-2 md:px-6 md:py-3 text-xs md:text-base font-semibold hover:bg-[#00a144] transition-all"
+                  aria-label="Get it on Google Play"
+                >
+                  <FaGooglePlay className="h-6 w-auto mr-2 md:mr-3" />
+                  <span className="flex-1">Get it on Google Play</span>
+                </a>
+              </div>
+
             </div>
           </div>
         </div>
       </section>
+
 
       <section className="py-16 bg-[#00B251] text-white text-center">
         <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
