@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+
+
 const API_KEY = import.meta.env.VITE_API_KEY;
 
 function LoginPage() {
@@ -11,7 +13,6 @@ function LoginPage() {
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
-    // Function to fetch the user session
     const fetchUserSession = async () => {
         try {
             const response = await fetch('/api/session', {
@@ -22,7 +23,6 @@ function LoginPage() {
             if (response.ok) {
                 const data = await response.json();
                 if (data.user) {
-                    // Redirect based on user type
                     if (data.user.user_type_id === '1') {
                         navigate('/dashboard-admin');
                     } else if (data.user.user_type_id === '2') {
@@ -67,11 +67,7 @@ function LoginPage() {
                 return;
             }
             const data = await response.json();
-    
-            // Store the token in localStorage
             localStorage.setItem('token', data.token);
-    
-            // Redirect based on user type
             if (data.user.user_type_id === 1) {
                 navigate('/admin/dashboard');
             } else if (data.user.user_type_id === 2) {
@@ -79,9 +75,7 @@ function LoginPage() {
             } else {
                 navigate('/buyer/dashboard');
             }
-    
-            // Refresh the page
-            window.location.reload();  // <-- This will refresh the page
+            window.location.reload();
         } catch (error) {
             console.error('Error during login:', error);
             setError('An error occurred. Please try again.');
@@ -89,36 +83,45 @@ function LoginPage() {
     };
     
     if (loading) {
-        return <p>Loading...</p>; // Optional: Add a loading state or spinner
+        return <p>Loading...</p>;
     }
 
     return (
-        <div style={{ padding: '50px', maxWidth: '400px', margin: 'auto' }}>
-            <h1>Login</h1>
-            {error && <p style={{ color: 'red' }}>{error}</p>}
-            <form onSubmit={handleSubmit}>
-                <div>
-                    <label>Email:</label>
-                    <input
-                        type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleInputChange}
-                        required
-                    />
-                </div>
-                <div>
-                    <label>Password:</label>
-                    <input
-                        type="password"
-                        name="password"
-                        value={formData.password}
-                        onChange={handleInputChange}
-                        required
-                    />
-                </div>
-                <button type="submit">Login</button>
-            </form>
+        <div className="login-page-container">
+            <div className="left-side">
+                <img src="/AgriTayo_Logo_wName.png" alt="AgriTayo Logo" className="login-image" />
+            </div>
+            <div className="right-side">
+                <h1 className="login-heading">Login</h1>
+                {error && <p className="error-message">{error}</p>}
+                <form onSubmit={handleSubmit}>
+                    <div>
+                        <label>Email:</label>
+                        <input
+                            type="email"
+                            name="email"
+                            className="login-input"
+                            value={formData.email}
+                            onChange={handleInputChange}
+                            required
+                        />
+                    </div>
+                    <div>
+                        <label>Password:</label>
+                        <input
+                            type="password"
+                            name="password"
+                            className="login-input"
+                            value={formData.password}
+                            onChange={handleInputChange}
+                            required
+                        />
+                    </div>
+                    <button type="submit" className="login-button">Login</button>
+                    <button className="register-button1" onClick={() => navigate('/register')}>Register</button>
+                </form>
+                <p className="forgot-password" onClick={() => navigate('/forgot-password')}>Forgot Password? Click Here</p>
+            </div>
         </div>
     );
 }

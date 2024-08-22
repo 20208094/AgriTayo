@@ -104,6 +104,16 @@ function App() {
           <>
           
           <Stack.Screen
+                name="Login"
+                component={LoginScreen}
+                options={{ ...screenOptions, headerShown: false }}
+              />
+            <Stack.Screen
+              name="Register"
+              component={RegisterScreenBuyers}
+              options={{ ...screenOptions, headerShown: false }}
+            />
+          <Stack.Screen
               name="NavigationBar"
               component={NavigationBar}
               options={{ ...screenOptions, headerShown: false }}
@@ -114,16 +124,9 @@ function App() {
               options={screenOptions}
             />
 
-            <Stack.Screen
-                name="Login"
-                component={LoginScreen}
-                options={{ ...screenOptions, headerShown: false }}
-              />
-            <Stack.Screen
-              name="Register"
-              component={RegisterScreenBuyers}
-              options={{ ...screenOptions, headerShown: false }}
-            />
+
+
+
             <Stack.Screen
               name="CartScreen"
               component={CartScreen}

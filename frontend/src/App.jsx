@@ -42,9 +42,9 @@ function App() {
       try {
         const response = await fetch('/api/session', {
           headers: {
-              'x-api-key': API_KEY
+            'x-api-key': API_KEY
           }
-      });
+        });
         if (response.ok) {
           const data = await response.json();
           setUserType(data.user_type_id);
@@ -111,17 +111,18 @@ function Layout({ userType }) {
           <Route exact path="/crop-category" element={<CropCategoryPage />} />
           <Route exact path="/admin-dash" element={<AdminDashboardPage />} />
           <Route exact path="/downloadapp" element={<DownloadAppPage />} />
+          <Route exact path="/users" element={<UsersPage />} />
           <Route exact path='/profile' element={<Profile/>}/>
           <Route exact path='addresses' element={<Addresses/>}/>
 
-          {/* AUTHENTICATION ROUTES */}
-          {!userType && (
-            <>
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/register" element={<RegisterPage />} />
-            </>
-          )}
-          <Route path="/logout" element={<LogoutButton />} />
+            {/* AUTHENTICATION ROUTES */}
+            {!userType && (
+              <>
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterPage />} />
+              </>
+            )}
+            <Route path="/logout" element={<LogoutButton />} />
 
           {/* ADMIN ROUTES */}
           <Route
