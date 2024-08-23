@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 
 const API_KEY = import.meta.env.VITE_API_KEY;
 
-function ChangePassword() {
+function ChangeEmail() {
     const [users, setUsers] = useState([]);
     const [userId, setUserId] = useState("");
     const [loading, setLoading] = useState(true);
@@ -77,24 +77,18 @@ function ChangePassword() {
                 </div>
             ) :
                 <div className="p-8 ml-72 mt-10">
-                    <h1 className="">Change Password</h1>
-                            <p className=''>Current Password</p>
+                    <h1 className="">Change Email</h1>
+                            <p className=''>New Email</p>
                             <input
                             type='text'
-                            name='currentPassword'
-                            placeholder='Enter your current password here'
+                            name='newEmail'
+                            placeholder='Enter your new email here'
                             />
-                            <p className=''>New Password</p>
-                            <input
-                            type='text'
-                            name='newPassword'
-                            placeholder='Enter your new password here'
-                            />
-                            <button className='' onClick={() => handleNavigation('/profile')}>Submit</button>
+                            <button className='' onClick={() => handleNavigation('/profile')}></button>
                 </div>
             }
         </>
     );
 }
 
-export default ChangePassword;
+export default ChangeEmail;

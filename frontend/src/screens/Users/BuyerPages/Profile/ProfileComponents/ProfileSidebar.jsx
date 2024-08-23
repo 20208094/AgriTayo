@@ -32,7 +32,7 @@ const ProfileSidebar = () => {
                 </li>
                 <li className="px-4">
                     <button
-                        onClick={() => handleNavigation('/changePassword')}
+                        onClick={() => handleNavigation('/authentication')}
                         className="block py-2 rounded text-black"
                     >
                         Change Password
@@ -40,7 +40,7 @@ const ProfileSidebar = () => {
                 </li>
                 <li className="px-4">
                     <button
-                        onClick={() => handleNavigation('/privacySettings')}
+                        onClick={() => handleNavigation('/deleteAccount')}
                         className="block py-2 rounded text-black"
                     >
                         Privacy Settings

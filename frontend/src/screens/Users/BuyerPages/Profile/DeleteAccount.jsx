@@ -1,20 +1,16 @@
-import React, { useEffect, useState } from "react";
-import ProfileSidebar from "./ProfileComponents/ProfileSidebar";
-import { useNavigate } from 'react-router-dom'
+import React, { useEffect, useState } from 'react'
+import ProfileSidebar from './ProfileComponents/ProfileSidebar';
+import Modal from "../../../../components/Modal/Modal";
 
 const API_KEY = import.meta.env.VITE_API_KEY;
 
-function ChangePassword() {
+function DeleteAccount() {
+
     const [users, setUsers] = useState([]);
     const [userId, setUserId] = useState("");
     const [loading, setLoading] = useState(true);
     const [filteredUser, setFilteredUser] = useState(null);
-
-    // for navigation
-    const navigate = useNavigate();
-    const handleNavigation = (path) => {
-        navigate(path)
-    }
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     async function fetchUserSession() {
         try {
@@ -68,6 +64,9 @@ function ChangePassword() {
         }
     }, [userId, users]);
 
+    // for modal
+    const openModal = () => setIsModalOpen(true);
+    const closeModal = () => setIsModalOpen(false);
     return (
         <>
             <ProfileSidebar />
@@ -75,26 +74,24 @@ function ChangePassword() {
                 <div className="flex justify-center items-center h-screen">
                     <div>Loading...</div>
                 </div>
-            ) :
+            ) : (
                 <div className="p-8 ml-72 mt-10">
-                    <h1 className="">Change Password</h1>
-                            <p className=''>Current Password</p>
-                            <input
-                            type='text'
-                            name='currentPassword'
-                            placeholder='Enter your current password here'
-                            />
-                            <p className=''>New Password</p>
-                            <input
-                            type='text'
-                            name='newPassword'
-                            placeholder='Enter your new password here'
-                            />
-                            <button className='' onClick={() => handleNavigation('/profile')}>Submit</button>
+                    <h1 className="">Delete Account</h1>
+                    <button className='' onClick={openModal}>Delete Account</button>
+                    <Modal isOpen={isModalOpen} onClose={closeModal}>
+                        <h2 className="text-xl font-semibold mb-4">Delete Account</h2>
+                        <p className=''>Do you really want to delete your account? </p>
+                        <button type='button' onClick={closeModal} className=''>
+                            Cancel
+                        </button>
+                        <button className=''>
+                            Yes
+                        </button>
+                    </Modal>
                 </div>
-            }
+            )}
         </>
-    );
+    )
 }
 
-export default ChangePassword;
+export default DeleteAccount

@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
-import ProfileSidebar from "./ProfileComponents/ProfileSidebar";
+import ProfileSidebar from "../Users/BuyerPages/Profile/ProfileComponents/ProfileSidebar";
 import { useNavigate } from 'react-router-dom'
 
 const API_KEY = import.meta.env.VITE_API_KEY;
 
-function ChangePassword() {
+function Authentication() {
     const [users, setUsers] = useState([]);
     const [userId, setUserId] = useState("");
     const [loading, setLoading] = useState(true);
@@ -68,6 +68,37 @@ function ChangePassword() {
         }
     }, [userId, users]);
 
+    //   for timer and resend
+    const [seconds, setSeconds] = useState(10 * 60);
+    const [isResendEnabled, setIsResendEnabled] = useState(false);
+
+    useEffect(() => {
+        let interval = null;
+        if (seconds > 0) {
+            interval = setInterval(() => {
+                setSeconds((prevSeconds) => prevSeconds - 1);
+            }, 1000);
+        } else {
+            setIsResendEnabled(true);
+            clearInterval(interval);
+        }
+        return () => clearInterval(interval);
+    }, [seconds]);
+
+    const formatTime = (seconds) => {
+        const minutes = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${String(minutes).padStart(2, "0")}:${String(secs).padStart(
+            2,
+            "0"
+        )}`;
+    };
+
+    const handleResend = () => {
+        setSeconds(10 * 60);
+        setIsResendEnabled(false);
+    };
+
     return (
         <>
             <ProfileSidebar />
@@ -75,26 +106,35 @@ function ChangePassword() {
                 <div className="flex justify-center items-center h-screen">
                     <div>Loading...</div>
                 </div>
-            ) :
+            ) : (
                 <div className="p-8 ml-72 mt-10">
                     <h1 className="">Change Password</h1>
-                            <p className=''>Current Password</p>
+                    {filteredUser ? (
+                        <>
+                            <p className=''>A 6-digit code has been sent to {filteredUser.email}</p>
+                            <button onClick={() => handleNavigation('/changeEmail')}>
+                                Change
+                            </button>
                             <input
-                            type='text'
-                            name='currentPassword'
-                            placeholder='Enter your current password here'
+                                type='text'
+                                name='code'
+                                placeholder='123456'
+                                className=''
                             />
-                            <p className=''>New Password</p>
-                            <input
-                            type='text'
-                            name='newPassword'
-                            placeholder='Enter your new password here'
-                            />
-                            <button className='' onClick={() => handleNavigation('/profile')}>Submit</button>
+                            <p className=''>-The OTP will expire in {formatTime(seconds)}</p>
+                            <p className=''>Didn’t recieve the code? </p>
+                            <button onClick={handleResend} className=''>Resend</button>
+                            <button onClick={() => handleNavigation('/changePassword')} className=''>
+                                Verify
+                            </button>
+                        </>
+                    ) : (
+                        <p>No user data found</p>
+                    )}
                 </div>
-            }
+            )}
         </>
     );
 }
 
-export default ChangePassword;
+export default Authentication;
