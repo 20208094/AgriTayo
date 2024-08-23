@@ -13,10 +13,10 @@ function MarketCategoryListScreen() {
   const { category } = route.params;
   const API_KEY = REACT_NATIVE_API_KEY;
 
-  // Fetch crop data from API
-  const fetchCrops = async () => {
+  // Fetch crop sub category data from API
+  const fetchCropSubCategories = async () => {
     try {
-      const response = await fetch('https://agritayo.azurewebsites.net/api/crops', {
+      const response = await fetch('https://agritayo.azurewebsites.net/api/crop_sub_categories', {
         headers: {
             'x-api-key': API_KEY
         }
@@ -26,7 +26,7 @@ function MarketCategoryListScreen() {
       }
       const data = await response.json();
       // Filter crops based on the category_id
-      const filteredItems = data.filter(item => item.category_id === category);
+      const filteredItems = data.filter(item => item.crop_category_id === category);
       setItems(filteredItems);
     } catch (error) {
       setError(error);
@@ -38,7 +38,7 @@ function MarketCategoryListScreen() {
 
   // Fetch crops when screen is focused
   useEffect(() => {
-    fetchCrops();
+    fetchCropSubCategories();
   }, [category]);
 
   if (loading) {
@@ -63,11 +63,11 @@ function MarketCategoryListScreen() {
         <View className="flex-col">
           {items.map((item) => (
             <TouchableOpacity
-              key={item.crop_id}
+              key={item.crop_sub_category_id}
               onPress={() =>
                 navigation.navigate("Market Category", {
                   category: items,
-                  selectedItemId: item.crop_id,
+                  selectedItemId: item.crop_sub_category_id,
                 })
               }
               className="bg-white rounded-lg shadow-md flex-row items-start p-4 mb-4 border border-gray-300"
@@ -75,15 +75,13 @@ function MarketCategoryListScreen() {
               activeOpacity={0.8} // Provides visual feedback when pressed
             >
               <Image
-                source={item.crop_image_url ? { uri: item.crop_image_url } : placeholderimg}
+                source={item.crop_sub_category_image_url ? { uri: item.crop_sub_category_image_url } : placeholderimg}
                 className="w-24 h-24 rounded-lg mr-4"
                 resizeMode="cover"
               />  
               <View className="flex-1">
-                <Text className="text-lg font-semibold text-gray-800 mb-1">{item.crop_name}</Text>
-                <Text className="text-sm text-gray-600">{item.crop_description || 'No description available'}</Text>
-                <Text className="text-sm text-gray-600">Price: ${item.crop_price}</Text>
-                <Text className="text-sm text-gray-600">Rating: {item.crop_rating || 'No rating'}</Text>
+                <Text className="text-lg font-semibold text-gray-800 mb-1">{item.crop_sub_category_name}</Text>
+                <Text className="text-sm text-gray-600">{item.crop_sub_category_description}</Text>
               </View>
             </TouchableOpacity>
           ))}

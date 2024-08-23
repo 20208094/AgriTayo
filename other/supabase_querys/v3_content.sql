@@ -93,42 +93,46 @@ INSERT INTO metric_system (metric_system_name, metric_val_kilogram, metric_val_g
 -- Insert sample data into crops table
 
 INSERT INTO crops (crop_name, crop_description, sub_category_id, shop_id, crop_image_url, crop_rating, crop_price, crop_quantity, crop_weight, metric_system_id) VALUES
-    ('Carrots', 'Sweet and crunchy root vegetable.', 1, 1, 'https://ujkduozvtzkaiqqtztuy.supabase.co/storage/v1/object/public/agritayoimages/loooogooooo%20(1).png', 4.5, 2.50, 100, 0.5000, 1),
-    ('Potatoes', 'Starchy tuber used in various dishes.', 1, 1, 'https://ujkduozvtzkaiqqtztuy.supabase.co/storage/v1/object/public/agritayoimages/loooogooooo%20(1).png', 4.2, 3.00, 150, 0.7000, 1),
-    ('Spinach', 'Leafy green vegetable rich in iron.', 1, 1, 'https://ujkduozvtzkaiqqtztuy.supabase.co/storage/v1/object/public/agritayoimages/loooogooooo%20(1).png', 4.7, 1.80, 120, 0.3000, 1),
-    ('Beets', 'Sweet root vegetable with vibrant color.', 1, 2, 'https://ujkduozvtzkaiqqtztuy.supabase.co/storage/v1/object/public/agritayoimages/loooogooooo%20(1).png', 4.6, 2.20, 80, 0.4000, 1),
-    ('Radishes', 'Crunchy vegetable with a peppery flavor.', 1, 2, 'https://ujkduozvtzkaiqqtztuy.supabase.co/storage/v1/object/public/agritayoimages/loooogooooo%20(1).png', 4.3, 1.50, 90, 0.2000, 1),
+    -- Carrots Subcategory
+    ('Orange Carrots', 'Fresh and sweet orange carrots.', 1, 1, 'https://ujkduozvtzkaiqqtztuy.supabase.co/storage/v1/object/public/agritayoimages/loooogooooo%20(1).png', 4.6, 2.40, 120, 0.6000, 1),
+    ('Baby Carrots', 'Small, tender baby carrots.', 1, 1, 'https://ujkduozvtzkaiqqtztuy.supabase.co/storage/v1/object/public/agritayoimages/loooogooooo%20(1).png', 4.8, 2.80, 100, 0.3000, 1),
+    ('Purple Carrots', 'Unique variety of purple carrots.', 1, 1, 'https://ujkduozvtzkaiqqtztuy.supabase.co/storage/v1/object/public/agritayoimages/loooogooooo%20(1).png', 4.7, 3.00, 90, 0.5000, 1),
 
-    ('Apples', 'Crisp and sweet fruit.', 2, 1, 'https://ujkduozvtzkaiqqtztuy.supabase.co/storage/v1/object/public/agritayoimages/loooogooooo%20(1).png', 4.8, 3.50, 200, 0.2000, 1),
-    ('Bananas', 'Sweet tropical fruit.', 2, 1, 'https://ujkduozvtzkaiqqtztuy.supabase.co/storage/v1/object/public/agritayoimages/loooogooooo%20(1).png', 4.6, 2.80, 150, 0.1500, 1),
-    ('Oranges', 'Tangy citrus fruit high in vitamin C.', 2, 2, 'https://ujkduozvtzkaiqqtztuy.supabase.co/storage/v1/object/public/agritayoimages/loooogooooo%20(1).png', 4.7, 3.20, 180, 0.2500, 1),
-    ('Grapes', 'Small, sweet fruit often used in wine.', 2, 2, 'https://ujkduozvtzkaiqqtztuy.supabase.co/storage/v1/object/public/agritayoimages/loooogooooo%20(1).png', 4.4, 4.00, 100, 0.1000, 1),
-    ('Pears', 'Juicy and sweet fruit.', 2, 2, 'https://ujkduozvtzkaiqqtztuy.supabase.co/storage/v1/object/public/agritayoimages/loooogooooo%20(1).png', 4.5, 3.10, 140, 0.2200, 1),
+    -- Potatoes Subcategory
+    ('Russet Potatoes', 'Classic starchy potatoes.', 2, 1, 'https://ujkduozvtzkaiqqtztuy.supabase.co/storage/v1/object/public/agritayoimages/loooogooooo%20(1).png', 4.5, 3.10, 150, 0.7500, 1),
+    ('Red Potatoes', 'Smooth-skinned red potatoes.', 2, 2, 'https://ujkduozvtzkaiqqtztuy.supabase.co/storage/v1/object/public/agritayoimages/loooogooooo%20(1).png', 4.6, 3.50, 130, 0.6800, 1),
+    ('Fingerling Potatoes', 'Small, thin-skinned fingerling potatoes.', 2, 2, 'https://ujkduozvtzkaiqqtztuy.supabase.co/storage/v1/object/public/agritayoimages/loooogooooo%20(1).png', 4.7, 4.00, 140, 0.5500, 1),
 
-    ('Black Pepper', 'Spice made from peppercorns.', 3, 1, 'https://ujkduozvtzkaiqqtztuy.supabase.co/storage/v1/object/public/agritayoimages/loooogooooo%20(1).png', 4.9, 5.00, 50, 0.0100, 1),
-    ('Cumin', 'Spice with a warm, earthy flavor.', 3, 1, 'https://ujkduozvtzkaiqqtztuy.supabase.co/storage/v1/object/public/agritayoimages/loooogooooo%20(1).png', 4.6, 4.50, 60, 0.0120, 1),
-    ('Turmeric', 'Bright yellow spice used for flavor and color.', 3, 2, 'https://ujkduozvtzkaiqqtztuy.supabase.co/storage/v1/object/public/agritayoimages/loooogooooo%20(1).png', 4.7, 6.00, 40, 0.0150, 1),
-    ('Ginger', 'Spice with a hot, pungent flavor.', 3, 2, 'https://ujkduozvtzkaiqqtztuy.supabase.co/storage/v1/object/public/agritayoimages/loooogooooo%20(1).png', 4.8, 5.50, 50, 0.0200, 1),
-    ('Paprika', 'Mildly spicy red pepper used as a seasoning.', 3, 2, 'https://ujkduozvtzkaiqqtztuy.supabase.co/storage/v1/object/public/agritayoimages/loooogooooo%20(1).png', 4.5, 4.00, 70, 0.0180, 1),
+    -- Spinach Subcategory
+    ('Baby Spinach', 'Tender and young baby spinach leaves.', 3, 1, 'https://ujkduozvtzkaiqqtztuy.supabase.co/storage/v1/object/public/agritayoimages/loooogooooo%20(1).png', 4.8, 2.50, 120, 0.4000, 1),
+    ('Savoy Spinach', 'Curly-leaved spinach variety.', 3, 1, 'https://ujkduozvtzkaiqqtztuy.supabase.co/storage/v1/object/public/agritayoimages/loooogooooo%20(1).png', 4.7, 2.80, 100, 0.3500, 1),
+    ('Smooth Spinach', 'Flat-leaved spinach type.', 3, 2, 'https://ujkduozvtzkaiqqtztuy.supabase.co/storage/v1/object/public/agritayoimages/loooogooooo%20(1).png', 4.6, 2.60, 130, 0.4200, 1),
 
-    ('Tomato Seedlings', 'Young plants for growing tomatoes.', 4, 1, 'https://ujkduozvtzkaiqqtztuy.supabase.co/storage/v1/object/public/agritayoimages/loooogooooo%20(1).png', 4.3, 7.00, 100, 0.0500, 1),
-    ('Pepper Seedlings', 'Young plants of bell peppers.', 4, 1, 'https://ujkduozvtzkaiqqtztuy.supabase.co/storage/v1/object/public/agritayoimages/loooogooooo%20(1).png', 4.4, 8.00, 80, 0.0600, 1),
-    ('Lettuce Seedlings', 'Young plants of lettuce.', 4, 2, 'https://ujkduozvtzkaiqqtztuy.supabase.co/storage/v1/object/public/agritayoimages/loooogooooo%20(1).png', 4.2, 6.50, 90, 0.0400, 1),
-    ('Cucumber Seedlings', 'Young plants of cucumbers.', 4, 2, 'https://ujkduozvtzkaiqqtztuy.supabase.co/storage/v1/object/public/agritayoimages/loooogooooo%20(1).png', 4.6, 7.50, 70, 0.0550, 1),
-    ('Squash Seedlings', 'Young plants of squash.', 4, 1, 'https://ujkduozvtzkaiqqtztuy.supabase.co/storage/v1/object/public/agritayoimages/loooogooooo%20(1).png', 4.5, 6.00, 60, 0.0650, 1),
+    -- Beets Subcategory
+    ('Red Beets', 'Earthy and sweet root vegetable.', 4, 1, 'https://ujkduozvtzkaiqqtztuy.supabase.co/storage/v1/object/public/agritayoimages/loooogooooo%20(1).png', 4.5, 2.30, 110, 0.6000, 1),
+    ('Golden Beets', 'Vibrant golden-colored beet variety.', 4, 1, 'https://ujkduozvtzkaiqqtztuy.supabase.co/storage/v1/object/public/agritayoimages/loooogooooo%20(1).png', 4.7, 2.90, 95, 0.5500, 1),
+    ('Striped Beets', 'Beets with red and white stripes.', 4, 2, 'https://ujkduozvtzkaiqqtztuy.supabase.co/storage/v1/object/public/agritayoimages/loooogooooo%20(1).png', 4.8, 3.10, 85, 0.5000, 1),
 
-    ('Houseplants', 'Indoor plants that are easy to care for.', 5, 1, 'https://ujkduozvtzkaiqqtztuy.supabase.co/storage/v1/object/public/agritayoimages/loooogooooo%20(1).png', 4.8, 10.00, 50, 0.2000, 1),
-    ('Succulents', 'Plants with thick, fleshy parts adapted to dry conditions.', 5, 1, 'https://ujkduozvtzkaiqqtztuy.supabase.co/storage/v1/object/public/agritayoimages/loooogooooo%20(1).png', 4.7, 9.00, 60, 0.1800, 1),
-    ('Herbs', 'Plants used for culinary or medicinal purposes.', 5, 2, 'https://ujkduozvtzkaiqqtztuy.supabase.co/storage/v1/object/public/agritayoimages/loooogooooo%20(1).png', 4.6, 8.00, 70, 0.1500, 1),
-    ('Ornamental Plants', 'Plants grown for decorative purposes.', 5, 2, 'https://ujkduozvtzkaiqqtztuy.supabase.co/storage/v1/object/public/agritayoimages/loooogooooo%20(1).png', 4.5, 11.00, 40, 0.2200, 1),
-    ('Vines', 'Plants with a climbing or trailing growth habit.', 5, 1, 'https://ujkduozvtzkaiqqtztuy.supabase.co/storage/v1/object/public/agritayoimages/loooogooooo%20(1).png', 4.4, 7.50, 80, 0.2500, 1),
+    -- Radishes Subcategory
+    ('Red Radishes', 'Crisp and spicy red radishes.', 5, 1, 'https://ujkduozvtzkaiqqtztuy.supabase.co/storage/v1/object/public/agritayoimages/loooogooooo%20(1).png', 4.4, 2.20, 140, 0.2500, 1),
+    ('Daikon Radish', 'Large white radish with mild flavor.', 5, 1, 'https://ujkduozvtzkaiqqtztuy.supabase.co/storage/v1/object/public/agritayoimages/loooogooooo%20(1).png', 4.6, 2.60, 110, 0.4000, 1),
+    ('Watermelon Radish', 'Radish with a sweet taste and vibrant interior.', 5, 2, 'https://ujkduozvtzkaiqqtztuy.supabase.co/storage/v1/object/public/agritayoimages/loooogooooo%20(1).png', 4.7, 2.90, 100, 0.3000, 1),
 
-    ('Sunflowers', 'Tall flowers with large yellow blooms.', 6, 1, 'https://ujkduozvtzkaiqqtztuy.supabase.co/storage/v1/object/public/agritayoimages/loooogooooo%20(1).png', 4.9, 15.00, 30, 0.5000, 1),
-    ('Roses', 'Popular ornamental flowers available in many colors.', 6, 1, 'https://ujkduozvtzkaiqqtztuy.supabase.co/storage/v1/object/public/agritayoimages/loooogooooo%20(1).png', 4.8, 12.00, 25, 0.3000, 1),
-    ('Tulips', 'Spring-blooming flowers with a cup-shaped appearance.', 6, 2, 'https://ujkduozvtzkaiqqtztuy.supabase.co/storage/v1/object/public/agritayoimages/loooogooooo%20(1).png', 4.7, 14.00, 20, 0.2800, 1),
-    ('Lilies', 'Flowering plants with large, prominent blooms.', 6, 2, 'https://ujkduozvtzkaiqqtztuy.supabase.co/storage/v1/object/public/agritayoimages/loooogooooo%20(1).png', 4.6, 13.00, 15, 0.3200, 1),
-    ('Daisies', 'Simple and cheerful flowers.', 6, 1, 'https://ujkduozvtzkaiqqtztuy.supabase.co/storage/v1/object/public/agritayoimages/loooogooooo%20(1).png', 4.5, 10.00, 35, 0.1500, 1);
+    -- Apples Subcategory
+    ('Red Apples', 'Crisp and sweet red apples.', 6, 1, 'https://ujkduozvtzkaiqqtztuy.supabase.co/storage/v1/object/public/agritayoimages/loooogooooo%20(1).png', 4.6, 3.00, 150, 0.2000, 1),
+    ('Green Apples', 'Tart and crunchy green apples.', 6, 1, 'https://ujkduozvtzkaiqqtztuy.supabase.co/storage/v1/object/public/agritayoimages/loooogooooo%20(1).png', 4.7, 3.20, 140, 0.2500, 1),
+    ('Honeycrisp Apples', 'Juicy apples with a perfect balance of sweetness and tartness.', 6, 2, 'https://ujkduozvtzkaiqqtztuy.supabase.co/storage/v1/object/public/agritayoimages/loooogooooo%20(1).png', 4.9, 3.50, 120, 0.2200, 1),
 
+    -- Bananas Subcategory
+    ('Cavendish Bananas', 'Popular and sweet banana variety.', 7, 1, 'https://ujkduozvtzkaiqqtztuy.supabase.co/storage/v1/object/public/agritayoimages/loooogooooo%20(1).png', 4.8, 2.50, 180, 0.1500, 1),
+    ('Red Bananas', 'Sweet bananas with a reddish-purple skin.', 7, 1, 'https://ujkduozvtzkaiqqtztuy.supabase.co/storage/v1/object/public/agritayoimages/loooogooooo%20(1).png', 4.7, 2.80, 160, 0.2000, 1),
+    ('Plantains', 'Starchy bananas typically used for cooking.', 7, 2, 'https://ujkduozvtzkaiqqtztuy.supabase.co/storage/v1/object/public/agritayoimages/loooogooooo%20(1).png', 4.6, 3.00, 140, 0.3000, 1),
+
+    -- Black Pepper Subcategory
+    ('Black Peppercorns', 'Whole black peppercorns for grinding.', 11, 1, 'https://ujkduozvtzkaiqqtztuy.supabase.co/storage/v1/object/public/agritayoimages/loooogooooo%20(1).png', 4.9, 5.00, 50, 0.0100, 1),
+    ('Ground Black Pepper', 'Pre-ground black pepper for cooking.', 11, 1, 'https://ujkduozvtzkaiqqtztuy.supabase.co/storage/v1/object/public/agritayoimages/loooogooooo%20(1).png', 4.7, 4.80, 60, 0.0120, 1);
+
+    
 -- Insert sample order statuses
 INSERT INTO order_status (order_status_name, order_status_description) VALUES
     ('Placed', 'Order has been placed and is awaiting processing.'),

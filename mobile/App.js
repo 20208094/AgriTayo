@@ -13,6 +13,7 @@ import CartScreen from "./app/screens/Cart/CartScreen";
 import MessageScreen from "./app/screens/Message/MessageScreen";
 import NotificationScreen from "./app/screens/Notification/NotificationScreen";
 import ProductDetailsScreen from "./app/screens/Home/ProductDetailsScreen";
+import ProductDetailsScreenNoData from "./app/screens/Home/ProductDetailsScreenNoData";
 import NotificationDetailsScreen from "./app/screens/Notification/NotificationDetailsScreen";
 import OTPScreen from "./app/screens/Register/OTPScreen";
 import ChangeEmailScreen from "./app/screens/Register/ChangeEmailScreen";
@@ -103,6 +104,16 @@ function App() {
         ) : (
           <>
           
+            <Stack.Screen
+              name="NavigationBar"
+              component={NavigationBar}
+              options={{ ...screenOptions, headerShown: false }}
+            />
+           <Stack.Screen
+              name="HomePageScreen"
+              component={HomePageScreen}
+              options={screenOptions}
+            />
           <Stack.Screen
                 name="Login"
                 component={LoginScreen}
@@ -112,16 +123,6 @@ function App() {
               name="Register"
               component={RegisterScreenBuyers}
               options={{ ...screenOptions, headerShown: false }}
-            />
-          <Stack.Screen
-              name="NavigationBar"
-              component={NavigationBar}
-              options={{ ...screenOptions, headerShown: false }}
-            />
-           <Stack.Screen
-              name="HomePageScreen"
-              component={HomePageScreen}
-              options={screenOptions}
             />
 
 
@@ -145,6 +146,11 @@ function App() {
             <Stack.Screen
               name="Product Details"
               component={ProductDetailsScreen}
+              options={screenOptions}
+            />
+            <Stack.Screen
+              name="Product Details No Data"
+              component={ProductDetailsScreenNoData}
               options={screenOptions}
             />
             <Stack.Screen
