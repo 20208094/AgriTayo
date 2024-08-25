@@ -1,0 +1,168 @@
+/* General Styles */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f7f8fa;
+    color: #333;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Container for the delete account section */
+.delete-account-container {
+    padding: 2rem;
+    margin-left: 40rem; 
+    margin-top: 10rem;
+    background: #f9f9f9;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    max-width: 600px;
+    margin-right: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center the content horizontally */
+}
+
+/* Heading */
+.delete-account-container h1 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: #00B251; /* Updated color */
+}
+
+/* Buttons */
+.delete-account-container button {
+    background-color: #00B251; /* Updated color */
+    color: #fff;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-top: 1rem;
+    transition: background-color 0.3s ease;
+}
+
+.delete-account-container button:hover {
+    background-color: #bd0000; /* Updated hover color */
+}
+
+/* Modal Content */
+.delete-account-container .modal-content {
+    padding: 1.5rem;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    text-align: center; /* Center the text inside the modal */
+}
+
+.delete-account-container .modal-content h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: #00B251; /* Updated color */
+}
+
+.delete-account-container .modal-content p {
+    margin-bottom: 1rem;
+    font-size: 1rem;
+    color: #555; /* Updated color */
+}
+
+.delete-account-container .modal-content button {
+    background-color: #3498db;
+    color: #fff;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-right: 1rem;
+}
+
+.delete-account-container .modal-content button:last-child {
+    background-color: #00B251; /* Updated color */
+}
+
+.delete-account-container .modal-content button:hover {
+    opacity: 0.9;
+}
+
+/* Loading Spinner */
+.loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.loading-container div {
+    font-size: 1.25rem;
+    color: #00B251;
+}
+
+/* Responsive Styles */
+@media (max-width: 1200px) {
+    .delete-account-container {
+        margin-left: 30rem; /* Adjust for smaller screens */
+        width: calc(100% - 26rem);
+    }
+}
+
+@media (max-width: 992px) {
+    .delete-account-container {
+        margin-left: 20rem; /* Further adjustment */
+        width: calc(100% - 20rem);
+    }
+}
+
+@media (max-width: 768px) {
+    .delete-account-container {
+        margin-left: 10rem; /* Narrower screens */
+        width: calc(100% - 12rem);
+        padding: 1.5rem;
+    }
+
+    .delete-account-container h1 {
+        font-size: 1.75rem;
+    }
+
+    .delete-account-container button {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+    }
+
+    .delete-account-container .modal-content h2 {
+        font-size: 1.25rem;
+    }
+
+    .delete-account-container .modal-content button {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .delete-account-container {
+        margin-left: 0; /* Full-width for small screens */
+        width: 100%;
+        padding: 1rem;
+    }
+
+    .delete-account-container h1 {
+        font-size: 1.5rem;
+    }
+
+    .delete-account-container button {
+        padding: 0.5rem 1rem;
+        font-size: 0.75rem;
+    }
+
+    .delete-account-container .modal-content h2 {
+        font-size: 1rem;
+    }
+
+    .delete-account-container .modal-content button {
+        padding: 0.5rem 1rem;
+        font-size: 0.75rem;
+    }
+}

@@ -6,6 +6,12 @@ import './styles/sidebar.css'
 import './styles/topbar.css'
 import './styles/LoginPage.css'
 import './styles/RegisterPage.css'
+import './styles/Profile.css'
+import './styles/ProfileSidebar.css'
+import './styles/Authentication.css'
+import './styles/ChangePassword.css'
+import './styles/ChangeEmail.css'
+import './styles/DeleteAccount.css'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

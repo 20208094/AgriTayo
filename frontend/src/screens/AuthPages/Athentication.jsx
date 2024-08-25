@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import ProfileSidebar from "../Users/BuyerPages/Profile/ProfileComponents/ProfileSidebar";
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom';
 
 const API_KEY = import.meta.env.VITE_API_KEY;
 
@@ -10,11 +10,10 @@ function Authentication() {
     const [loading, setLoading] = useState(true);
     const [filteredUser, setFilteredUser] = useState(null);
 
-    // for navigation
     const navigate = useNavigate();
     const handleNavigation = (path) => {
-        navigate(path)
-    }
+        navigate(path);
+    };
 
     async function fetchUserSession() {
         try {
@@ -25,7 +24,6 @@ function Authentication() {
             });
             if (response.ok) {
                 const data = await response.json();
-                console.log("User session data:", data); // Logging user session data
                 setUserId(data.user_id);
             } else {
                 console.error("Failed to fetch user session:", response.statusText);
@@ -48,7 +46,6 @@ function Authentication() {
                 throw new Error("Network response was not ok");
             }
             const data = await response.json();
-            console.log("Fetched users:", data); // Logging users data
             setUsers(data);
         } catch (error) {
             console.error("Error fetching users:", error);
@@ -63,12 +60,10 @@ function Authentication() {
     useEffect(() => {
         if (userId && users.length > 0) {
             const user = users.find((user) => user.user_id === userId);
-            console.log("Filtered user:", user); // Logging filtered user data
             setFilteredUser(user);
         }
     }, [userId, users]);
 
-    //   for timer and resend
     const [seconds, setSeconds] = useState(10 * 60);
     const [isResendEnabled, setIsResendEnabled] = useState(false);
 
@@ -88,10 +83,7 @@ function Authentication() {
     const formatTime = (seconds) => {
         const minutes = Math.floor(seconds / 60);
         const secs = seconds % 60;
-        return `${String(minutes).padStart(2, "0")}:${String(secs).padStart(
-            2,
-            "0"
-        )}`;
+        return `${String(minutes).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
     };
 
     const handleResend = () => {
@@ -103,33 +95,35 @@ function Authentication() {
         <>
             <ProfileSidebar />
             {loading ? (
-                <div className="flex justify-center items-center h-screen">
-                    <div>Loading...</div>
+                <div className="auth-loading-container">
+                    <div className="auth-loading-text">Loading...</div>
                 </div>
             ) : (
-                <div className="p-8 ml-72 mt-10">
-                    <h1 className="">Change Password</h1>
+                <div className="auth-content-container">
+                    <h1 className="auth-title">Change Password</h1>
                     {filteredUser ? (
                         <>
-                            <p className=''>A 6-digit code has been sent to {filteredUser.email}</p>
-                            <button onClick={() => handleNavigation('/changeEmail')}>
+                            <p className="auth-subtitle">A 6-digit code has been sent to {filteredUser.email}</p>
+                            <button onClick={() => handleNavigation('/changeEmail')} className="auth-change-button">
                                 Change
                             </button>
                             <input
-                                type='text'
-                                name='code'
-                                placeholder='123456'
-                                className=''
+                                type="text"
+                                name="code"
+                                placeholder="123456"
+                                className="auth-input"
                             />
-                            <p className=''>-The OTP will expire in {formatTime(seconds)}</p>
-                            <p className=''>Didn’t recieve the code? </p>
-                            <button onClick={handleResend} className=''>Resend</button>
-                            <button onClick={() => handleNavigation('/changePassword')} className=''>
+                            <p className="auth-otp-timer">- The OTP will expire in {formatTime(seconds)}</p>
+                            <p className="auth-otp-info">Didn’t receive the code?</p>
+                            <button onClick={handleResend} className="auth-resend-button" disabled={!isResendEnabled}>
+                                Resend
+                            </button>
+                            <button onClick={() => handleNavigation('/changePassword')} className="auth-submit-button">
                                 Verify
                             </button>
                         </>
                     ) : (
-                        <p>No user data found</p>
+                        <p className="auth-no-data">No user data found</p>
                     )}
                 </div>
             )}
