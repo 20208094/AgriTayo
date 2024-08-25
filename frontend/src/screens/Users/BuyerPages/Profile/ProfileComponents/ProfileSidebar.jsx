@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FaUser, FaMapMarkerAlt, FaLock, FaShieldAlt } from 'react-icons/fa';
 
 const ProfileSidebar = () => {
     const navigate = useNavigate();
@@ -9,41 +10,46 @@ const ProfileSidebar = () => {
     };
 
     return (
-        <div className="h-full bg-white fixed mt-10">
+        <div className="profile-sidebar h-full bg-white fixed mt-10">
             <div className="p-4">
-                <h2 className="text-2xl font-semibold">My Account</h2>
+                <h2 className="sidebar-title1">My Account</h2>
             </div>
-            <ul className="space-y-4">
-                <li className="px-4">
+            <ul className="sidebar-menu space-y-4">
+                <li className="menu-item px-4">
                     <button
                         onClick={() => handleNavigation('/profile')}
-                        className="block py-2 rounded text-black"
+                        className="menu-button flex items-center py-2 rounded text-black hover:bg-gray-100 transition duration-200"
                     >
+                        <FaUser className="icon mr-2" />
                         Profile
                     </button>
                 </li>
-                <li className="px-4">
+                <li className="menu-item px-4">
                     <button
                         onClick={() => handleNavigation('/addresses')}
-                        className="block py-2 rounded text-black"
+                        className="menu-button flex items-center py-2 rounded text-black hover:bg-gray-100 transition duration-200"
                     >
+                        <FaMapMarkerAlt className="icon mr-2" />
                         Addresses
                     </button>
                 </li>
-                <li className="px-4">
+                <li className="menu-item px-4">
                     <button
-                        onClick={() => handleNavigation('/changePassword')}
-                        className="block py-2 rounded text-black"
+                        onClick={() => handleNavigation('/authentication')}
+                        className="menu-button flex items-center py-2 rounded text-black hover:bg-gray-100 transition duration-200"
+
                     >
-                        Change Password
+                        <FaLock className="icon mr-2" />
+                        Authentication
                     </button>
                 </li>
-                <li className="px-4">
+                <li className="menu-item px-4">
                     <button
-                        onClick={() => handleNavigation('/privacySettings')}
-                        className="block py-2 rounded text-black"
+                        onClick={() => handleNavigation('/deleteAccount')}
+                        className="menu-button flex items-center py-2 rounded text-black hover:bg-gray-100 transition duration-200"
                     >
-                        Privacy Settings
+                        <FaShieldAlt className="icon mr-2" />
+                        Delete Account
                     </button>
                 </li>
             </ul>
