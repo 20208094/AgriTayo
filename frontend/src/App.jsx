@@ -113,7 +113,9 @@ function Layout({ userType }) {
           <Route exact path="/downloadapp" element={<DownloadAppPage />} />
           <Route exact path="/users" element={<UsersPage />} />
           <Route exact path='/profile' element={<Profile/>}/>
-          <Route exact path='addresses' element={<Addresses/>}/>
+            <Route path="crop_category" element={<CropCategoryPageCRUD />} />
+            <Route path="users" element={<UsersPage />} />
+            <Route exact path='addresses' element={<Addresses/>}/>
 
             {/* AUTHENTICATION ROUTES */}
             {!userType && (

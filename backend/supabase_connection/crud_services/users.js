@@ -1,7 +1,7 @@
 const supabase = require('../db');
 const bcrypt = require('bcryptjs');
 const formidable = require('formidable');
-const imageHandler = require('../imageHandler'); // Utility module to handle image uploads
+const imageHandler = require('../imageHandler');
 
 async function getUsers(req, res) {
     try {
@@ -14,6 +14,7 @@ async function getUsers(req, res) {
             return res.status(500).json({ error: 'Internal server error' });
         }
 
+        console.log('Retrieved users data:', data);
         res.json(data);
     } catch (err) {
         console.error('Error executing Supabase query:', err.message);
@@ -31,16 +32,47 @@ async function addUser(req, res) {
                 return res.status(500).json({ error: 'Form parsing error' });
             }
 
-            const { firstname, middlename, lastname, email, password, phone_number, gender, birthday, user_type_id, verified } = fields;
-            const user_image_file = files.user_image ? files.user_image[0] : null;
+            // Extract fields and files, ensuring single values
+            const {
+                firstname,
+                middlename,
+                lastname,
+                email,
+                password,
+                phone_number,
+                gender,
+                birthday,
+                user_type_id,
+                verified
+            } = fields;
 
-            // Hash the password before inserting it
-            const hashedPassword = await bcrypt.hash(password, 10);
+            // Convert array to string if necessary
+            const getSingleValue = (value) => Array.isArray(value) ? value[0] : value;
+
+            const userTypeId = parseInt(getSingleValue(user_type_id), 10);
+            if (isNaN(userTypeId)) return res.status(400).json({ error: 'Invalid user_type_id' });
+
+            const allowedGenders = ['Male', 'Female', 'Other'];
+            const genderValue = getSingleValue(gender);
+            if (!allowedGenders.includes(genderValue)) return res.status(400).json({ error: 'Invalid gender value' });
+
+            const passwordString = getSingleValue(password);
+            if (typeof passwordString !== 'string') return res.status(400).json({ error: 'Invalid password type' });
+
+            const verifiedBoolean = getSingleValue(verified) === 'true';
+
+            // Hash the password
+            const hashedPassword = await bcrypt.hash(passwordString, 10);
+
+            const image = files.image ? files.image[0] : null;
 
             let user_image_url = null;
-            if (user_image_file) {
+
+            if (image) {
+                console.log('Received image file for upload:', image);
                 try {
-                    user_image_url = await imageHandler.uploadImage(user_image_file);
+                    user_image_url = await imageHandler.uploadImage(image);
+                    console.log('Image uploaded successfully, URL:', user_image_url);
                 } catch (uploadError) {
                     console.error('Image upload error:', uploadError.message);
                     return res.status(500).json({ error: 'Image upload failed' });
@@ -50,16 +82,16 @@ async function addUser(req, res) {
             const { data, error } = await supabase
                 .from('users')
                 .insert([{
-                    firstname,
-                    middlename,
-                    lastname,
-                    email,
+                    firstname: getSingleValue(firstname),
+                    middlename: getSingleValue(middlename),
+                    lastname: getSingleValue(lastname),
+                    email: getSingleValue(email),
                     password: hashedPassword,
-                    phone_number,
-                    gender,
-                    birthday,
-                    user_type_id,
-                    verified,
+                    phone_number: getSingleValue(phone_number),
+                    gender: genderValue,
+                    birthday: getSingleValue(birthday),
+                    user_type_id: userTypeId,
+                    verified: verifiedBoolean,
                     user_image_url
                 }]);
 
@@ -68,6 +100,7 @@ async function addUser(req, res) {
                 return res.status(500).json({ error: 'Internal server error' });
             }
 
+            console.log('User added successfully:', data);
             res.status(201).json({ message: 'User added successfully', data });
         });
     } catch (err) {
@@ -80,6 +113,10 @@ async function updateUser(req, res) {
     try {
         const { id } = req.params;
 
+        if (!id) {
+            return res.status(400).json({ error: 'ID is required for update' });
+        }
+
         const form = new formidable.IncomingForm({ multiples: true });
 
         form.parse(req, async (err, fields, files) => {
@@ -88,10 +125,33 @@ async function updateUser(req, res) {
                 return res.status(500).json({ error: 'Form parsing error' });
             }
 
-            const { firstname, middlename, lastname, email, password, phone_number, gender, birthday, user_type_id, verified } = fields;
-            const new_image_file = files.user_image ? files.user_image[0] : null;
+            const {
+                firstname,
+                middlename,
+                lastname,
+                email,
+                password,
+                phone_number,
+                gender,
+                birthday,
+                user_type_id,
+                verified
+            } = fields;
 
-            // Fetch the current user data
+            const newImageFile = files.image ? files.image[0] : null;
+
+            const userTypeId = parseInt(getSingleValue(user_type_id), 10);
+            if (isNaN(userTypeId)) return res.status(400).json({ error: 'Invalid user_type_id' });
+
+            const allowedGenders = ['Male', 'Female', 'Other'];
+            const genderValue = getSingleValue(gender);
+            if (genderValue && !allowedGenders.includes(genderValue)) return res.status(400).json({ error: 'Invalid gender value' });
+
+            const passwordString = getSingleValue(password);
+            if (passwordString && typeof passwordString !== 'string') return res.status(400).json({ error: 'Invalid password type' });
+
+            const verifiedBoolean = getSingleValue(verified) === 'true';
+
             const { data: currentUser, error: fetchError } = await supabase
                 .from('users')
                 .select('password, user_image_url')
@@ -106,39 +166,45 @@ async function updateUser(req, res) {
             const currentPasswordHash = currentUser.password;
             const existingImageUrl = currentUser.user_image_url;
 
-            let user_image_url = null;
-            if (new_image_file) {
-                // Delete old image if it exists
+            let user_image_url = existingImageUrl;
+            if (newImageFile) {
+                console.log('Received new image file for update:', newImageFile);
+
                 if (existingImageUrl) {
-                    await imageHandler.deleteImage(existingImageUrl);
+                    console.log('Deleting existing image:', existingImageUrl);
+                    try {
+                        await imageHandler.deleteImage(existingImageUrl);
+                        console.log('Existing image successfully deleted');
+                    } catch (deleteError) {
+                        console.error('Failed to delete existing image:', deleteError.message);
+                        return res.status(500).json({ error: 'Failed to delete image' });
+                    }
                 }
 
-                // Upload new image
                 try {
-                    user_image_url = await imageHandler.uploadImage(new_image_file);
+                    user_image_url = await imageHandler.uploadImage(newImageFile);
+                    console.log('New image uploaded successfully, URL:', user_image_url);
                 } catch (uploadError) {
                     console.error('Image upload error:', uploadError.message);
                     return res.status(500).json({ error: 'Image upload failed' });
                 }
             }
 
-            // Prepare data to be updated
             const updateData = {
-                firstname,
-                middlename,
-                lastname,
-                email,
-                phone_number,
-                gender,
-                birthday,
-                user_type_id,
-                verified,
-                user_image_url: user_image_url || existingImageUrl // Use existing image URL if no new image provided
+                firstname: getSingleValue(firstname),
+                middlename: getSingleValue(middlename),
+                lastname: getSingleValue(lastname),
+                email: getSingleValue(email),
+                phone_number: getSingleValue(phone_number),
+                gender: genderValue || existingImageUrl,
+                birthday: getSingleValue(birthday),
+                user_type_id: userTypeId,
+                verified: verifiedBoolean,
+                user_image_url
             };
 
-            // Check if the password field is provided and needs to be hashed
-            if (password && password !== currentPasswordHash) {
-                updateData.password = await bcrypt.hash(password, 10);
+            if (passwordString && passwordString !== currentPasswordHash) {
+                updateData.password = await bcrypt.hash(passwordString, 10);
             }
 
             const { data, error } = await supabase
@@ -151,6 +217,7 @@ async function updateUser(req, res) {
                 return res.status(500).json({ error: 'Internal server error' });
             }
 
+            console.log('User updated successfully:', data);
             res.status(200).json({ message: 'User updated successfully', data });
         });
     } catch (err) {
@@ -159,11 +226,17 @@ async function updateUser(req, res) {
     }
 }
 
+// Helper function to get single value from array
+const getSingleValue = (value) => Array.isArray(value) ? value[0] : value;
+
 async function deleteUser(req, res) {
     try {
         const { id } = req.params;
 
-        // Fetch existing user data including image URL
+        if (!id) {
+            return res.status(400).json({ error: 'ID is required for deletion' });
+        }
+
         const { data: existingData, error: fetchError } = await supabase
             .from('users')
             .select('user_image_url')
@@ -177,12 +250,17 @@ async function deleteUser(req, res) {
 
         const userImageUrl = existingData.user_image_url;
 
-        // Delete the image
         if (userImageUrl) {
-            await imageHandler.deleteImage(userImageUrl);
+            console.log('Deleting image associated with user:', userImageUrl);
+            try {
+                await imageHandler.deleteImage(userImageUrl);
+                console.log('Image successfully deleted');
+            } catch (deleteError) {
+                console.error('Failed to delete image:', deleteError.message);
+                return res.status(500).json({ error: 'Failed to delete image' });
+            }
         }
 
-        // Delete the user from the database
         const { data, error } = await supabase
             .from('users')
             .delete()
@@ -193,6 +271,7 @@ async function deleteUser(req, res) {
             return res.status(500).json({ error: 'Internal server error' });
         }
 
+        console.log('User deleted successfully:', data);
         res.status(200).json({ message: 'User deleted successfully', data });
     } catch (err) {
         console.error('Error executing deleteUser process:', err.message);

@@ -11,6 +11,8 @@ async function uploadImage(file) {
         const fileExt = file.originalFilename.split('.').pop();
         const fileName = `${Date.now()}.${fileExt}`;
 
+        console.log(`Uploading file: ${fileName}`);
+
         const { data: uploadData, error: uploadError } = await supabase
             .storage
             .from('agritayoimages')
@@ -28,6 +30,9 @@ async function uploadImage(file) {
             .from('agritayoimages')
             .getPublicUrl(uploadData.path);
 
+        console.log(`Image successfully uploaded: ${fileName}`);
+        console.log(`Generated public URL: ${publicUrlData.publicUrl}`);
+
         return publicUrlData.publicUrl;
     } catch (error) {
         throw new Error(`Image upload error: ${error.message}`);
@@ -42,6 +47,8 @@ async function deleteImage(imageUrl) {
         }
 
         const imagePath = imageUrl.split('/storage/v1/object/public/agritayoimages/')[1];
+
+        console.log(`Deleting image with path: ${imagePath}`);
 
         const { error: deleteImageError } = await supabase
             .storage
