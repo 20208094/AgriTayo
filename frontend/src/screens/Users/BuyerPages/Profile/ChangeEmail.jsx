@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
-import ProfileSidebar from "./ProfileComponents/ProfileSidebar";
 import { useNavigate } from 'react-router-dom';
-
 const API_KEY = import.meta.env.VITE_API_KEY;
 
 function ChangeEmail() {

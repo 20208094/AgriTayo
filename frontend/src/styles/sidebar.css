@@ -6,20 +6,18 @@
 
 /* For Firefox */
 .scrollbar-hidden {
-    scrollbar-width: none;
-    /* Hides scrollbar in Firefox */
+    scrollbar-width: none; /* Hides scrollbar in Firefox */
 }
 
 /* Ensures content is still scrollable */
 .scrollbar-hidden {
-    -ms-overflow-style: none;
-    /* Hides scrollbar in Internet Explorer and Edge */
+    -ms-overflow-style: none; /* Hides scrollbar in Internet Explorer and Edge */
     overflow-y: scroll;
 }
 
 .AgriTayoLogo {
-    margin-left: 16px;
-    height: 50px;
+    margin-left: 1rem;
+    height: 3.125rem;
 }
 
 /* Sidebar container */
@@ -28,23 +26,19 @@
     top: 0;
     left: 0;
     height: 100%;
-    width: 85px;
-    /* Collapsed width */
+    width: 5.625rem;
     background-color: #f7f7f7;
-    /* Sidebar background color */
-    border-right: 1px solid #00b250;
-    /* Green border */
+    border-right: 0.0625rem solid #00b250;
     overflow-x: hidden;
     overflow-y: auto;
     transition: width 0.3s ease-in-out;
     z-index: 1000;
-    padding-top: 10px;
+    padding-top: 0.625rem;
 }
 
 /* Sidebar expanded on hover */
 .sidebar:hover {
-    width: 240px;
-    /* Expanded width */
+    width: 15rem;
 }
 
 /* Hide scrollbar */
@@ -53,19 +47,16 @@
 }
 
 .sidebar {
-    -ms-overflow-style: none;
-    /* IE and Edge */
-    scrollbar-width: none;
-    /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
 }
 
 /* Sidebar title */
 .sidebar-title {
-    font-size: 21px;
+    font-size: 1.3125rem;
     font-weight: 600;
     color: #00B251;
-    /* Title text color */
-    padding-left: 16px;
+    padding-left: 1rem;
     white-space: nowrap;
     opacity: 0;
     visibility: hidden;
@@ -86,50 +77,42 @@
 /* Sidebar item */
 .sidebar-item {
     display: flex;
-    font-size: 16px;
+    font-size: 1rem;
     align-items: center;
-    padding: 10px 10px;
+    padding: 0.625rem;
     color: #01a149;
-    /* Item color */
     text-decoration: none;
     transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
 }
 
 /* Sidebar item hover state */
 .sidebar-item:hover {
-    background-color: #00b2502f;
-    /* Hover background color */
+    background-color: #00b2504d; /* Adjusted for better visibility */
     color: #00B251;
-    /* Hover text color */
-    transform: translateX(10px);
-    /* Slight right movement on hover */
+    transform: translateX(0.625rem);
 }
 
 /* Sidebar icon */
 .sidebar-icon {
-    font-size: 24px;
-    min-width: 60px;
-    /* Align icons in collapsed state */
+    font-size: 1.5rem;
+    min-width: 3.75rem;
     text-align: center;
     color: #00B251;
-    /* Icon color */
 }
 
 /* Sidebar Dropdown icon */
 .sidebar-dropdown-icon {
-    font-size: 18px;
-    min-width: 40px;
-    /* Align icons in collapsed state */
-    margin-left: 10px;
+    font-size: 1.125rem;
+    min-width: 2.5rem;
+    margin-left: 0.625rem;
     text-align: center;
     color: #00B251;
-    /* Icon color */
 }
 
 /* Sidebar text */
 .sidebar-text {
     white-space: nowrap;
-    margin-left: 10px;
+    margin-left: 0.625rem;
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.3s ease, visibility 0.3s ease;
@@ -144,7 +127,6 @@
 /* Sidebar dropdown section */
 .sidebar-dropdown {
     background-color: #00B251;
-    /* Dropdown background color */
     transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
     overflow: hidden;
 }
@@ -157,16 +139,15 @@
 
 /* Expanded dropdown state */
 .sidebar-dropdown.expanded {
-    max-height: 500px;
-    /* Adjust based on content height */
+    max-height: 31.25rem;
     opacity: 1;
 }
 
 /* Chevron icon for dropdown */
 .sidebar-chevron {
     margin-left: auto;
-    width: 20px;
-    height: 20px;
+    width: 1.25rem;
+    height: 1.25rem;
     transition: transform 0.3s ease;
 }
 
@@ -178,219 +159,250 @@
 .dropdown-item {
     display: flex;
     align-items: center;
-    padding: 10px 16px;
+    padding: 0.625rem 1rem;
     color: #00B251;
-    /* Dropdown item color */
     text-decoration: none;
-    background-color: #00b2502a;
-    /* Background color for dropdown items */
-    border-left: 4px solid transparent;
+    background-color: #00b2504a; /* Adjusted for better visibility */
+    border-left: 0.25rem solid transparent;
     transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
     transform: translateX(0);
-    /* No movement initially */
 }
 
 /* Highlight dropdown item on hover with moving animation */
 .dropdown-item:hover {
-    background-color: #00b2504d;
-    /* Hover background color */
+    background-color: #00b2507a; /* Adjusted for better visibility */
     color: #00B251;
-    /* Hover text color */
-    border-left: 4px solid #00B251;
-    /* Border color on hover */
-    transform: translateX(10px);
-    /* Slight right movement on hover */
+    border-left: 0.25rem solid #00B251;
+    transform: translateX(0.625rem);
 }
 
 .dropdown-arrow {
     margin-left: auto;
-    width: 25px;
-    height: 25px;
+    width: 1.5625rem;
+    height: 1.5625rem;
 }
 
 /* Responsive styles */
-@media (max-width: 1200px) {
+@media (max-width: 1536px) { /* 96rem */
     .sidebar {
-        width: 80px;
-        /* Collapsed width for larger screens */
+        width: 5rem;
     }
 
     .sidebar:hover {
-        width: 230px;
-        /* Expanded width for larger screens */
+        width: 14.375rem;
     }
 
-
-    /* Sidebar Dropdown icon */
     .sidebar-dropdown-icon {
-        min-width: 40px;
-        margin-left: 0px;
+        min-width: 2.5rem;
+        margin-left: 0;
     }
-
 }
 
-@media (max-width: 992px) {
+@media (max-width: 1280px) { /* 80rem */
     .sidebar {
-        width: 60px;
-        /* Collapsed width for medium screens */
+        width: 3.75rem;
     }
 
     .sidebar:hover {
-        width: 180px;
-        /* Expanded width for medium screens */
+        width: 12rem;
     }
 
     .sidebar-title {
-        font-size: 18px;
-        /* Smaller font size for the title */
+        font-size: 1.125rem;
     }
 
     .sidebar-item {
-        font-size: 14px;
-        padding-left: 0px;
+        font-size: 0.875rem;
+        padding-left: 0;
     }
 
     .sidebar-icon {
-        font-size: 20px;
-        /* Smaller font size for icons */
+        font-size: 1.25rem;
     }
 
-
     .dropdown-arrow {
-        margin-left: auto;
-        width: 20px;
-        height: 20px;
+        width: 1.25rem;
+        height: 1.25rem;
     }
 
     .AgriTayoLogo {
-        margin-left: 10px;
-        height: 40px;
+        margin-left: 0.625rem;
+        height: 2.5rem;
     }
 
-
-    /* Sidebar Dropdown icon */
     .sidebar-dropdown-icon {
-        margin-left: 5px;
+        margin-left: 0.3125rem;
     }
 
-
-    /* Sidebar text */
     .sidebar-text {
-        margin-left: 5px;
+        margin-left: 0.3125rem;
     }
-
-    /* Sidebar Dropdown icon */
-    .sidebar-dropdown-icon {
-        font-size: 12px;
-        min-width: 15px;
-        margin-left: 10px;
-        margin-right: 8px;
-    }
-
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) { /* 64rem */
     .sidebar {
-        width: 50px;
-        /* Collapsed width for small screens */
+        width: 3.125rem;
     }
 
     .sidebar:hover {
-        width: 160px;
-        /* Expanded width for small screens */
+        width: 11rem;
     }
 
     .sidebar-title {
-        font-size: 16px;
-        /* Smaller font size for the title */
+        font-size: 1rem;
     }
 
     .sidebar-item {
-        font-size: 12px;
-        padding-left: 0px;
-        margin-left: 0px;
+        font-size: 0.75rem;
+        padding-left: 0;
+        margin-left: 0;
     }
 
     .sidebar-icon {
-        font-size: 18px;
-        /* Smaller font size for icons */
+        font-size: 1.125rem;
     }
 
-
     .dropdown-arrow {
-        margin-left: auto;
-        width: 18px;
-        height: 18px;
+        width: 1.125rem;
+        height: 1.125rem;
     }
 
     .AgriTayoLogo {
-        margin-left: 5px;
-        height: 40px;
+        margin-left: 0.3125rem;
+        height: 2.5rem;
     }
 
-    /* Sidebar Dropdown icon */
     .sidebar-dropdown-icon {
-        margin-left: 0px;
+        margin-left: 0;
     }
 
-    
-    /* Sidebar Dropdown icon */
-    .sidebar-dropdown-icon {
-        font-size: 12px;
-        min-width: 15px;
-        margin-left: 10px;
-        margin-right: 8px;
+    .sidebar-text {
+        font-size: small;
     }
-    /* Sidebar text */
-.sidebar-text {
-    font-size: small;
 }
 
-}
-
-@media (max-width: 576px) {
+@media (max-width: 768px) { /* 48rem */
     .sidebar {
-        width: 50px;
-        /* Collapsed width for very small screens */
+        width: 3.125rem;
     }
 
     .sidebar:hover {
-        width: 160px;
-        /* Expanded width for very small screens */
+        width: 11rem;
+    }
+
+    .sidebar-title {
+        font-size: 1rem;
     }
 
     .sidebar-item {
-        font-size: 10px;
-        /* Smaller font size for items */
-        padding-left: 0%;
+        font-size: 0.75rem;
+        padding-left: 0;
+        margin-left: 0;
     }
 
     .sidebar-icon {
-        font-size: 16px;
-        /* Smaller font size for icons */
+        font-size: 1.125rem;
     }
 
-
     .dropdown-arrow {
-        margin-left: auto;
-        width: 14px;
-        height: 14px;
+        width: 1.125rem;
+        height: 1.125rem;
     }
 
     .AgriTayoLogo {
-        margin-left: 5px;
-        height: 40px;
+        margin-left: 0.3125rem;
+        height: 2.5rem;
     }
 
-    /* Sidebar Dropdown icon */
     .sidebar-dropdown-icon {
-        font-size: 12px;
-        min-width: 15px;
-        margin-left: 10px;
-        margin-right: 8px;
+        margin-left: 0;
+        font-size: 0.75rem;
+        min-width: 0.9375rem;
+        margin-left: 0.625rem;
+        margin-right: 0.5rem;
     }
-    /* Sidebar text */
-.sidebar-text {
-    font-size: x-small;
+
+    .sidebar-text {
+        font-size: small;
+    }
 }
+
+@media (max-width: 640px) { /* 40rem */
+    .sidebar {
+        width: 3.125rem;
+    }
+
+    .sidebar:hover {
+        width: 10rem;
+    }
+
+    .sidebar-item {
+        font-size: 0.625rem;
+        padding-left: 0;
+    }
+
+    .sidebar-icon {
+        font-size: 1rem;
+    }
+
+    .dropdown-arrow {
+        width: 0.875rem;
+        height: 0.875rem;
+    }
+
+    .AgriTayoLogo {
+        margin-left: 0.3125rem;
+        height: 2.5rem;
+    }
+
+    .sidebar-dropdown-icon {
+        font-size: 0.75rem;
+        min-width: 0.9375rem;
+        margin-left: 0.625rem;
+        margin-right: 0.5rem;
+    }
+
+    .sidebar-text {
+        font-size: x-small;
+    }
+}
+
+@media (max-width: 480px) { /* 30rem */
+    .sidebar {
+        width: 3.125rem;
+    }
+
+    .sidebar:hover {
+        width: 10rem;
+    }
+
+    .sidebar-item {
+        font-size: 0.625rem;
+        padding-left: 0;
+    }
+
+    .sidebar-icon {
+        font-size: 1rem;
+    }
+
+    .dropdown-arrow {
+        width: 0.875rem;
+        height: 0.875rem;
+    }
+
+    .AgriTayoLogo {
+        margin-left: 0.3125rem;
+        height: 2.5rem;
+    }
+
+    .sidebar-dropdown-icon {
+        font-size: 0.75rem;
+        min-width: 0.9375rem;
+        margin-left: 0.625rem;
+        margin-right: 0.5rem;
+    }
+
+    .sidebar-text {
+        font-size: x-small;
+    }
 }

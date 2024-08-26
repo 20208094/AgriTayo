@@ -3,36 +3,27 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 20px;
+    padding: 0 1.25rem;
     background-color: #f7f7f7;
-    /* Matches sidebar background color */
-    height: 60px;
-    border-bottom: 1px solid #00b250;
-    /* Green border to match sidebar */
+    height: 3.75rem;
+    border-bottom: 0.0625rem solid #00b250;
     color: #01a149;
-    /* Green text color */
     z-index: 1000;
     width: 100%;
-    /* Fill the entire screen width */
     position: fixed;
-    /* Fix the top navbar to the top of the screen */
     top: 0;
-    /* Align the navbar to the top */
     left: 0;
-    /* Start from the very left of the screen */
     box-sizing: border-box;
-    /* Ensure padding is included in the width */
 }
 
 /* Spacer for alignment */
 .topspacer {
-    width: 80px;
+    width: 5rem;
 }
 
 /* Search Bar Container */
 .topnav-search-container {
     flex: 1;
-    /* Take up remaining space */
     display: flex;
     justify-content: center;
 }
@@ -40,43 +31,34 @@
 /* General styles for Search Bar */
 .topnav-search-bar {
     width: 100%;
-    /* Full width within its container */
-    max-width: 800px;
-    /* Max width for larger screens */
-    padding: 8px 12px;
-    font-size: 16px;
-    border: 1px solid #00b250;
-    /* Green border */
-    border-radius: 4px;
+    max-width: 50rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 1rem;
+    border: 0.0625rem solid #00b250;
+    border-radius: 0.25rem;
     outline: none;
     box-sizing: border-box;
-    /* Ensures padding is included in the width */
 }
 
 /* Navigation Links Container */
 .topnav-links {
     display: flex;
     align-items: center;
-    gap: 20px;
-    /* Space between navigation items */
+    gap: 1.25rem;
 }
 
 /* Individual Nav Items */
 .topnav-item {
     display: flex;
     align-items: center;
-    font-size: 16px;
+    font-size: 1rem;
     color: #01a149;
-    /* Green text color */
     text-decoration: none;
-    padding: 10px 15px;
+    padding: 0.625rem 0.9375rem;
     transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
     position: relative;
-    /* Ensure absolute positioning of badge is relative to this item */
-    border-radius: 20px;
+    border-radius: 1.25rem;
 }
-
-
 
 /* Nav Icons */
 .topnav-item:hover {
@@ -86,171 +68,171 @@
 /* Nav Icons */
 .topnav-icon,
 .topnav-icon-cart {
-    font-size: 24px;
+    font-size: 1.5rem;
     color: #00B251;
-    /* Green for icons */
     position: relative;
-    /* Ensure badge is positioned relative to this icon */
-    border-radius: 20px;
-    margin-right: 8px;
-    border-radius: 20px;
+    border-radius: 1.25rem;
+    margin-right: 0.5rem;
 }
 
 /* Cart Badge */
 .cart-badge {
     position: absolute;
-    top: -2px;
-    /* Adjust to position the badge correctly above the icon */
-    right: -2px;
-    /* Adjust to position the badge correctly to the right of the icon */
+    top: -0.125rem;
+    right: -0.125rem;
     width: auto;
-    /* Badge size */
-    min-width: 20px;
-    height: 20px;
-    /* Badge size */
+    min-width: 1.25rem;
+    height: 1.25rem;
     border-radius: 50%;
-    /* Circular badge */
     background-color: red;
-    /* Red background for badge */
     color: white;
-    /* White text color */
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 11px;
-    /* Text size */
+    font-size: 0.6875rem;
     font-weight: bold;
-    /* Bold text */
     box-sizing: border-box;
-    /* Ensure padding is included in the badge size */
 }
 
 /* Nav Text */
 .topnav-text {
-    font-size: 16px;
+    font-size: 1rem;
     white-space: nowrap;
 }
 
 /* Responsive styles */
-@media (max-width: 1200px) {
+@media (max-width: 1536px) {
     .topnav-search-bar {
         max-width: 70%;
-        /* Adjust max width for medium screens */
     }
 
     .topnav-links {
-        gap: 15px;
-        /* Reduce gap between items for medium screens */
+        gap: 0.9375rem;
     }
 
     .topspacer {
-        width: 60px;
+        width: 3.75rem;
     }
 }
 
-@media (max-width: 992px) {
+@media (max-width: 1280px) {
+    .topnav-search-bar {
+        max-width: 70%;
+    }
+
+    .topnav-links {
+        gap: 0.9375rem;
+    }
+
+    .topspacer {
+        width: 3.75rem;
+    }
+}
+
+@media (max-width: 1024px) {
     .topnavbar {
-        height: 50px;
+        height: 3.125rem;
     }
 
     .topnav-search-bar {
         max-width: 80%;
-        /* Adjust max width for smaller screens */
-        font-size: 14px;
-        /* Smaller font size */
-        height: 35px;
+        font-size: 0.875rem;
+        height: 2.1875rem;
     }
 
     .topnav-links {
-        gap: 10px;
-        /* Reduce gap between items for smaller screens */
+        gap: 0.625rem;
     }
 
     .topspacer {
-        width: 40px;
+        width: 2.5rem;
     }
 }
 
 @media (max-width: 768px) {
     .topnavbar {
-        height: 45px;
-    }
-
-    .topnav-search-bar {
-        max-width: 80%;
-        /* Further adjust max width for mobile screens */
-        font-size: 12px;
-        /* Smaller font size for better fit */
-        height: 33px;
-    }
-
-    .topnav-icon,
-    .topnav-icon-cart {
-        font-size: 20px;
-        border-radius: 18px;
-        margin-right: 5px;
-        border-radius: 18px;
-    }
-
-    .topnav-links {
-        gap: 8px;
-        /* Further reduce gap between items for mobile screens */
-    }
-
-    .topspacer {
-        width: 20px;
-    }
-}
-
-@media (max-width: 576px) {
-    .topnavbar {
-        height: 40px;
+        height: 2.8125rem;
     }
 
     .topnav-search-bar {
         max-width: 70%;
-        /* Almost full width for very small screens */
-        font-size: 10px;
-        /* Keep font size smaller for very small screens */
-        height: 29px;
+        font-size: 0.75rem;
+        height: 2.0625rem;
     }
 
-    .topnav-text {
-        font-size: 10px;
-        /* Even smaller text size for very small screens */
+    .topnav-icon,
+    .topnav-icon-cart {
+        font-size: 1.25rem;
+        border-radius: 1.125rem;
+        margin-right: 0.3125rem;
+    }
+
+    .topnav-links {
+        gap: 0.5rem;
     }
 
     .topspacer {
-        width: 20px;
+        width: 1.25rem;
+    }
+}
+
+@media (max-width: 640px) {
+    .topnavbar {
+        height: 2.5rem;
     }
 
+    .topnav-search-bar {
+        max-width: 70%;
+        font-size: 0.625rem;
+        height: 1.8125rem;
+    }
 
-    /* Cart Badge */
+    .topnav-text {
+        font-size: 0.625rem;
+    }
+
+    .topspacer {
+        width: 1.25rem;
+    }
+
     .cart-badge {
-        position: absolute;
-        top: -4px;
-        /* Adjust to position the badge correctly above the icon */
-        right: -4px;
-        /* Adjust to position the badge correctly to the right of the icon */
-        width: auto;
-        /* Badge size */
-        min-width: 20px;
-        height: 20px;
-        /* Badge size */
-        border-radius: 50%;
-        /* Circular badge */
-        background-color: red;
-        /* Red background for badge */
-        color: white;
-        /* White text color */
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 12px;
-        /* Text size */
-        font-weight: bold;
-        /* Bold text */
-        box-sizing: border-box;
-        /* Ensure padding is included in the badge size */
+        top: -0.25rem;
+        right: -0.25rem;
+        min-width: 1.25rem;
+        height: 1.25rem;
+        font-size: 0.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .topnavbar {
+        height: 2.5rem;
+    }
+
+    .topnav-search-bar {
+        max-width: 70%;
+        font-size: 0.625rem;
+        height: 1.8125rem;
+    }
+
+    .topnav-icon,
+    .topnav-icon-cart {
+        font-size: 1rem;
+    }
+
+    .topnav-text {
+        font-size: 0.625rem;
+    }
+
+    .topspacer {
+        width: 1.25rem;
+    }
+
+    .cart-badge {
+        top: -0.25rem;
+        right: -0.25rem;
+        min-width: 1.25rem;
+        height: 1.25rem;
+        font-size: 0.75rem;
     }
 }

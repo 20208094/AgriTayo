@@ -1,0 +1,204 @@
+/* Main container for sidebar items */
+.subsidebar-maincontainer {
+    border-right: 0.11rem solid #00B251;
+    width: 13.5rem;
+    margin-left: 5rem;
+    margin-top: 3.75rem;
+    padding: 0;
+    position: fixed;
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background-color: white;
+}
+
+/* Container for the sidebar */
+.subsidebar {
+    background-color: #f8f9fa;
+    /* border-right: 0.063rem solid #00B251; */
+    width: 100%;
+}
+
+/* Sidebar item styling */
+.sub-sidebar-item {
+    display: flex;
+    font-size: 1rem;
+    align-items: center;
+    padding: 0.4rem 1rem;
+    border-radius: 0.375rem;
+    color: #00B251;
+    background-color: #f8f9fa;
+    text-decoration: none;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Hover state for sidebar items */
+.sub-sidebar-item:hover {
+    background-color: #00B251;
+    color: #ffffff;
+}
+
+/* Active state for sidebar items */
+.sub-sidebar-item-active {
+    background-color: #00B251;
+    color: #ffffff;
+}
+
+/* Title container padding */
+.subsidebartitle-container {
+    padding-left: 1rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+
+/* Main title styling */
+.subsidebar-maintitle {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #00B251;
+}
+
+/* Link container styling */
+.subsidebar-links {
+    padding-left: 0.75rem;
+    margin-right: 0.5rem;
+    margin-bottom: 0.4rem;
+}
+
+/* Icon styling */
+.subsidebar-icon {
+    font-size: 1.25rem;
+    margin-right: 0.5rem;
+}
+
+/* Links container margin */
+.subsidebar-links-container {
+    margin-bottom: 1rem;
+}
+
+/* Responsive styles */
+@media (max-width: 1536px) {
+    .subsidebar-maincontainer {
+        width: 13.5rem;
+        margin-left: 5rem;
+        margin-top: 3.65rem;
+    }
+
+    .sub-sidebar-item {
+        font-size: 0.9375rem;
+        padding: 0.375rem 0.875rem;
+    }
+
+    .subsidebar-maintitle {
+        font-size: 1.125rem;
+    }
+
+    .subsidebar-icon {
+        font-size: 1.125rem;
+    }
+}
+
+@media (max-width: 1280px) {
+    .subsidebar-maincontainer {
+        width: 13.5rem;
+        margin-left: 3.5rem;
+        margin-top: 3.5rem;
+    }
+
+    .sub-sidebar-item {
+        font-size: 0.875rem;
+        padding: 0.35rem 0.75rem;
+    }
+
+    .subsidebar-maintitle {
+        font-size: 1rem;
+    }
+
+    .subsidebar-icon {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 1024px) {
+    .subsidebar-maincontainer {
+        width: 12rem;
+        margin-left: 3rem;
+        margin-top: 3rem;
+    }
+
+    .sub-sidebar-item {
+        font-size: 0.8125rem;
+        padding: 0.325rem 0.6875rem;
+    }
+
+    .subsidebar-maintitle {
+        font-size: 0.9375rem;
+    }
+
+    .subsidebar-icon {
+        font-size: 0.875rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .subsidebar-maincontainer {
+        width: 10.5rem;
+        margin-left: 2.75rem;
+        margin-top: 2.6rem;
+    }
+
+    .sub-sidebar-item {
+        font-size: 0.75rem;
+        padding: 0.3rem 0.625rem;
+    }
+
+    .subsidebar-maintitle {
+        font-size: 0.875rem;
+    }
+
+    .subsidebar-icon {
+        font-size: 0.75rem;
+    }
+}
+
+@media (max-width: 640px) {
+    .subsidebar-maincontainer {
+        width: 9.5rem;
+        margin-left: 2.5rem;
+        margin-top: 2rem;
+    }
+
+    .sub-sidebar-item {
+        font-size: 0.6875rem;
+        padding: 0.275rem 0.5625rem;
+    }
+
+    .subsidebar-maintitle {
+        font-size: 0.8125rem;
+    }
+
+    .subsidebar-icon {
+        font-size: 0.6875rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .subsidebar-maincontainer {
+        width: 8.5rem;
+        margin-left: 2.5rem;
+        margin-top: 2rem;
+    }
+
+    .sub-sidebar-item {
+        font-size: 0.6rem;
+        padding: 0.25rem 0.5rem;
+    }
+
+    .subsidebar-maintitle {
+        font-size: 0.7rem;
+    }
+
+    .subsidebar-icon {
+        font-size: 0.625rem;
+    }
+}

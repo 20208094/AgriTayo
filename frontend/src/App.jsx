@@ -20,22 +20,23 @@ import ReviewsPage from './screens/Users/AdminPages/CrudPages/ReviewsPage';
 import OrderTrackingPage from './screens/Users/AdminPages/CrudPages/OrderTrackingPage';
 import PaymentsPage from './screens/Users/AdminPages/CrudPages/PaymentsPage';
 import NotificationsPage from './screens/Users/AdminPages/CrudPages/NotificationsPage';
-import LeftSidebar from './components/LeftSidebar';
-import TopNavbar from './components/TopNavbar';
 import AdminDashboardPage from './screens/Users/AdminPages/AdminDashboard';
 import SellerDashboardPage from './screens/Users/SellerPages/SellerDashboard';
 import BuyerDashboardPage from './screens/Users/BuyerPages/BuyerDashboard';
 import CropCategoryPage from './screens/Market/CropCategoryPage';
 import SampleSearch from './screens/Users/AdminPages/CrudPages/SearchSample';
 import DownloadAppPage from './screens/DownloadApp/DownloadAppPage';
+// navigation bars
+import LeftSidebar from './components/LeftSidebar';
+import TopNavbar from './components/TopNavbar';
+import SubSidebar from './components/SubSidebar';
 // my account routes
 import Profile from './screens/Users/BuyerPages/Profile/Profile';
 import Addresses from './screens/Users/BuyerPages/Profile/Adresses';
-import Authentication from './screens/AuthPages/Athentication';
-import ChangePassword from './screens/Users/BuyerPages/Profile/ChangePassword';
+import ChangePassword from './screens/AuthPages/ChangePasswordPage';
+import ConfirmChangePassword from './screens/AuthPages/ConfirmChangePasswordPage';
 import ChangeEmail from './screens/Users/BuyerPages/Profile/ChangeEmail';
 import DeleteAccount from './screens/Users/BuyerPages/Profile/DeleteAccount';
-import ProfileSidebar from './screens/Users/BuyerPages/Profile/ProfileComponents/ProfileSidebar';
 // orders routes
 import All from './screens/Users/BuyerPages/Orders/All';
 import Cancelled from './screens/Users/BuyerPages/Orders/Cancelled';
@@ -112,16 +113,7 @@ function ProtectedRoute({ allowedUserType, userType, element }) {
 
 function Layout({ userType }) {
   const location = useLocation();
-  const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
-
-  // array for ProfileSidebar
-  const pathsWithProfileSidebar = [
-    '/profile',
-    '/addresses',
-    '/authentication',
-    '/deleteAccount',
-    '/changePassword'
-  ]
+  const isAuthPage = location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/logout';
 
   //array for OrderTopNavigationbar
   const pathsWithOrderTopNavigationbar = [
@@ -138,9 +130,7 @@ function Layout({ userType }) {
     <div className="flex">
       {!isAuthPage && <TopNavbar userType={userType} />}
       {!isAuthPage && <LeftSidebar userType={userType} />}
-
-      {/* this use the array of the pathsWithProfileSidebar */}
-      {pathsWithProfileSidebar.includes(location.pathname) && <ProfileSidebar/>}
+      {!isAuthPage && <SubSidebar userType={userType} />}
 
       {/* this use the array of the pathsWithOrderTopNavigationbar */}
       {pathsWithOrderTopNavigationbar.includes(location.pathname) && <OrdersTopNavigationbar/>}
@@ -160,8 +150,8 @@ function Layout({ userType }) {
             <Route path="users" element={<UsersPage />} />
             <Route exact path='addresses' element={<Addresses/>}/>
           <Route exact path='addresses' element={<Addresses />} />
-          <Route exact path='/authentication' element={<Authentication />} />
-          <Route exact path='/changePassword' element={<ChangePassword />} />
+          <Route exact path='/change_pasword' element={<ChangePassword />} />
+          <Route exact path='/confirm_change_password' element={<ConfirmChangePassword />} />
           <Route exact path='/changeEmail' element={<ChangeEmail />} />
           <Route exact path='/deleteAccount' element={<DeleteAccount />} />
           {/* for orders */}
@@ -174,7 +164,7 @@ function Layout({ userType }) {
           <Route exact path='/toShip' element={<ToShip />} />
 
 
-          {/* AUTHENTICATION ROUTES */}
+          {/* ChangePassword ROUTES */}
           {!userType && (
             <>
               <Route path="/login" element={<LoginPage />} />
@@ -206,6 +196,10 @@ function Layout({ userType }) {
             <Route path="payments" element={<PaymentsPage />} />
             <Route path="notifications" element={<NotificationsPage />} />
             <Route path="crop-category" element={<CropCategoryPage />} />
+            <Route path="profile" element={<Profile />} />
+            <Route path="address" element={<Addresses />} />
+            <Route path="change_password" element={<ChangePassword />} />
+            <Route path="delete_account" element={<DeleteAccount />} />
           </Route>
           {/* SELLER ROUTES */}
           <Route

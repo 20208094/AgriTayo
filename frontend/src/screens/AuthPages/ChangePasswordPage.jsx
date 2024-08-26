@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
-import ProfileSidebar from "../Users/BuyerPages/Profile/ProfileComponents/ProfileSidebar";
 import { useNavigate } from 'react-router-dom';
 
 const API_KEY = import.meta.env.VITE_API_KEY;
 
-function Authentication() {
+function ChangePassword() {
     const [users, setUsers] = useState([]);
     const [userId, setUserId] = useState("");
     const [loading, setLoading] = useState(true);
@@ -130,4 +129,4 @@ function Authentication() {
     );
 }
 
-export default Authentication;
+export default ChangePassword;

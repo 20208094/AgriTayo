@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import ProfileSidebar from './ProfileComponents/ProfileSidebar';
 import Modal from '../../../../components/Modal/Modal';
-
+import ProfileSidebar from "../../../../components/subSidebar/ProfileSidebar";
 const API_KEY = import.meta.env.VITE_API_KEY;
 
 function DeleteAccount() {

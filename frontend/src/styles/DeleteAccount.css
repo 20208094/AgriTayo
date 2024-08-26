@@ -11,7 +11,7 @@ body {
 /* Container for the delete account section */
 .delete-account-container {
     padding: 2rem;
-    margin-left: 40rem; 
+margin: auto;
     margin-top: 10rem;
     background: #f9f9f9;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);

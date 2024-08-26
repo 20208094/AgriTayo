@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from "react";
-import ProfileSidebar from "./ProfileComponents/ProfileSidebar";
 import { useNavigate } from 'react-router-dom';
 
-
-function ChangePassword() {
+function ConfirmChangePassword() {
     const [users, setUsers] = useState([]);
     const [userId, setUserId] = useState("");
     const [loading, setLoading] = useState(true);
@@ -95,4 +93,4 @@ function ChangePassword() {
     );
 }
 
-export default ChangePassword;
+export default ConfirmChangePassword;

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import ProfileSidebar from './ProfileComponents/ProfileSidebar';
-
+import ProfileSidebar from "../../../../components/subSidebar/ProfileSidebar";
 const API_KEY = import.meta.env.VITE_API_KEY;
 
 function Profile() {

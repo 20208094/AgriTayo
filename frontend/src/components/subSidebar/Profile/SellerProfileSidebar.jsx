@@ -1,8 +1,9 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import ProfileSidebarItem from './ProfileSidebarItem'; // Adjust the import path as needed
+import { FaUser, FaMapMarkerAlt, FaLock, FaShieldAlt } from 'react-icons/fa';
+import SubSidebarItem from '../SubSidebarTemplates/SubSidebarItems';
 
-const ProfileSidebar = () => {
+const SellerProfileSidebar = () => {
     const navigate = useNavigate();
 
     const handleNavigation = (path) => {
@@ -10,29 +11,33 @@ const ProfileSidebar = () => {
     };
 
     return (
-        <div className="profile-sidebar h-full bg-white fixed mt-10 ml-20">
+        <div className="subsidebar">
             <div className="p-4">
-                <h2 className="sidebar-title1">My Account</h2>
+                <h2 className="sidebar-title1">My Account s</h2>
             </div>
-            <ul className="space-y-4">
-                <ProfileSidebarItem
+            <ul className="sidebar-menu space-y-4">
+                <SubSidebarItem
                     to="/profile"
                     text="Profile"
+                    icon={FaUser}
                     onClick={handleNavigation}
                 />
-                <ProfileSidebarItem
+                <SubSidebarItem
                     to="/addresses"
                     text="Addresses"
+                    icon={FaMapMarkerAlt}
                     onClick={handleNavigation}
                 />
-                <ProfileSidebarItem
+                <SubSidebarItem
                     to="/authentication"
                     text="Change Password"
+                    icon={FaLock}
                     onClick={handleNavigation}
                 />
-                <ProfileSidebarItem
+                <SubSidebarItem
                     to="/deleteAccount"
                     text="Privacy Settings"
+                    icon={FaShieldAlt}
                     onClick={handleNavigation}
                 />
             </ul>
@@ -40,4 +45,4 @@ const ProfileSidebar = () => {
     );
 }
 
-export default ProfileSidebar;
+export default SellerProfileSidebar;

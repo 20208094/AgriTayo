@@ -3,25 +3,8 @@
     background-color: #f8f9fa;
     border-right: 1px solid #e2e2e2;
     border-left: 1px solid #e2e2e2;
-    left: 6%;
+    left: 80px;
 
-}
-
-.sidebar-title1 {
-    font-size: 1.25rem;
-    font-weight: bold;
-    color: #333;
-    margin-bottom: 1rem;
-}
-
-.sidebar-menu {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-}
-
-.menu-item {
-    padding: 0.10rem 2;
 }
 
 .menu-button {
@@ -38,11 +21,6 @@
 .menu-button:hover {
     background-color: #e2e6ea;
     color: #000;
-}
-
-.icon {
-    color: #00B251;
-    font-size: 1.25rem;
 }
 
 /* Responsive Design */

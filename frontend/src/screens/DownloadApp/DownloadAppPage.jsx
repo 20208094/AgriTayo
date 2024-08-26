@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FaAppStore, FaGooglePlay } from "react-icons/fa";
-import MainLogo from "../../../public/AgriTayo_Logo_wName.png";
+import MainLogo from "/AgriTayo_Logo_wName.png";
 
 const carouselImages = [
   '/placeholder1.png',

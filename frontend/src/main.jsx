@@ -12,6 +12,7 @@ import './styles/Authentication.css'
 import './styles/ChangePassword.css'
 import './styles/ChangeEmail.css'
 import './styles/DeleteAccount.css'
+import './styles/SubSidebar.css'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
