@@ -65,7 +65,6 @@ function Addresses() {
 
   return (
     <>
-      <ProfileSidebar />
       <div className="p-8 ml-72 mt-10">
         <h1>My Addresses</h1>
         <button

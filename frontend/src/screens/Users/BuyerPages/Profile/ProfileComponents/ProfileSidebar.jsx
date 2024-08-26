@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import ProfileSidebarItem from './ProfileSidebarItem'; // Adjust the import path as needed
 
 const ProfileSidebar = () => {
     const navigate = useNavigate();
@@ -9,43 +10,31 @@ const ProfileSidebar = () => {
     };
 
     return (
-        <div className="h-full bg-white fixed mt-10">
+        <div className="h-full bg-white fixed mt-10 ml-20">
             <div className="p-4">
                 <h2 className="text-2xl font-semibold">My Account</h2>
             </div>
             <ul className="space-y-4">
-                <li className="px-4">
-                    <button
-                        onClick={() => handleNavigation('/profile')}
-                        className="block py-2 rounded text-black"
-                    >
-                        Profile
-                    </button>
-                </li>
-                <li className="px-4">
-                    <button
-                        onClick={() => handleNavigation('/addresses')}
-                        className="block py-2 rounded text-black"
-                    >
-                        Addresses
-                    </button>
-                </li>
-                <li className="px-4">
-                    <button
-                        onClick={() => handleNavigation('/authentication')}
-                        className="block py-2 rounded text-black"
-                    >
-                        Change Password
-                    </button>
-                </li>
-                <li className="px-4">
-                    <button
-                        onClick={() => handleNavigation('/deleteAccount')}
-                        className="block py-2 rounded text-black"
-                    >
-                        Privacy Settings
-                    </button>
-                </li>
+                <ProfileSidebarItem
+                    to="/profile"
+                    text="Profile"
+                    onClick={handleNavigation}
+                />
+                <ProfileSidebarItem
+                    to="/addresses"
+                    text="Addresses"
+                    onClick={handleNavigation}
+                />
+                <ProfileSidebarItem
+                    to="/authentication"
+                    text="Change Password"
+                    onClick={handleNavigation}
+                />
+                <ProfileSidebarItem
+                    to="/deleteAccount"
+                    text="Privacy Settings"
+                    onClick={handleNavigation}
+                />
             </ul>
         </div>
     );

@@ -6,7 +6,7 @@ import AdminSidebar from './Sidebar/AdminSidebar';
 import SellerSidebar from './Sidebar/SellerSidebar';
 import BuyerSidebar from './Sidebar/BuyerSidebar';
 import LogoutModal from './LogoutModal'; // Import the new LogoutModal component
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 function LeftSidebar({ userType }) {
     const [showLogoutModal, setShowLogoutModal] = useState(false);
@@ -30,7 +30,8 @@ function LeftSidebar({ userType }) {
             <SidebarItem to="/crop-category" icon={FaDev} text="Crop Category" />
             <SidebarItem to="/admin-dash" icon={FaDev} text="Admin Dash" />
             <SidebarItem to="/downloadapp" icon={FaDev} text="Download App" />
-            <SidebarItem to='/profile' icon={FaDev} text='Profile'/>
+            <SidebarItem to='/profile' icon={FaDev} text='Profile' />
+            <SidebarItem to='/all' icon={FaDev} text='Orders' />
 
             {/* Conditional Sidebar Content */}
             {userType === 1 && <AdminSidebar />}

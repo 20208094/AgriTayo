@@ -69,7 +69,6 @@ function DeleteAccount() {
     const closeModal = () => setIsModalOpen(false);
     return (
         <>
-            <ProfileSidebar />
             {loading ? (
                 <div className="flex justify-center items-center h-screen">
                     <div>Loading...</div>
