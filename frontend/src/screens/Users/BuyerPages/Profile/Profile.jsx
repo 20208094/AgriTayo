@@ -8,6 +8,9 @@ function Profile() {
     const [userId, setUserId] = useState('');
     const [loading, setLoading] = useState(true);
     const [filteredUser, setFilteredUser] = useState(null);
+    const [image, setImage] = useState(null);
+    const [imagePreview, setImagePreview] = useState(null); // State for the image preview
+    const [notification, setNotification] = useState(''); 
 
     async function fetchUserSession() {
         try {
@@ -18,7 +21,6 @@ function Profile() {
             });
             if (response.ok) {
                 const data = await response.json();
-                console.log('User session data:', data);
                 setUserId(data.user_id);
             } else {
                 console.error('Failed to fetch user session:', response.statusText);
@@ -41,7 +43,6 @@ function Profile() {
                 throw new Error('Network response was not ok');
             }
             const data = await response.json();
-            console.log('Fetched users:', data);
             setUsers(data);
         } catch (error) {
             console.error('Error fetching users:', error);
@@ -56,8 +57,10 @@ function Profile() {
     useEffect(() => {
         if (userId && users.length > 0) {
             const user = users.find(user => user.user_id === userId);
-            console.log('Filtered user:', user);
             setFilteredUser(user);
+            if (user && user.user_image_url) {
+                setImagePreview(user.user_image_url); // Set the initial image preview
+            }
         }
     }, [userId, users]);
 
@@ -77,25 +80,54 @@ function Profile() {
         }));
     };
 
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        setImage(file);
+        setImagePreview(URL.createObjectURL(file)); // Create a local URL for the image preview
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setNotification('');
+
         if (filteredUser) {
+            const formData = new FormData();
+            formData.append('firstname', filteredUser.firstname);
+            formData.append('middlename', filteredUser.middlename);
+            formData.append('lastname', filteredUser.lastname);
+            formData.append('email', filteredUser.email);
+            formData.append('user_type_id', filteredUser.user_type_id);
+            formData.append('phone_number', filteredUser.phone_number);
+            formData.append('gender', filteredUser.gender);
+            formData.append('birthday', filteredUser.birthday);
+
+            if (image) {
+                formData.append('image', image);
+            }
+
             try {
                 const response = await fetch(`/api/users/${filteredUser.user_id}`, {
                     method: 'PUT',
                     headers: {
-                        'Content-Type': 'application/json',
                         'x-api-key': API_KEY
                     },
-                    body: JSON.stringify(filteredUser)
+                    body: formData
                 });
+
                 if (response.ok) {
                     const data = await response.json();
+                    setNotification('Profile updated successfully!');
+                    setImage(null); // Clear the image state
+                    document.querySelector('input[name="image"]').value = ''; // Clear the file input
+                    await fetchUsers(); // Refresh the user data
                     console.log('Update successful:', data);
                 } else {
-                    console.error('Failed to update user:', response.statusText);
+                    const errorData = await response.json();
+                    setNotification(`Failed to update profile: ${errorData.message || response.statusText}`);
+                    console.error('Failed to update user:', errorData);
                 }
             } catch (error) {
+                setNotification('Error updating profile.');
                 console.error('Error updating user:', error);
             }
         }
@@ -112,72 +144,104 @@ function Profile() {
                 <div className="profile-content-container">
                     <h1 className="profile-title">My Profile</h1>
                     <p className="profile-subtitle">Manage and protect your account</p>
+
+                    {notification && (
+                        <div className={`notification ${notification.includes('successfully') ? 'success' : 'error'}`}>
+                            {notification}
+                        </div>
+                    )}
                     {filteredUser ? (
-                        <form onSubmit={handleSubmit} className="profile-form">
+                        <form onSubmit={handleSubmit} className="profile-form" encType="multipart/form-data">
                             <div className="profile-form-grid">
+
+                                <div className="profile-input-group">
+                                    <div className="profile-photo-container">
+                                        <img 
+                                            src={imagePreview || '/default-profile.png'} 
+                                            alt="Profile" 
+                                            className="profile-photo"
+                                        />
+                                    </div>
+                                    <div className="profile-input-group">
+                                        <label className="profile-label">Change Photo</label>
+                                        <input
+                                            type="file"
+                                            name="image"
+                                            accept="image/*"
+                                            onChange={handleImageChange}
+                                            className="profile-photo-input"
+                                        />
+                                    </div>
+                                </div>
+
                                 <div className="profile-input-group">
                                     <label className="profile-label">First Name</label>
                                     <input
-                                        type='text'
-                                        name='firstname'
+                                        type="text"
+                                        name="firstname"
                                         value={filteredUser.firstname}
-                                        placeholder='First Name'
+                                        placeholder="First Name"
                                         onChange={handleInputChange}
                                         className="profile-input"
                                     />
                                 </div>
+
                                 <div className="profile-input-group">
                                     <label className="profile-label">Middle Name</label>
                                     <input
-                                        type='text'
-                                        name='middlename'
+                                        type="text"
+                                        name="middlename"
                                         value={filteredUser.middlename}
-                                        placeholder='Middle Name'
+                                        placeholder="Middle Name"
                                         onChange={handleInputChange}
                                         className="profile-input"
                                     />
                                 </div>
+
                                 <div className="profile-input-group">
                                     <label className="profile-label">Last Name</label>
                                     <input
-                                        type='text'
-                                        name='lastname'
+                                        type="text"
+                                        name="lastname"
                                         value={filteredUser.lastname}
-                                        placeholder='Last Name'
+                                        placeholder="Last Name"
                                         onChange={handleInputChange}
                                         className="profile-input"
                                     />
                                 </div>
+
                                 <div className="profile-input-group">
                                     <label className="profile-label">Email</label>
                                     <input
-                                        type='email'
-                                        name='email'
+                                        type="email"
+                                        name="email"
                                         value={filteredUser.email}
-                                        placeholder='Email'
+                                        placeholder="Email"
                                         onChange={handleInputChange}
                                         className="profile-input"
                                     />
                                 </div>
+
                                 <div className="profile-input-group">
                                     <label className="profile-label">Phone Number</label>
                                     <input
-                                        type='text'
-                                        name='phone_number'
+                                        type="text"
+                                        name="phone_number"
                                         value={filteredUser.phone_number}
-                                        placeholder='Phone Number'
+                                        placeholder="Phone Number"
                                         onChange={handleInputChange}
                                         className="profile-input"
                                     />
                                 </div>
+
                                 <div className="profile-input-group">
                                     <label className="profile-label">Gender</label>
                                     <div className="profile-radio-group">
                                         <label className="profile-radio-label">
                                             <input
-                                                type='radio'
-                                                name='gender'
-                                                value='Male'
+                                                type="radio"
+                                                name="gender"
+                                                value="Male"
                                                 checked={filteredUser.gender === 'Male'}
                                                 onChange={handleGenderChange}
                                                 className="profile-radio-input"
@@ -186,9 +250,9 @@ function Profile() {
                                         </label>
                                         <label className="profile-radio-label">
                                             <input
-                                                type='radio'
-                                                name='gender'
-                                                value='Female'
+                                                type="radio"
+                                                name="gender"
+                                                value="Female"
                                                 checked={filteredUser.gender === 'Female'}
                                                 onChange={handleGenderChange}
                                                 className="profile-radio-input"
@@ -197,9 +261,9 @@ function Profile() {
                                         </label>
                                         <label className="profile-radio-label">
                                             <input
-                                                type='radio'
-                                                name='gender'
-                                                value='Other'
+                                                type="radio"
+                                                name="gender"
+                                                value="Other"
                                                 checked={filteredUser.gender === 'Other'}
                                                 onChange={handleGenderChange}
                                                 className="profile-radio-input"
@@ -208,11 +272,12 @@ function Profile() {
                                         </label>
                                     </div>
                                 </div>
+
                                 <div className="profile-input-group">
                                     <label className="profile-label">Birthday</label>
                                     <input
-                                        type='date'
-                                        name='birthday'
+                                        type="date"
+                                        name="birthday"
                                         value={filteredUser.birthday}
                                         onChange={handleInputChange}
                                         className="profile-input"
@@ -220,7 +285,7 @@ function Profile() {
                                 </div>
                             </div>
                             <button
-                                type='submit'
+                                type="submit"
                                 className="profile-submit-button"
                             >
                                 Submit
