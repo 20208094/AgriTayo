@@ -68,7 +68,6 @@ function DeleteAccount() {
 
     return (
         <>
-            <ProfileSidebar />
             {loading ? (
                 <div className="loading-container">
                     <div>Loading...</div>

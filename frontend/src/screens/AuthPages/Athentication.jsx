@@ -93,7 +93,6 @@ function Authentication() {
 
     return (
         <>
-            <ProfileSidebar />
             {loading ? (
                 <div className="auth-loading-container">
                     <div className="auth-loading-text">Loading...</div>

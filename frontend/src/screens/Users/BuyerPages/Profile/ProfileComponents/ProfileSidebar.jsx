@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaUser, FaMapMarkerAlt, FaLock, FaShieldAlt } from 'react-icons/fa';
+import ProfileSidebarItem from './ProfileSidebarItem'; // Adjust the import path as needed
 
 const ProfileSidebar = () => {
     const navigate = useNavigate();
@@ -10,48 +10,31 @@ const ProfileSidebar = () => {
     };
 
     return (
-        <div className="profile-sidebar h-full bg-white fixed mt-10">
+        <div className="profile-sidebar h-full bg-white fixed mt-10 ml-20">
             <div className="p-4">
                 <h2 className="sidebar-title1">My Account</h2>
             </div>
-            <ul className="sidebar-menu space-y-4">
-                <li className="menu-item px-4">
-                    <button
-                        onClick={() => handleNavigation('/profile')}
-                        className="menu-button flex items-center py-2 rounded text-black hover:bg-gray-100 transition duration-200"
-                    >
-                        <FaUser className="icon mr-2" />
-                        Profile
-                    </button>
-                </li>
-                <li className="menu-item px-4">
-                    <button
-                        onClick={() => handleNavigation('/addresses')}
-                        className="menu-button flex items-center py-2 rounded text-black hover:bg-gray-100 transition duration-200"
-                    >
-                        <FaMapMarkerAlt className="icon mr-2" />
-                        Addresses
-                    </button>
-                </li>
-                <li className="menu-item px-4">
-                    <button
-                        onClick={() => handleNavigation('/authentication')}
-                        className="menu-button flex items-center py-2 rounded text-black hover:bg-gray-100 transition duration-200"
-
-                    >
-                        <FaLock className="icon mr-2" />
-                        Authentication
-                    </button>
-                </li>
-                <li className="menu-item px-4">
-                    <button
-                        onClick={() => handleNavigation('/deleteAccount')}
-                        className="menu-button flex items-center py-2 rounded text-black hover:bg-gray-100 transition duration-200"
-                    >
-                        <FaShieldAlt className="icon mr-2" />
-                        Delete Account
-                    </button>
-                </li>
+            <ul className="space-y-4">
+                <ProfileSidebarItem
+                    to="/profile"
+                    text="Profile"
+                    onClick={handleNavigation}
+                />
+                <ProfileSidebarItem
+                    to="/addresses"
+                    text="Addresses"
+                    onClick={handleNavigation}
+                />
+                <ProfileSidebarItem
+                    to="/authentication"
+                    text="Change Password"
+                    onClick={handleNavigation}
+                />
+                <ProfileSidebarItem
+                    to="/deleteAccount"
+                    text="Privacy Settings"
+                    onClick={handleNavigation}
+                />
             </ul>
         </div>
     );

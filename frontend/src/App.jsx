@@ -28,12 +28,23 @@ import BuyerDashboardPage from './screens/Users/BuyerPages/BuyerDashboard';
 import CropCategoryPage from './screens/Market/CropCategoryPage';
 import SampleSearch from './screens/Users/AdminPages/CrudPages/SearchSample';
 import DownloadAppPage from './screens/DownloadApp/DownloadAppPage';
+// my account routes
 import Profile from './screens/Users/BuyerPages/Profile/Profile';
 import Addresses from './screens/Users/BuyerPages/Profile/Adresses';
 import Authentication from './screens/AuthPages/Athentication';
 import ChangePassword from './screens/Users/BuyerPages/Profile/ChangePassword';
 import ChangeEmail from './screens/Users/BuyerPages/Profile/ChangeEmail';
 import DeleteAccount from './screens/Users/BuyerPages/Profile/DeleteAccount';
+import ProfileSidebar from './screens/Users/BuyerPages/Profile/ProfileComponents/ProfileSidebar';
+// orders routes
+import All from './screens/Users/BuyerPages/Orders/All';
+import Cancelled from './screens/Users/BuyerPages/Orders/Cancelled';
+import Completed from './screens/Users/BuyerPages/Orders/Completed';
+import ReturnOrRefund from './screens/Users/BuyerPages/Orders/ReturnOrRefund';
+import ToPay from './screens/Users/BuyerPages/Orders/ToPay';
+import ToRecieve from './screens/Users/BuyerPages/Orders/ToRecieve';
+import ToShip from './screens/Users/BuyerPages/Orders/ToShip';
+import OrdersTopNavigationbar from './screens/Users/BuyerPages/Orders/OrdersComponent/OrdersTopNavigationbar';
 
 const API_KEY = import.meta.env.VITE_API_KEY;
 
@@ -69,6 +80,7 @@ function App() {
     return <div>Loading...</div>;
   }
 
+
   return (
     <Router>
       <Layout userType={userType} />
@@ -102,10 +114,36 @@ function Layout({ userType }) {
   const location = useLocation();
   const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
 
+  // array for ProfileSidebar
+  const pathsWithProfileSidebar = [
+    '/profile',
+    '/addresses',
+    '/authentication',
+    '/deleteAccount',
+    '/changePassword'
+  ]
+
+  //array for OrderTopNavigationbar
+  const pathsWithOrderTopNavigationbar = [
+    '/all',
+    '/cancelled',
+    '/completed',
+    '/returnOrRefund',
+    '/toPay',
+    '/toRecieve',
+    '/toShip',
+  ]
+
   return (
     <div className="flex">
       {!isAuthPage && <TopNavbar userType={userType} />}
       {!isAuthPage && <LeftSidebar userType={userType} />}
+
+      {/* this use the array of the pathsWithProfileSidebar */}
+      {pathsWithProfileSidebar.includes(location.pathname) && <ProfileSidebar/>}
+
+      {/* this use the array of the pathsWithOrderTopNavigationbar */}
+      {pathsWithOrderTopNavigationbar.includes(location.pathname) && <OrdersTopNavigationbar/>}
 
       {/* Main Content */}
       <div className="main-content">
@@ -116,24 +154,34 @@ function Layout({ userType }) {
           <Route exact path="/admin-dash" element={<AdminDashboardPage />} />
           <Route exact path="/downloadapp" element={<DownloadAppPage />} />
           <Route exact path="/users" element={<UsersPage />} />
-          <Route exact path='/profile' element={<Profile/>}/>
+          {/* for accounts */}
+          <Route exact path='/profile' element={<Profile />} />
             <Route path="crop_category" element={<CropCategoryPageCRUD />} />
             <Route path="users" element={<UsersPage />} />
             <Route exact path='addresses' element={<Addresses/>}/>
-          <Route exact path='addresses' element={<Addresses/>}/>
-          <Route exact path='/authentication' element={<Authentication/>}/>
-          <Route exact path='/changePassword' element={<ChangePassword/>}/>
-          <Route exact path='/changeEmail' element={<ChangeEmail/>}/>
-          <Route exact path='/deleteAccount' element={<DeleteAccount/>}/>
+          <Route exact path='addresses' element={<Addresses />} />
+          <Route exact path='/authentication' element={<Authentication />} />
+          <Route exact path='/changePassword' element={<ChangePassword />} />
+          <Route exact path='/changeEmail' element={<ChangeEmail />} />
+          <Route exact path='/deleteAccount' element={<DeleteAccount />} />
+          {/* for orders */}
+          <Route exact path='/all' element={<All />} />
+          <Route exact path='/cancelled' element={<Cancelled />} />
+          <Route exact path='/completed' element={<Completed />} />
+          <Route exact path='/returnOrRefund' element={<ReturnOrRefund />} />
+          <Route exact path='/toPay' element={<ToPay />} />
+          <Route exact path='/toRecieve' element={<ToRecieve />} />
+          <Route exact path='/toShip' element={<ToShip />} />
 
-            {/* AUTHENTICATION ROUTES */}
-            {!userType && (
-              <>
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/register" element={<RegisterPage />} />
-              </>
-            )}
-            <Route path="/logout" element={<LogoutButton />} />
+
+          {/* AUTHENTICATION ROUTES */}
+          {!userType && (
+            <>
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+            </>
+          )}
+          <Route path="/logout" element={<LogoutButton />} />
 
           {/* ADMIN ROUTES */}
           <Route

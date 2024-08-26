@@ -135,7 +135,6 @@ function Profile() {
 
     return (
         <>
-            <ProfileSidebar />
             {loading ? (
                 <div className="profile-loading-container">
                     <div className="profile-loading-text">Loading...</div>
