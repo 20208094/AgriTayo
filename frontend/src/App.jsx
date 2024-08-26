@@ -30,6 +30,10 @@ import SampleSearch from './screens/Users/AdminPages/CrudPages/SearchSample';
 import DownloadAppPage from './screens/DownloadApp/DownloadAppPage';
 import Profile from './screens/Users/BuyerPages/Profile/Profile';
 import Addresses from './screens/Users/BuyerPages/Profile/Adresses';
+import Authentication from './screens/AuthPages/Athentication';
+import ChangePassword from './screens/Users/BuyerPages/Profile/ChangePassword';
+import ChangeEmail from './screens/Users/BuyerPages/Profile/ChangeEmail';
+import DeleteAccount from './screens/Users/BuyerPages/Profile/DeleteAccount';
 
 const API_KEY = import.meta.env.VITE_API_KEY;
 
@@ -116,6 +120,11 @@ function Layout({ userType }) {
             <Route path="crop_category" element={<CropCategoryPageCRUD />} />
             <Route path="users" element={<UsersPage />} />
             <Route exact path='addresses' element={<Addresses/>}/>
+          <Route exact path='addresses' element={<Addresses/>}/>
+          <Route exact path='/authentication' element={<Authentication/>}/>
+          <Route exact path='/changePassword' element={<ChangePassword/>}/>
+          <Route exact path='/changeEmail' element={<ChangeEmail/>}/>
+          <Route exact path='/deleteAccount' element={<DeleteAccount/>}/>
 
             {/* AUTHENTICATION ROUTES */}
             {!userType && (

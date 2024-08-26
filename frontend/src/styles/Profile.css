@@ -1,0 +1,127 @@
+/* Profile.css */
+
+/* Layout and spacing */
+.profile-loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    
+}
+
+.profile-loading-text {
+    font-size: 1.5rem;
+    color: #333;
+}
+
+.profile-content-container {
+    padding: 2rem;
+    margin-left: 20rem;
+    margin-top: 2.5rem;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    width: 100vh;
+}
+
+.profile-title {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    color: #00B251;
+}
+
+.profile-subtitle {
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+    color: #777;
+}
+
+.profile-form {
+    display: grid;
+    gap: 1rem;
+}
+
+.profile-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.profile-input-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.profile-label {
+    font-size: 0.875rem;
+    color: #555;
+    margin-bottom: 0.5rem;
+}
+
+.profile-input {
+    padding: 0.5rem;
+    font-size: 1rem;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.profile-radio-group {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.profile-radio-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 0.875rem;
+    color: #555;
+}
+
+.profile-radio-input {
+    margin-right: 0.5rem;
+}
+
+.profile-radio-text {
+    font-size: 0.875rem;
+}
+
+/* Smaller and centered button */
+.profile-submit-button {
+    padding: 0.5rem 5rem;  
+    font-size: 0.875rem;   
+    color: #fff;
+    background-color: #00B251;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin: 1rem auto 0;  
+    display: block;       
+    transition: background-color 0.3s ease;
+}
+
+.profile-submit-button:hover {
+    background-color: #008f42;
+}
+
+.profile-no-data {
+    font-size: 1rem;
+    color: #777;
+    text-align: center;
+    margin-top: 2rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .profile-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .profile-content-container {
+        margin-left: 20rem;
+        padding: 1rem;
+    }
+}

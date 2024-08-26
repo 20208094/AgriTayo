@@ -1,0 +1,83 @@
+.profile-sidebar {
+    width: 240px;
+    background-color: #f8f9fa;
+    border-right: 1px solid #e2e2e2;
+    border-left: 1px solid #e2e2e2;
+    left: 6%;
+
+}
+
+.sidebar-title1 {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 1rem;
+}
+
+.sidebar-menu {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.menu-item {
+    padding: 0.10rem 2;
+}
+
+.menu-button {
+    width: 100%;
+    text-align: left;
+    font-size: 1rem;
+    color: #555;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.menu-button:hover {
+    background-color: #e2e6ea;
+    color: #000;
+}
+
+.icon {
+    color: #00B251;
+    font-size: 1.25rem;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .profile-sidebar {
+        width: 200px;  /* Slightly reduce the width on smaller screens */
+    }
+
+    .sidebar-title {
+        font-size: 1.125rem;  /* Slightly smaller title */
+    }
+
+    .menu-button {
+        font-size: 0.875rem;  /* Slightly smaller text for buttons */
+    }
+
+    .icon {
+        font-size: 1rem;  /* Slightly smaller icons */
+    }
+}
+
+@media (max-width: 768px) {
+    .profile-sidebar {
+        width: 160px;  /* Further reduce width on even smaller screens */
+    }
+
+    .sidebar-title {
+        font-size: 1rem;  /* Smaller title */
+    }
+
+    .menu-button {
+        font-size: 0.75rem;  /* Smaller text for buttons */
+    }
+
+    .icon {
+        font-size: 0.875rem;  /* Smaller icons */
+    }
+}

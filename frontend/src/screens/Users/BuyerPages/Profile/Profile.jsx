@@ -18,7 +18,7 @@ function Profile() {
             });
             if (response.ok) {
                 const data = await response.json();
-                console.log('User session data:', data); // Logging user session data
+                console.log('User session data:', data);
                 setUserId(data.user_id);
             } else {
                 console.error('Failed to fetch user session:', response.statusText);
@@ -41,7 +41,7 @@ function Profile() {
                 throw new Error('Network response was not ok');
             }
             const data = await response.json();
-            console.log('Fetched users:', data); // Logging users data
+            console.log('Fetched users:', data);
             setUsers(data);
         } catch (error) {
             console.error('Error fetching users:', error);
@@ -56,7 +56,7 @@ function Profile() {
     useEffect(() => {
         if (userId && users.length > 0) {
             const user = users.find(user => user.user_id === userId);
-            console.log('Filtered user:', user); // Logging filtered user data
+            console.log('Filtered user:', user);
             setFilteredUser(user);
         }
     }, [userId, users]);
@@ -105,129 +105,129 @@ function Profile() {
         <>
             <ProfileSidebar />
             {loading ? (
-                <div className="flex justify-center items-center h-screen">
-                    <div>Loading...</div>
+                <div className="profile-loading-container">
+                    <div className="profile-loading-text">Loading...</div>
                 </div>
             ) : (
-                <div className="p-8 ml-72 mt-10">
-                    <h1 className="text-3xl font-bold mb-4">My Profile</h1>
-                    <p className="text-gray-600 mb-6">Manage and protect your account</p>
+                <div className="profile-content-container">
+                    <h1 className="profile-title">My Profile</h1>
+                    <p className="profile-subtitle">Manage and protect your account</p>
                     {filteredUser ? (
-                        <form onSubmit={handleSubmit} className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">First Name</label>
+                        <form onSubmit={handleSubmit} className="profile-form">
+                            <div className="profile-form-grid">
+                                <div className="profile-input-group">
+                                    <label className="profile-label">First Name</label>
                                     <input
                                         type='text'
                                         name='firstname'
                                         value={filteredUser.firstname}
                                         placeholder='First Name'
                                         onChange={handleInputChange}
-                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                                        className="profile-input"
                                     />
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Middle Name</label>
+                                <div className="profile-input-group">
+                                    <label className="profile-label">Middle Name</label>
                                     <input
                                         type='text'
                                         name='middlename'
                                         value={filteredUser.middlename}
                                         placeholder='Middle Name'
                                         onChange={handleInputChange}
-                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                                        className="profile-input"
                                     />
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Last Name</label>
+                                <div className="profile-input-group">
+                                    <label className="profile-label">Last Name</label>
                                     <input
                                         type='text'
                                         name='lastname'
                                         value={filteredUser.lastname}
                                         placeholder='Last Name'
                                         onChange={handleInputChange}
-                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                                        className="profile-input"
                                     />
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Email</label>
+                                <div className="profile-input-group">
+                                    <label className="profile-label">Email</label>
                                     <input
                                         type='email'
                                         name='email'
                                         value={filteredUser.email}
                                         placeholder='Email'
                                         onChange={handleInputChange}
-                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                                        className="profile-input"
                                     />
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Phone Number</label>
+                                <div className="profile-input-group">
+                                    <label className="profile-label">Phone Number</label>
                                     <input
                                         type='text'
                                         name='phone_number'
                                         value={filteredUser.phone_number}
                                         placeholder='Phone Number'
                                         onChange={handleInputChange}
-                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                                        className="profile-input"
                                     />
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Gender</label>
-                                    <div className="mt-1">
-                                        <label className="inline-flex items-center mr-4">
+                                <div className="profile-input-group">
+                                    <label className="profile-label">Gender</label>
+                                    <div className="profile-radio-group">
+                                        <label className="profile-radio-label">
                                             <input
                                                 type='radio'
                                                 name='gender'
                                                 value='Male'
                                                 checked={filteredUser.gender === 'Male'}
                                                 onChange={handleGenderChange}
-                                                className="form-radio"
+                                                className="profile-radio-input"
                                             />
-                                            <span className="ml-2">Male</span>
+                                            <span className="profile-radio-text">Male</span>
                                         </label>
-                                        <label className="inline-flex items-center mr-4">
+                                        <label className="profile-radio-label">
                                             <input
                                                 type='radio'
                                                 name='gender'
                                                 value='Female'
                                                 checked={filteredUser.gender === 'Female'}
                                                 onChange={handleGenderChange}
-                                                className="form-radio"
+                                                className="profile-radio-input"
                                             />
-                                            <span className="ml-2">Female</span>
+                                            <span className="profile-radio-text">Female</span>
                                         </label>
-                                        <label className="inline-flex items-center">
+                                        <label className="profile-radio-label">
                                             <input
                                                 type='radio'
                                                 name='gender'
                                                 value='Other'
                                                 checked={filteredUser.gender === 'Other'}
                                                 onChange={handleGenderChange}
-                                                className="form-radio"
+                                                className="profile-radio-input"
                                             />
-                                            <span className="ml-2">Other</span>
+                                            <span className="profile-radio-text">Other</span>
                                         </label>
                                     </div>
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Birthday</label>
+                                <div className="profile-input-group">
+                                    <label className="profile-label">Birthday</label>
                                     <input
                                         type='date'
                                         name='birthday'
                                         value={filteredUser.birthday}
                                         onChange={handleInputChange}
-                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                                        className="profile-input"
                                     />
                                 </div>
                             </div>
                             <button
                                 type='submit'
-                                className="mt-4 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                                className="profile-submit-button"
                             >
                                 Submit
                             </button>
                         </form>
                     ) : (
-                        <p>No user data found</p>
+                        <p className="profile-no-data">No user data found</p>
                     )}
                 </div>
             )}
