@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import ProfileSidebar from './subSidebar/ProfileSidebar';
 import MarketSidebar from './subSidebar/MarketSidebar';
 import DashboardSidebar from './subSidebar/DashboardSidebar';
+import AnalyticsSidebar from './subSidebar/AnalyticsSidebar';
 
 // Define a mapping for different sidebars based on the path
 const sidebarMapping = {
@@ -14,8 +15,14 @@ const sidebarMapping = {
   '/market': <MarketSidebar />,
 
   // Dashboard Sidebar
-  '/dashboard': <DashboardSidebar />,
+  '/admin-dash': <DashboardSidebar />,
+  // admin Sidebar
   '/admin/dashboard': <DashboardSidebar />,
+  '/admin/reports': <DashboardSidebar />,
+  // analyitcs Sidebar
+  '/admin/analytics': <AnalyticsSidebar />,
+  '/admin/marketAnalytics': <AnalyticsSidebar />,
+
   '/seller/dashboard': <DashboardSidebar />,
   '/buyer/dashboard': <DashboardSidebar />,
 

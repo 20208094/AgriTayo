@@ -20,7 +20,12 @@ import ReviewsPage from './screens/Users/AdminPages/CrudPages/ReviewsPage';
 import OrderTrackingPage from './screens/Users/AdminPages/CrudPages/OrderTrackingPage';
 import PaymentsPage from './screens/Users/AdminPages/CrudPages/PaymentsPage';
 import NotificationsPage from './screens/Users/AdminPages/CrudPages/NotificationsPage';
-import AdminDashboardPage from './screens/Users/AdminPages/AdminDashboard';
+// for admin
+import AdminDashboardPage from './screens/Users/AdminPages/AdminDashboard/AdminDashboard';
+import AnalyticsPage from './screens/Users/AdminPages/AdminDashboard/AnalyticsPage';
+import ReportsPage from './screens/Users/AdminPages/AdminDashboard/ReportsPage';
+import MarketAnalyticsPage from './screens/Users/AdminPages/AdminDashboard/MarketAnalyticsPage';
+
 import SellerDashboardPage from './screens/Users/SellerPages/SellerDashboard';
 import BuyerDashboardPage from './screens/Users/BuyerPages/BuyerDashboard';
 import CropCategoryPage from './screens/Market/CropCategoryPage';
@@ -141,7 +146,6 @@ function Layout({ userType }) {
           {/* FREE ROUTES used for development */}
           <Route exact path="/sample" element={<SampleSearch />} />
           <Route exact path="/crop-category" element={<CropCategoryPage />} />
-          <Route exact path="/admin-dash" element={<AdminDashboardPage />} />
           <Route exact path="/downloadapp" element={<DownloadAppPage />} />
           <Route exact path="/users" element={<UsersPage />} />
           {/* for accounts */}
@@ -162,6 +166,11 @@ function Layout({ userType }) {
           <Route exact path='/toPay' element={<ToPay />} />
           <Route exact path='/toRecieve' element={<ToRecieve />} />
           <Route exact path='/toShip' element={<ToShip />} />
+          {/* for admin */}
+          <Route exact path="/admin-dash" element={<AdminDashboardPage />} />
+          <Route exact path='/analytics' element={<AnalyticsPage />} />
+          <Route exact path='/marketAnalytics' element={<MarketAnalyticsPage />} />
+          <Route exact path="/reports" element={<ReportsPage />} />
 
 
           {/* ChangePassword ROUTES */}
@@ -178,6 +187,9 @@ function Layout({ userType }) {
             path="/admin/*"
             element={<ProtectedRoute element={<AdminDashboardPage />} allowedUserType={1} userType={userType} />}
           >
+            <Route path='marketAnalytics' element={<MarketAnalyticsPage />} />
+            <Route path='analytics' element={<AnalyticsPage />} />
+            <Route path="reports" element={<ReportsPage />} />
             <Route path="dashboard" element={<AdminDashboardPage />} />
             <Route path="user_type" element={<UserTypePage />} />
             <Route path="addresses" element={<AddressesPage />} />

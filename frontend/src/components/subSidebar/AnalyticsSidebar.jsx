@@ -2,14 +2,14 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaUser, FaMapMarkerAlt, FaLock, FaShieldAlt } from 'react-icons/fa';
 import SubSidebarItem from './SubSidebarTemplates/SubSidebarItems';
-import AdminProfileSidebar from './Profile/AdminProfileSidebar';
 import BuyerProfileSidebar from './Profile/BuyerProfileSidebar';
 import SellerProfileSidebar from './Profile/SellerProfileSidebar';
 import SubSidebarTitle from './SubSidebarTemplates/SubSidebarTitle';
 import SubSidebarDivider from './SubSidebarTemplates/SubSidebarDivider';
+import AdminAnalyticsSidebar from './Analytics/AdminAnalyticsSidebar';
 
 // ProfileSidebar now receives userType as a prop
-const ProfileSidebar = ({ userType }) => {
+const AnalyticsSidebar = ({ userType }) => {
     const navigate = useNavigate();
 
     const handleNavigation = (path) => {
@@ -50,11 +50,11 @@ const ProfileSidebar = ({ userType }) => {
 
             <SubSidebarDivider />
             {/* Render specific sidebar based on userType */}
-            {userType === 1 && <AdminProfileSidebar />}
+            {userType === 1 && <AdminAnalyticsSidebar />}
             {userType === 2 && <SellerProfileSidebar />}
             {userType === 3 && <BuyerProfileSidebar />}
         </div>
     );
 }
 
-export default ProfileSidebar;
+export default AnalyticsSidebar;
