@@ -53,7 +53,7 @@ function RegisterPage() {
         <div className="register-page">
             <div className="register-container">
                 <div className="register-image">
-                    <img src="/AgriTayo_Logo.png" alt="AgriTayo Logo" />
+                    <img src="/AgriTayo_Logo.svg" alt="AgriTayo Logo" />
                 </div>
                 <div className="register-form-container">
                     <h1 className="register-title">Register</h1>

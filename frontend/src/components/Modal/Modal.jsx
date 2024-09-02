@@ -1,15 +1,19 @@
-import React from 'react'
+import React from 'react';
 
 const Modal = ({ isOpen, onClose, children }) => {
-    if (!isOpen) return null;
-    return(
-        <div
+  if (!isOpen) return null;
+
+  return (
+    <div
       className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
       onClick={onClose}
     >
       <div
-        className="bg-white p-6 rounded-lg relative w-full max-w-lg"
-        onClick={e => e.stopPropagation()}
+        className="bg-white p-6 rounded-lg relative w-full 
+                   max-w-sm sm:max-w-md md:max-w-3xl lg:max-w-4xl xl:max-w-5xl
+                   sm:mt-24 sm:ml-6 sm:mr-0 sm:mb-0
+                   sm:self-start"
+        onClick={(e) => e.stopPropagation()}
       >
         {children}
         <button
@@ -20,7 +24,7 @@ const Modal = ({ isOpen, onClose, children }) => {
         </button>
       </div>
     </div>
-    )
-}
+  );
+};
 
-export default Modal
+export default Modal;
