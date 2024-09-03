@@ -25,7 +25,7 @@ const NavigationBar = () => {
             case "Home":
               iconName = "home-outline";
               break;
-            case "Market":
+            case "Market Category":
               iconName = "leaf-outline";
               break;
             case "Analytics":
@@ -58,7 +58,7 @@ const NavigationBar = () => {
         options={{ headerShown: false }}
       />
       <Tab.Screen
-        name="Market"
+        name="Market Category"
         component={CropsScreen}
         options={{
           headerRight: () => (

@@ -254,12 +254,12 @@ function App() {
               options={screenOptions}
             />
             <Stack.Screen
-              name="Market List"
+              name="Market Subcategory"
               component={MarketCategoryListScreen}
               options={screenOptions}
             />
             <Stack.Screen
-              name="Market Category"
+              name="Product List"
               component={MarketCategoryScreen}
               options={screenOptions}
             />

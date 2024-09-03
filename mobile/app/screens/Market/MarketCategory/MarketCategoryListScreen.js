@@ -65,7 +65,7 @@ function MarketCategoryListScreen() {
             <TouchableOpacity
               key={item.crop_sub_category_id}
               onPress={() =>
-                navigation.navigate("Market Category", {
+                navigation.navigate("Product List", {
                   category: items,
                   selectedItemId: item.crop_sub_category_id,
                 })

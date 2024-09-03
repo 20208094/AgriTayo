@@ -22,7 +22,7 @@ const MarketCategoryCard = ({ cropCategory }) => {
   return (
     <SafeAreaView className="bg-white rounded-lg shadow m-2 w-[45%] mb-3">
       <TouchableOpacity
-        onPress={() => navigation.navigate('Market List', { category: cropCategory.crop_category_id })}
+        onPress={() => navigation.navigate('Market Subcategory', { category: cropCategory.crop_category_id })}
       >
         <View className="rounded-t-lg overflow-hidden">
           <Image 
