@@ -61,6 +61,7 @@ const NavigationBar = () => {
         name="Market Category"
         component={CropsScreen}
         options={{
+          tabBarLabel: 'Market',
           headerRight: () => (
             <View style={{ flexDirection: "row", marginRight: 15 }}>
               <MarketIcon onPress={() => navigation.navigate("CartScreen")} />
