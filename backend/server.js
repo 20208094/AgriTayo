@@ -5,6 +5,8 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const path = require('path');
 const multer = require('multer'); // For handling file uploads
+const { createServer } = require('http'); 
+const { Server } = require('socket.io');
 
 // Import CRUD services
 const {
@@ -146,6 +148,17 @@ const { logout } = require('./supabase_connection/user_auth_services/logout');
 
 
 const app = express();
+
+const server = createServer(app); // Create the HTTP server
+
+// Initialize Socket.IO
+const io = new Server(server, {
+    cors: {
+        origin: "*", // Allow all origins (you can restrict this)
+        methods: ["GET", "POST"]
+    }
+});
+
 app.use(cors());
 app.use(bodyParser.json());
 
@@ -182,6 +195,7 @@ app.get('/api/session', (req, res) => {
     if (req.session && req.session.user) {
         res.json({
             user_id: req.session.user.user_id,
+            user_firstname: req.session.user.user_firstname,
             user_type_id: req.session.user.user_type_id,
             user_hashed_password: req.session.user.password
         });
@@ -320,12 +334,33 @@ app.get('*', (req, res) => {
     res.sendFile('index.html', { root: distPath });
 });
 
+io.on('connection', (socket) => {
+    console.log('A user connected:', socket.id);
+
+    socket.on('chat message', async (msg) => {
+        console.log('Message received:', msg);
+
+        // Optionally save the message to your database
+        // const { data, error } = await supabase
+        //   .from('chat_messages')
+        //   .insert([{ user_id: msg.user_id, message: msg.text }]);
+
+        // Broadcast the message to all connected clients
+        io.emit('chat message', msg);
+    });
+
+    socket.on('disconnect', () => {
+        console.log('User disconnected:', socket.id);
+    });
+});
+
+
 app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).send('Something broke!');
 });
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
 

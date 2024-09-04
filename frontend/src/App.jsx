@@ -52,6 +52,8 @@ import ToRecieve from './screens/Users/BuyerPages/Orders/ToRecieve';
 import ToShip from './screens/Users/BuyerPages/Orders/ToShip';
 import OrdersTopNavigationbar from './screens/Users/BuyerPages/Orders/OrdersComponent/OrdersTopNavigationbar';
 
+import ChatPage from './screens/Chat';
+
 const API_KEY = import.meta.env.VITE_API_KEY;
 
 function App() {
@@ -171,6 +173,7 @@ function Layout({ userType }) {
           <Route exact path='/analytics' element={<AnalyticsPage />} />
           <Route exact path='/marketAnalytics' element={<MarketAnalyticsPage />} />
           <Route exact path="/reports" element={<ReportsPage />} />
+          <Route exact path="/chat" element={<ChatPage />} />
 
 
           {/* ChangePassword ROUTES */}
