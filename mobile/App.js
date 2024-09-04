@@ -51,6 +51,7 @@ import ShopRatingScreen from "./app/screens/farmers/Shop/ShopPerformance/ShopRat
 import BusinessInsightsScreen from "./app/screens/farmers/Shop/ShopPerformance/BusinessInsightsScreen";
 import AccountHealthScreen from "./app/screens/farmers/Shop/ShopPerformance/AccountHealthScreen";
 import SellerShopScreen from "./app/screens/farmers/Shop/SellerShopScreen";
+import ChatScreen from "./app/screens/ChatScreen";
 
 
 const Stack = createStackNavigator();
@@ -103,7 +104,11 @@ function App() {
           />
         ) : (
           <>
-          
+          <Stack.Screen
+              name="ChatScreen"
+              component={ChatScreen}
+              options={{ ...screenOptions, headerShown: true }}
+            />
             <Stack.Screen
               name="NavigationBar"
               component={NavigationBar}
