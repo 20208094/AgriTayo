@@ -53,6 +53,7 @@ import ToShip from './screens/Users/BuyerPages/Orders/ToShip';
 import OrdersTopNavigationbar from './screens/Users/BuyerPages/Orders/OrdersComponent/OrdersTopNavigationbar';
 
 import ChatPage from './screens/Chat';
+import ChatListPage from './screens/ChatListPage';
 
 const API_KEY = import.meta.env.VITE_API_KEY;
 
@@ -174,6 +175,8 @@ function Layout({ userType }) {
           <Route exact path='/marketAnalytics' element={<MarketAnalyticsPage />} />
           <Route exact path="/reports" element={<ReportsPage />} />
           <Route exact path="/chat" element={<ChatPage />} />
+          <Route path="/chatlist" element={<ChatListPage />} />
+          <Route path="/chat/:receiverId" element={<ChatPage />} />
 
 
           {/* ChangePassword ROUTES */}

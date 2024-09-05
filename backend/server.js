@@ -142,6 +142,13 @@ const {
     deleteReviewImage
 } = require('./supabase_connection/crud_services/review_images.js');
 
+const {
+    getChats,
+    addChat,
+    updateChatReadStatus,
+    deleteChat
+} = require('./supabase_connection/crud_services/chat');
+
 const { login } = require('./supabase_connection/user_auth_services/login');
 const { register } = require('./supabase_connection/user_auth_services/register');
 const { logout } = require('./supabase_connection/user_auth_services/logout');
@@ -325,6 +332,15 @@ app.post('/api/review_images', addReviewImage);
 app.put('/api/review_images/:id', updateReviewImage);
 app.delete('/api/review_images/:id', deleteReviewImage);
 
+// API routes for chat messages
+app.get('/api/chats', getChats);
+app.post('/api/chats', (req, res) => {
+    addChat(req, res, io);
+});
+app.put('/api/chats/:id/read', updateChatReadStatus);
+app.delete('/api/chats/:id', deleteChat);
+
+
 // Serve frontend files
 const distPath = path.join(__dirname, '../frontend/dist/');
 app.use(express.static(distPath));
@@ -337,22 +353,45 @@ app.get('*', (req, res) => {
 io.on('connection', (socket) => {
     console.log('A user connected:', socket.id);
 
+    // Listen for 'chat message' event from the client
     socket.on('chat message', async (msg) => {
-        console.log('Message received:', msg);
+        console.log('Message received:', msg); // This should be logged when a message is received
 
-        // Optionally save the message to your database
-        // const { data, error } = await supabase
-        //   .from('chat_messages')
-        //   .insert([{ user_id: msg.user_id, message: msg.text }]);
+        try {
+            // Create a mock request and response object to pass to addChat
+            const req = {
+                body: msg,
+                files: msg.files || {}, // Ensure files are handled properly
+                fields: {
+                    sender_id: [msg.sender_id],
+                    receiver_id: [msg.receiver_id],
+                    receiver_type: [msg.receiver_type],
+                    chat_message: [msg.chat_message]
+                }
+            };
 
-        // Broadcast the message to all connected clients
-        io.emit('chat message', msg);
+            const res = {
+                status: (code) => {
+                    return {
+                        json: (data) => {
+                            console.log(`Response status ${code}:`, data);
+                        }
+                    };
+                }
+            };
+
+            // Call addChat and pass the socket.io instance to it
+            await addChat(req, res, io);
+        } catch (error) {
+            console.error('Error saving message:', error);
+        }
     });
 
     socket.on('disconnect', () => {
         console.log('User disconnected:', socket.id);
     });
 });
+
 
 
 app.use((err, req, res, next) => {

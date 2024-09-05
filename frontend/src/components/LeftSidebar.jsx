@@ -32,6 +32,7 @@ function LeftSidebar({ userType }) {
             <SidebarItem to="/downloadapp" icon={FaDev} text="Download App" />
             <SidebarItem to='/profile' icon={FaDev} text='Profile' />
             <SidebarItem to='/all' icon={FaDev} text='Orders' />
+            <SidebarItem to='/chatlist' icon={FaDev} text='Chat List' />
 
             {/* Conditional Sidebar Content */}
             {userType === 1 && <AdminSidebar />}
