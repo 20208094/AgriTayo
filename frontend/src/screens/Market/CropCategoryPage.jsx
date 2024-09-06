@@ -6,7 +6,7 @@ const API_KEY = import.meta.env.VITE_API_KEY;
 const CropCategoryCard = ({ cropCategory }) => {
   return (
     <div className="bg-white rounded-lg shadow m-2 w-[45%] mb-3">
-      <Link to={`/crop_category/${cropCategory.crop_category_name}`}>
+      <Link to={`/crop-subcategory/${cropCategory.crop_category_id}`}>
         <div className="rounded-t-lg overflow-hidden">
           <img src={cropCategory.crop_category_image_url} alt={cropCategory.crop_category_name} className="w-full h-28" />
           <div className="p-2.5">
@@ -36,6 +36,7 @@ function CropCategoryPage() {
         throw new Error('Network response was not ok');
       }
       const data = await response.json();
+      console.log('Fetched Categories:', data); // Debugging the data
       setCategories(data);
     } catch (error) {
       console.error('Error fetching crop categories:', error);

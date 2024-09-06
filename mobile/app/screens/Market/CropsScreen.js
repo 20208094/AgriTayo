@@ -1,133 +1,92 @@
-// ChatScreen.js
-import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TextInput, Button, FlatList, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
-import io from 'socket.io-client';
-import { REACT_NATIVE_API_KEY } from '@env'; // Use .env for API key
+import React, { useState, useCallback } from 'react';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Image } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import logo from '../../assets/logo.png'; // Placeholder image
+import { REACT_NATIVE_API_KEY } from '@env';
 
-const SOCKET_URL = 'https://agritayo.azurewebsites.net/api/chat';
+const MarketCategoryCard = ({ cropCategory }) => {
+  const navigation = useNavigation();
 
-const ChatScreen = ({ route }) => {
-  const [messages, setMessages] = useState([]);
-  const [newMessage, setNewMessage] = useState('');
-  const socket = useRef(null);
-  const { receiverId } = route.params; // Get receiverId from route params
-  const userId = 1; // Default user ID
+  const getImageSource = () => {
+    const { crop_category_image_url } = cropCategory;
 
-  useEffect(() => {
-    // Initialize socket connection
-    socket.current = io(SOCKET_URL, {
-      transports: ['websocket']
-    });
-
-    // Handle incoming messages
-    socket.current.on('chat message', (msg) => {
-      setMessages((prevMessages) => [...prevMessages, msg]);
-    });
-
-    // Clean up socket connection on unmount
-    return () => {
-      socket.current.disconnect();
-    };
-  }, []);
-
-  const handleSendMessage = async () => {
-    if (newMessage.trim()) {
-      const message = {
-        sender_id: userId,
-        receiver_id: receiverId,
-        chat_message: newMessage,
-        receiver_type: 'User',
-      };
-      socket.current.emit('chat message', message);
-
-      try {
-        // Save message to the server
-        const response = await fetch('https://agritayo.azurewebsites.net/api/chats', {
-          method: 'POST',
-          headers: {
-            'x-api-key': REACT_NATIVE_API_KEY,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(message)
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to send message');
-        }
-
-        // Clear input field after sending
-        setNewMessage('');
-      } catch (error) {
-        console.error('Error sending message:', error);
-      }
+    if (typeof crop_category_image_url === 'string' && crop_category_image_url.trim() !== '') {
+      return { uri: crop_category_image_url };
     }
+    
+    // If not a valid URL, return the default image
+    return logo;
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
-      <View style={styles.chatContainer}>
-        <FlatList
-          data={messages}
-          renderItem={({ item }) => (
-            <View style={styles.messageContainer}>
-              <Text style={styles.messageText}>
-                <Text style={styles.userId}>{item.sender_id}:</Text> {item.chat_message}
-              </Text>
-            </View>
-          )}
-          keyExtractor={(item, index) => index.toString()}
-          style={styles.messageList}
-        />
-        <View style={styles.inputContainer}>
-          <TextInput
-            value={newMessage}
-            onChangeText={setNewMessage}
-            placeholder="Type a message..."
-            style={styles.input}
+    <SafeAreaView className="bg-white rounded-lg shadow m-2 w-[45%] mb-3">
+      <TouchableOpacity
+        onPress={() => navigation.navigate('Market Subcategory', { category: cropCategory.crop_category_id })}
+      >
+        <View className="rounded-t-lg overflow-hidden">
+          <Image 
+            source={getImageSource()} 
+            className="w-full h-28" 
           />
-          <Button title="Send" onPress={handleSendMessage} />
+          <View className="p-2.5">
+            <Text className="text-base font-bold mb-1.5">
+              {cropCategory.crop_category_name}
+            </Text>
+          </View>
         </View>
-      </View>
-    </KeyboardAvoidingView>
+      </TouchableOpacity>
+    </SafeAreaView>
   );
 };
 
+function CropsScreen() {
+  const [categories, setCategories] = useState([]);
+  const API_KEY = REACT_NATIVE_API_KEY;
+
+  // Fetch categories function
+  const fetchCategories = async () => {
+    try {
+        const response = await fetch('https://agritayo.azurewebsites.net/api/crop_categories', {
+          headers: {
+              'x-api-key': API_KEY
+          }
+      });
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const data = await response.json();
+      setCategories(data);
+    } catch (error) {
+      console.error('Error fetching crop categories:', error);
+    }
+  };
+
+  // Fetch categories when screen is focused
+  useFocusEffect(
+    useCallback(() => {
+      fetchCategories();
+    }, [])
+  );
+
+  return (
+    <ScrollView contentContainerStyle={styles.container}>
+      <View className="flex-row flex-wrap justify-between">
+        {categories.map((category) => (
+          <MarketCategoryCard
+            key={category.crop_category_id}
+            cropCategory={category}
+          />
+        ))}
+      </View>
+    </ScrollView>
+  );
+}
+
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-  },
-  chatContainer: {
-    flex: 1,
-    padding: 10,
-    justifyContent: 'space-between',
-  },
-  messageList: {
-    flex: 1,
-    marginBottom: 10,
-  },
-  messageContainer: {
-    marginBottom: 10,
-  },
-  messageText: {
-    fontSize: 16,
-  },
-  userId: {
-    fontWeight: 'bold',
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  input: {
-    flex: 1,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    padding: 10,
-    marginRight: 10,
+    paddingBottom: 1, // Adjust this value as needed to ensure space for the bottom navigation bar
   },
 });
 
-export default ChatScreen;
+export default CropsScreen;

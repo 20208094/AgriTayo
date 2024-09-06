@@ -28,7 +28,11 @@ import MarketAnalyticsPage from './screens/Users/AdminPages/AdminDashboard/Marke
 
 import SellerDashboardPage from './screens/Users/SellerPages/SellerDashboard';
 import BuyerDashboardPage from './screens/Users/BuyerPages/BuyerDashboard';
+
+// for market
 import CropCategoryPage from './screens/Market/CropCategoryPage';
+import CropSubCategoryPage from './screens/Market/CropSubCategoryPage';
+
 import SampleSearch from './screens/Users/AdminPages/CrudPages/SearchSample';
 import DownloadAppPage from './screens/DownloadApp/DownloadAppPage';
 // navigation bars
@@ -148,7 +152,9 @@ function Layout({ userType }) {
         <Routes>
           {/* FREE ROUTES used for development */}
           <Route exact path="/sample" element={<SampleSearch />} />
+          {/* for market */}
           <Route exact path="/crop-category" element={<CropCategoryPage />} />
+          <Route  exact path="/crop-subcategory/:cropCategoryId" element={<CropSubCategoryPage/>}/>
           <Route exact path="/downloadapp" element={<DownloadAppPage />} />
           <Route exact path="/users" element={<UsersPage />} />
           {/* for accounts */}
@@ -202,6 +208,7 @@ function Layout({ userType }) {
             <Route path="users" element={<UsersPage />} />
             <Route path="shops" element={<ShopPage />} />
             <Route path="crop_category" element={<CropCategoryPageCRUD />} />
+            <Route path="crop_subcategory" element={<CropSubCategoryPage />} />
             <Route path="metric_system" element={<MetricSystemPage />} />
             <Route path="crops" element={<CropsPage />} />
             <Route path="order_status" element={<OrderStatusPage />} />
