@@ -29,7 +29,7 @@ const BuyerProfileSidebar = () => {
                     onClick={handleNavigation}
                 />
                 <SubSidebarItem
-                    to="/authentication"
+                    to="/buyer/change_password"
                     text="Change Password"
                     icon={FaLock}
                     onClick={handleNavigation}

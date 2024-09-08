@@ -169,7 +169,7 @@ function Layout({ userType }) {
             <Route path="users" element={<UsersPage />} />
             <Route exact path='addresses' element={<Addresses/>}/>
           <Route exact path='addresses' element={<Addresses />} />
-          <Route exact path='/change_pasword' element={<ChangePassword />} />
+          <Route exact path='/change_password' element={<ChangePassword />} />
           <Route exact path='/confirm_change_password' element={<ConfirmChangePassword />} />
           <Route exact path='/changeEmail' element={<ChangeEmail />} />
           <Route exact path='/deleteAccount' element={<DeleteAccount />} />
@@ -238,6 +238,7 @@ function Layout({ userType }) {
           >
             <Route path="sample" element={<SamplePage />} />
             <Route path="dashboard" element={<SellerDashboardPage />} />
+            <Route path="change_password" element={<ChangePassword />} />
           </Route>
           {/* BUYER ROUTES */}
           <Route
@@ -246,6 +247,7 @@ function Layout({ userType }) {
           >
             <Route path="sample" element={<SamplePage />} />
             <Route path="dashboard" element={<BuyerDashboardPage />} />
+            <Route path="change_password" element={<ChangePassword />} />
           </Route>
           {/* Default route */}
           <Route path="*" element={<Navigate to={userType === null ? "/login" : "/admin/dashboard"} />} />
