@@ -42,14 +42,23 @@ function CropSubCategoryPage() {
         return <div>Error: {error.message}</div>;
     }
 
-    const cropCategoryIdstr = String(cropCategoryId);
+    const filteredSubCategories = subCategories.filter(
+        (subCategory) => String(subCategory.crop_category_id) === String(cropCategoryId)
+    );
+
+    if (filteredSubCategories.length === 0) {
+        return (
+            <div className=''>
+                <p className='text-center'>No available products</p>
+            </div>
+        );
+    }
 
     return (
         <div className="p-4 bg-gray-200">
             <div className="flex flex-col">
                 {subCategories.map((subCategory) => {
-                    const cropCategoryId_string = String(subCategory.crop_category_id);
-                    if (cropCategoryIdstr === cropCategoryId_string) {
+                    if ( String(cropCategoryId) === String(subCategory.crop_category_id)) {
                         return (
                             <Link
                                 key={subCategory.crop_sub_category_id}

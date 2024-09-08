@@ -20,6 +20,7 @@ import ReviewsPage from './screens/Users/AdminPages/CrudPages/ReviewsPage';
 import OrderTrackingPage from './screens/Users/AdminPages/CrudPages/OrderTrackingPage';
 import PaymentsPage from './screens/Users/AdminPages/CrudPages/PaymentsPage';
 import NotificationsPage from './screens/Users/AdminPages/CrudPages/NotificationsPage';
+
 // for admin
 import AdminDashboardPage from './screens/Users/AdminPages/AdminDashboard/AdminDashboard';
 import AnalyticsPage from './screens/Users/AdminPages/AdminDashboard/AnalyticsPage';
@@ -32,6 +33,8 @@ import BuyerDashboardPage from './screens/Users/BuyerPages/BuyerDashboard';
 // for market
 import CropCategoryPage from './screens/Market/CropCategoryPage';
 import CropSubCategoryPage from './screens/Market/CropSubCategoryPage';
+import ProductListPage from './screens/Market/ProductListPage';
+import ProductDetaulsPage from './screens/Market/ProductDetailsPage';
 
 import SampleSearch from './screens/Users/AdminPages/CrudPages/SearchSample';
 import DownloadAppPage from './screens/DownloadApp/DownloadAppPage';
@@ -155,6 +158,9 @@ function Layout({ userType }) {
           {/* for market */}
           <Route exact path="/crop-category" element={<CropCategoryPage />} />
           <Route  exact path="/crop-subcategory/:cropCategoryId" element={<CropSubCategoryPage/>}/>
+          <Route exact path='/product-list/:cropSubCategoryId' element={<ProductListPage/>}/>
+          <Route exact path = '/product-details/:productListId' element={<ProductDetaulsPage/>}/>
+
           <Route exact path="/downloadapp" element={<DownloadAppPage />} />
           <Route exact path="/users" element={<UsersPage />} />
           {/* for accounts */}
@@ -208,7 +214,6 @@ function Layout({ userType }) {
             <Route path="users" element={<UsersPage />} />
             <Route path="shops" element={<ShopPage />} />
             <Route path="crop_category" element={<CropCategoryPageCRUD />} />
-            <Route path="crop_subcategory" element={<CropSubCategoryPage />} />
             <Route path="metric_system" element={<MetricSystemPage />} />
             <Route path="crops" element={<CropsPage />} />
             <Route path="order_status" element={<OrderStatusPage />} />
