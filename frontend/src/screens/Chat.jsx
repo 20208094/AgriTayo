@@ -1,18 +1,32 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import io from 'socket.io-client';
 import { useParams, useNavigate } from 'react-router-dom';
+import { FaPaperPlane } from 'react-icons/fa'; // Import icon
+import { IoIosAttach } from 'react-icons/io'; // Import attach icon
 
 const API_KEY = import.meta.env.VITE_API_KEY;
 
 function ChatPage() {
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState('');
-    const [newImage, setNewImage] = useState(null); // For storing the selected image
+    const [newImage, setNewImage] = useState(null);
     const [socket, setSocket] = useState(null);
     const [userId, setUserId] = useState(null);
     const [error, setError] = useState('');
-    const { receiverId } = useParams(); // Get receiverId from URL
+    const { receiverId } = useParams();
     const navigate = useNavigate();
+
+    const messagesEndRef = useRef(null);
+
+    useEffect(() => {
+        // Function to scroll to the bottom of the chat when new messages are added
+        const scrollToBottom = () => {
+            messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        };
+        scrollToBottom(); // Call when the messages change (new message is added)
+    }, [messages]); // Listen for changes in the messages array
+
+
 
     useEffect(() => {
         const fetchUserSessionAndInitializeSocket = async () => {
@@ -26,7 +40,6 @@ function ChatPage() {
                     if (data.user_id) {
                         setUserId(data.user_id);
 
-                        // Initialize socket connection
                         const socketInstance = io({
                             transports: ['websocket'],
                         });
@@ -41,12 +54,10 @@ function ChatPage() {
                             console.log('Disconnected from chat server');
                         });
 
-                        // Listen for incoming chat messages
                         socketInstance.on('chat message', (msg) => {
                             setMessages(prevMessages => [...prevMessages, msg]);
                         });
 
-                        // Cleanup function for socket connection
                         return () => {
                             socketInstance.off('chat message');
                             socketInstance.disconnect();
@@ -76,7 +87,7 @@ function ChatPage() {
 
                     if (response.ok) {
                         const allMessages = await response.json();
-                        setMessages(allMessages); // Store all messages
+                        setMessages(allMessages);
                     } else {
                         console.error('Failed to fetch messages:', response.statusText);
                     }
@@ -97,27 +108,23 @@ function ChatPage() {
             formData.append('sender_id', userId);
             formData.append('receiver_id', receiverId);
             formData.append('chat_message', newMessage);
-            formData.append('receiver_type', 'User'); // Include receiver_type field
+            formData.append('receiver_type', 'User');
             if (newImage) {
-                formData.append('image', newImage);  // Attach the image if it exists
+                formData.append('image', newImage);
             }
 
             try {
                 const response = await fetch('/api/chats', {
                     method: 'POST',
-                    headers: {
-                        'x-api-key': API_KEY
-                    },
-                    body: formData // Use formData for both image and message data
+                    headers: { 'x-api-key': API_KEY },
+                    body: formData
                 });
 
                 if (response.ok) {
                     const savedMessage = await response.json();
                     console.log('Message saved to DB:', savedMessage.data);
-
-                    // Clear inputs
                     setNewMessage('');
-                    setNewImage(null);  // Clear the image input
+                    setNewImage(null);
                 } else {
                     console.error('Failed to send message:', response.statusText);
                 }
@@ -128,58 +135,75 @@ function ChatPage() {
     };
 
     const handleImageChange = (e) => {
-        setNewImage(e.target.files[0]);  // Store the selected image file
+        setNewImage(e.target.files[0]);
     };
 
     const userIdStr = String(userId);
     const receiverIdStr = String(receiverId);
 
-    return (
-        <div className="chat-page-container">
-            <h2>Chat with User {receiverId}</h2>
-            <div className="chat-messages">
-                {messages.length > 0 ? (
-                    messages.map((msg, index) => {
-                        const senderIdStr = String(msg.sender_id);
-                        const msgReceiverIdStr = String(msg.receiver_id);
+   return (
+    <div className="chat-page-container">
+        <h2 className="chat-header">Chat with User {receiverId}</h2>
+        <div className="chat-messages">
+            {messages.length > 0 ? (
+                messages.map((msg, index) => {
+                    const isSentByUser = msg.sender_id === userId;
 
-                        const isSenderMatch = senderIdStr === userIdStr && msgReceiverIdStr === receiverIdStr;
-                        const isReceiverMatch = msgReceiverIdStr === userIdStr && senderIdStr === receiverIdStr;
-
-                        if (isSenderMatch || isReceiverMatch) {
-                            return (
-                                <div key={index} className="chat-message">
-                                    <strong>User {senderIdStr === userIdStr ? 'You' : senderIdStr}:</strong> {msg.chat_message}
-                                    {msg.chat_image_url && (
-                                        <img src={msg.chat_image_url} alt="Chat Image" style={{ width: '200px', height: 'auto' }} />
-                                    )}
+                    return (
+                        <div
+                            key={index}
+                            className={`chat-message ${isSentByUser ? 'sent' : 'received'}`}
+                        >
+                            {!isSentByUser && (
+                                <div className="avatar">
+                                    <img src="/default-avatar.png" alt="User Avatar" />
                                 </div>
-                            );
-                        }
-                        return null;
-                    })
-                ) : (
-                    <p>No messages to display</p>
-                )}
-            </div>
-            <form className="chat-form" onSubmit={handleSendMessage} encType="multipart/form-data">
+                            )}
+                            <div className="message-content">
+                                {msg.chat_message}
+                                {msg.chat_image_url && (
+                                    <img
+                                        src={msg.chat_image_url}
+                                        alt="Chat Image"
+                                        className="chat-image"
+                                    />
+                                )}
+                            </div>
+                        </div>
+                    );
+                })
+            ) : (
+                <p>No messages to display</p>
+            )}
+            <div ref={messagesEndRef} />
+        </div>
+        <form className="chat-form" onSubmit={handleSendMessage} encType="multipart/form-data">
+            <input
+                type="text"
+                placeholder="Type a message..."
+                value={newMessage}
+                onChange={(e) => setNewMessage(e.target.value)}
+                className="chat-input"
+            />
+            <div className="file-input-wrapper">
+                <label htmlFor="chat-image-input" className="attach-icon">
+                    <IoIosAttach />
+                </label>
                 <input
-                    type="text"
-                    placeholder="Type a message..."
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                    className="chat-input"
-                />
-                <input 
-                    type="file" 
-                    onChange={handleImageChange} 
+                    type="file"
+                    id="chat-image-input"
+                    onChange={handleImageChange}
                     className="chat-image-input"
                 />
-                <button type="submit" className="chat-button">Send</button>
-            </form>
-            {error && <p className="error-message">{error}</p>}
-        </div>
-    );
+            </div>
+            <button type="submit" className="chat-button">
+                <FaPaperPlane />
+            </button>
+        </form>
+        {error && <p className="error-message">{error}</p>}
+    </div>
+);
+
 }
 
 export default ChatPage;

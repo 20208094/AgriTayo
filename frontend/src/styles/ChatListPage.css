@@ -1,0 +1,72 @@
+/* ChatListPage.css */
+
+/* Main container centered */
+.chat-list-page-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f9f9f9; /* Light background */
+    padding: 2rem;
+}
+
+/* Header styling */
+.chat-list-header h2 {
+    font-size: 2rem;
+    color: #00B251; /* Matching the green color from previous design */
+    margin-bottom: 1.5rem;
+    font-weight: bold;
+}
+
+/* Chat list */
+.chat-list {
+    list-style-type: none;
+    padding: 0;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 1rem;
+}
+
+/* Chat list item */
+.chat-list-item {
+    font-size: 1.25rem;
+    padding: 0.75rem 1rem;
+    margin: 0.5rem 0;
+    background-color: #f1f1f1;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.chat-list-item:hover {
+    background-color: #00B251; /* Hover effect with the green color */
+    color: white;
+}
+
+/* Error message styling */
+.error-message {
+    color: red;
+    font-size: 1rem;
+    margin-top: 1rem;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .chat-list-page-container {
+        padding: 1rem;
+    }
+
+    .chat-list {
+        max-width: 100%;
+    }
+
+    .chat-list-item {
+        font-size: 1rem;
+        padding: 0.5rem 0.75rem;
+    }
+}

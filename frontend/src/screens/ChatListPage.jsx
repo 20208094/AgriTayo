@@ -21,20 +21,17 @@ function ChatListPage() {
                     if (sessionData.user_id) {
                         setUserId(sessionData.user_id);
 
-                        // Fetch users or shops the logged-in user has chatted with
                         const chatResponse = await fetch(`/api/chats`, {
                             headers: { 'x-api-key': API_KEY }
                         });
 
                         if (chatResponse.ok) {
                             const chats = await chatResponse.json();
-
-                            // Extract unique users or shops from chats
                             const uniqueUsers = Array.from(new Set(
                                 chats.map(chat => chat.sender_id === userId ? chat.receiver_id : chat.sender_id)
                             )).map(id => ({
                                 id,
-                                name: id // Here you should fetch actual user/shop names if available
+                                name: id // Replace with actual user/shop names if available
                             }));
 
                             setUsers(uniqueUsers);
@@ -62,12 +59,14 @@ function ChatListPage() {
 
     return (
         <div className="chat-list-page-container">
-            <h2>Your Chats</h2>
+            <div className="chat-list-header">
+                <h2>Your Chats</h2>
+            </div>
             {error && <p className="error-message">{error}</p>}
-            <ul>
+            <ul className="chat-list">
                 {users.map(user => (
-                    <li key={user.id} onClick={() => handleUserClick(user.id)}>
-                        User {user.id} {/* Replace with actual user/shop name if available */}
+                    <li key={user.id} className="chat-list-item" onClick={() => handleUserClick(user.id)}>
+                        {user.name ? user.name : `User ${user.id}`}
                     </li>
                 ))}
             </ul>
