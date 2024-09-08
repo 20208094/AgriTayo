@@ -6,6 +6,7 @@ import { MdSpaceDashboard } from "react-icons/md";
 import { GiThreeLeaves } from "react-icons/gi";
 import { RiSettings3Fill } from "react-icons/ri";
 import { IoMdArrowDropdown } from "react-icons/io";
+import { RxDashboard } from "react-icons/rx";
 
 
 function AdminSidebar() {
