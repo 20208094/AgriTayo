@@ -6,7 +6,7 @@ const API_KEY = import.meta.env.VITE_API_KEY;
 function ProductDetailsPage() {
     const { productListId } = useParams();
     const [crops, setCrops] = useState([]);
-    const [quantity, setQuantity] = useState(1);  // For quantity management
+    const [quantity, setQuantity] = useState(1); // For quantity management
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
@@ -59,81 +59,80 @@ function ProductDetailsPage() {
     }
 
     return (
-        <div className="container mx-auto p-4">
+        <div className="container mx-auto px-4 py-6">
             {crops.map((crop) => {
                 if (String(productListId) === String(crop.crop_id)) {
                     return (
-                        <div key={crop.crop_id} className="bg-white p-6 rounded-lg shadow-lg">
-                            <img
-                                src={crop.crop_image_url}
-                                alt={crop.crop_name}
-                                className="w-full h-64 object-cover rounded-lg mb-4"
-                            />
-                            <div className="flex justify-between items-center mb-4">
-                                <h1 className="text-2xl font-bold">{crop.crop_name}</h1>
-                                <p className="text-lg text-green-600 font-bold">₱ {crop.crop_price}</p>
+                        <div key={crop.crop_id} className="bg-white p-8 rounded-lg shadow-lg grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div>
+                                <img
+                                    src={crop.crop_image_url}
+                                    alt={crop.crop_name}
+                                    className="w-full h-auto rounded-lg object-cover mb-6"
+                                />
                             </div>
-                            <p className="text-green-600 font-bold mb-4">Available in stock</p>
-                            <div className="flex justify-between items-center mb-4">
-                                <p className="text-gray-700">⭐ {crop.crop_rating} (192 reviews)</p>
-                                <div className="flex items-center">
+                            <div>
+                                <h1 className="text-3xl font-bold text-gray-800 mb-4">{crop.crop_name}</h1>
+                                <p className="text-xl text-green-600 font-semibold mb-2">₱ {crop.crop_price}</p>
+                                <p className="text-gray-700 mb-4">Available in stock</p>
+                                <p className="text-gray-700 mb-6">⭐ {crop.crop_rating} (192 reviews)</p>
+
+                                <div className="flex items-center mb-6">
                                     <button
-                                        className="bg-green-600 text-white px-3 py-2 rounded-lg"
+                                        className="bg-green-600 text-white px-4 py-2 rounded-l-lg focus:outline-none"
                                         onClick={decreaseQuantity}
                                     >
                                         -
                                     </button>
-                                    <span className="mx-3 text-lg">{quantity} pcs</span>
+                                    <span className="bg-gray-200 text-lg px-6 py-1.5">{quantity} pcs</span>
                                     <button
-                                        className="bg-green-600 text-white px-3 py-2 rounded-lg"
+                                        className="bg-green-600 text-white px-4 py-2 rounded-r-lg focus:outline-none"
                                         onClick={increaseQuantity}
                                     >
                                         +
                                     </button>
                                 </div>
-                            </div>
-                            <h2 className="text-lg font-bold mb-2">Description</h2>
-                            <p className="text-gray-700 mb-5">{crop.crop_description}</p>
 
-                            {/* Action Buttons */}
-                            <div className="grid grid-cols-3 gap-4 mb-5">
-                                <button className="bg-green-600 text-white px-4 py-3 rounded-lg font-bold">
-                                    Shop
-                                </button>
-                                <button className="bg-green-600 text-white px-4 py-3 rounded-lg font-bold">
-                                    Negotiate
-                                </button>
-                                <button className="bg-green-600 text-white px-4 py-3 rounded-lg font-bold">
-                                    Message
+                                <h2 className="text-xl font-semibold mb-2">Description</h2>
+                                <p className="text-gray-700 leading-relaxed mb-6">{crop.crop_description}</p>
+
+                                <div className="grid grid-cols-3 gap-4 mb-6">
+                                    <button className="bg-green-600 text-white px-4 py-3 rounded-lg font-bold">
+                                        Shop
+                                    </button>
+                                    <button className="bg-green-600 text-white px-4 py-3 rounded-lg font-bold">
+                                        Negotiate
+                                    </button>
+                                    <button className="bg-green-600 text-white px-4 py-3 rounded-lg font-bold">
+                                        Message
+                                    </button>
+                                </div>
+
+                                <button className="w-full bg-green-600 text-white py-3 mt-4 rounded-lg font-bold">
+                                    Add to Cart
                                 </button>
                             </div>
-
-                            <h2 className="text-lg font-bold mb-4">Related Products</h2>
-                            <div className="flex space-x-4 overflow-x-auto">
-                                {/* Replace with dynamic images */}
-                                <div className="h-40 w-40 bg-gray-200 flex justify-center items-center rounded-lg">
-                                    <p className="text-gray-400">Your Image Here</p>
-                                </div>
-                                <div className="h-40 w-40 bg-gray-200 flex justify-center items-center rounded-lg">
-                                    <p className="text-gray-400">Your Image Here</p>
-                                </div>
-                                <div className="h-40 w-40 bg-gray-200 flex justify-center items-center rounded-lg">
-                                    <p className="text-gray-400">Your Image Here</p>
-                                </div>
-                                <div className="h-40 w-40 bg-gray-200 flex justify-center items-center rounded-lg">
-                                    <p className="text-gray-400">Your Image Here</p>
-                                </div>
-                            </div>
-
-                            <button
-                                className="bg-green-600 text-white px-4 py-3 mt-5 rounded-lg font-bold w-full"
-                            >
-                                Add to Cart
-                            </button>
                         </div>
                     );
                 }
             })}
+            <div className="mt-12">
+                <h2 className="text-2xl font-bold mb-4">Related Products</h2>
+                <div className="flex space-x-4 overflow-x-auto">
+                    <div className="h-40 w-40 bg-gray-200 flex justify-center items-center rounded-lg">
+                        <p className="text-gray-400">Your Image Here</p>
+                    </div>
+                    <div className="h-40 w-40 bg-gray-200 flex justify-center items-center rounded-lg">
+                        <p className="text-gray-400">Your Image Here</p>
+                    </div>
+                    <div className="h-40 w-40 bg-gray-200 flex justify-center items-center rounded-lg">
+                        <p className="text-gray-400">Your Image Here</p>
+                    </div>
+                    <div className="h-40 w-40 bg-gray-200 flex justify-center items-center rounded-lg">
+                        <p className="text-gray-400">Your Image Here</p>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }

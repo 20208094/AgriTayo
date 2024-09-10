@@ -1,39 +1,107 @@
 /* Profile.css */
+.custom-file-input {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    color: #fff;
+    background-color: #00B251;
+    border-radius: 6px;
+    cursor: pointer;
+    border: none;
+    transition: background-color 0.3s ease;
+    margin-top: 1rem;
+    justify-content: center;
+}
 
-/* Layout and spacing */
-.profile-loading-container {
+.custom-file-input:hover {
+    background-color: #008f42;
+}
+
+.camera-icon {
+    font-size: 1.2rem;
+}
+
+/* Hide the original file input */
+.file-input {
+    display: none;
+}
+/* Center the entire profile page content */
+.profile-page-container {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-    
+    min-height: 93vh; /* Full viewport height for vertical centering */
+    background-color: #f0f0f0; /* Light background */
+    padding: 20px;
 }
 
-.profile-loading-text {
-    font-size: 1.5rem;
-    color: #333;
+.notification {
+    padding: 10px 20px;
+    border-radius: 6px;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    font-size: 1rem;
+    font-weight: bold;
 }
 
+.notification.success {
+    background-color: #00B251;
+    color: #fff;
+}
+
+.notification.error {
+    background-color: #ff4d4f;
+    color: #fff;
+}
+
+/* Profile content box */
 .profile-content-container {
-    padding: 30px 60px 40px 60px;
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 800px; /* Set a max width for the form container */
+    background-color: #fff;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: padding 0.3s ease; /* Smooth transition for padding changes */
 }
 
+/* Profile title */
 .profile-title {
     font-size: 2rem;
     font-weight: bold;
     margin-bottom: 1rem;
     color: #00B251;
+    text-align: center; /* Center the title */
 }
 
+/* Profile subtitle */
 .profile-subtitle {
     font-size: 1rem;
     margin-bottom: 1.5rem;
     color: #777;
+    text-align: center; /* Center the subtitle */
 }
 
+/* Profile image container and image styling */
+.profile-photo-container {
+    display: flex;
+    justify-content: center; /* Horizontally center the image */
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.profile-photo {
+    width: 150px;  
+    height: 150px; 
+    object-fit: cover;  
+    border-radius: 50%; 
+    border: 2px solid #ddd;
+    transition: width 0.3s ease, height 0.3s ease; /* Smooth transition for size changes */
+}
+
+/* Form layout */
 .profile-form {
     display: grid;
     gap: 1rem;
@@ -41,29 +109,34 @@
 
 .profile-form-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr; /* Two-column layout */
     gap: 1.5rem;
+    align-items: start; /* Aligns all form fields to start at the same height */
 }
 
+/* Adjust form fields without rearranging */
 .profile-input-group {
     display: flex;
     flex-direction: column;
+    gap: 0.5rem; /* Add small space between labels and inputs */
 }
 
+/* Input labels and fields */
 .profile-label {
     font-size: 0.875rem;
     color: #555;
-    margin-bottom: 0.5rem;
 }
 
 .profile-input {
-    padding: 0.5rem;
+    padding: 0.75rem;
     font-size: 1rem;
-    border-radius: 4px;
+    border-radius: 6px;
     border: 1px solid #ddd;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    width: 100%; /* Ensure inputs take full width of their container */
 }
 
+/* Profile radio buttons */
 .profile-radio-group {
     display: flex;
     gap: 1rem;
@@ -82,21 +155,19 @@
     margin-right: 0.5rem;
 }
 
-.profile-radio-text {
-    font-size: 0.875rem;
-}
-
-/* Smaller and centered button */
+/* Submit button */
 .profile-submit-button {
-    padding: 0.5rem 5rem;  
-    font-size: 0.875rem;   
+    padding: 0.75rem 5rem;  
+    font-size: 1rem;   
     color: #fff;
     background-color: #00B251;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
-    margin: 1rem auto 0;  
+    margin-top: 2rem;
     display: block;       
+    margin-left: auto;  /* Aligns the button to the center */
+    margin-right: auto; 
     transition: background-color 0.3s ease;
 }
 
@@ -104,6 +175,7 @@
     background-color: #008f42;
 }
 
+/* No data message */
 .profile-no-data {
     font-size: 1rem;
     color: #777;
@@ -112,13 +184,62 @@
 }
 
 /* Responsive Design */
-@media (max-width: 768px) {
-    .profile-form-grid {
-        grid-template-columns: 1fr;
+@media (max-width: 1024px) {
+    /* Adjust padding on medium screens */
+    .profile-content-container {
+        padding: 30px;
     }
 
+    /* Reduce photo size on medium screens */
+    .profile-photo {
+        width: 130px;
+        height: 130px;
+    }
+}
+
+@media (max-width: 768px) {
+    /* Change to single-column layout on smaller screens */
+    .profile-form-grid {
+        grid-template-columns: 1fr; /* Single-column layout for smaller screens */
+    }
+
+    /* Adjust image size */
+    .profile-photo {
+        width: 100px;
+        height: 100px; 
+    }
+
+    /* Adjust padding for smaller screens */
     .profile-content-container {
-        margin-left: 20rem;
-        padding: 1rem;
+        padding: 20px;
+    }
+
+    /* Reduce font sizes slightly for smaller screens */
+    .profile-title {
+        font-size: 1.75rem;
+    }
+
+    .profile-submit-button {
+        padding: 0.75rem 4rem; /* Adjust button size */
+    }
+}
+
+@media (max-width: 480px) {
+    /* Further adjustments for very small screens */
+    .profile-content-container {
+        padding: 15px;
+    }
+
+    .profile-title {
+        font-size: 1.5rem;
+    }
+
+    .profile-photo {
+        width: 80px;
+        height: 80px;
+    }
+
+    .profile-submit-button {
+        padding: 0.5rem 3rem; /* Adjust button size further */
     }
 }

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ProfileSidebar from "../../../../components/subSidebar/ProfileSidebar";
 const API_KEY = import.meta.env.VITE_API_KEY;
+import { FaCamera } from 'react-icons/fa'; 
 
 function Profile() {
     const [users, setUsers] = useState([]);
@@ -139,6 +140,7 @@ function Profile() {
                     <div className="profile-loading-text">Loading...</div>
                 </div>
             ) : (
+            <div className="profile-page-container">
                 <div className="profile-content-container">
                     <h1 className="profile-title">My Profile</h1>
                     <p className="profile-subtitle">Manage and protect your account</p>
@@ -162,13 +164,17 @@ function Profile() {
                                     </div>
                                     <div className="profile-input-group">
                                         <label className="profile-label">Change Photo</label>
-                                        <input
-                                            type="file"
-                                            name="image"
-                                            accept="image/*"
-                                            onChange={handleImageChange}
-                                            className="profile-photo-input"
-                                        />
+                                        <label htmlFor="file-input" className="custom-file-input">
+                                            <FaCamera className="camera-icon" /> Choose Photo
+                                            <input
+                                                type="file"
+                                                name="image"
+                                                accept="image/*"
+                                                id="file-input"
+                                                onChange={handleImageChange}
+                                                className="file-input"
+                                            />
+                                        </label>
                                     </div>
                                 </div>
 
@@ -182,10 +188,7 @@ function Profile() {
                                         onChange={handleInputChange}
                                         className="profile-input"
                                     />
-                                </div>
-
-                                <div className="profile-input-group">
-                                    <label className="profile-label">Middle Name</label>
+                                     <label className="profile-label">Middle Name</label>
                                     <input
                                         type="text"
                                         name="middlename"
@@ -194,9 +197,6 @@ function Profile() {
                                         onChange={handleInputChange}
                                         className="profile-input"
                                     />
-                                </div>
-
-                                <div className="profile-input-group">
                                     <label className="profile-label">Last Name</label>
                                     <input
                                         type="text"
@@ -207,7 +207,7 @@ function Profile() {
                                         className="profile-input"
                                     />
                                 </div>
-
+                                
                                 <div className="profile-input-group">
                                     <label className="profile-label">Email</label>
                                     <input
@@ -293,6 +293,7 @@ function Profile() {
                         <p className="profile-no-data">No user data found</p>
                     )}
                 </div>
+            </div>
             )}
         </>
     );

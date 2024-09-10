@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import OrdersTopNavigationbarItem from './OrdersTopNavigationbarItem';
+import { FaList, FaMoneyBill, FaTruck, FaBoxOpen, FaCheck, FaTimes, FaUndoAlt } from 'react-icons/fa';
 
 const OrdersTopNavigationbar = () => {
     const navigate = useNavigate();
@@ -10,42 +11,50 @@ const OrdersTopNavigationbar = () => {
     };
 
     return (
-        <div className="bg-white shadow-md fixed top-0 left-0 w-full z-10 mt-10 ml-20">
-            <div className="flex items-center justify-between p-4 max-w-screen-lg mx-auto">
-                <div className="flex space-x-4">
+        <div className="bg-white shadow fixed top-2 left-12 w-full z-10 mt-14 ml-[250px] border-b border-gray-200 md:w-[calc(100%-250px)]">
+            {/* Adjusted width and left margin to fit with sidebar */}
+            <div className="flex items-center justify-between p-1 max-w-screen-lg mx-auto">
+                <div className="flex space-x-7 md:space-x-8">
                     <OrdersTopNavigationbarItem
                         to="/all"
                         text="All"
+                        icon={<FaList />}
                         onClick={handleNavigation}
                     />
                     <OrdersTopNavigationbarItem
                         to="/toPay"
                         text="To Pay"
+                        icon={<FaMoneyBill />}
                         onClick={handleNavigation}
                     />
                     <OrdersTopNavigationbarItem
                         to="/toShip"
                         text="To Ship"
+                        icon={<FaTruck />}
                         onClick={handleNavigation}
                     />
                     <OrdersTopNavigationbarItem
-                        to="/toRecieve"
-                        text="To Recieve"
+                        to="/toReceive"
+                        text="To Receive"
+                        icon={<FaBoxOpen />}
                         onClick={handleNavigation}
                     />
-                     <OrdersTopNavigationbarItem
+                    <OrdersTopNavigationbarItem
                         to="/completed"
                         text="Completed"
+                        icon={<FaCheck />}
                         onClick={handleNavigation}
                     />
-                     <OrdersTopNavigationbarItem
+                    <OrdersTopNavigationbarItem
                         to="/cancelled"
                         text="Cancelled"
+                        icon={<FaTimes />}
                         onClick={handleNavigation}
                     />
-                     <OrdersTopNavigationbarItem
+                    <OrdersTopNavigationbarItem
                         to="/returnOrRefund"
                         text="Return Refund"
+                        icon={<FaUndoAlt />}
                         onClick={handleNavigation}
                     />
                 </div>

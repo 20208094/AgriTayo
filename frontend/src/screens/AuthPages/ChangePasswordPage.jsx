@@ -10,16 +10,12 @@ function ChangePassword() {
     const [filteredUser, setFilteredUser] = useState(null);
 
     const navigate = useNavigate();
-    const handleNavigation = (path) => {
-        navigate(path);
-    };
+    const handleNavigation = (path) => navigate(path);
 
     async function fetchUserSession() {
         try {
             const response = await fetch("/api/session", {
-                headers: {
-                    "x-api-key": API_KEY,
-                },
+                headers: { "x-api-key": API_KEY },
             });
             if (response.ok) {
                 const data = await response.json();
@@ -37,13 +33,9 @@ function ChangePassword() {
     const fetchUsers = async () => {
         try {
             const response = await fetch("/api/users", {
-                headers: {
-                    "x-api-key": API_KEY,
-                },
+                headers: { "x-api-key": API_KEY },
             });
-            if (!response.ok) {
-                throw new Error("Network response was not ok");
-            }
+            if (!response.ok) throw new Error("Network response was not ok");
             const data = await response.json();
             setUsers(data);
         } catch (error) {
@@ -93,35 +85,47 @@ function ChangePassword() {
     return (
         <>
             {loading ? (
-                <div className="auth-loading-container">
-                    <div className="auth-loading-text">Loading...</div>
+                <div className="loading-container">
+                    <div className="loading-text">Loading...</div>
                 </div>
             ) : (
-                <div className="auth-content-container">
-                    <h1 className="auth-title">Change Password</h1>
+                <div className="change-password-container">
+                    <h1 className="change-password-title">Change Password</h1>
                     {filteredUser ? (
                         <>
-                            <p className="auth-subtitle">A 6-digit code has been sent to {filteredUser.email}</p>
-                            <button onClick={() => handleNavigation('/changeEmail')} className="auth-change-button">
-                                Change
+                            <p className="change-password-subtitle">
+                                A 6-digit code has been sent to <span className="highlighted-text">{filteredUser.email}</span>
+                            </p>
+                            <button
+                                onClick={() => handleNavigation('/changeEmail')}
+                                className="change-button"
+                            >
+                                Change Email
                             </button>
                             <input
                                 type="text"
                                 name="code"
-                                placeholder="123456"
-                                className="auth-input"
+                                placeholder="Enter the OTP"
+                                className="change-password-input"
                             />
-                            <p className="auth-otp-timer">- The OTP will expire in {formatTime(seconds)}</p>
-                            <p className="auth-otp-info">Didn’t receive the code?</p>
-                            <button onClick={handleResend} className="auth-resend-button" disabled={!isResendEnabled}>
-                                Resend
+                            <p className="otp-timer">OTP expires in {formatTime(seconds)}</p>
+                            <p className="otp-info">Didn’t receive the code?</p>
+                            <button
+                                onClick={handleResend}
+                                className="resend-button"
+                                disabled={!isResendEnabled}
+                            >
+                                Resend Code
                             </button>
-                            <button onClick={() => handleNavigation('/changePassword')} className="auth-submit-button">
+                            <button
+                                onClick={() => handleNavigation('/changePassword')}
+                                className="verify-button"
+                            >
                                 Verify
                             </button>
                         </>
                     ) : (
-                        <p className="auth-no-data">No user data found</p>
+                        <p className="no-user-data">No user data found</p>
                     )}
                 </div>
             )}
