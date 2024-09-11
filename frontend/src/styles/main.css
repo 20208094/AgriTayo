@@ -2,11 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
-.main-content {    
+/* Base styles for .main-content */
+.main-content {
     flex: 1;
-    margin-left: 4.9rem;
+    margin-left: 4.9rem; /* Default margin when sidebar is visible */
     margin-top: 3.7rem;
     border-left: 0.2rem solid red;
+    transition: margin-left 0.3s ease; /* Smooth transition */
 }
 
 @media (max-width: 1536px) {
@@ -33,6 +35,7 @@
     .main-content {
         /* margin-left: 12.8rem; */
         margin-top: 2.6rem;
+        margin-left: 0;
     }
 }
 

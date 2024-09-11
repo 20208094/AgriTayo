@@ -30,7 +30,6 @@
     height: 3.125rem;
 }
 
-/* Sidebar container */
 .sidebar {
     position: fixed;
     top: 0;
@@ -38,21 +37,23 @@
     height: 100vh;
     width: 5rem; 
     background-color: #003419;
-    /* border-right: 0.0625rem solid #00b250; */
     overflow-x: hidden;
     overflow-y: auto;
     transition: width 0.3s ease-in-out;
     z-index: 1000;
-    /* padding-top: 0.625rem; */
     padding-left: 0.3rem;
     padding-right: 0.3rem;
-    /* border-top-right-radius: 1rem; */
     border-bottom-right-radius: 1rem;
 }
 
 /* Sidebar expanded on hover */
 .sidebar:hover {
     width: 14.5rem;
+}
+
+/* Hide Sidebar */
+.sidebar.hidden {
+    display: none;
 }
 
 /* Hide scrollbar */
@@ -72,6 +73,20 @@
 /* Sidebar Hover */
 .sidebar:hover:not(.pinned) {
     width: 14.5rem; /* Expanded width on hover */
+}
+
+/* Menu Toggle Button */
+.menu-toggle-button {
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    background: #eefff4;
+    border: none;
+    cursor: pointer;
+    color: #00B251;
+    font-size: 2rem;
+    z-index: 1001;
+    display: none; /* Hidden by default */
 }
 
 /* Pin Button */
@@ -259,227 +274,68 @@
     height: 1.5625rem;
 }
 
-/* Responsive styles */
-/* @media (max-width: 1536px) {
+.mobile-hide-button {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: #00B251;
+    font-size: 1.5rem;
+    margin-left: 1rem; /* Adjust positioning as needed */
+    position: absolute; /* Position it relative to the TitleContainer */
+    z-index: 1001; /* Ensure it stays on top */
+}
+
+
+/* When sidebar is hidden */
+.sidebar.hidden + .main-content {
+    margin-left: 0; /* Full width when sidebar is hidden */
+}
+
+/* When sidebar is pinned (visible) */
+.sidebar.pinned + .main-content {
+    margin-left: 14.4rem; /* Adjust this value according to sidebar width */
+}
+
+/* Show Hide Button only on mobile */
+@media (max-width: 768px) {
     .sidebar {
-        width: 5rem;
+        width: 100vw; /* Full width when pinned on mobile */
     }
 
-    .sidebar:hover {
-        width: 14.375rem;
+    .sidebar.pinned {
+        width: 100vw; /* Full width when pinned */
     }
 
-    .sidebar-dropdown-icon {
-        min-width: 2.5rem;
-        margin-left: 0;
-    }
-} */
-
-/* @media (max-width: 1280px) {
-    .sidebar {
-        width: 3.75rem;
+    .sidebar.hidden {
+        display: none; /* Hide by default */
     }
 
-    .sidebar:hover {
-        width: 12rem;
+    .menu-toggle-button {
+        display: block; /* Show toggle button on mobile */
     }
 
-    .sidebar-title {
-        font-size: 1.125rem;
+    .mobile-hide-button {
+        display: block; /* Show hide button next to logo on mobile */
     }
 
-    .sidebar-item {
-        font-size: 0.875rem;
-        padding-left: 0;
+    .pin-button {
+        display: none; /* Hide pin button on mobile */
     }
 
-    .sidebar-icon {
-        font-size: 1.25rem;
-    }
-
-    .dropdown-arrow {
-        width: 1.25rem;
-        height: 1.25rem;
-    }
-
-    .AgriTayoLogo {
-        margin-left: 0.625rem;
-        height: 2.5rem;
-    }
-
-    .sidebar-dropdown-icon {
-        margin-left: 0.5125rem;
-    }
-
-    .sidebar-text {
-        margin-left: 0.5125rem;
-    }
-} */
-
-/* @media (max-width: 1024px) {
-    .sidebar {
-        width: 3.125rem;
-    }
-
-    .sidebar:hover {
-        width: 11rem;
-    }
-
-    .sidebar-title {
-        font-size: 1rem;
-    }
-
-    .sidebar-item {
-        font-size: 0.75rem;
-        padding-left: 0;
+    .main-content{
         margin-left: 0;
     }
 
-    .sidebar-icon {
-        font-size: 1.125rem;
+    .main-content.full-width {
+        width: 100%; /* Full width when sidebar is hidden */
     }
 
-    .dropdown-arrow {
-        width: 1.125rem;
-        height: 1.125rem;
+    .sidebar.pinned + .main-content {
+        margin-left: 0rem; /* Adjust this value according to sidebar width */
     }
 
-    .AgriTayoLogo {
-        margin-left: 0.5125rem;
-        height: 2.5rem;
+    .AgriTayoLogo{
+        
+    margin-left: 3.5rem;
     }
-
-    .sidebar-dropdown-icon {
-        margin-left: 0;
-    }
-
-    .sidebar-text {
-        font-size: small;
-    }
-} */
-
-/* @media (max-width: 768px) { 
-    .sidebar {
-        width: 3.125rem;
-    }
-
-    .sidebar:hover {
-        width: 11rem;
-    }
-
-    .sidebar-title {
-        font-size: 1rem;
-    }
-
-    .sidebar-item {
-        font-size: 0.75rem;
-        padding-left: 0;
-        margin-left: 0;
-    }
-
-    .sidebar-icon {
-        font-size: 1.125rem;
-    }
-
-    .dropdown-arrow {
-        width: 1.125rem;
-        height: 1.125rem;
-    }
-
-    .AgriTayoLogo {
-        margin-left: 0.5125rem;
-        height: 2.5rem;
-    }
-
-    .sidebar-dropdown-icon {
-        margin-left: 0;
-        font-size: 0.75rem;
-        min-width: 0.9375rem;
-        margin-left: 0.625rem;
-        margin-right: 0.5rem;
-    }
-
-    .sidebar-text {
-        font-size: small;
-    }
-} */
-
-/* @media (max-width: 640px) { 
-    .sidebar {
-        width: 3.125rem;
-    }
-
-    .sidebar:hover {
-        width: 10rem;
-    }
-
-    .sidebar-item {
-        font-size: 0.625rem;
-        padding-left: 0;
-    }
-
-    .sidebar-icon {
-        font-size: 1rem;
-    }
-
-    .dropdown-arrow {
-        width: 0.875rem;
-        height: 0.875rem;
-    }
-
-    .AgriTayoLogo {
-        margin-left: 0.5125rem;
-        height: 2.5rem;
-    }
-
-    .sidebar-dropdown-icon {
-        font-size: 0.75rem;
-        min-width: 0.9375rem;
-        margin-left: 0.625rem;
-        margin-right: 0.5rem;
-    }
-
-    .sidebar-text {
-        font-size: x-small;
-    }
-} */
-
-/* @media (max-width: 480px) { 
-    .sidebar {
-        width: 3.125rem;
-    }
-
-    .sidebar:hover {
-        width: 10rem;
-    }
-
-    .sidebar-item {
-        font-size: 0.625rem;
-        padding-left: 0;
-    }
-
-    .sidebar-icon {
-        font-size: 1rem;
-    }
-
-    .dropdown-arrow {
-        width: 0.875rem;
-        height: 0.875rem;
-    }
-
-    .AgriTayoLogo {
-        margin-left: 0.5125rem;
-        height: 2.5rem;
-    }
-
-    .sidebar-dropdown-icon {
-        font-size: 0.75rem;
-        min-width: 0.9375rem;
-        margin-left: 0.625rem;
-        margin-right: 0.5rem;
-    }
-
-    .sidebar-text {
-        font-size: x-small;
-    }
-} */
+}
