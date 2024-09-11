@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import SidebarItem from './Sidebar/SidebarTemplates/SidebarItem';
-import { IoLogIn, IoLogOut } from 'react-icons/io5';
+import { IoLogIn, IoLogOut, IoPin, IoPinOutline } from 'react-icons/io5'; // Add icons for pinning
 import { FaDev } from "react-icons/fa6";
 import AdminSidebar from './Sidebar/AdminSidebar';
 import SellerSidebar from './Sidebar/SellerSidebar';
 import BuyerSidebar from './Sidebar/BuyerSidebar';
 import LogoutModal from './LogoutModal'; // Import the new LogoutModal component
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { RiPushpinFill, RiUnpinFill } from "react-icons/ri";
 
 function LeftSidebar({ userType }) {
     const [showLogoutModal, setShowLogoutModal] = useState(false);
+    const [isPinned, setIsPinned] = useState(false); // New state for pinning
     const navigate = useNavigate();
 
     const handleConfirmLogout = () => {
@@ -17,12 +19,18 @@ function LeftSidebar({ userType }) {
         navigate('/logout');  // Navigate to the logout page
     };
 
+    const handlePinToggle = () => {
+        setIsPinned(prev => !prev); // Toggle pin state
+    };
+
     return (
-        <div className="sidebar">
+        <div className={`sidebar ${isPinned ? 'pinned' : ''}`}>
             {/* Logo */}
-            <div className="flex items-center mb-5">
-                <img src="/AgriTayo_Logo.svg" alt="AgriTayo Logo" className="AgriTayoLogo" />
-                <h2 className="sidebar-title">AgriTayo</h2>
+            <div className='TitleContainer'>
+                <div className="flex items-center mb-5">
+                    <img src="/AgriTayo_Logo.svg" alt="AgriTayo Logo" className="AgriTayoLogo" />
+                    <h2 className="sidebar-title">AgriTayo</h2>
+                </div>
             </div>
 
             {/* DEV LINKS */}
@@ -58,6 +66,11 @@ function LeftSidebar({ userType }) {
             ) : (
                 <SidebarItem to="/login" icon={IoLogIn} text="Login" />
             )}
+
+            {/* Pin Toggle Button */}
+            <button onClick={handlePinToggle} className="pin-button">
+                {isPinned ? <RiPushpinFill /> : <RiUnpinFill />}
+            </button>
         </div>
     );
 }

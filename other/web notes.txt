@@ -19,3 +19,6 @@ WEB FRONTEND:
 
 ======================================================
 WEB BACKEND:
+
+left sidebar:
+https://www.npmjs.com/package/react-pro-sidebar

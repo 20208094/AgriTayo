@@ -145,7 +145,7 @@ function Layout({ userType }) {
     <div className="flex">
       {!isAuthPage && <TopNavbar userType={userType} />}
       {!isAuthPage && <LeftSidebar userType={userType} />}
-      {!isAuthPage && <SubSidebar userType={userType} />}
+      {/* {!isAuthPage && <SubSidebar userType={userType} />} */}
 
       {/* this use the array of the pathsWithOrderTopNavigationbar */}
       {pathsWithOrderTopNavigationbar.includes(location.pathname) && <OrdersTopNavigationbar/>}

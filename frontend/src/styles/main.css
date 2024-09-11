@@ -4,99 +4,48 @@
 
 .main-content {    
     flex: 1;
-    margin-left: 18rem;
+    margin-left: 4.9rem;
     margin-top: 3.7rem;
-    border-top: 0.2rem solid red;
+    border-left: 0.2rem solid red;
 }
-
-.chat-page-container {
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 20px;
-}
-
-.chat-box {
-    border: 1px solid #ccc;
-    padding: 10px;
-    border-radius: 5px;
-}
-
-.chat-messages {
-    height: 300px;
-    overflow-y: scroll;
-    border: 1px solid #ddd;
-    padding: 10px;
-    margin-bottom: 10px;
-}
-
-.chat-message {
-    margin-bottom: 10px;
-}
-
-.chat-form {
-    display: flex;
-}
-
-.chat-input {
-    flex: 1;
-    padding: 10px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-}
-
-.chat-button {
-    padding: 10px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    cursor: pointer;
-    border-radius: 5px;
-    margin-left: 10px;
-}
-
-.error-message {
-    color: red;
-    margin-top: 10px;
-}
-
 
 @media (max-width: 1536px) {
     .main-content {
-        margin-left: 18.1rem;
+        /* margin-left: 18.1rem; */
         margin-top: 3.5rem;
     }
 }
 
 @media (max-width: 1280px) {
     .main-content {
-        margin-left: 16.6rem;
+        /* margin-left: 16.6rem; */
     }
 }
 
 @media (max-width: 1024px) {
     .main-content {
-        margin-left: 14.6rem;
+        /* margin-left: 14.6rem; */
         margin-top: 2.8rem;
     }
 }
 
 @media (max-width: 768px) {
     .main-content {
-        margin-left: 12.8rem;
+        /* margin-left: 12.8rem; */
         margin-top: 2.6rem;
     }
 }
 
 @media (max-width: 640px) {
     .main-content {
-        margin-left: 11.6rem; 
+        /* margin-left: 11.6rem;  */
         margin-top: 2.28rem;
     }
 }
 
 @media (max-width: 480px) {
     .main-content {
-        margin-left: 10.6rem;
+        /* margin-left: 10.6rem; */
         margin-top: 2.18rem;
     }
 }
