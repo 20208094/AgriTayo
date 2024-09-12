@@ -3,7 +3,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { useEffect, useState } from "react";
 import { Alert } from "react-native";
-import NetInfo from "@react-native-community/netinfo"; 
+import NetInfo from "@react-native-community/netinfo";
 import SplashScreen from "./app/screens/Splash/SplashScreen";
 import LoginScreen from "./app/screens/Login/LoginScreen";
 import RegisterScreenBuyers from "./app/screens/Register/RegisterScreenBuyers";
@@ -54,7 +54,6 @@ import SellerShopScreen from "./app/screens/farmers/Shop/SellerShopScreen";
 import ChatScreen from "./app/screens/ChatScreen";
 import ChatListScreen from "./app/screens/ChatListScreen";
 
-
 const Stack = createStackNavigator();
 
 function App() {
@@ -76,8 +75,8 @@ function App() {
 
   const showAlert = () => {
     Alert.alert(
-      'Internet Connection',
-      'You are offline. Some features may not be available.'
+      "Internet Connection",
+      "You are offline. Some features may not be available."
     );
   };
 
@@ -96,21 +95,26 @@ function App() {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Splash">
+      <Stack.Navigator initialRouteName="NavigationBar">
         {isLoading ? (
+          <Stack.Screen
+          name="NavigationBar"
+          component={NavigationBar}
+          options={{ ...screenOptions, headerShown: false }}
+        />
+        ) : (
+          <>
           <Stack.Screen
             name="Splash"
             component={SplashScreen}
             options={{ headerShown: false }}
           />
-        ) : (
-          <>
-          <Stack.Screen
+            <Stack.Screen
               name="ChatListScreen"
               component={ChatListScreen}
               options={{ ...screenOptions, headerShown: true }}
             />
-          <Stack.Screen
+            <Stack.Screen
               name="ChatScreen"
               component={ChatScreen}
               options={{ ...screenOptions, headerShown: true }}
@@ -120,24 +124,21 @@ function App() {
               component={NavigationBar}
               options={{ ...screenOptions, headerShown: false }}
             />
-           <Stack.Screen
+            <Stack.Screen
               name="HomePageScreen"
               component={HomePageScreen}
               options={screenOptions}
             />
-          <Stack.Screen
-                name="Login"
-                component={LoginScreen}
-                options={{ ...screenOptions, headerShown: false }}
-              />
+            <Stack.Screen
+              name="Login"
+              component={LoginScreen}
+              options={{ ...screenOptions, headerShown: false }}
+            />
             <Stack.Screen
               name="Register"
               component={RegisterScreenBuyers}
               options={{ ...screenOptions, headerShown: false }}
             />
-
-
-
 
             <Stack.Screen
               name="CartScreen"
@@ -240,9 +241,9 @@ function App() {
               options={{ ...screenOptions, headerShown: false }}
             />
             <Stack.Screen
-            name='My Shop'
-            component={ShopScreen}
-            options={screenOptions}
+              name="My Shop"
+              component={ShopScreen}
+              options={screenOptions}
             />
             <Stack.Screen
               name="CheckOutScreen"
@@ -281,69 +282,69 @@ function App() {
             />
 
             <Stack.Screen
-            name='View Shop'
-            component={ViewShopScreen}
-            options={screenOptions}
+              name="View Shop"
+              component={ViewShopScreen}
+              options={screenOptions}
             />
             <Stack.Screen
-            name='Sales History'
-            component={ViewSalesHistoryScreen}
-            options={screenOptions}
+              name="Sales History"
+              component={ViewSalesHistoryScreen}
+              options={screenOptions}
             />
             <Stack.Screen
-            name='My Products'
-            component={MyProductsScreen}
-            options={screenOptions}
+              name="My Products"
+              component={MyProductsScreen}
+              options={screenOptions}
             />
             <Stack.Screen
-            name='My Finance'
-            component={FinanceScreen}
-            options={screenOptions}
+              name="My Finance"
+              component={FinanceScreen}
+              options={screenOptions}
             />
             <Stack.Screen
-            name='Shop Performance'
-            component={ShopPerformaceScreen}
-            options={screenOptions}
+              name="Shop Performance"
+              component={ShopPerformaceScreen}
+              options={screenOptions}
             />
             <Stack.Screen
-            name='Bidding'
-            component={BiddingScreen}
-            options={screenOptions}
+              name="Bidding"
+              component={BiddingScreen}
+              options={screenOptions}
             />
             <Stack.Screen
-            name='Learn and Help'
-            component={LearnAndHelpScreen}
-            options={screenOptions}
+              name="Learn and Help"
+              component={LearnAndHelpScreen}
+              options={screenOptions}
             />
             <Stack.Screen
-            name='Shop Rating'
-            component={ShopRatingScreen}
-            options={screenOptions}
+              name="Shop Rating"
+              component={ShopRatingScreen}
+              options={screenOptions}
             />
             <Stack.Screen
-            name='Bussiness Insights'
-            component={BusinessInsightsScreen}
-            options={screenOptions}
+              name="Bussiness Insights"
+              component={BusinessInsightsScreen}
+              options={screenOptions}
             />
             <Stack.Screen
-            name='Account Health'
-            component={AccountHealthScreen}
-            options={screenOptions}
+              name="Account Health"
+              component={AccountHealthScreen}
+              options={screenOptions}
             />
             <Stack.Screen
-            name='Message Seller'
-            component={MessageSellerScreen}
-            options={screenOptions}
+              name="Message Seller"
+              component={MessageSellerScreen}
+              options={screenOptions}
             />
             <Stack.Screen
-            name='Negotiate To Seller'
-            component={NegotiateToSellerScreen}
-            options={screenOptions}
+              name="Negotiate To Seller"
+              component={NegotiateToSellerScreen}
+              options={screenOptions}
             />
             <Stack.Screen
-            name='Seller Shop'
-            component={SellerShopScreen}
-            options={screenOptions}
+              name="Seller Shop"
+              component={SellerShopScreen}
+              options={screenOptions}
             />
           </>
         )}

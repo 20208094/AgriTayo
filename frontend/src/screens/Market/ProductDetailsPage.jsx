@@ -58,6 +58,18 @@ function ProductDetailsPage() {
         );
     }
 
+    const filteredProductDetails = crops.filter(
+        (crop) => String(productListId) === String(crop.crop_id)
+    )
+
+    if (filteredProductDetails === 0) {
+        return (
+            <div className=''>
+                <p className='text-center'>No available details</p>
+            </div>
+        )
+    }
+
     return (
         <div className="container mx-auto px-4 py-6">
             {crops.map((crop) => {

@@ -1,8 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { SafeAreaView, TouchableOpacity, Text, View, Image, ScrollView, ActivityIndicator } from "react-native";
+import {
+  SafeAreaView,
+  TouchableOpacity,
+  Text,
+  View,
+  Image,
+  ScrollView,
+  ActivityIndicator,
+} from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import placeholderimg from "../../../assets/placeholder.png"; // Import the placeholder image
-import { REACT_NATIVE_API_KEY } from '@env';
+import { REACT_NATIVE_API_KEY } from "@env";
 
 function MarketCategoryListScreen() {
   const [items, setItems] = useState([]);
@@ -16,21 +24,26 @@ function MarketCategoryListScreen() {
   // Fetch crop sub category data from API
   const fetchCropSubCategories = async () => {
     try {
-      const response = await fetch('https://agritayo.azurewebsites.net/api/crop_sub_categories', {
-        headers: {
-            'x-api-key': API_KEY
+      const response = await fetch(
+        "https://agritayo.azurewebsites.net/api/crop_sub_categories",
+        {
+          headers: {
+            "x-api-key": API_KEY,
+          },
         }
-    });
+      );
       if (!response.ok) {
-        throw new Error('Network response was not ok');
+        throw new Error("Network response was not ok");
       }
       const data = await response.json();
       // Filter crops based on the category_id
-      const filteredItems = data.filter(item => item.crop_category_id === category);
+      const filteredItems = data.filter(
+        (item) => item.crop_category_id === category
+      );
       setItems(filteredItems);
     } catch (error) {
       setError(error);
-      console.error('Error fetching crop data:', error);
+      console.error("Error fetching crop data:", error);
     } finally {
       setLoading(false);
     }
@@ -52,7 +65,9 @@ function MarketCategoryListScreen() {
   if (error) {
     return (
       <SafeAreaView className="flex-1 justify-center items-center bg-gray-200">
-        <Text className="text-red-500">Error loading data: {error.message}</Text>
+        <Text className="text-red-500">
+          Error loading data: {error.message}
+        </Text>
       </SafeAreaView>
     );
   }
@@ -75,13 +90,21 @@ function MarketCategoryListScreen() {
               activeOpacity={0.8} // Provides visual feedback when pressed
             >
               <Image
-                source={item.crop_sub_category_image_url ? { uri: item.crop_sub_category_image_url } : placeholderimg}
+                source={
+                  item.crop_sub_category_image_url
+                    ? { uri: item.crop_sub_category_image_url }
+                    : placeholderimg
+                }
                 className="w-24 h-24 rounded-lg mr-4"
                 resizeMode="cover"
-              />  
+              />
               <View className="flex-1">
-                <Text className="text-lg font-semibold text-gray-800 mb-1">{item.crop_sub_category_name}</Text>
-                <Text className="text-sm text-gray-600">{item.crop_sub_category_description}</Text>
+                <Text className="text-lg font-semibold text-gray-800 mb-1">
+                  {item.crop_sub_category_name}
+                </Text>
+                <Text className="text-sm text-gray-600">
+                  {item.crop_sub_category_description}
+                </Text>
               </View>
             </TouchableOpacity>
           ))}
