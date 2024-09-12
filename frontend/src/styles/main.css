@@ -9,6 +9,7 @@
     margin-top: 3.7rem;
     border-left: 0.2rem solid red;
     transition: margin-left 0.3s ease; /* Smooth transition */
+    background-color: #d3dfd8;
 }
 
 @media (max-width: 1536px) {
