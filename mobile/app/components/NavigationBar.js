@@ -7,9 +7,9 @@ import CropsScreen from "../screens/Market/CropsScreen";
 import ProfileScreen from "../screens/Profile/ProfileScreen";
 import OrdersScreen from "../screens/Orders/OrdersScreen";
 import AnalyticScreen from "../screens/Analytics/AnalyticScreen";
+import BiddingScreen from "../screens/Bidding/BiddingScreen";
 import { NotificationIcon, MessagesIcon, MarketIcon } from "../components/SearchBarC";
 import { useNavigation } from "@react-navigation/native";
-
 const Tab = createBottomTabNavigator();
 
 const NavigationBar = () => {
@@ -27,6 +27,9 @@ const NavigationBar = () => {
               break;
             case "Market Category":
               iconName = "leaf-outline";
+              break;
+            case "Bidding":
+              iconName = "people-outline";
               break;
             case "Analytics":
               iconName = "analytics-outline";
@@ -62,6 +65,19 @@ const NavigationBar = () => {
         component={CropsScreen}
         options={{
           tabBarLabel: 'Market',
+          headerRight: () => (
+            <View style={{ flexDirection: "row", marginRight: 15 }}>
+              <MarketIcon onPress={() => navigation.navigate("CartScreen")} />
+              <NotificationIcon onPress={() => navigation.navigate("Notifications")} />
+              <MessagesIcon onPress={() => navigation.navigate("Messages")} />
+            </View>
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Bidding"
+        component={BiddingScreen}
+        options={{
           headerRight: () => (
             <View style={{ flexDirection: "row", marginRight: 15 }}>
               <MarketIcon onPress={() => navigation.navigate("CartScreen")} />

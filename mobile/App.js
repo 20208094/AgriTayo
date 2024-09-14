@@ -38,6 +38,7 @@ import MarketCategoryScreen from "./app/screens/Market/MarketCategory/MarketCate
 import MarketAnalyticScreen from "./app/screens/Analytics/MarketAnalyticScreen";
 import MessageSellerScreen from "./app/screens/Message/MessageSellerScreen";
 import NegotiateToSellerScreen from "./app/screens/Message/NegotiateToSellerScreen";
+import BiddingDetailsScreen from "./app/screens/Bidding/BiddingDetailsScreen";
 // for farmers
 import ShopScreen from "./app/screens/farmers/Shop/ShopScreen";
 import ViewShopScreen from "./app/screens/farmers/Shop/ViewShopScreen";
@@ -345,6 +346,11 @@ function App() {
               name="Seller Shop"
               component={SellerShopScreen}
               options={screenOptions}
+            />
+            <Stack.Screen
+            name='Bidding Details'
+            component={BiddingDetailsScreen}
+            options={screenOptions}
             />
           </>
         )}
