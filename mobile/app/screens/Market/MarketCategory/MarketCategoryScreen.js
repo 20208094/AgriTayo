@@ -1,28 +1,27 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, SafeAreaView, ScrollView, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
+import { View, Text, SafeAreaView, ScrollView, TouchableOpacity, Image, ActivityIndicator, Modal } from 'react-native';
 import { useNavigation } from "@react-navigation/native";
-import { styled } from 'nativewind';
-import placeholderimg from '../../../assets/placeholder.png'; // Import the placeholder image
-import { REACT_NATIVE_API_KEY } from '@env'; // Import your API key
+import placeholderimg from '../../../assets/placeholder.png';
+import { REACT_NATIVE_API_KEY } from '@env';
 
 // Define a component for displaying each item in the list
 const CategoryItemCard = ({ item }) => {
-  const navigation = useNavigation(); // Get navigation object
+  const navigation = useNavigation();
 
   return (
     <TouchableOpacity
-      className="w-40 bg-white rounded-lg shadow-md mb-4 mx-2"
-      onPress={() => navigation.navigate('Product Details', { product: item })} // Navigate with crop data
+      className="w-40 md:w-48 bg-white rounded-lg shadow-md mb-4 mx-2"
+      onPress={() => navigation.navigate('Product Details', { product: item })}
     >
       <Image
         source={item.crop_image_url ? { uri: item.crop_image_url } : placeholderimg}
-        className="w-full h-24 rounded-t-lg"
+        className="w-full h-24 md:h-32 rounded-t-lg "
         resizeMode="cover"
       />
-      <View className="p-2">
+      <View className="p-2 flex items-center mt-2">
         <Text className="text-lg font-semibold text-gray-800">{item.crop_name}</Text>
         <Text className="text-sm text-gray-600 mt-1">{item.crop_description}</Text>
-        <Text className="text-base font-bold text-green-700 mt-2">₱ {item.crop_price}</Text>
+        <Text className="text-base font-bold text-green-600 mt-2">₱ {item.crop_price}</Text>
         <Text className="text-sm text-gray-600">⭐ {item.crop_rating}</Text>
       </View>
     </TouchableOpacity>
@@ -35,13 +34,13 @@ function MarketCategoryScreen({ route }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [categories, setCategories] = useState([]);
-  const [showCategories, setShowCategories] = useState(false);
+  const [showCategoriesModal, setShowCategoriesModal] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
   const [activeSubCategories, setActiveSubCategories] = useState({});
+  const [openDropdown, setOpenDropdown] = useState({});
   const API_KEY = REACT_NATIVE_API_KEY;
 
-  // Fetch Categories data from API
   const fetchCategories = async () => {
     try {
       const response = await fetch(
@@ -52,9 +51,6 @@ function MarketCategoryScreen({ route }) {
           },
         }
       );
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
       const data = await response.json();
       setCategories(data);
     } catch (error) {
@@ -62,8 +58,8 @@ function MarketCategoryScreen({ route }) {
     }
   };
 
-  const toggleCategories = () => {
-    setShowCategories(!showCategories);
+  const toggleCategoriesModal = () => {
+    setShowCategoriesModal(!showCategoriesModal);
   };
 
   const toggleCategorySelection = (categoryId) => {
@@ -72,14 +68,19 @@ function MarketCategoryScreen({ route }) {
         ? prevSelectedCategories.filter(id => id !== categoryId)
         : [...prevSelectedCategories, categoryId]
     );
-    // Toggle the subcategories for the selected category
     setActiveSubCategories(prevActiveSubCategories => ({
       ...prevActiveSubCategories,
       [categoryId]: !prevActiveSubCategories[categoryId]
     }));
   };
 
-  // Fetch subcategories data from API
+  const toggleDropdown = (categoryId) => {
+    setOpenDropdown(prevState => ({
+      ...prevState,
+      [categoryId]: !prevState[categoryId]
+    }));
+  };
+
   const fetchSubCategories = async () => {
     try {
       const response = await fetch(
@@ -90,9 +91,6 @@ function MarketCategoryScreen({ route }) {
           },
         }
       );
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
       const data = await response.json();
       setSubCategories(data);
     } catch (error) {
@@ -100,7 +98,6 @@ function MarketCategoryScreen({ route }) {
     }
   };
 
-  // Fetch crops data from API
   const fetchCrops = useCallback(async (subCategoryId) => {
     try {
       setLoading(true);
@@ -109,11 +106,7 @@ function MarketCategoryScreen({ route }) {
           'x-api-key': API_KEY
         }
       });
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
       const data = await response.json();
-      // Filter crops based on the selected sub-category ID
       const filteredCrops = data.filter(crop => crop.sub_category_id === subCategoryId);
       setCrops(filteredCrops);
     } catch (error) {
@@ -129,7 +122,6 @@ function MarketCategoryScreen({ route }) {
     fetchSubCategories();
   }, []);
 
-  // Fetch crops when screen is focused or sub-category changes
   useEffect(() => {
     if (selectedItemId) {
       fetchCrops(selectedItemId);
@@ -154,64 +146,123 @@ function MarketCategoryScreen({ route }) {
 
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
-      <ScrollView className="flex-row p-4">
-        {/* Render selected categories as buttons */}
-        {selectedCategories.map(categoryId => {
-          const category = categories.find(c => c.crop_category_id === categoryId);
-          if (!category) return null; // Skip if category is not found
-
-          // Get subcategories for this category
-          const filteredSubCategories = subCategories.filter(subCategory => subCategory.crop_category_id === categoryId);
-
-          return (
-            <View key={categoryId} className="mb-4">
-              <TouchableOpacity
-                className="bg-gray-200 rounded-full px-4 py-2 mr-2 mb-2"
-                onPress={() => toggleCategorySelection(categoryId)}
-              >
-                <Text className="">{category.crop_category_name}</Text>
-              </TouchableOpacity>
-
-              {/* Conditionally render subcategories */}
-              {activeSubCategories[categoryId] && filteredSubCategories.length > 0 && (
-                <View className="pl-4">
-                  {filteredSubCategories.map(subCategory => (
-                    <TouchableOpacity
-                      key={subCategory.crop_sub_category_id}
-                      className="bg-gray-100 rounded-full px-4 py-2 mb-2"
-                      onPress={() => fetchCrops(subCategory.crop_sub_category_id)}
-                    >
-                      <Text className="">{subCategory.crop_sub_category_name}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              )}
-            </View>
-          );
-        })}
-        <TouchableOpacity className="bg-green-500 rounded-full px-4 py-2" onPress={toggleCategories}>
-          <Text className="">Categories</Text>
+      {/* Categories button and selected categories */}
+      <View className="flex-row items-center p-4">
+        <TouchableOpacity 
+          className="bg-green-500 rounded-full px-4 py-2"
+          onPress={toggleCategoriesModal}
+        >
+          <Text className="text-white">Categories</Text>
         </TouchableOpacity>
-      </ScrollView>
-      {/* Conditionally render category names based on showCategories */}
-      {showCategories && (
-        categories.map((category) => (
-          <TouchableOpacity
-            className="flex-row items-center p-2"
-            key={category.crop_category_id}
-            onPress={() => toggleCategorySelection(category.crop_category_id)}
-          >
-            <Text className="flex-1">{category.crop_category_name}</Text>
-            {selectedCategories.includes(category.crop_category_id) && (
-              <Text className="text-green-500">✔️</Text>
-            )}
-          </TouchableOpacity>
-        ))
-      )}
-      <ScrollView className="flex-1 p-4 bg-gray-100">
+
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} className="ml-2">
+            {selectedCategories.map(categoryId => {
+              const category = categories.find(c => c.crop_category_id === categoryId);
+              if (!category) return null;
+
+              const filteredSubCategories = subCategories.filter(subCategory => subCategory.crop_category_id === categoryId);
+
+              return (
+                <View key={categoryId} className="flex-row items-center mr-2">
+                  {/* Category Button */}
+                  <TouchableOpacity
+                    className="bg-gray-200 rounded-full px-4 py-2"
+                    onPress={() => toggleDropdown(categoryId)}
+                  >
+                    <Text>{category.crop_category_name}</Text>
+                  </TouchableOpacity>
+
+                  {/* X Mark (Delete) Button */}
+                  <TouchableOpacity
+                    className="ml-2"
+                    onPress={() => setSelectedCategories(prevSelectedCategories =>
+                      prevSelectedCategories.filter(id => id !== categoryId)
+                    )}
+                  >
+                    <Text className="text-gray-500 font-bold">X</Text>
+                  </TouchableOpacity>
+
+                  {/* Modal for Dropdown */}
+                  <Modal
+                    visible={openDropdown[categoryId] === true}  // Dropdown only opens when toggleDropdown is pressed
+                    transparent={true}
+                    animationType="fade"
+                    onRequestClose={() => toggleDropdown(categoryId)}
+                  >
+                    <TouchableOpacity
+                      activeOpacity={1}
+                      onPress={() => toggleDropdown(categoryId)}
+                      className="flex-1 justify-center items-center bg-gray bg-opacity-50"
+                    >
+                      <View className="bg-green-600 rounded-lg p-4 w-64 max-h-72">
+                        {/* Label for the category */}
+                        <Text className="text-white text-lg font-bold mb-2">
+                          {category.crop_category_name}
+                        </Text>
+                        
+                        <ScrollView>
+                          {filteredSubCategories.map(subCategory => (
+                            <TouchableOpacity
+                              key={subCategory.crop_sub_category_id}
+                              className="bg-gray-100 rounded-full px-4 py-2 mt-2"
+                              onPress={() => {
+                                fetchCrops(subCategory.crop_sub_category_id);
+                                toggleDropdown(categoryId);
+                              }}
+                            >
+                              <Text>{subCategory.crop_sub_category_name}</Text>
+                            </TouchableOpacity>
+                          ))}
+                        </ScrollView>
+                      </View>
+                    </TouchableOpacity>
+                  </Modal>
+                </View>
+              );
+            })}
+          </ScrollView>
+
+      </View>
+
+      {/* Modal for showing categories */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={showCategoriesModal}
+        onRequestClose={toggleCategoriesModal}
+      >
+        <View className="flex-1 justify-end">
+          <View className="bg-white p-4 rounded-t-lg shadow-lg">
+            <Text className="text-lg font-bold mb-4">Select Categories</Text>
+            <ScrollView>
+              {categories.map(category => (
+                <TouchableOpacity
+                  key={category.crop_category_id}
+                  className="flex-row items-center p-2"
+                  onPress={() => toggleCategorySelection(category.crop_category_id)}
+                >
+                  <Text className="flex-1">{category.crop_category_name}</Text>
+                  {selectedCategories.includes(category.crop_category_id) && (
+                    <Text className="text-green-500">✔️</Text>
+                  )}
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+            <TouchableOpacity
+              className="bg-green-500 rounded-full px-4 py-2 mt-4"
+              onPress={toggleCategoriesModal}
+            >
+              <Text className="text-white text-center">Done</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Product List */}
+      <ScrollView className="p-4">
         <View className="flex-row flex-wrap justify-between">
-          {crops.map(crop => (
-            <CategoryItemCard key={crop.crop_id} item={crop} />
+          {crops.map(item => (
+            <CategoryItemCard key={item.crop_id} item={item} />
           ))}
         </View>
       </ScrollView>
@@ -219,4 +270,4 @@ function MarketCategoryScreen({ route }) {
   );
 }
 
-export default styled(MarketCategoryScreen);
+export default MarketCategoryScreen;
