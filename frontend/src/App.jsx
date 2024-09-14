@@ -67,6 +67,7 @@ const API_KEY = import.meta.env.VITE_API_KEY;
 function App() {
   const [userType, setUserType] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [refreshProfile, setRefreshProfile] = useState(0);
 
   useEffect(() => {
     async function fetchUserSession() {
@@ -99,7 +100,7 @@ function App() {
 
   return (
     <Router>
-      <Layout userType={userType} />
+      <Layout userType={userType} refreshProfile={refreshProfile} setRefreshProfile={setRefreshProfile}/>
     </Router>
   );
 }
@@ -126,7 +127,7 @@ function ProtectedRoute({ allowedUserType, userType, element }) {
   }
 }
 
-function Layout({ userType }) {
+function Layout({ userType, refreshProfile, setRefreshProfile }) {
   const location = useLocation();
   const isAuthPage = location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/logout';
 
@@ -143,7 +144,7 @@ function Layout({ userType }) {
 
   return (
     <div className="flex">
-      {!isAuthPage && <TopNavbar userType={userType} />}
+      {!isAuthPage && <TopNavbar userType={userType} refreshProfile={refreshProfile}/>}
       {!isAuthPage && <LeftSidebar userType={userType} />}
       {/* {!isAuthPage && <SubSidebar userType={userType} />} */}
 
@@ -151,7 +152,7 @@ function Layout({ userType }) {
       {pathsWithOrderTopNavigationbar.includes(location.pathname) && <OrdersTopNavigationbar/>}
 
       {/* Main Content */}
-      <div className="main-content">
+      <div className="main-content flex-1 pt-10 ml-0 md:ml-20">
         <Routes>
           {/* FREE ROUTES used for development */}
           <Route exact path="/sample" element={<SampleSearch />} />
@@ -164,7 +165,7 @@ function Layout({ userType }) {
           <Route exact path="/downloadapp" element={<DownloadAppPage />} />
           <Route exact path="/users" element={<UsersPage />} />
           {/* for accounts */}
-          <Route exact path='/profile' element={<Profile />} />
+          <Route exact path='/profile' element={<Profile onProfileUpdate={() => setRefreshProfile(prev => prev + 1)} />} />
             <Route path="crop_category" element={<CropCategoryPageCRUD />} />
             <Route path="users" element={<UsersPage />} />
             <Route exact path='addresses' element={<Addresses/>}/>
@@ -226,7 +227,7 @@ function Layout({ userType }) {
             <Route path="payments" element={<PaymentsPage />} />
             <Route path="notifications" element={<NotificationsPage />} />
             <Route path="crop-category" element={<CropCategoryPage />} />
-            <Route path="profile" element={<Profile />} />
+            <Route path="profile" element={<Profile onProfileUpdate={() => setRefreshProfile(prev => prev + 1)}/>} />
             <Route path="address" element={<Addresses />} />
             <Route path="change_password" element={<ChangePassword />} />
             <Route path="delete_account" element={<DeleteAccount />} />

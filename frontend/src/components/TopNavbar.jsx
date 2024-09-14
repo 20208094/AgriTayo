@@ -4,10 +4,12 @@ import { IoLogIn, IoLogOut, IoCart } from 'react-icons/io5'; // Ensure IoCart is
 import AdminTopNavbar from './TopNavbar/AdminTopNavbar';
 import SellerTopNavbar from './TopNavbar/SellerTopNavbar';
 import BuyerTopNavbar from './TopNavbar/BuyerTopNavbar';
+import ProfileDropdown from './TopNavbar/TopNavTemplates/ProfileDropdown';
 
-function TopNavbar({ userType }) {
+function TopNavbar({ userType, refreshProfile }) {
+    console.log(refreshProfile)
     return (
-        <nav className="topnavbar">
+        <nav className="flex items-center justify-between bg-[#eefff4] border-[#00b250] text-[#01a149] z-[1000] px-5 h-12 border-b w-full fixed top-0 left-0 box-border md:h-16">
             {/* Conditional Top Navbar Content */}
             {userType === 1 && <AdminTopNavbar />}
             {userType === 2 && <SellerTopNavbar />}
@@ -29,22 +31,11 @@ function TopNavbar({ userType }) {
                 <NavLink to="/cart" className="topnav-item">
                     <div className="topnav-icon-container">
                         <IoCart className="topnav-icon-cart" />
-                        <div className="cart-badge">8</div> {/* Sample number */}
+                        <div className="cart-badge">8</div>
                     </div>
                 </NavLink>
 
-                {/* Login/Logout Link */}
-                {userType ? (
-                    <NavLink to="/logout" className="topnav-item">
-                        <IoLogOut className="topnav-icon" />
-                        <span className="topnav-text">Logout</span>
-                    </NavLink>
-                ) : (
-                    <NavLink to="/login" className="topnav-item">
-                        <IoLogIn className="topnav-icon" />
-                        <span className="topnav-text">Login</span>
-                    </NavLink>
-                )}
+                <ProfileDropdown key={refreshProfile}/>
             </div>
         </nav>
     );

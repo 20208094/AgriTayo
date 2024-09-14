@@ -4,7 +4,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 0 1.25rem;
-    background-color: #ecfdf1;
+    background-color: #eefff4;
     height: 3.75rem;
     border-bottom: 0.0625rem solid #00b250;
     color: #01a149;
@@ -101,7 +101,7 @@
 }
 
 /* Responsive styles */
-@media (max-width: 1536px) {
+/* @media (max-width: 1536px) {
     .topnav-search-bar {
         max-width: 70%;
     }
@@ -235,4 +235,4 @@
         height: 1.25rem;
         font-size: 0.75rem;
     }
-}
+} */

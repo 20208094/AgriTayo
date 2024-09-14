@@ -204,7 +204,8 @@ app.get('/api/session', (req, res) => {
             user_id: req.session.user.user_id,
             user_firstname: req.session.user.user_firstname,
             user_type_id: req.session.user.user_type_id,
-            user_hashed_password: req.session.user.password
+            user_hashed_password: req.session.user.password,
+            user_image_url: req.session.user.user_image_url
         });
     } else {
         res.status(404).json({ error: 'Session data not found' });

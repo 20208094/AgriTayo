@@ -18,7 +18,7 @@
 .TitleContainer{
     background-color: #eefff4;
     padding: 0rem;
-    height: 3.7rem;
+    /* height: 3.7rem; */
     margin-left: -0.3rem;
     margin-right: -0.3rem;
     padding-top: 0.2875rem;
@@ -78,7 +78,7 @@
 /* Menu Toggle Button */
 .menu-toggle-button {
     position: fixed;
-    top: 1rem;
+    top: 0.5rem;
     left: 1rem;
     background: #eefff4;
     border: none;
@@ -86,7 +86,7 @@
     color: #00B251;
     font-size: 2rem;
     z-index: 1001;
-    display: none; /* Hidden by default */
+    display: none;
 }
 
 /* Pin Button */
@@ -297,7 +297,7 @@
 }
 
 /* Show Hide Button only on mobile */
-@media (max-width: 768px) {
+@media (max-width: 767px) {
     .sidebar {
         width: 100vw; /* Full width when pinned on mobile */
     }
@@ -335,7 +335,11 @@
     }
 
     .AgriTayoLogo{
-        
-    margin-left: 3.5rem;
+        margin-left: 3.5rem;
+    }
+
+    .sidebar-title{
+        font-size: 1.4rem;
+        padding-left: 0.4rem;
     }
 }

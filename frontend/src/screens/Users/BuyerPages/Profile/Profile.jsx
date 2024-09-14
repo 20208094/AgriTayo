@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import ProfileSidebar from "../../../../components/subSidebar/ProfileSidebar";
 const API_KEY = import.meta.env.VITE_API_KEY;
 import { FaCamera } from 'react-icons/fa'; 
 
-function Profile() {
+function Profile({ onProfileUpdate }) {
     const [users, setUsers] = useState([]);
     const [userId, setUserId] = useState('');
     const [loading, setLoading] = useState(true);
@@ -120,6 +119,9 @@ function Profile() {
                     setImage(null); // Clear the image state
                     document.querySelector('input[name="image"]').value = ''; // Clear the file input
                     await fetchUsers(); // Refresh the user data
+                    if (typeof onProfileUpdate === 'function') {
+                        onProfileUpdate(); // Notify parent component
+                    }
                     console.log('Update successful:', data);
                 } else {
                     const errorData = await response.json();
