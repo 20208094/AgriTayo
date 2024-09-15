@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   SafeAreaView,
   Text,
@@ -11,9 +11,10 @@ import {
 import logo from "../../assets/logo.png";
 import ehh from "../../assets/ehh.png";
 import { useNavigation } from "@react-navigation/native";
+import SearchBarC from "../../components/SearchBarC";
 
 // Get screen dimensions for responsive design
-const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
 const dummyData = [
   {
@@ -26,9 +27,10 @@ const dummyData = [
     day: 1,
     hour: 2,
     minutes: 3,
+    seconds: 10, // Add initial seconds here
     pic: logo,
     michael: ehh,
-    shopName: 'Michael Shop'
+    shopName: "Michael Shop",
   },
   {
     id: 2,
@@ -40,9 +42,10 @@ const dummyData = [
     day: 4,
     hour: 5,
     minutes: 6,
+    seconds: 0, // Add initial seconds here
     pic: logo,
     michael: ehh,
-    shopName: 'Michael Shop'
+    shopName: "Michael Shop",
   },
   {
     id: 3,
@@ -77,51 +80,69 @@ const dummyData = [
 
 const BiddingCard = ({ data }) => {
   const navigation = useNavigation();
+  const initialTimeInSeconds =
+    data.day * 86400 + data.hour * 3600 + data.minutes * 60 + data.seconds;
+
+  const [remainingTime, setRemainingTime] = useState(initialTimeInSeconds);
+
+  // useEffect to handle countdown
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setRemainingTime((prevTime) => {
+        if (prevTime <= 0) {
+          clearInterval(interval);
+          return 0;
+        }
+        return prevTime - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Function to format remaining time in d:h:m:s format
+  const formatTime = (totalSeconds) => {
+    const days = Math.floor(totalSeconds / 86400);
+    const hours = Math.floor((totalSeconds % 86400) / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    return `${days}d ${hours}h ${minutes}m ${seconds}s`;
+  };
 
   return (
     <TouchableOpacity
       onPress={() => navigation.navigate("Bidding Details", { data })}
-      style={{
-        width: screenWidth * 0.85,  // Card width: 85% of screen width
-        marginHorizontal: screenWidth * 0.075, // Center it properly
-        backgroundColor: '#ffffff', // Light background color
-        borderRadius: 15, // Rounded corners
-        shadowColor: '#000',
-        shadowOpacity: 0.1,
-        shadowOffset: { width: 0, height: 5 },
-        shadowRadius: 10,
-        marginBottom: 20,
-      }}
+      className="w-[85vw] mx-[7.5vw] bg-white rounded-[30px] border-[3px] my-5 border-[#737373] shadow-2xl shadow-black mb-8"
     >
       {/* Card Header (Image) */}
-      <View style={{ borderTopLeftRadius: 15, borderTopRightRadius: 15, overflow: 'hidden' }}>
+      <View className="rounded-t-[15px] overflow-hidden">
         <Image
           source={data.pic}
-          style={{ width: '100%', height: screenHeight * 0.6 }} // Large image, 40% of screen height
+          className="w-full"
+          style={{ height: screenHeight * 0.52}} // Using inline height for responsiveness
           resizeMode="cover"
         />
       </View>
 
       {/* Card Body */}
-      <View style={{ padding: 20 }}>
+      <View className="p-5">
         {/* Title */}
-        <Text style={{ fontSize: 22, fontWeight: '700', color: '#333', marginBottom: 8 }}>
+        <Text className="text-[22px] font-bold text-gray-800 mb-2">
           {data.name}
         </Text>
 
         {/* Shop name */}
-        <Text style={{ fontSize: 14, color: '#777', marginBottom: 10 }}>
-          Sold by: {data.shopName}
-        </Text>
+        <Text className="text-sm text-gray-500 mb-3">Sold by: {data.shopName}</Text>
 
         {/* Highest Bid */}
-        <Text style={{ fontSize: 18, color: '#008000', marginBottom: 5 }}>
+        <Text className="text-lg text-green-600 mb-1">
           Current Highest Bid: ₱{data.currentHighestBid}
         </Text>
 
         {/* Countdown */}
-        <Text style={{ fontSize: 16, color: '#555' }}>
-          {data.day}d {data.hour}h {data.minutes}m
+        <Text className="text-base text-gray-600">
+          {formatTime(remainingTime)}
         </Text>
       </View>
     </TouchableOpacity>
@@ -130,17 +151,24 @@ const BiddingCard = ({ data }) => {
 
 function BiddingScreen() {
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#f7f7f7', paddingVertical: 20 }}>
+    <SafeAreaView className="flex-1 bg-[#d1d5db]">
+      {/* Search Bar */}
+      <View className="px-4 py-3 bg-white shadow-md">
+        <SearchBarC />
+      </View>
+
+      {/* Bidding List */}
       <FlatList
         data={dummyData}
         renderItem={({ item }) => <BiddingCard data={item} />}
         keyExtractor={(item) => item.id.toString()}
         horizontal
         showsHorizontalScrollIndicator={false}
+        pagingEnabled // Lock cards in the middle
         snapToAlignment="center"
         decelerationRate="fast"
-        snapToInterval={screenWidth * 0.95} // Space between cards
-        contentContainerStyle={{ paddingHorizontal: screenWidth * 0.05 }}
+        snapToInterval={screenWidth * 0.85 + screenWidth * 0.075 * 2} // Width of card plus both margins
+        contentContainerStyle={{ paddingHorizontal: screenWidth * 0.002 }}
       />
     </SafeAreaView>
   );
