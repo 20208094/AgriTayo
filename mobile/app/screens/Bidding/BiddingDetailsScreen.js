@@ -8,6 +8,7 @@ import {
   ScrollView,
   Dimensions,
   FlatList,
+  Modal,
 } from "react-native";
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
@@ -23,6 +24,12 @@ function BiddingDetailsScreen({ route }) {
 
   // State to manage active carousel image
   const [activeIndex, setActiveIndex] = useState(0);
+
+  // State to control image modal visibility
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
+  // State to store selected image for full screen view
+  const [selectedImage, setSelectedImage] = useState(null);
 
   // useEffect to handle countdown logic
   useEffect(() => {
@@ -59,6 +66,12 @@ function BiddingDetailsScreen({ route }) {
     }
   });
   const viewConfigRef = React.useRef({ viewAreaCoveragePercentThreshold: 50 });
+
+  // Function to open modal with selected image
+  const openImageModal = (image) => {
+    setSelectedImage(image);
+    setIsModalVisible(true);
+  };
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#f8f8f8' }}>
@@ -109,16 +122,18 @@ function BiddingDetailsScreen({ route }) {
           <FlatList
             data={carouselImages}
             renderItem={({ item }) => (
-              <Image
-                source={item}
-                style={{
-                  width: screenWidth * 0.5, // Adjust width to display images bigger
-                  height: screenWidth * 0.5, // Aspect ratio height
-                  borderRadius: 10,
-                  marginHorizontal: 5,
-                  resizeMode: 'cover',
-                }}
-              />
+              <TouchableOpacity onPress={() => openImageModal(item)}>
+                <Image
+                  source={item}
+                  style={{
+                    width: screenWidth * 0.5, // Adjust width to display images bigger
+                    height: screenWidth * 0.5, // Aspect ratio height
+                    borderRadius: 10,
+                    marginHorizontal: 5,
+                    resizeMode: 'cover',
+                  }}
+                />
+              </TouchableOpacity>
             )}
             keyExtractor={(item, index) => index.toString()}
             horizontal
@@ -175,12 +190,36 @@ function BiddingDetailsScreen({ route }) {
             }}
           >
             <Text
-              style={{ fontSize: 18, fontWeight: '700', color: '#333', textAlign: 'center' }}
+              style={{ fontSize: 18, fontWeight: '700', color: '#f9fafb', textAlign: 'center' }}
             >
               Place a Bid
             </Text>
           </TouchableOpacity>
         </View>
+
+        {/* Modal for Full-Screen Image */}
+        {selectedImage && (
+          <Modal visible={isModalVisible} transparent={true} animationType="fade">
+            <TouchableOpacity
+              style={{
+                flex: 1,
+                backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+              onPress={() => setIsModalVisible(false)} //pindot sa gedli para mag close
+            >
+              <Image
+                source={selectedImage}
+                style={{
+                  width: screenWidth * 0.9,
+                  height: screenHeight * 0.7,
+                  resizeMode: 'contain',
+                }}
+              />
+            </TouchableOpacity>
+          </Modal>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
