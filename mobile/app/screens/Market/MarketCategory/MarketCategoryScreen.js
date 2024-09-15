@@ -12,30 +12,19 @@ const CategoryItemCard = ({ item }) => {
 
   return (
     <TouchableOpacity
-      className="w-40 bg-white rounded-lg shadow-md mb-4 mx-2"
-      style={{
-        padding: 10,
-        margin: 8,
-        backgroundColor: '#fff',
-        borderRadius: 10,
-        elevation: 3,
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-      }}
+      className="w-40 md:w-48 bg-white rounded-lg shadow-md mb-4 mx-2"
       onPress={() => navigation.navigate('Product Details', { product: item })}
     >
       <Image
         source={item.crop_image_url ? { uri: item.crop_image_url } : placeholderimg}
-        className="w-full h-24 rounded-t-lg"
-        style={{ borderRadius: 10, width: '100%', height: 100 }}
+        className="w-full h-24 md:h-32 rounded-t-lg "
         resizeMode="cover"
       />
-      <View className="p-2" style={{ alignItems: 'center', marginTop: 5 }}>
-        <Text className="text-lg font-semibold text-gray-800" style={{ fontSize: 16, fontWeight: '600' }}>{item.crop_name}</Text>
-        <Text className="text-sm text-gray-600 mt-1" style={{ fontSize: 12, color: '#888' }}>{item.crop_description}</Text>
-        <Text className="text-base font-bold text-green-700 mt-2" style={{ fontSize: 14, color: '#28A745' }}>₱ {item.crop_price}</Text>
-        <Text className="text-sm text-gray-600" style={{ fontSize: 12, color: '#888' }}>⭐ {item.crop_rating}</Text>
+      <View className="p-2 flex items-center mt-2">
+        <Text className="text-lg font-semibold text-gray-800">{item.crop_name}</Text>
+        <Text className="text-sm text-gray-600 mt-1">{item.crop_description}</Text>
+        <Text className="text-base font-bold text-green-600 mt-2">₱ {item.crop_price}</Text>
+        <Text className="text-sm text-gray-600">⭐ {item.crop_rating}</Text>
       </View>
     </TouchableOpacity>
   );
@@ -65,9 +54,6 @@ function MarketCategoryScreen({ route }) {
           },
         }
       );
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
       const data = await response.json();
       setCategories(data);
     } catch (error) {
@@ -199,10 +185,9 @@ function MarketCategoryScreen({ route }) {
     <SafeAreaView className="flex-1 bg-gray-100">
       <SearchBarC/>
       {/* Categories button and selected categories */}
-      <View className="flex-row items-center p-4 relative">
+      <View className="flex-row items-center p-4">
         <TouchableOpacity 
-          className="bg-green-500 rounded-full px-4 py-2" 
-          style={{ paddingHorizontal: 15, paddingVertical: 10, borderRadius: 20 }}
+          className="bg-green-500 rounded-full px-4 py-2"
           onPress={toggleCategoriesModal}
         >
           <Text className="text-white">Categories</Text>
@@ -212,11 +197,7 @@ function MarketCategoryScreen({ route }) {
           {selectedCategories.map(categoryId => {
             const category = categories.find(c => c.crop_category_id === categoryId);
             if (!category) return null;
-          {selectedCategories.map(categoryId => {
-            const category = categories.find(c => c.crop_category_id === categoryId);
-            if (!category) return null;
 
-            const filteredSubCategories = subCategories.filter(subCategory => subCategory.crop_category_id === categoryId);
             const filteredSubCategories = subCategories.filter(subCategory => subCategory.crop_category_id === categoryId);
 
             return (
