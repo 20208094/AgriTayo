@@ -1,60 +1,86 @@
 -- Create user_type table
 CREATE TABLE user_type (
-    user_type_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_type_id INT AUTO_INCREMENT PRIMARY KEY,
     user_type_name VARCHAR(50) NOT NULL,
     user_type_description TEXT
 );
 
 -- Create users table
 CREATE TABLE users (
-    user_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT AUTO_INCREMENT PRIMARY KEY,
     firstname VARCHAR(50) NOT NULL,
     middlename VARCHAR(50),
     lastname VARCHAR(50) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     password VARCHAR(100) NOT NULL,
     phone_number VARCHAR(20),
-    gender VARCHAR(10) CHECK (gender IN ('Male', 'Female', 'Other')),
+    gender ENUM('Male', 'Female', 'Other'),
     birthday DATE,
     user_type_id INT,
-    verified TINYINT(1) DEFAULT 0,
+    verified BOOLEAN DEFAULT FALSE,
+    user_image_url VARCHAR(255),
     FOREIGN KEY (user_type_id) REFERENCES user_type(user_type_id)
 );
 
 CREATE INDEX idx_users_user_type_id ON users(user_type_id);
 
--- Create addresses table
+-- Create addresses table with additional columns
 CREATE TABLE addresses (
-    address_id INT PRIMARY KEY AUTO_INCREMENT,
-    user_id INT,
-    address TEXT NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES users(user_id)
+    address_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    house_number VARCHAR(10),
+    street_name VARCHAR(100),
+    building VARCHAR(50),
+    region VARCHAR(50),
+    city VARCHAR(50),
+    province VARCHAR(50),
+    barangay VARCHAR(50),
+    postal_code VARCHAR(10),
+    label VARCHAR(50),
+    note TEXT,
+    latitude DECIMAL(9, 6),
+    longitude DECIMAL(9, 6),
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
 CREATE INDEX idx_addresses_user_id ON addresses(user_id);
 
 -- Create shop table
 CREATE TABLE shop (
-    shop_id INT PRIMARY KEY AUTO_INCREMENT,
+    shop_id INT AUTO_INCREMENT PRIMARY KEY,
     shop_name VARCHAR(100) NOT NULL,
     shop_address TEXT,
     shop_description TEXT,
     user_id INT,
-    FOREIGN KEY (user_id) REFERENCES users(user_id)
+    shop_image_url VARCHAR(255),
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE SET NULL
 );
 
 CREATE INDEX idx_shop_user_id ON shop(user_id);
 
 -- Create crop_category table
 CREATE TABLE crop_category (
-    crop_category_id INT PRIMARY KEY AUTO_INCREMENT,
+    crop_category_id INT AUTO_INCREMENT PRIMARY KEY,
     crop_category_name VARCHAR(100) NOT NULL,
-    crop_category_description TEXT
+    crop_category_description TEXT,
+    crop_category_image_url VARCHAR(255)
 );
+
+-- Create crop_sub_category table
+CREATE TABLE crop_sub_category (
+    crop_sub_category_id INT AUTO_INCREMENT PRIMARY KEY,
+    crop_sub_category_name VARCHAR(100) NOT NULL,
+    crop_sub_category_description TEXT,
+    crop_sub_category_image_url VARCHAR(255),
+    crop_category_id INT,
+    FOREIGN KEY (crop_category_id) REFERENCES crop_category(crop_category_id) ON DELETE SET NULL
+);
+
+CREATE INDEX idx_crop_sub_category_crop_category_id ON crop_sub_category(crop_category_id);
 
 -- Create metric_system table
 CREATE TABLE metric_system (
-    metric_system_id INT PRIMARY KEY AUTO_INCREMENT,
+    metric_system_id INT AUTO_INCREMENT PRIMARY KEY,
     metric_system_name VARCHAR(100) NOT NULL,
     metric_val_kilogram DECIMAL(10, 4) NOT NULL,
     metric_val_gram DECIMAL(10, 4) NOT NULL,
@@ -63,44 +89,45 @@ CREATE TABLE metric_system (
 
 -- Create crops table
 CREATE TABLE crops (
-    crop_id INT PRIMARY KEY AUTO_INCREMENT,
+    crop_id INT AUTO_INCREMENT PRIMARY KEY,
     crop_name VARCHAR(100) NOT NULL,
     crop_description TEXT,
-    category_id INT,
+    sub_category_id INT,
     shop_id INT,
-    crop_image VARCHAR(255),
+    crop_image_url VARCHAR(255),
     crop_rating DECIMAL(3, 2),
     crop_price DECIMAL(10, 2) NOT NULL,
     crop_quantity INT,
     crop_weight DECIMAL(10, 4),
     metric_system_id INT,
-    FOREIGN KEY (category_id) REFERENCES crop_category(crop_category_id),
-    FOREIGN KEY (shop_id) REFERENCES shop(shop_id),
-    FOREIGN KEY (metric_system_id) REFERENCES metric_system(metric_system_id)
+    FOREIGN KEY (sub_category_id) REFERENCES crop_sub_category(crop_sub_category_id) ON DELETE SET NULL,
+    FOREIGN KEY (shop_id) REFERENCES shop(shop_id) ON DELETE SET NULL,
+    FOREIGN KEY (metric_system_id) REFERENCES metric_system(metric_system_id) ON DELETE SET NULL
 );
 
-CREATE INDEX idx_crops_category_id ON crops(category_id);
+CREATE INDEX idx_crops_sub_category_id ON crops(sub_category_id);
 CREATE INDEX idx_crops_shop_id ON crops(shop_id);
 CREATE INDEX idx_crops_metric_system_id ON crops(metric_system_id);
 
 -- Create order_status table
 CREATE TABLE order_status (
-    order_status_id INT PRIMARY KEY AUTO_INCREMENT,
+    order_status_id INT AUTO_INCREMENT PRIMARY KEY,
     order_status_name VARCHAR(50) NOT NULL,
     order_status_description TEXT
 );
 
 -- Create orders table
 CREATE TABLE orders (
-    order_id INT PRIMARY KEY AUTO_INCREMENT,
+    order_id INT AUTO_INCREMENT PRIMARY KEY,
     total_price DECIMAL(10, 2) NOT NULL,
     total_weight DECIMAL(10, 4),
     status_id INT,
     user_id INT,
     order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     order_metric_system_id INT,
-    FOREIGN KEY (status_id) REFERENCES order_status(order_status_id),
-    FOREIGN KEY (order_metric_system_id) REFERENCES metric_system(metric_system_id)
+    FOREIGN KEY (status_id) REFERENCES order_status(order_status_id) ON DELETE SET NULL,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE SET NULL,
+    FOREIGN KEY (order_metric_system_id) REFERENCES metric_system(metric_system_id) ON DELETE SET NULL
 );
 
 CREATE INDEX idx_orders_status_id ON orders(status_id);
@@ -109,17 +136,17 @@ CREATE INDEX idx_orders_metric_system_id ON orders(order_metric_system_id);
 
 -- Create order_products table
 CREATE TABLE order_products (
-    order_prod_id INT PRIMARY KEY AUTO_INCREMENT,
+    order_prod_id INT AUTO_INCREMENT PRIMARY KEY,
     order_id INT,
     order_prod_crop_id INT,
     order_prod_total_weight INT,
     order_prod_total_price DECIMAL(10, 2) NOT NULL,
     order_prod_user_id INT,
     order_prod_metric_system_id INT,
-    FOREIGN KEY (order_id) REFERENCES orders(order_id),
-    FOREIGN KEY (order_prod_crop_id) REFERENCES crops(crop_id),
-    FOREIGN KEY (order_prod_user_id) REFERENCES users(user_id),
-    FOREIGN KEY (order_prod_metric_system_id) REFERENCES metric_system(metric_system_id)
+    FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE,
+    FOREIGN KEY (order_prod_crop_id) REFERENCES crops(crop_id) ON DELETE SET NULL,
+    FOREIGN KEY (order_prod_user_id) REFERENCES users(user_id) ON DELETE SET NULL,
+    FOREIGN KEY (order_prod_metric_system_id) REFERENCES metric_system(metric_system_id) ON DELETE SET NULL
 );
 
 CREATE INDEX idx_order_products_order_id ON order_products(order_id);
@@ -129,13 +156,13 @@ CREATE INDEX idx_order_products_metric_system_id ON order_products(order_prod_me
 
 -- Create cart table
 CREATE TABLE cart (
-    cart_id INT PRIMARY KEY AUTO_INCREMENT,
+    cart_id INT AUTO_INCREMENT PRIMARY KEY,
     cart_total_price DECIMAL(10, 2) NOT NULL,
     cart_total_weight DECIMAL(10, 4),
     cart_user_id INT,
     cart_metric_system_id INT,
-    FOREIGN KEY (cart_user_id) REFERENCES users(user_id),
-    FOREIGN KEY (cart_metric_system_id) REFERENCES metric_system(metric_system_id)
+    FOREIGN KEY (cart_user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (cart_metric_system_id) REFERENCES metric_system(metric_system_id) ON DELETE SET NULL
 );
 
 CREATE INDEX idx_cart_user_id ON cart(cart_user_id);
@@ -143,17 +170,17 @@ CREATE INDEX idx_cart_metric_system_id ON cart(cart_metric_system_id);
 
 -- Create cart_products table
 CREATE TABLE cart_products (
-    cart_prod_id INT PRIMARY KEY AUTO_INCREMENT,
+    cart_prod_id INT AUTO_INCREMENT PRIMARY KEY,
     cart_id INT,
     cart_prod_crop_id INT,
     cart_prod_total_weight INT,
     cart_prod_total_price DECIMAL(10, 2) NOT NULL,
     cart_prod_user_id INT,
     cart_prod_metric_system_id INT,
-    FOREIGN KEY (cart_id) REFERENCES cart(cart_id),
-    FOREIGN KEY (cart_prod_crop_id) REFERENCES crops(crop_id),
-    FOREIGN KEY (cart_prod_user_id) REFERENCES users(user_id),
-    FOREIGN KEY (cart_prod_metric_system_id) REFERENCES metric_system(metric_system_id)
+    FOREIGN KEY (cart_id) REFERENCES cart(cart_id) ON DELETE CASCADE,
+    FOREIGN KEY (cart_prod_crop_id) REFERENCES crops(crop_id) ON DELETE SET NULL,
+    FOREIGN KEY (cart_prod_user_id) REFERENCES users(user_id) ON DELETE SET NULL,
+    FOREIGN KEY (cart_prod_metric_system_id) REFERENCES metric_system(metric_system_id) ON DELETE SET NULL
 );
 
 CREATE INDEX idx_cart_products_cart_id ON cart_products(cart_id);
@@ -163,51 +190,78 @@ CREATE INDEX idx_cart_products_metric_system_id ON cart_products(cart_prod_metri
 
 -- Create reviews table
 CREATE TABLE reviews (
-    review_id INT PRIMARY KEY AUTO_INCREMENT,
+    review_id INT AUTO_INCREMENT PRIMARY KEY,
     crop_id INT,
     user_id INT,
     rating DECIMAL(2, 1) CHECK (rating BETWEEN 1 AND 5),
     review_text TEXT,
     review_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (crop_id) REFERENCES crops(crop_id),
-    FOREIGN KEY (user_id) REFERENCES users(user_id)
+    FOREIGN KEY (crop_id) REFERENCES crops(crop_id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
 CREATE INDEX idx_reviews_crop_id ON reviews(crop_id);
 CREATE INDEX idx_reviews_user_id ON reviews(user_id);
 
+-- Create review_images table (to handle up to 3 images per review)
+CREATE TABLE review_images (
+    review_image_id INT AUTO_INCREMENT PRIMARY KEY,
+    review_id INT,
+    image_url VARCHAR(255) NOT NULL,
+    uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (review_id) REFERENCES reviews(review_id) ON DELETE CASCADE
+);
+
+CREATE INDEX idx_review_images_review_id ON review_images(review_id);
+
 -- Create order_tracking table
 CREATE TABLE order_tracking (
-    tracking_id INT PRIMARY KEY AUTO_INCREMENT,
+    tracking_id INT AUTO_INCREMENT PRIMARY KEY,
     order_id INT,
-    status VARCHAR(10) CHECK (status IN ('Placed', 'Processed', 'Shipped', 'Delivered', 'Cancelled')),
+    status ENUM('Placed', 'Processed', 'Shipped', 'Delivered', 'Cancelled'),
     update_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (order_id) REFERENCES orders(order_id)
+    FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE
 );
 
 CREATE INDEX idx_order_tracking_order_id ON order_tracking(order_id);
 
 -- Create payments table
 CREATE TABLE payments (
-    payment_id INT PRIMARY KEY AUTO_INCREMENT,
+    payment_id INT AUTO_INCREMENT PRIMARY KEY,
     order_id INT,
     payment_method VARCHAR(50),
-    payment_status VARCHAR(10) CHECK (payment_status IN ('Pending', 'Completed', 'Failed')),
+    payment_status ENUM('Pending', 'Completed', 'Failed'),
     payment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     amount DECIMAL(10, 2),
-    FOREIGN KEY (order_id) REFERENCES orders(order_id)
+    FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE
 );
 
 CREATE INDEX idx_payments_order_id ON payments(order_id);
 
 -- Create notifications table
 CREATE TABLE notifications (
-    notification_id INT PRIMARY KEY AUTO_INCREMENT,
+    notification_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT,
     message TEXT,
-    is_read TINYINT(1) DEFAULT 0,
+    is_read BOOLEAN DEFAULT FALSE,
     notification_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(user_id)
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
 CREATE INDEX idx_notifications_user_id ON notifications(user_id);
+
+-- Create chats table
+CREATE TABLE chats (
+    chat_id INT AUTO_INCREMENT PRIMARY KEY,
+    sender_id INT NOT NULL,
+    receiver_id INT NOT NULL,
+    receiver_type ENUM('User', 'Shop'),
+    chat_message TEXT,
+    chat_image_url VARCHAR(255),
+    is_read BOOLEAN DEFAULT FALSE,
+    sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (sender_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+CREATE INDEX idx_chats_sender_id ON chats(sender_id);
+CREATE INDEX idx_chats_receiver_id_receiver_type ON chats(receiver_id, receiver_type);
