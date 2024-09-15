@@ -3,6 +3,8 @@ import { View, Text, SafeAreaView, ScrollView, TouchableOpacity, Image, Activity
 import { useNavigation } from "@react-navigation/native";
 import placeholderimg from '../../../assets/placeholder.png';
 import { REACT_NATIVE_API_KEY } from '@env';
+import SearchBarC from "../../../components/SearchBarC";
+
 
 // Define a component for displaying each item in the list
 const CategoryItemCard = ({ item }) => {
@@ -39,6 +41,7 @@ function MarketCategoryScreen({ route }) {
   const [subCategories, setSubCategories] = useState([]);
   const [activeSubCategories, setActiveSubCategories] = useState({});
   const [openDropdown, setOpenDropdown] = useState({});
+  const [selectedSubCategories, setSelectedSubCategories] = useState([]);
   const API_KEY = REACT_NATIVE_API_KEY;
 
   const fetchCategories = async () => {
@@ -58,8 +61,68 @@ function MarketCategoryScreen({ route }) {
     }
   };
 
+  const fetchSubCategories = async () => {
+    try {
+      const response = await fetch(
+        "https://agritayo.azurewebsites.net/api/crop_sub_categories",
+        {
+          headers: {
+            "x-api-key": API_KEY,
+          },
+        }
+      );
+      const data = await response.json();
+      setSubCategories(data);
+    } catch (error) {
+      console.error("Error fetching crop sub-categories:", error);
+    }
+  };
+
+  const fetchCropsFiltering = useCallback(async () => { 
+    try {
+      setLoading(true);
+      const response = await fetch('https://agritayo.azurewebsites.net/api/crops', {
+        headers: {
+          'x-api-key': API_KEY
+        }
+      });
+      const data = await response.json();
+
+      if (selectedSubCategories.length > 0) {
+        const filteredCrops = data.filter(crop => selectedSubCategories.includes(crop.sub_category_id));
+        setCrops(filteredCrops);
+      } else {
+        setCrops(data);
+      }
+    } catch (error) {
+      setError(error);
+      console.error('Error fetching crops data:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [API_KEY, selectedSubCategories]);
+
+  const fetchCrops = useCallback(async (subCategoryId) => {
+    try {
+      setLoading(true);
+      const response = await fetch('https://agritayo.azurewebsites.net/api/crops', {
+        headers: {
+          'x-api-key': API_KEY
+        }
+      });
+      const data = await response.json();
+      const filteredCrops = data.filter(crop => crop.sub_category_id === subCategoryId);
+      setCrops(filteredCrops);
+    } catch (error) {
+      setError(error);
+      console.error('Error fetching crops data:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [API_KEY]);
+
   const toggleCategoriesModal = () => {
-    setShowCategoriesModal(!showCategoriesModal);
+    setShowCategoriesModal(prevState => !prevState);
   };
 
   const toggleCategorySelection = (categoryId) => {
@@ -81,41 +144,13 @@ function MarketCategoryScreen({ route }) {
     }));
   };
 
-  const fetchSubCategories = async () => {
-    try {
-      const response = await fetch(
-        "https://agritayo.azurewebsites.net/api/crop_sub_categories",
-        {
-          headers: {
-            "x-api-key": API_KEY,
-          },
-        }
-      );
-      const data = await response.json();
-      setSubCategories(data);
-    } catch (error) {
-      console.error("Error fetching crop sub-categories:", error);
-    }
+  const toggleSubCategorySelection = (subCategoryId) => {
+    setSelectedSubCategories(prevSelectedSubCategories =>
+      prevSelectedSubCategories.includes(subCategoryId)
+        ? prevSelectedSubCategories.filter(id => id !== subCategoryId)
+        : [...prevSelectedSubCategories, subCategoryId]
+    );
   };
-
-  const fetchCrops = useCallback(async (subCategoryId) => {
-    try {
-      setLoading(true);
-      const response = await fetch('https://agritayo.azurewebsites.net/api/crops', {
-        headers: {
-          'x-api-key': API_KEY
-        }
-      });
-      const data = await response.json();
-      const filteredCrops = data.filter(crop => crop.sub_category_id === subCategoryId);
-      setCrops(filteredCrops);
-    } catch (error) {
-      setError(error);
-      console.error('Error fetching crops data:', error);
-    } finally {
-      setLoading(false);
-    }
-  }, [API_KEY]);
 
   useEffect(() => {
     fetchCategories();
@@ -123,10 +158,12 @@ function MarketCategoryScreen({ route }) {
   }, []);
 
   useEffect(() => {
-    if (selectedItemId) {
+    if (selectedSubCategories.length > 0) {
+      fetchCropsFiltering();
+    } else if (selectedItemId) {
       fetchCrops(selectedItemId);
     }
-  }, [selectedItemId, fetchCrops]);
+  }, [selectedSubCategories, selectedItemId, fetchCropsFiltering, fetchCrops]);
 
   if (loading) {
     return (
@@ -146,6 +183,7 @@ function MarketCategoryScreen({ route }) {
 
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
+      <SearchBarC/>
       {/* Categories button and selected categories */}
       <View className="flex-row items-center p-4">
         <TouchableOpacity 
@@ -156,72 +194,68 @@ function MarketCategoryScreen({ route }) {
         </TouchableOpacity>
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false} className="ml-2">
-            {selectedCategories.map(categoryId => {
-              const category = categories.find(c => c.crop_category_id === categoryId);
-              if (!category) return null;
+          {selectedCategories.map(categoryId => {
+            const category = categories.find(c => c.crop_category_id === categoryId);
+            if (!category) return null;
 
-              const filteredSubCategories = subCategories.filter(subCategory => subCategory.crop_category_id === categoryId);
+            const filteredSubCategories = subCategories.filter(subCategory => subCategory.crop_category_id === categoryId);
 
-              return (
-                <View key={categoryId} className="flex-row items-center mr-2">
-                  {/* Category Button */}
+            return (
+              <View key={categoryId} className="flex-row items-center mr-2">
+                {/* Category Button */}
+                <TouchableOpacity
+                  className="bg-gray-200 rounded-full px-4 py-2"
+                  onPress={() => toggleDropdown(categoryId)}
+                >
+                  <Text>{category.crop_category_name}</Text>
+                </TouchableOpacity>
+
+                {/* X Mark (Delete) Button */}
+                <TouchableOpacity
+                  className="ml-2"
+                  onPress={() => setSelectedCategories(prevSelectedCategories =>
+                    prevSelectedCategories.filter(id => id !== categoryId)
+                  )}
+                >
+                  <Text className="text-gray-500 font-bold">X</Text>
+                </TouchableOpacity>
+
+                {/* Modal for Dropdown */}
+                <Modal
+                  visible={openDropdown[categoryId] === true}
+                  transparent={true}
+                  animationType="fade"
+                  onRequestClose={() => toggleDropdown(categoryId)}
+                >
                   <TouchableOpacity
-                    className="bg-gray-200 rounded-full px-4 py-2"
+                    activeOpacity={1}
                     onPress={() => toggleDropdown(categoryId)}
+                    className="flex-1 justify-center items-center bg-gray bg-opacity-50"
                   >
-                    <Text>{category.crop_category_name}</Text>
+                    <View className="bg-green-600 rounded-lg p-4 w-64 max-h-72">
+                      {/* Label for the category */}
+                      <Text className="text-white text-lg font-bold mb-2">
+                        {category.crop_category_name}
+                      </Text>
+                      
+                      <ScrollView>
+                        {filteredSubCategories.map(subCategory => (
+                          <TouchableOpacity
+                            key={subCategory.crop_sub_category_id}
+                            className={`bg-gray-100 rounded-full px-4 py-2 mt-2 ${selectedSubCategories.includes(subCategory.crop_sub_category_id) ? 'bg-green-200' : ''}`}
+                            onPress={() => toggleSubCategorySelection(subCategory.crop_sub_category_id)}
+                          >
+                            <Text>{subCategory.crop_sub_category_name}</Text>
+                          </TouchableOpacity>
+                        ))}
+                      </ScrollView>
+                    </View>
                   </TouchableOpacity>
-
-                  {/* X Mark (Delete) Button */}
-                  <TouchableOpacity
-                    className="ml-2"
-                    onPress={() => setSelectedCategories(prevSelectedCategories =>
-                      prevSelectedCategories.filter(id => id !== categoryId)
-                    )}
-                  >
-                    <Text className="text-gray-500 font-bold">X</Text>
-                  </TouchableOpacity>
-
-                  {/* Modal for Dropdown */}
-                  <Modal
-                    visible={openDropdown[categoryId] === true}  // Dropdown only opens when toggleDropdown is pressed
-                    transparent={true}
-                    animationType="fade"
-                    onRequestClose={() => toggleDropdown(categoryId)}
-                  >
-                    <TouchableOpacity
-                      activeOpacity={1}
-                      onPress={() => toggleDropdown(categoryId)}
-                      className="flex-1 justify-center items-center bg-gray bg-opacity-50"
-                    >
-                      <View className="bg-green-600 rounded-lg p-4 w-64 max-h-72">
-                        {/* Label for the category */}
-                        <Text className="text-white text-lg font-bold mb-2">
-                          {category.crop_category_name}
-                        </Text>
-                        
-                        <ScrollView>
-                          {filteredSubCategories.map(subCategory => (
-                            <TouchableOpacity
-                              key={subCategory.crop_sub_category_id}
-                              className="bg-gray-100 rounded-full px-4 py-2 mt-2"
-                              onPress={() => {
-                                fetchCrops(subCategory.crop_sub_category_id);
-                                toggleDropdown(categoryId);
-                              }}
-                            >
-                              <Text>{subCategory.crop_sub_category_name}</Text>
-                            </TouchableOpacity>
-                          ))}
-                        </ScrollView>
-                      </View>
-                    </TouchableOpacity>
-                  </Modal>
-                </View>
-              );
-            })}
-          </ScrollView>
-
+                </Modal>
+              </View>
+            );
+          })}
+        </ScrollView>
       </View>
 
       {/* Modal for showing categories */}
