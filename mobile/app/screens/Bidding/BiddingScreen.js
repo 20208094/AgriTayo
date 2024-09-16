@@ -10,6 +10,8 @@ import {
 } from "react-native";
 import logo from "../../assets/logo.png";
 import ehh from "../../assets/ehh.png";
+import saging from "../../assets/saging.jpg";
+import potato from "../../assets/potato.jpg";
 import { useNavigation } from "@react-navigation/native";
 import SearchBarC from "../../components/SearchBarC";
 
@@ -27,8 +29,8 @@ const dummyData = [
     day: 1,
     hour: 2,
     minutes: 3,
-    seconds: 10, // Add initial seconds here
-    pic: logo,
+    seconds: 10,
+    pic: potato,
     michael: ehh,
     shopName: "Michael Shop",
   },
@@ -42,40 +44,42 @@ const dummyData = [
     day: 4,
     hour: 5,
     minutes: 6,
-    seconds: 0, // Add initial seconds here
+    seconds: 0,
     pic: logo,
     michael: ehh,
     shopName: "Michael Shop",
   },
   {
     id: 3,
-    name: "Cabbage",
-    currentHighestBid: 3000,
+    name: "Banana",
+    currentHighestBid: 4000,
     price: 700,
     description:
-      "Lorem ipsum dolor sit amet. In veritatis consequatur eos veritatis nihil eum magni dignissimos in delectus praesentium. Id eligendi quia vel nostrum minima sit dicta natus qui consectetur voluptatem et libero laboriosam ut nisi voluptatem rem nesciunt sequi.",
-    day: 7,
-    hour: 8,
-    minutes: 9,
-    pic: logo,
+      "Lorem ipsum dolor sit amet. In veritatis consequatur eos veritatis nihil eum magni dignissimos in delectus praesentium.",
+    day: 1,
+    hour: 2,
+    minutes: 3,
+    seconds: 10,
+    pic: ehh,
     michael: ehh,
-    shopName: 'Michael Shop'
+    shopName: "Michael Shop",
   },
   {
     id: 4,
-    name: "Sitaw",
-    currentHighestBid: 4000,
+    name: "Saging",
+    currentHighestBid: 6000,
     price: 800,
     description:
-      "Lorem ipsum dolor sit amet. In veritatis consequatur eos veritatis nihil eum magni dignissimos in delectus praesentium. Id eligendi quia vel nostrum minima sit dicta natus qui consectetur voluptatem et libero laboriosam ut nisi voluptatem rem nesciunt sequi.",
-    day: 2,
-    hour: 4,
+      "Lorem ipsum dolor sit amet. In veritatis consequatur eos veritatis nihil eum magni dignissimos.Lorem ipsum dolor sit amet. In veritatis consequatur eos veritatis nihil eum magni dignissimos.Lorem ipsum dolor sit amet. ",
+    day: 4,
+    hour: 5,
     minutes: 6,
-    pic: logo,
+    seconds: 0,
+    pic: saging,
     michael: ehh,
-    shopName: 'Michael Shop'
+    shopName: "Michael Shop",
   },
-  // More items here
+  
 ];
 
 const BiddingCard = ({ data }) => {
@@ -114,34 +118,43 @@ const BiddingCard = ({ data }) => {
     <TouchableOpacity
       onPress={() => navigation.navigate("Bidding Details", { data })}
       className="w-[85vw] mx-[7.5vw] bg-white rounded-[30px] border-[3px] my-5 border-[#737373] shadow-2xl shadow-black mb-8"
+      style={{
+        maxWidth: screenWidth * 0.9, // Ensuring it doesn't exceed screen width
+        overflow: "hidden", // Ensuring nothing spills out
+      }}
     >
       {/* Card Header (Image) */}
       <View className="rounded-t-[15px] overflow-hidden">
         <Image
           source={data.pic}
           className="w-full"
-          style={{ height: screenHeight * 0.52}} // Using inline height for responsiveness
-          resizeMode="cover"
+          style={{ 
+            height: screenHeight * 0.5, 
+            maxWidth: screenWidth * 0.85, // Cap width to make sure it is responsive
+          }}
+          resizeMode="cover" // This ensures the image scales while maintaining its aspect ratio
         />
       </View>
 
       {/* Card Body */}
-      <View className="p-5">
+      <View className="p-4">
         {/* Title */}
-        <Text className="text-[22px] font-bold text-gray-800 mb-2">
+        <Text className="text-[22px] font-bold text-gray-800 mb-2 text-center">
           {data.name}
         </Text>
 
         {/* Shop name */}
-        <Text className="text-sm text-gray-500 mb-3">Sold by: {data.shopName}</Text>
+        <Text className="text-sm text-gray-500 mb-3 text-center">
+          Sold by: {data.shopName}
+        </Text>
 
         {/* Highest Bid */}
-        <Text className="text-lg text-green-600 mb-1">
+        <Text className="text-lg text-green-600 mb-1 text-center">
           Current Highest Bid: ₱{data.currentHighestBid}
         </Text>
 
         {/* Countdown */}
-        <Text className="text-base text-gray-600">
+        <Text className="text-base text-gray-600 text-center">
           {formatTime(remainingTime)}
         </Text>
       </View>
