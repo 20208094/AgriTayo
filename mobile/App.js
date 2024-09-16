@@ -46,12 +46,15 @@ import ViewSalesHistoryScreen from "./app/screens/farmers/Shop/ViewSalesHistory/
 import MyProductsScreen from "./app/screens/farmers/Shop/MyProducts/MyProductsScreen";
 import FinanceScreen from "./app/screens/farmers/Shop/FinanceScreen";
 import ShopPerformaceScreen from "./app/screens/farmers/Shop/ShopPerformanceScreen";
-import BiddingScreen from "./app/screens/farmers/Shop/BiddingScreen";
+import BiddingScreen from "./app/screens/farmers/Shop/FarmersBidding/BiddingScreen";
+import BiddingDetailsFarmersScreen from "./app/screens/farmers/Shop/FarmersBidding/BiddingDetailsFarmersScreen";
 import LearnAndHelpScreen from "./app/screens/farmers/Shop/LearnAndHelpScreen";
 import ShopRatingScreen from "./app/screens/farmers/Shop/ShopPerformance/ShopRatingScreen";
 import BusinessInsightsScreen from "./app/screens/farmers/Shop/ShopPerformance/BusinessInsightsScreen";
 import AccountHealthScreen from "./app/screens/farmers/Shop/ShopPerformance/AccountHealthScreen";
 import SellerShopScreen from "./app/screens/farmers/Shop/SellerShopScreen";
+import AddBidScreen from "./app/screens/farmers/Shop/FarmersBidding/AddBidScreen";
+// for chat
 import ChatScreen from "./app/screens/ChatScreen";
 import ChatListScreen from "./app/screens/ChatListScreen";
 
@@ -350,6 +353,16 @@ function App() {
             <Stack.Screen
             name='Bidding Details'
             component={BiddingDetailsScreen}
+            options={screenOptions}
+            />
+            <Stack.Screen
+            name='Shop Bidding Details'
+            component={BiddingDetailsFarmersScreen}
+            options={screenOptions}
+            />
+            <Stack.Screen
+            name='Add Bid'
+            component={AddBidScreen}
             options={screenOptions}
             />
           </>

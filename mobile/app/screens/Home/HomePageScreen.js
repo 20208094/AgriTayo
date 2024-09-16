@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, ScrollView, Text, TouchableOpacity, Image } from "react-native";
+import { View, ScrollView, Text, TouchableOpacity, Image, SafeAreaView } from "react-native";
 import SearchBarC, {
   NotificationIcon,
   MessagesIcon,
@@ -210,7 +210,8 @@ function HomePageScreen() {
   const [showAgriTutorial, setShowAgriTutorial] = useState(true);
 
   return (
-    <ScrollView className="flex-1 bg-gray-100 pt-5">
+    <SafeAreaView className="flex-1 bg-gray-100 pt-5">
+    <ScrollView>
       <View className="flex-row justify-between items-center px-4 pt-8">
         <Text className="text-green-700 text-3xl font-bold">Hi Paeng!</Text>
         <View className="flex-row">
@@ -218,7 +219,7 @@ function HomePageScreen() {
           <NotificationIcon
             onPress={() => navigation.navigate("Notifications")}
           />
-          <MessagesIcon onPress={() => navigation.navigate("Messages")} />
+          <MessagesIcon onPress={() => navigation.navigate("ChatListScreen")} />
         </View>
       </View>
       <Text className="px-4 text-base text-gray-600 mt-2">
@@ -249,7 +250,7 @@ function HomePageScreen() {
       <View className="mt-4 px-4">
         <View className="flex-row justify-between items-center mb-2">
           <Text className="text-2xl font-bold">Featured Products</Text>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate('Product List')}>
             <Text className="text-green-600">See All</Text>
           </TouchableOpacity>
         </View>
@@ -260,6 +261,7 @@ function HomePageScreen() {
         </View>
       </View>
     </ScrollView>
+    </SafeAreaView>
   );
 }
 

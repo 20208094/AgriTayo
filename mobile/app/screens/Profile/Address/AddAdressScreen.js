@@ -60,7 +60,7 @@ function AddAddressScreen({
       headerRight: () => (
         <View style={{ flexDirection: "row", marginRight: 15 }}>
           <NotificationIcon onPress={() => navigation.navigate("Notifications")} />
-          <MessagesIcon onPress={() => navigation.navigate("Messages")} />
+          <MessagesIcon onPress={() => navigation.navigate("ChatListScreen")} />
           <MarketIcon onPress={() => navigation.navigate("Market")} />
         </View>
       ),

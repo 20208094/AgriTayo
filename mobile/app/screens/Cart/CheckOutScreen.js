@@ -73,7 +73,7 @@ function CheckOutScreen() {
             <NotificationIcon />
           </TouchableOpacity>
           <HeaderTitle>Checkout</HeaderTitle>
-          <TouchableOpacity onPress={() => navigation.navigate("Messages")}>
+          <TouchableOpacity onPress={() => navigation.navigate("ChatListScreen")}>
             <MessagesIcon />
           </TouchableOpacity>
         </Header>

@@ -80,7 +80,7 @@ function ViewProfileScreen({ route, navigation }) {
         <View style={{ flexDirection: "row", marginRight: 15 }}>
           <MarketIcon onPress={() => navigation.navigate("CartScreen")} />
           <NotificationIcon onPress={() => navigation.navigate("Notifications")} />
-          <MessagesIcon onPress={() => navigation.navigate("Messages")} />
+          <MessagesIcon onPress={() => navigation.navigate("ChatListScreen")} />
         </View>
       ),
     });

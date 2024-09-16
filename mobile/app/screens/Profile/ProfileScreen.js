@@ -171,6 +171,44 @@ function ProfileScreen() {
               color="gray"
             />
           </TouchableOpacity>
+           <TouchableOpacity
+            className="flex-row items-center justify-between"
+            onPress={() =>
+              navigation.navigate("My Shop")
+            }
+          >
+            <View className="flex-row items-center">
+              <Icon name="store" type="material" size={20} color="green" />
+              <Text className="text-gray-800 font-semibold ml-4">
+                Shop
+              </Text>
+            </View>
+            <Icon
+              name="chevron-right"
+              type="font-awesome"
+              size={20}
+              color="gray"
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            className="flex-row items-center justify-between"
+            onPress={() =>
+              navigation.navigate("Login")
+            }
+          >
+            <View className="flex-row items-center">
+              <Icon name="log-out" type="ionicon" size={20} color="green" />
+              <Text className="text-gray-800 font-semibold ml-4">
+                Log out
+              </Text>
+            </View>
+            <Icon
+              name="chevron-right"
+              type="font-awesome"
+              size={20}
+              color="gray"
+            />
+          </TouchableOpacity>
         </View>
       </View>
     </SafeAreaView>

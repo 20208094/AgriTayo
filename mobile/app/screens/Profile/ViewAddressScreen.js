@@ -18,7 +18,7 @@ function ViewAddressScreen({ route }) {
           <NotificationIcon
             onPress={() => navigation.navigate("Notifications")}
           />
-          <MessagesIcon onPress={() => navigation.navigate("Messages")} />
+          <MessagesIcon onPress={() => navigation.navigate("ChatListScreen")} />
         </View>
       </View>
 
