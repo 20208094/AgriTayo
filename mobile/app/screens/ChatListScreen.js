@@ -1,98 +1,90 @@
-// ChatListScreen.js
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { REACT_NATIVE_API_KEY } from '@env'; // Use .env for API key
+import { REACT_NATIVE_API_KEY } from '@env';
+import { styled } from 'nativewind';
 
 const API_URL = 'https://agritayo.azurewebsites.net/api/chats';
 
+// Styled components using NativeWind
+const Container = styled(View, 'flex-1 p-4 bg-white');
+const Title = styled(Text, 'text-xl font-bold mb-4 text-[#00B251]');
+const ErrorText = styled(Text, 'text-red-500 mb-4');
+const UserItem = styled(TouchableOpacity, 'flex-row items-center p-4 bg-white border-b border-gray-200');
+const UserName = styled(Text, 'text-lg font-semibold text-black');
+const LastMessage = styled(Text, 'text-sm text-gray-500');
+const Avatar = styled(Image, 'w-12 h-12 rounded-full bg-gray-200 mr-4');
+const TimeText = styled(Text, 'text-xs text-gray-400 ml-auto');
+
 const ChatListScreen = () => {
   const [users, setUsers] = useState([]);
-  const userId = 1; // Default user ID
   const [error, setError] = useState('');
   const navigation = useNavigation();
+  const userId = 1; // Default user ID
 
   useEffect(() => {
-    const fetchUserSessionAndUsers = async () => {
+    const fetchChats = async () => {
       try {
-        // Simulate fetching session data
-        const sessionData = { user_id: userId };
+        const chatResponse = await fetch(API_URL, {
+          headers: { 'x-api-key': REACT_NATIVE_API_KEY },
+        });
 
-        if (sessionData.user_id) {
-          // Fetch chats
-          const chatResponse = await fetch(API_URL, {
-            headers: { 'x-api-key': REACT_NATIVE_API_KEY }
-          });
+        if (chatResponse.ok) {
+          const chats = await chatResponse.json();
+          
+          // Extract unique users and simulate last message and time
+          const uniqueUsers = Array.from(new Set(
+            chats.map(chat => chat.sender_id === userId ? chat.receiver_id : chat.sender_id)
+          )).map(id => ({
+            id,
+            name: `User ${id}`, // Replace with actual names
+            avatar: 'https://example.com/default-avatar.png', // Placeholder avatar
+            lastMessage: 'Last message content here', // Placeholder message
+            time: '2h ago', // Placeholder time
+          }));
 
-          if (chatResponse.ok) {
-            const chats = await chatResponse.json();
-
-            // Extract unique users
-            const uniqueUsers = Array.from(new Set(
-              chats.map(chat => chat.sender_id === userId ? chat.receiver_id : chat.sender_id)
-            )).map(id => ({
-              id,
-              name: `User ${id}` // Replace with actual user/shop names if available
-            }));
-
-            setUsers(uniqueUsers);
-          } else {
-            console.error('Failed to fetch chats:', chatResponse.statusText);
-          }
+          setUsers(uniqueUsers);
         } else {
-          // Handle navigation to login or error
+          setError('Failed to fetch chats. Please try again.');
         }
       } catch (error) {
-        console.error('Error fetching data:', error);
-        setError('Failed to fetch data. Please try again.');
+        setError('Network error. Please try again.');
       }
     };
 
-    fetchUserSessionAndUsers();
+    fetchChats();
   }, []);
 
   const handleUserClick = (receiverId) => {
-    console.log('Navigating to ChatScreen with receiverId:', receiverId); // Log the receiverId
-    navigation.navigate('ChatScreen', { receiverId: receiverId });
+    navigation.navigate('ChatScreen', { receiverId });
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Your Chats</Text>
-      {error && <Text style={styles.error}>{error}</Text>}
-      {console.log('FlatList Data:', users)}
+    <Container>
+      <Title>Your Chats</Title>
+      {error && <ErrorText>{error}</ErrorText>}
       <FlatList
         data={users}
         renderItem={({ item }) => (
-          <TouchableOpacity style={styles.userItem} onPress={() => handleUserClick(item.id)}>
-            <Text>{item.name}</Text>
-          </TouchableOpacity>
+          <UserItem onPress={() => handleUserClick(item.id)}>
+            {/* User Avatar */}
+            <Avatar source={{ uri: item.avatar }} />
+
+            <View style={{ flex: 1 }}>
+              {/* User Name */}
+              <UserName>{item.name}</UserName>
+              {/* Last Message */}
+              <LastMessage>{item.lastMessage}</LastMessage>
+            </View>
+
+            {/* Timestamp */}
+            <TimeText>{item.time}</TimeText>
+          </UserItem>
         )}
         keyExtractor={(item) => item.id.toString()}
       />
-    </View>
+    </Container>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 10,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  error: {
-    color: 'red',
-    marginBottom: 10,
-  },
-  userItem: {
-    padding: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
-  },
-});
 
 export default ChatListScreen;
