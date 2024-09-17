@@ -10,10 +10,6 @@ function ProductDetailsScreen({ navigation, route }) {
   const { product } = route.params; // Receive the product data
   const [quantity, setQuantity] = useState(1);
 
-  // Log the product data
-  useEffect(() => {
-    console.log('Product data:', product);
-  }, [product]);
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
