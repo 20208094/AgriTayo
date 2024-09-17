@@ -1,13 +1,17 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { IoLogIn, IoLogOut, IoCart } from 'react-icons/io5'; // Ensure IoCart is imported
+import { IoNotifications } from "react-icons/io5";
 import AdminTopNavbar from './TopNavbar/AdminTopNavbar';
 import SellerTopNavbar from './TopNavbar/SellerTopNavbar';
 import BuyerTopNavbar from './TopNavbar/BuyerTopNavbar';
 import ProfileDropdown from './TopNavbar/TopNavTemplates/ProfileDropdown';
+import NotificationDropdown from './NotificationDropdown';
+import { supabase } from '../supabaseClient';
 
-function TopNavbar({ userType, refreshProfile }) {
+function TopNavbar({ userType, userId, refreshProfile }) {
     console.log(refreshProfile)
+    console.log('recieved userid=', userId)
     return (
         <nav className="flex items-center justify-between bg-[#eefff4] border-[#00b250] text-[#01a149] z-[1000] px-5 h-12 border-b w-full fixed top-0 left-0 box-border md:h-16">
             {/* Conditional Top Navbar Content */}
@@ -34,6 +38,13 @@ function TopNavbar({ userType, refreshProfile }) {
                         <div className="cart-badge">8</div>
                     </div>
                 </NavLink>
+
+                <div className="topnav-item">
+                    <div className="topnav-icon-container">
+                        <IoNotifications className="topnav-icon-notifications" />
+                        {userId && <NotificationDropdown userId={userId} />}
+                    </div>
+                </div>
 
                 <ProfileDropdown key={refreshProfile}/>
             </div>

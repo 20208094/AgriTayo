@@ -152,6 +152,7 @@ const {
 const { login } = require('./supabase_connection/user_auth_services/login');
 const { register } = require('./supabase_connection/user_auth_services/register');
 const { logout } = require('./supabase_connection/user_auth_services/logout');
+const {notifySeller} = require('./supabase_connection/crud_services/notify.js')
 
 
 const app = express();
@@ -220,6 +221,8 @@ app.post('/api/register', register);
 
 // API for logout
 app.post('/api/logout', logout);
+
+app.post('/api/notifySeller', notifySeller)
 
 // API routes for sample data
 app.get('/api/data/sample', getSampleData);

@@ -66,6 +66,7 @@ const API_KEY = import.meta.env.VITE_API_KEY;
 
 function App() {
   const [userType, setUserType] = useState(null);
+  const [userId, setUserId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [refreshProfile, setRefreshProfile] = useState(0);
 
@@ -79,7 +80,10 @@ function App() {
         });
         if (response.ok) {
           const data = await response.json();
+          setUserId(data.user_id);
           setUserType(data.user_type_id);
+          console.log('userid= ', {userId})
+          console.log('usertypwid= ', {userType})
         } else {
           console.error('Failed to fetch user session:', response.statusText);
         }
@@ -100,10 +104,11 @@ function App() {
 
   return (
     <Router>
-      <Layout userType={userType} refreshProfile={refreshProfile} setRefreshProfile={setRefreshProfile}/>
+      <Layout userType={userType} userId={userId} refreshProfile={refreshProfile} setRefreshProfile={setRefreshProfile}/>
     </Router>
   );
 }
+
 
 function ProtectedRoute({ allowedUserType, userType, element }) {
   if (userType === null) {
@@ -127,7 +132,7 @@ function ProtectedRoute({ allowedUserType, userType, element }) {
   }
 }
 
-function Layout({ userType, refreshProfile, setRefreshProfile }) {
+function Layout({ userType, userId, refreshProfile, setRefreshProfile }) {
   const location = useLocation();
   const isAuthPage = location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/logout';
 
@@ -144,7 +149,7 @@ function Layout({ userType, refreshProfile, setRefreshProfile }) {
 
   return (
     <div className="flex">
-      {!isAuthPage && <TopNavbar userType={userType} refreshProfile={refreshProfile}/>}
+      {!isAuthPage && <TopNavbar userType={userType} userId={userId} refreshProfile={refreshProfile}/>}
       {!isAuthPage && <LeftSidebar userType={userType} />}
       {/* {!isAuthPage && <SubSidebar userType={userType} />} */}
 
