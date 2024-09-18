@@ -22,6 +22,7 @@ const ChatBubbleText = styled(Text, 'text-white text-sm');
 const ChatImage = styled(Image, 'w-48 h-48 rounded-lg mt-2');
 const ProfileImage = styled(Image, 'w-10 h-10 rounded-full mr-2');
 const NameText = styled(Text, 'font-bold text-xs text-gray-600 mb-1');
+const HeaderText = styled(Text, 'text-lg font-bold text-center text-gray-800 py-2 bg-gray-100');
 
 const ChatScreen = ({ route }) => {
   const [messages, setMessages] = useState([]);
@@ -30,14 +31,11 @@ const ChatScreen = ({ route }) => {
   const [isImageViewerVisible, setIsImageViewerVisible] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null); // For image viewer
   const socket = useRef(null);
-  const { receiverId } = route.params;
-  const userId = 1;
+  const { receiverId, receiverName } = route.params;
+  const userId = 1; // Assume current user is User 1
 
-  // Ref for FlatList to scroll to the end
+  // Ref for FlatList
   const flatListRef = useRef(null);
-
-  // State to track if the user is near the bottom
-  const [isNearBottom, setIsNearBottom] = useState(true);
 
   useEffect(() => {
     // Initialize socket connection
@@ -48,12 +46,7 @@ const ChatScreen = ({ route }) => {
     });
 
     socket.current.on('chat message', (msg) => {
-      setMessages((prevMessages) => [...prevMessages, msg]);
-
-      // Only scroll to the end if the user is already near the bottom
-      if (isNearBottom) {
-        flatListRef.current?.scrollToEnd({ animated: true });
-      }
+      setMessages((prevMessages) => [msg, ...prevMessages]); // Insert new messages at the beginning
     });
 
     const fetchMessages = async () => {
@@ -67,10 +60,7 @@ const ChatScreen = ({ route }) => {
 
           if (response.ok) {
             const allMessages = await response.json();
-            setMessages(allMessages);
-
-            // Scroll to the end when messages are loaded initially
-            flatListRef.current?.scrollToEnd({ animated: false });
+            setMessages(allMessages.reverse()); // Reverse to match the inverted FlatList order
           } else {
             console.error('Failed to fetch messages:', response.statusText);
           }
@@ -123,9 +113,7 @@ const ChatScreen = ({ route }) => {
           const savedMessage = await response.json();
           setNewMessage('');
           setNewImage(null);
-
-          // Scroll to the bottom after sending a message
-          flatListRef.current?.scrollToEnd({ animated: true });
+          setMessages((prevMessages) => [savedMessage, ...prevMessages]); // Insert new message at the beginning
         } else {
           console.error('Failed to send message:', response.statusText);
           Alert.alert('Error', 'Failed to send message. Please try again.');
@@ -168,27 +156,22 @@ const ChatScreen = ({ route }) => {
     setIsImageViewerVisible(true);
   };
 
-  // Handle the scroll event to detect if the user is near the bottom
-  const handleScroll = (event) => {
-    const { contentOffset, layoutMeasurement, contentSize } = event.nativeEvent;
-
-    // Calculate if the user is near the bottom (within 50px from the bottom)
-    const isAtBottom = contentOffset.y + layoutMeasurement.height >= contentSize.height - 50;
-    setIsNearBottom(isAtBottom);
-  };
-
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
+      {/* Display receiver's name in the header */}
+      <HeaderText>{receiverName}</HeaderText>
+
       <Container>
         <ChatContainer>
           <FlatList
-            ref={flatListRef} // Attach ref to FlatList
+            ref={flatListRef}
             data={messages}
             renderItem={({ item }) => {
               const isSender = item.sender_id === userId;
+              const senderName = isSender ? 'You' : receiverName;
 
               return (
                 <View style={{ flexDirection: isSender ? 'row-reverse' : 'row', alignItems: 'center', marginVertical: 5 }}>
@@ -196,7 +179,7 @@ const ChatScreen = ({ route }) => {
                     <ProfileImage source={{ uri: item.sender_profile_image_url || 'https://example.com/default-profile.png' }} />
                   )}
                   <View style={{ alignItems: isSender ? 'flex-end' : 'flex-start', flex: 1 }}>
-                    {!isSender && <NameText>{item.sender_name || 'Unknown'}</NameText>}
+                    {!isSender && <NameText>{senderName}</NameText>}
                     {item.chat_message && (
                       <ChatBubble
                         style={{
@@ -221,12 +204,9 @@ const ChatScreen = ({ route }) => {
             }}
             keyExtractor={(item, index) => index.toString()}
             style={{ flex: 1 }}
-            onScroll={handleScroll} // Track user scroll
-            onContentSizeChange={() => {
-              if (isNearBottom) {
-                flatListRef.current?.scrollToEnd({ animated: true });
-              }
-            }}
+            inverted // Invert the FlatList to start from the bottom
+            windowSize={10} // Optimize windowing for performance
+            initialNumToRender={20} // Initial number of items to render
           />
         </ChatContainer>
 
