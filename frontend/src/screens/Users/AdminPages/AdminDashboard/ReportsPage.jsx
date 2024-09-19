@@ -39,9 +39,9 @@ function ReportsPage() {
     };
 
     return (
-        <div className='reports-page'>
-            <h1 className='reports-title'>PDF Report</h1>
-            <button onClick={generatePDF} className='generate-pdf-button'>
+        <div className=''>
+            <h1 className=''>PDF Report</h1>
+            <button onClick={generatePDF} className=''>
                 Generate PDF
             </button>
         </div>

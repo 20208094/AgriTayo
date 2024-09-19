@@ -71,7 +71,6 @@ function ShopScreen({ navigation }) {
       <View className="mt-6 px-6 flex-wrap flex-row justify-between">
         {[
           { label: "My Products", icon: "box", screen: "My Products" },
-          { label: "My Finance", icon: "wallet", screen: "My Finance" },
           { label: "Shop Performance", icon: "chart-line", screen: "Shop Performance" },
           { label: "Bidding", icon: "file-contract", screen: "Bidding" },
           { label: "Learn and Help", icon: "info-circle", screen: "Learn and Help" },

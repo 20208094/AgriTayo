@@ -161,11 +161,10 @@ const MarketAnalyticsPage = () => {
               (filter) => (
                 <button
                   key={filter}
-                  className={`p-2 rounded-lg mb-2 w-full ${
-                    selectedFilter === filter
+                  className={`p-2 rounded-lg mb-2 w-full ${selectedFilter === filter
                       ? "bg-green-500 text-white"
                       : "bg-gray-200 text-green-700"
-                  }`}
+                    }`}
                   onClick={() => {
                     setSelectedFilter(filter);
                     setModalVisible(false);

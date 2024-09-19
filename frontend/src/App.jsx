@@ -26,6 +26,11 @@ import AdminDashboardPage from './screens/Users/AdminPages/AdminDashboard/AdminD
 import AnalyticsPage from './screens/Users/AdminPages/AdminDashboard/AnalyticsPage';
 import ReportsPage from './screens/Users/AdminPages/AdminDashboard/ReportsPage';
 import MarketAnalyticsPage from './screens/Users/AdminPages/AdminDashboard/MarketAnalyticsPage';
+import SalesAnalyticsPage from './screens/Users/AdminPages/AdminDashboard/SalesAnalyticsPage';
+import NewUsersAnalyticsPage from './screens/Users/AdminPages/AdminDashboard/NewUsersAnalyticsPage';
+import OrdersAnalyticsPage from './screens/Users/AdminPages/AdminDashboard/OrdersAnalyticsPage';
+import IndividualCropPriceChangesPage from './screens/Users/AdminPages/AdminDashboard/IndividualCropPriceChangesAnalyticsPage';
+import ProfitAnalyticsPage from './screens/Users/AdminPages/AdminDashboard/ProfitAnalyticsPage';
 
 import SellerDashboardPage from './screens/Users/SellerPages/SellerDashboard';
 import BuyerDashboardPage from './screens/Users/BuyerPages/BuyerDashboard';
@@ -186,6 +191,11 @@ function Layout({ userType, refreshProfile, setRefreshProfile }) {
           <Route exact path="/admin-dash" element={<AdminDashboardPage />} />
           <Route exact path='/analytics' element={<AnalyticsPage />} />
           <Route exact path='/marketAnalytics' element={<MarketAnalyticsPage />} />
+          <Route exact path='/salesAnalytics' element={<SalesAnalyticsPage/>}/>
+          <Route exact path='/newUsersAnalytics' element={<NewUsersAnalyticsPage/>}/>
+          <Route exact path='/ordersAnalytics' element={<OrdersAnalyticsPage/>}/>
+          <Route exact path='/individualCropPriceChangesAnalytics' element={<IndividualCropPriceChangesPage/>}/>
+          <Route exact path='/profitAnalytics' element={<ProfitAnalyticsPage/>}/>
           <Route exact path="/reports" element={<ReportsPage />} />
           <Route exact path="/chat" element={<ChatPage />} />
           <Route path="/chatlist" element={<ChatListPage />} />
