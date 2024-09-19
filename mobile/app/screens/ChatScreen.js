@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TextInput, FlatList, KeyboardAvoidingView, Platform, Image, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, TextInput, FlatList, KeyboardAvoidingView, Platform, Image, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import io from 'socket.io-client';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
-import Icon from 'react-native-vector-icons/MaterialIcons'; // Icon package
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import { styled } from 'nativewind';
-import ImageViewing from 'react-native-image-viewing'; // Full screen image viewer
+import ImageViewing from 'react-native-image-viewing';
 import { REACT_NATIVE_API_KEY } from '@env';
 
 const SOCKET_URL = 'https://agritayo.azurewebsites.net';
@@ -29,7 +29,9 @@ const ChatScreen = ({ route }) => {
   const [newMessage, setNewMessage] = useState('');
   const [newImage, setNewImage] = useState(null);
   const [isImageViewerVisible, setIsImageViewerVisible] = useState(false);
-  const [selectedImage, setSelectedImage] = useState(null); // For image viewer
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [loading, setLoading] = useState(false); // Show loading for network requests
+
   const socket = useRef(null);
   const { receiverId, receiverName } = route.params;
   const userId = 1; // Assume current user is User 1
@@ -46,26 +48,29 @@ const ChatScreen = ({ route }) => {
     });
 
     socket.current.on('chat message', (msg) => {
-      setMessages((prevMessages) => [msg, ...prevMessages]); // Insert new messages at the beginning
+      setMessages((prevMessages) => [msg, ...prevMessages]);
     });
 
     const fetchMessages = async () => {
       if (userId && receiverId) {
         try {
+          setLoading(true);
           const response = await fetch(`https://agritayo.azurewebsites.net/api/chats`, {
             headers: {
-              'x-api-key': REACT_NATIVE_API_KEY
-            }
+              'x-api-key': REACT_NATIVE_API_KEY,
+            },
           });
 
           if (response.ok) {
             const allMessages = await response.json();
-            setMessages(allMessages.reverse()); // Reverse to match the inverted FlatList order
+            setMessages(allMessages.reverse());
           } else {
             console.error('Failed to fetch messages:', response.statusText);
           }
         } catch (error) {
           console.error('Error fetching messages:', error);
+        } finally {
+          setLoading(false);
         }
       }
     };
@@ -90,20 +95,25 @@ const ChatScreen = ({ route }) => {
         const name = uri.split('/').pop();
         const type = 'image/jpeg';
 
-        const file = await FileSystem.readAsStringAsync(uri, { encoding: FileSystem.EncodingType.Base64 });
-
-        formData.append('image', {
-          uri: `data:${type};base64,${file}`,
-          type,
-          name,
-        });
+        try {
+          const file = await FileSystem.readAsStringAsync(uri, { encoding: FileSystem.EncodingType.Base64 });
+          formData.append('image', {
+            uri: `data:${type};base64,${file}`,
+            type,
+            name,
+          });
+        } catch (error) {
+          console.error('Error reading image file:', error);
+          Alert.alert('Error', 'Failed to upload image. Please try again.');
+          return;
+        }
       }
 
       try {
         const response = await fetch('https://agritayo.azurewebsites.net/api/chats', {
           method: 'POST',
           headers: {
-            'Accept': 'application/json',
+            Accept: 'application/json',
             'x-api-key': REACT_NATIVE_API_KEY,
           },
           body: formData,
@@ -113,7 +123,7 @@ const ChatScreen = ({ route }) => {
           const savedMessage = await response.json();
           setNewMessage('');
           setNewImage(null);
-          setMessages((prevMessages) => [savedMessage, ...prevMessages]); // Insert new message at the beginning
+          setMessages((prevMessages) => [savedMessage, ...prevMessages]);
         } else {
           console.error('Failed to send message:', response.statusText);
           Alert.alert('Error', 'Failed to send message. Please try again.');
@@ -156,15 +166,23 @@ const ChatScreen = ({ route }) => {
     setIsImageViewerVisible(true);
   };
 
+  const scrollToBottom = () => {
+    if (flatListRef.current) {
+      flatListRef.current.scrollToOffset({ offset: 0 });
+    }
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
-      {/* Display receiver's name in the header */}
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <HeaderText>{receiverName}</HeaderText>
 
       <Container>
+        {loading && <ActivityIndicator size="large" color="#00B251" />}
+
         <ChatContainer>
           <FlatList
             ref={flatListRef}
@@ -181,16 +199,8 @@ const ChatScreen = ({ route }) => {
                   <View style={{ alignItems: isSender ? 'flex-end' : 'flex-start', flex: 1 }}>
                     {!isSender && <NameText>{senderName}</NameText>}
                     {item.chat_message && (
-                      <ChatBubble
-                        style={{
-                          backgroundColor: isSender ? '#00B251' : '#E5E5EA',
-                          maxWidth: '100%', // Ensure the chat bubble can grow to full width
-                          marginHorizontal: 10, // Padding to avoid edges
-                        }}
-                      >
-                        <ChatBubbleText style={{ color: isSender ? 'white' : 'black' }}>
-                          {item.chat_message}
-                        </ChatBubbleText>
+                      <ChatBubble style={{ backgroundColor: isSender ? '#00B251' : '#E5E5EA', maxWidth: '100%', marginHorizontal: 10 }}>
+                        <ChatBubbleText style={{ color: isSender ? 'white' : 'black' }}>{item.chat_message}</ChatBubbleText>
                       </ChatBubble>
                     )}
                     {item.chat_image_url && (
@@ -204,9 +214,9 @@ const ChatScreen = ({ route }) => {
             }}
             keyExtractor={(item, index) => index.toString()}
             style={{ flex: 1 }}
-            inverted // Invert the FlatList to start from the bottom
-            windowSize={10} // Optimize windowing for performance
-            initialNumToRender={20} // Initial number of items to render
+            inverted
+            windowSize={10}
+            initialNumToRender={20}
           />
         </ChatContainer>
 
@@ -221,6 +231,8 @@ const ChatScreen = ({ route }) => {
             value={newMessage}
             onChangeText={setNewMessage}
             placeholder="Type a message..."
+            accessible
+            accessibilityLabel="Message input field"
           />
           <SendButton onPress={handleSendMessage}>
             <Icon name="send" size={24} color="white" />
