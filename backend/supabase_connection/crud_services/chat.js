@@ -86,7 +86,7 @@ async function addChat(req, res, io) {
                         console.error('Socket.io instance is undefined');
                     }
                 }
-
+                console.log('closing message api');
                 res.status(201).json({ message: 'Chat added successfully', data });
             } catch (err) {
                 console.error('Error executing Supabase query:', err.message);
@@ -99,37 +99,37 @@ async function addChat(req, res, io) {
     }
 }
 
-
 // Function to update the read status of a chat message
 async function updateChatReadStatus(req, res) {
     
     const { sender_id } = req.body; 
     const { user_id } = req.body; 
     const userId = user_id
-    console.error('update chat called:', sender_id, user_id);
+    console.log('update chat called:', sender_id, user_id);
     try {
 
         if (!sender_id || !userId) {
             return res.status(400).json({ error: 'Sender ID and User ID are required for update' });
         }
 
+        console.log('starting:');
         // Update all messages where the sender_id matches and the receiver_id is the user
         const { data, error } = await supabase
             .from('chats')
             .update({ is_read: true })
             .eq('sender_id', sender_id)
             .eq('receiver_id', userId)
-            .eq('is_read', false);
         if (error) {
             console.error('Supabase query failed:', error.message);
             return res.status(500).json({ error: 'Internal server error', details: error.message });
         }
-
+        console.log('done updated successfully:');
         res.status(200).json({ message: 'Chat read status updated successfully', data });
     } catch (err) {
         console.error('Error executing update process:', err.message);
         res.status(500).json({ error: 'Internal server error', details: err.message });
     }
+    console.log('exiting:');
 }
 
 // Function to delete a chat message, including associated image

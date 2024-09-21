@@ -29,18 +29,28 @@ function ChatPage() {
 
         // Listen for incoming messages
         socket.on('chat message', (msg) => {
+            // Check if the message is for this specific chat
             const isMessageForThisChat =
                 (msg.sender_id === userId && msg.receiver_id === receiverIdNum) ||
                 (msg.receiver_id === userId && msg.sender_id === receiverIdNum);
-
+        
+            // Check if the incoming message is unread
+            const unreadCount = !msg.is_read ? 1 : 0;
+            
+            // If there's an unread message, mark it as read
+            if (unreadCount !== 0) {
+                console.log('Executing mark as read for socket message');
+                markMessagesAsRead();
+            }
+        
+            // If the message belongs to the current chat, add it to the list
             if (isMessageForThisChat) {
                 setMessages((prevMessages) => [...prevMessages, msg]);
             }
         });
-
+        
         return () => {
             socket.off('chat message'); // Clean up the listener
-            markMessagesAsRead();
             socket.disconnect(); // Disconnect socket on unmount
         };
     }, [userId, receiverId]);
@@ -80,7 +90,7 @@ function ChatPage() {
                 }
                 const usersData = await response.json();
                 setUsers(usersData);
-                
+
                 // Set sender and receiver data
                 const sender = usersData.find(user => user.user_id === userId);
                 const receiver = usersData.find(user => user.user_id === receiverIdNum);
@@ -110,9 +120,16 @@ function ChatPage() {
                             (message.sender_id === userId || message.receiver_id === userId) &&
                             (message.sender_id === receiverIdNum || message.receiver_id === receiverIdNum)
                         );
-                        setMessages(filteredMessages);
+                        const sortedMessages = filteredMessages.sort((a, b) => a.chat_id - b.chat_id);
+                    
+                        setMessages(sortedMessages);
 
-                        markMessagesAsRead();
+                        const unreadCount = filteredMessages.filter(message => !message.is_read).length;
+                        console.log('Unread messages count:', unreadCount);
+                        if (unreadCount != 0) {
+                            console.log('executing mark as read');
+                            markMessagesAsRead();
+                        }
                     } else {
                         console.error('Failed to fetch messages:', response.statusText);
                     }
@@ -130,8 +147,9 @@ function ChatPage() {
         const url = `/api/chats/read`;
         const method = 'PUT';
         const bodyData = JSON.stringify({ sender_id: senderId, user_id: userId });
-    
+
         try {
+            console.log('tried')
             const response = await fetch(url, {
                 method: method,
                 headers: {
@@ -140,7 +158,8 @@ function ChatPage() {
                 },
                 body: bodyData,
             });
-    
+            console.log('done')
+
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
@@ -148,7 +167,7 @@ function ChatPage() {
             console.error('Error marking messages as read:', error);
         }
     };
-    
+
 
     const handleSendMessage = async (e) => {
         e.preventDefault();
@@ -162,7 +181,7 @@ function ChatPage() {
             if (newImage) {
                 formData.append('image', newImage);
             }
-
+            console.log('saving to db:')
             try {
                 const response = await fetch('/api/chats', {
                     method: 'POST',
@@ -174,6 +193,7 @@ function ChatPage() {
                     const savedMessage = await response.json();
                     setNewMessage('');
                     setNewImage(null);
+                    console.log('saved to db:')
                 } else {
                     console.error('Failed to send message:', response.statusText);
                 }
