@@ -39,6 +39,7 @@ import MarketAnalyticScreen from "./app/screens/Analytics/MarketAnalyticScreen";
 import MessageSellerScreen from "./app/screens/Message/MessageSellerScreen";
 import NegotiateToSellerScreen from "./app/screens/Message/NegotiateToSellerScreen";
 import BiddingDetailsScreen from "./app/screens/Bidding/BiddingDetailsScreen";
+import OrderDetailsScreen from "./app/screens/Orders/OrderDetailsScreen";
 // for farmers
 import ShopScreen from "./app/screens/farmers/Shop/ShopScreen";
 import ViewShopScreen from "./app/screens/farmers/Shop/ViewShopScreen";
@@ -53,6 +54,8 @@ import BusinessInsightsScreen from "./app/screens/farmers/Shop/ShopPerformance/B
 import AccountHealthScreen from "./app/screens/farmers/Shop/ShopPerformance/AccountHealthScreen";
 import SellerShopScreen from "./app/screens/farmers/Shop/SellerShopScreen";
 import AddBidScreen from "./app/screens/farmers/Shop/FarmersBidding/AddBidScreen";
+import FarmersProductDetailScreen from "./app/screens/farmers/Shop/MyProducts/FarmersProductDetailsScreen";
+import FarmersOrderDetailsScreen from "./app/screens/farmers/Shop/ViewSalesHistory/FarmersOrderDetailsScreen";
 // for chat
 import ChatScreen from "./app/screens/ChatScreen";
 import ChatListScreen from "./app/screens/ChatListScreen";
@@ -357,6 +360,21 @@ function App() {
             <Stack.Screen
             name='Add Bid'
             component={AddBidScreen}
+            options={screenOptions}
+            />
+            <Stack.Screen
+            name='Farmers Product Details'
+            component={FarmersProductDetailScreen}
+            options={screenOptions}
+            />
+            <Stack.Screen
+            name='Farmers Orders Details'
+            component={FarmersOrderDetailsScreen}
+            options={screenOptions}
+            />
+            <Stack.Screen
+            name='Order Details'
+            component={OrderDetailsScreen}
             options={screenOptions}
             />
           </>

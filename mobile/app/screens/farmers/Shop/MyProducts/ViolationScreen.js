@@ -1,9 +1,10 @@
 import React from 'react';
-import { SafeAreaView, View, Text, ScrollView, Image } from "react-native";
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { SafeAreaView, View, Text, ScrollView, Image, TouchableOpacity} from "react-native";
 import placeholderimg from "../../../../assets/placeholder.png";
+import SearchBarC from '../../../../components/SearchBarC';
+import Reports from '../../../../components/Reports';
 
-function ViolationScreen() {
+function ViolationScreen({navigation}) {
   const violationItems = [
     { id: 1, name: "Product E", violation: "Inappropriate Content", image: placeholderimg },
     { id: 2, name: "Product F", violation: "Misleading Information", image: placeholderimg },
@@ -11,16 +12,17 @@ function ViolationScreen() {
 
   return (
     <SafeAreaView className='flex-1 bg-gray-100'>
+      <SearchBarC/>
+      <Reports data={violationItems} dataType='violationItems'/>
       <ScrollView className="p-4">
-        {violationItems.map((item) => (
-          <View key={item.id} className="bg-white p-4 mb-4 rounded-lg shadow-lg flex-row items-center">
-            <Image source={item.image} className="w-16 h-16 rounded-lg mr-4" />
+        {violationItems.map((violationItem) => (
+          <TouchableOpacity key={violationItem.id} className="bg-white p-4 mb-4 rounded-lg shadow-lg flex-row items-center" onPress={() => navigation.navigate('Farmers Product Details', {violationItem})}>
+            <Image source={violationItem.image} className="w-16 h-16 rounded-lg mr-4" />
             <View className="flex-1">
-              <Text className="text-lg font-semibold text-gray-800">{item.name}</Text>
-              <Text className="text-sm text-gray-600">Violation: {item.violation}</Text>
+              <Text className="text-lg font-semibold text-gray-800">{violationItem.name}</Text>
+              <Text className="text-sm text-gray-600">Violation: {violationItem.violation}</Text>
             </View>
-            <Icon name="alert-circle" size={24} color="#f44336" />
-          </View>
+          </TouchableOpacity>
         ))}
       </ScrollView>
     </SafeAreaView>

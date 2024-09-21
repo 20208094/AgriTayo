@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 5,
     elevation: 5,
-    justifyContent: 'space-between', // Space between search bar and icons
+    justifyContent: 'space-between',  // Space between search bar and icons
   },
   searchContainer: {
     flexDirection: "row",
