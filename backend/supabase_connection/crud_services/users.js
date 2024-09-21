@@ -14,7 +14,7 @@ async function getUsers(req, res) {
             return res.status(500).json({ error: 'Internal server error' });
         }
 
-        console.log('Retrieved users data:', data);
+        // console.log('Retrieved users data:', data);
         res.json(data);
     } catch (err) {
         console.error('Error executing Supabase query:', err.message);

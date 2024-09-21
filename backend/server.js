@@ -7,6 +7,7 @@ const path = require('path');
 const multer = require('multer'); // For handling file uploads
 const { createServer } = require('http'); 
 const { Server } = require('socket.io');
+const { initializeSocket, getIo } = require('./socket')
 
 // Import CRUD services
 const {
@@ -160,12 +161,7 @@ const app = express();
 const server = createServer(app); // Create the HTTP server
 
 // Initialize Socket.IO
-const io = new Server(server, {
-    cors: {
-        origin: "*", // Allow all origins (you can restrict this)
-        methods: ["GET", "POST"]
-    }
-});
+initializeSocket(server);
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -174,7 +170,7 @@ const PORT = process.env.PORT || 8080;
 
 // Middleware setup for session
 app.use(session({
-    secret: 'AgriTayoKey2024', // Replace with a secure random key
+    secret: 'AgriTayoKey2024',
     resave: false,
     saveUninitialized: false,
     cookie: { secure: false }
@@ -339,9 +335,9 @@ app.delete('/api/review_images/:id', deleteReviewImage);
 // API routes for chat messages
 app.get('/api/chats', getChats);
 app.post('/api/chats', (req, res) => {
-    addChat(req, res, io);
+    addChat(req, res, getIo());
 });
-app.put('/api/chats/:id/read', updateChatReadStatus);
+app.put('/api/chats/read', updateChatReadStatus);
 app.delete('/api/chats/:id', deleteChat);
 
 
@@ -353,50 +349,6 @@ app.use(express.static(distPath));
 app.get('*', (req, res) => {
     res.sendFile('index.html', { root: distPath });
 });
-
-io.on('connection', (socket) => {
-    console.log('A user connected:', socket.id);
-
-    // Listen for 'chat message' event from the client
-    socket.on('chat message', async (msg) => {
-        console.log('Message received:', msg); // This should be logged when a message is received
-
-        try {
-            // Create a mock request and response object to pass to addChat
-            const req = {
-                body: msg,
-                files: msg.files || {}, // Ensure files are handled properly
-                fields: {
-                    sender_id: [msg.sender_id],
-                    receiver_id: [msg.receiver_id],
-                    receiver_type: [msg.receiver_type],
-                    chat_message: [msg.chat_message]
-                }
-            };
-
-            const res = {
-                status: (code) => {
-                    return {
-                        json: (data) => {
-                            console.log(`Response status ${code}:`, data);
-                        }
-                    };
-                }
-            };
-
-            // Call addChat and pass the socket.io instance to it
-            await addChat(req, res, io);
-        } catch (error) {
-            console.error('Error saving message:', error);
-        }
-    });
-
-    socket.on('disconnect', () => {
-        console.log('User disconnected:', socket.id);
-    });
-});
-
-
 
 app.use((err, req, res, next) => {
     console.error(err.stack);

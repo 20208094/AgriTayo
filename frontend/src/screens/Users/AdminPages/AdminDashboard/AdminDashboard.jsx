@@ -3,14 +3,18 @@ import React, { useState, useEffect } from 'react';
 function AdminDashboardPage() {
 
   return (
-    <div className='h-screen pt-5 sm:columns-2 md:columns-2'>
-      <div className='container p-2 h-full bg-red-400 sm:bg-black sm:columns-1 md:bg-slate-500'>a
-        <div className='m-5 bg-blue-100'>first</div>
-        <div className='m-5 bg-red-100'>second</div>
-      </div>
-      <div className='bg-black text-white  sm:bg-black md:bg-slate-800'>b
-      </div>
-    </div>
+
+    
+<div className="grid grid-cols-3 grid-rows-5 gap-4 pt-10 px-4">
+    <div className='border'>1</div>
+    <div className='border'>2</div>
+    <div className='border'>3</div>
+    <div className="col-span-2 row-span-4 border">4</div>
+    <div className="row-span-2 col-start-3 border">7</div>
+    <div className="row-span-2 col-start-3 row-start-4 border">9</div>
+</div>
+    
+
   );
 }
 

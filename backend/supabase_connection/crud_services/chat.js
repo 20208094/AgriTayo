@@ -2,21 +2,23 @@ const supabase = require('../db');
 const formidable = require('formidable');
 const imageHandler = require('../imageHandler');
 
+// Assuming `io` will be initialized elsewhere and imported here
+let io;
+
+function setSocketIOInstance(socketIOInstance) {
+    io = socketIOInstance; // Store the socket.io instance for later use
+}
+
 // Function to retrieve all chats
 async function getChats(req, res) {
     try {
-        // Query the Supabase database to get all chat records
-        const { data, error } = await supabase
-            .from('chats')
-            .select('*');
+        const { data, error } = await supabase.from('chats').select('*');
 
-        // Check for Supabase errors
         if (error) {
             console.error('Supabase query failed:', error.message);
             return res.status(500).json({ error: 'Internal server error', details: error.message });
         }
 
-        // Return the fetched chat data
         res.json(data);
     } catch (err) {
         console.error('Error executing Supabase query:', err.message);
@@ -36,9 +38,6 @@ async function addChat(req, res, io) {
                 return res.status(500).json({ error: 'Form parsing error', details: err.message });
             }
 
-            console.log('Fields:', fields);
-            console.log('Files:', files);
-
             const sender_id = fields.sender_id[0];
             const receiver_id = fields.receiver_id[0];
             const receiver_type = fields.receiver_type[0];
@@ -48,10 +47,8 @@ async function addChat(req, res, io) {
             let chat_image_url = null;
 
             if (image) {
-                console.log('Uploading image:', image);
                 try {
                     chat_image_url = await imageHandler.uploadImage(image);
-                    console.log('Image uploaded successfully:', chat_image_url);
                 } catch (uploadError) {
                     console.error('Image upload error:', uploadError.message);
                     return res.status(500).json({ error: 'Image upload failed', details: uploadError.message });
@@ -59,7 +56,6 @@ async function addChat(req, res, io) {
             }
 
             try {
-                console.log('Inserting chat message into Supabase');
                 const { data, error } = await supabase
                     .from('chats')
                     .insert([{ sender_id, receiver_id, receiver_type, chat_message, chat_image_url, is_read: false }])
@@ -70,11 +66,11 @@ async function addChat(req, res, io) {
                     return res.status(500).json({ error: 'Internal server error', details: error.message });
                 }
 
-                console.log('Chat message added successfully:', data);
+                console.log('Added chat to db');
 
-                // Emit the message and image URL to connected clients using socket.io
+
                 if (data && data.length > 0) {
-                    const savedMessage = data[0]; // Get the saved message data
+                    const savedMessage = data[0]; 
                     const messageToSend = {
                         sender_id: savedMessage.sender_id,
                         receiver_id: savedMessage.receiver_id,
@@ -83,7 +79,12 @@ async function addChat(req, res, io) {
                         chat_image_url: savedMessage.chat_image_url,
                     };
 
-                    io.emit('chat message', messageToSend); // Broadcast the message
+                    if (io) { // Ensure io is defined
+                        io.emit('chat message', messageToSend); // Broadcast the message
+                        console.log('emited message');
+                    } else {
+                        console.error('Socket.io instance is undefined');
+                    }
                 }
 
                 res.status(201).json({ message: 'Chat added successfully', data });
@@ -99,33 +100,32 @@ async function addChat(req, res, io) {
 }
 
 
-
 // Function to update the read status of a chat message
 async function updateChatReadStatus(req, res) {
+    
+    const { sender_id } = req.body; 
+    const { user_id } = req.body; 
+    const userId = user_id
+    console.error('update chat called:', sender_id, user_id);
     try {
-        const { id } = req.params;
-        if (!id) {
-            return res.status(400).json({ error: 'ID is required for update' });
+
+        if (!sender_id || !userId) {
+            return res.status(400).json({ error: 'Sender ID and User ID are required for update' });
         }
 
-        const { is_read } = req.body;
-
-        try {
-            const { data, error } = await supabase
-                .from('chats')
-                .update({ is_read })
-                .eq('chat_id', id);
-
-            if (error) {
-                console.error('Supabase query failed:', error.message);
-                return res.status(500).json({ error: 'Internal server error', details: error.message });
-            }
-
-            res.status(200).json({ message: 'Chat read status updated successfully', data });
-        } catch (err) {
-            console.error('Error executing Supabase query:', err.message);
-            res.status(500).json({ error: 'Internal server error', details: err.message });
+        // Update all messages where the sender_id matches and the receiver_id is the user
+        const { data, error } = await supabase
+            .from('chats')
+            .update({ is_read: true })
+            .eq('sender_id', sender_id)
+            .eq('receiver_id', userId)
+            .eq('is_read', false);
+        if (error) {
+            console.error('Supabase query failed:', error.message);
+            return res.status(500).json({ error: 'Internal server error', details: error.message });
         }
+
+        res.status(200).json({ message: 'Chat read status updated successfully', data });
     } catch (err) {
         console.error('Error executing update process:', err.message);
         res.status(500).json({ error: 'Internal server error', details: err.message });
@@ -177,9 +177,11 @@ async function deleteChat(req, res) {
     }
 }
 
+// Export functions and the function to set the socket instance
 module.exports = {
     getChats,
     addChat,
     updateChatReadStatus,
-    deleteChat
+    deleteChat,
+    setSocketIOInstance
 };

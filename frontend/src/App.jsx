@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate, useLocation, Outlet } from 'react-router-dom';
+import io from 'socket.io-client';
 import SamplePage from './screens/Users/AdminPages/CrudPages/SamplePage';
 import LoginPage from './screens/AuthPages/LoginPage';
 import LogoutButton from './screens/AuthPages/LogoutPage';
@@ -63,12 +64,31 @@ import ChatPage from './screens/Chat';
 import ChatListPage from './screens/ChatListPage';
 
 const API_KEY = import.meta.env.VITE_API_KEY;
+let socket;
 
 function App() {
   const [userType, setUserType] = useState(null);
   const [userId, setUserId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [refreshProfile, setRefreshProfile] = useState(0);
+
+  useEffect(() => {
+    socket = io({ transports: ['websocket'] });
+
+    socket.on('connect', () => {
+      console.log('WebSocket connected:', socket.id);
+    });
+
+    socket.on('disconnect', () => {
+      console.log('WebSocket disconnected');
+    });
+
+    // Cleanup on unmount
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
+
 
   useEffect(() => {
     async function fetchUserSession() {
@@ -84,6 +104,11 @@ function App() {
           setUserType(data.user_type_id);
           console.log('userid= ', {userId})
           console.log('usertypwid= ', {userType})
+
+        
+          console.log('uuuuuser',data.user_id)
+
+          socket.emit('login', data.user_id);
         } else {
           console.error('Failed to fetch user session:', response.statusText);
         }
@@ -108,7 +133,6 @@ function App() {
     </Router>
   );
 }
-
 
 function ProtectedRoute({ allowedUserType, userType, element }) {
   if (userType === null) {

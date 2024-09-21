@@ -19,6 +19,7 @@ CREATE TABLE users (
     user_type_id INT,
     verified BOOLEAN DEFAULT FALSE,
     user_image_url VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_type_id) REFERENCES user_type(user_type_id)
 );
 
@@ -242,6 +243,7 @@ CREATE INDEX idx_payments_order_id ON payments(order_id);
 CREATE TABLE notifications (
     notification_id SERIAL PRIMARY KEY,
     user_id INT,
+    title TEXT,
     message TEXT,
     is_read BOOLEAN DEFAULT FALSE,
     notification_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
