@@ -1,59 +1,56 @@
-import React, { useEffect } from "react";
-import {
-  View,
-  SafeAreaView,
-  Text,
-  Alert,
-  TouchableOpacity,
-} from "react-native";
-import * as Print from "expo-print";
-import * as Sharing from "expo-sharing";
-import * as FileSystem from "expo-file-system";
-import * as MediaLibrary from "expo-media-library";
+import React from 'react';
+import { TouchableOpacity, SafeAreaView, Text, Alert, View } from 'react-native';
+import * as Print from 'expo-print';
+import * as Sharing from 'expo-sharing';
+import * as FileSystem from 'expo-file-system';
 
-const Reports = ({ orders }) => {
-  // Function to request Media Library permission
-  const requestPermission = async () => {
-    const { status } = await MediaLibrary.requestPermissionsAsync();
-    if (status !== "granted") {
-      Alert.alert(
-        "Permission denied",
-        "You need to enable permissions to save the file."
-      );
-    }
-  };
-
-  // Request permission when component mounts
-  useEffect(() => {
-    requestPermission();
-  }, []);
-
+const Reports = ({ data, dataType }) => {
   const generatePdf = async () => {
     try {
-      // Convert orders to table rows
-      const orderRows = orders.map(order => `
-        <tr>
-          <td>${order.title}</td>
-          <td>${order.description}</td>
-          <td>${order.date}</td>
-          <td>${order.action}</td>
-        </tr>
-      `).join('');
+      // Check if there is data
+      if (data.length === 0) {
+        Alert.alert('Error', `No ${dataType} to generate report.`);
+        return;
+      }
+
+      // Get the keys from the first object for the table header
+      const headers = Object.keys(data[0]);
+
+      // Table header
+      const tableHeader = `
+        <table border="1" cellpadding="5" cellspacing="0">
+          <tr>
+            ${headers.map(header => `<th>${header.charAt(0).toUpperCase() + header.slice(1)}</th>`).join('')}
+          </tr>
+      `;
+
+      // Dynamically generate table rows from the data
+      const tableRows = data
+        .map(
+          (item) => `
+          <tr>
+            ${headers.map(header => `<td>${item[header]}</td>`).join('')}
+          </tr>
+        `
+        )
+        .join('');
+
+      const tableFooter = `</table>`;
+
+      const reportTitle = `${dataType.charAt(0).toUpperCase() + dataType.slice(1)} Report`;
+      const reportDate = `Date: ${new Date().toLocaleDateString()}`;
 
       // HTML structure for the PDF
       const html = `
         <html>
           <body style="font-family: Arial, sans-serif;">
-            <h1 style="text-align: center;">Orders Report</h1>
-            <table border="1" cellpadding="5" cellspacing="0" style="width: 100%; margin-top: 20px;">
-              <tr>
-                <th>Title</th>
-                <th>Description</th>
-                <th>Date</th>
-                <th>Action</th>
-              </tr>
-              ${orderRows}
-            </table>
+            <h1 style="text-align: center;">${reportTitle}</h1>
+            <p style="text-align: center;">${reportDate}</p>
+            <div style="margin-top: 20px;">
+              ${tableHeader}
+              ${tableRows}
+              ${tableFooter}
+            </div>
           </body>
         </html>
       `;
@@ -62,7 +59,7 @@ const Reports = ({ orders }) => {
       const { uri } = await Print.printToFileAsync({ html });
 
       // Define a new path where you want to save the file (in app's document directory)
-      const newPath = `${FileSystem.documentDirectory}Orders_Report_2024.pdf`;
+      const newPath = `${FileSystem.documentDirectory}${dataType}_Report_2024.pdf`;
 
       // Move the file to the new path in app's directory
       await FileSystem.moveAsync({
@@ -70,29 +67,27 @@ const Reports = ({ orders }) => {
         to: newPath,
       });
 
-      // Save the file to the media library
-      const asset = await MediaLibrary.createAssetAsync(newPath);
-      await MediaLibrary.createAlbumAsync("Download", asset, false);
+      // Display success message
+      Alert.alert('Success', `${dataType.charAt(0).toUpperCase() + dataType.slice(1)} PDF file saved to your Documents folder.`);
 
-      // Display success message and share the file
-      Alert.alert(
-        "Success",
-        "You can now access the report in your Downloads folder or share it."
-      );
+      // Share the PDF file
       await Sharing.shareAsync(newPath);
     } catch (error) {
       console.error(error);
-      Alert.alert("Error", "Could not generate or save the PDF file.");
+      Alert.alert('Error', `Could not generate or save the ${dataType} PDF file.`);
     }
   };
 
   return (
-    <SafeAreaView className="flex mt-4 mr-2 px-4">
+    <SafeAreaView className="flex flex-row justify-end px-4 mt-4">
       <TouchableOpacity
-        className="bg-green-500 p-3 rounded-lg shadow-md w-2/5 self-end"
+        className="bg-green-600 py-3 px-6 rounded-lg shadow-lg w-2/4 max-w-xs"
         onPress={generatePdf}
+        activeOpacity={0.8}
       >
-        <Text className="text-white font-semibold text-center">Generate PDF</Text>
+        <Text className="text-white font-semibold text-center">
+          Generate PDF
+        </Text>
       </TouchableOpacity>
     </SafeAreaView>
   );

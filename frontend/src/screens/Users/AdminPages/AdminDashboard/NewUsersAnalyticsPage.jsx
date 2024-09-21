@@ -1,22 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
-  PointElement,
-  LineElement,
+  BarElement,
   Title,
   Tooltip,
   Legend,
+  ArcElement
 } from 'chart.js';
-import { Line } from 'react-chartjs-2';
+import { Bar, Pie } from 'react-chartjs-2';
 import Modal from '../../../../components/Modal/Modal'; // Adjust based on your folder structure
+
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 ChartJS.register(
   CategoryScale,
   LinearScale,
-  PointElement,
-  LineElement,
+  BarElement,
+  ArcElement,  // Register ArcElement for Pie chart
   Title,
   Tooltip,
   Legend
@@ -25,82 +27,185 @@ ChartJS.register(
 const NewUsersAnalyticsPage = () => {
   const [selectedFilter, setSelectedFilter] = useState('12 Months');
   const [modalVisible, setModalVisible] = useState(false);
+  const [newUsersData, setNewUsersData] = useState({
+    dates: [],
+    buyers: [],
+    sellers: [],
+  });
 
-  // Dummy data for new users analytics
-  const getNewUsersData = (filter) => {
-    const data = {
-      "7 Days": {
-        dates: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-        buyers: [5, 10, 8, 12, 14, 16, 18],
-        farmers: [2, 3, 4, 6, 5, 7, 8],
-      },
-      "14 Days": {
-        dates: ["Week 1", "Week 2"],
-        buyers: [50, 70],
-        farmers: [25, 30],
-      },
-      "6 Months": {
-        dates: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
-        buyers: [150, 200, 180, 220, 250, 270],
-        farmers: [80, 90, 85, 100, 110, 130],
-      },
-      "12 Months": {
-        dates: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-        buyers: [250, 300, 280, 350, 400, 450, 420, 460, 480, 500, 550, 600],
-        farmers: [120, 130, 125, 140, 150, 160, 155, 165, 170, 180, 190, 200],
-      },
-      Yearly: {
-        dates: ["2020", "2021", "2022", "2023"],
-        buyers: [800, 1000, 950, 1100],
-        farmers: [400, 500, 480, 550],
-      },
-    };
+  // State for total counts
+  const [totalBuyersCount, setTotalBuyersCount] = useState(0);
+  const [totalSellersCount, setTotalSellersCount] = useState(0);
 
-    return data[filter] || data["12 Months"];
+  const fetchNewUsersData = async (filter) => {
+    try {
+      const response = await fetch(`/api/users?filter=${filter}`, {
+        headers: {
+          'x-api-key': API_KEY,
+        },
+      });
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const data = await response.json();
+
+      const dates = [];
+      const buyers = [];
+      const sellers = [];
+
+      let totalBuyers = 0;
+      let totalSellers = 0;
+
+      // Group users by date and count buyers and sellers
+      data.forEach(user => {
+        const date = new Date(user.created_at).toISOString().split('T')[0]; // Format date as YYYY-MM-DD
+        const index = dates.indexOf(date);
+
+        if (index === -1) {
+          dates.push(date);
+          buyers.push(user.user_type_id === 3 ? 1 : 0); // 3 for buyers
+          sellers.push(user.user_type_id === 2 ? 1 : 0); // 2 for sellers
+        } else {
+          if (user.user_type_id === 3) {
+            buyers[index] += 1;
+          } else if (user.user_type_id === 2) {
+            sellers[index] += 1;
+          }
+        }
+
+        // Count total buyers and sellers
+        if (user.user_type_id === 3) {
+          totalBuyers += 1;
+        } else if (user.user_type_id === 2) {
+          totalSellers += 1;
+        }
+      });
+
+      // Ensure buyers and sellers arrays have the same length as dates
+      while (buyers.length < dates.length) {
+        buyers.push(0);
+      }
+      while (sellers.length < dates.length) {
+        sellers.push(0);
+      }
+
+      // Update state with total counts
+      setTotalBuyersCount(totalBuyers);
+      setTotalSellersCount(totalSellers);
+
+      setNewUsersData({
+        dates,
+        buyers,
+        sellers,
+      });
+    } catch (error) {
+      console.error('Error fetching new users data:', error);
+    }
   };
 
-  const renderNewUsersChart = () => {
-    const newUsersData = getNewUsersData(selectedFilter);
+  useEffect(() => {
+    fetchNewUsersData(selectedFilter);
+  }, [selectedFilter]);
 
+  const renderNewUsersBarChart = () => {
     const data = {
       labels: newUsersData.dates,
       datasets: [
         {
-          label: "Buyers",
+          label: "Added Buyers",
           data: newUsersData.buyers,
-          borderColor: "rgba(0, 128, 0, 0.5)",
-          fill: false,
+          backgroundColor: "rgba(0, 128, 0, 0.7)",
+          // Adjust bar width
+          barThickness: 20,
+          categoryPercentage: 0.8,
+          barPercentage: 1.0,
         },
         {
-          label: "Farmers",
-          data: newUsersData.farmers,
-          borderColor: "rgba(25, 118, 210, 0.5)",
-          fill: false,
+          label: "Added Sellers",
+          data: newUsersData.sellers,
+          backgroundColor: "rgba(25, 118, 210, 0.7)",
+          // Adjust bar width
+          barThickness: 20,
+          categoryPercentage: 0.8,
+          barPercentage: 1.0,
         },
       ],
     };
 
     const options = {
       responsive: true,
-      tooltips: {
-        enabled: true,
-        mode: "index",
-        intersect: false,
-        callbacks: {
-          label: function (tooltipItem, data) {
-            const dataset = data.datasets[tooltipItem.datasetIndex];
-            return `${dataset.label}: ${tooltipItem.yLabel} Users`;
-          },
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: function (context) {
+              const label = context.dataset.label || '';
+              const value = context.raw || 0;
+              return `${label}: ${value} Users`;
+            }
+          }
+        },
+        legend: {
+          display: true,
+          position: 'top',
         },
       },
       scales: {
+        x: {
+          stacked: false,
+          // Adjust the space between bars
+          barThickness: 40,
+          categoryPercentage: 0.8,
+          barPercentage: 0.9,
+        },
         y: {
+          stacked: false,
           beginAtZero: true,
         },
       },
     };
 
-    return <Line data={data} options={options} />;
+    return <Bar data={data} options={options} />;
+  };
+
+  const renderOverallUsersPieChart = () => {
+    const data = {
+      labels: ['Buyers', 'Sellers'],
+      datasets: [
+        {
+          data: [totalBuyersCount, totalSellersCount],
+          backgroundColor: [
+            'rgba(0, 128, 0, 0.7)', // Buyers
+            'rgba(25, 118, 210, 0.7)' // Sellers
+          ],
+          borderColor: [
+            'rgba(0, 128, 0, 1)',
+            'rgba(25, 118, 210, 1)'
+          ],
+          borderWidth: 1,
+        },
+      ],
+    };
+
+    const options = {
+      responsive: true,
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: function (context) {
+              const label = context.label || '';
+              const value = context.raw || 0;
+              return `${label}: ${value} Users`;
+            }
+          }
+        },
+        legend: {
+          display: true,
+          position: 'top',
+        },
+      },
+    };
+
+    return <Pie data={data} options={options} />;
   };
 
   return (
@@ -153,19 +258,36 @@ const NewUsersAnalyticsPage = () => {
         </Modal>
 
         <p className="text-sm font-bold text-green-500 mb-2">
-          Buyers Added:{" "}
+          New Buyers Count for the Week:{" "}
           <span className="text-green-700">
-            {getNewUsersData(selectedFilter).buyers.slice(-1)[0]}
+            {newUsersData.dates.length > 0 ? newUsersData.buyers.slice(-1)[0] : 0}
           </span>
         </p>
         <p className="text-sm font-bold text-green-500 mb-2">
-          Farmers Added:{" "}
+          New Sellers Count for the Week:{" "}
           <span className="text-green-700">
-            {getNewUsersData(selectedFilter).farmers.slice(-1)[0]}
+            {newUsersData.dates.length > 0 ? newUsersData.sellers.slice(-1)[0] : 0}
           </span>
         </p>
 
-        {renderNewUsersChart()}
+        <p className="text-sm font-bold text-green-500 mb-2">
+          Total Buyers Account:{" "}
+          <span className="text-green-700">{totalBuyersCount}</span>
+        </p>
+        <p className="text-sm font-bold text-green-500 mb-2">
+          Total Sellers Account:{" "}
+          <span className="text-green-700">{totalSellersCount}</span>
+        </p>
+
+        {/* Bar graph of added buyers and sellers */}
+        {renderNewUsersBarChart()}
+
+        {/* Pie chart of overall users distribution */}
+        <h5 className="text-xl font-bold text-center text-green-700 mt-6 mb-4">
+          OVERALL USERS DISTRIBUTION
+        </h5>
+
+        {renderOverallUsersPieChart()}
       </div>
     </div>
   );
