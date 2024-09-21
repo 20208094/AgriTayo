@@ -146,7 +146,7 @@ function TopNavbar({ userType, userId, refreshProfile }) {
                 <div className="topnav-item relative" onClick={handleChatClick}>
                     <span className="topnav-icon-container">
                         <IoChatboxEllipses
-                            className={`topnav-icon-chat ${hasNewMessage ? 'text-red-500' : ''}`}
+                            className={`topnav-icon-chat ${hasNewMessage}`}
                         />
                         {unreadCount > 0 && (
                             <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">

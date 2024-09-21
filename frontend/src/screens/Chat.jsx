@@ -221,11 +221,11 @@ function ChatPage() {
     };
 
     return (
-        <div className="flex flex-col items-center justify-center bg-gray-100 p-7">
+        <div className="flex flex-col items-center justify-center w-full min-h-full bg-gray-100 p-4 overflow-hidden">
             <h2 className="text-2xl font-bold text-green-600 mb-4">
                 Chat with User {receiverId}
             </h2>
-            <div className="w-full max-w-lg bg-white p-4 rounded-lg shadow-lg">
+            <div className="w-full max-w-2xl bg-white p-4 rounded-lg shadow-lg">
                 <div className="chat-messages w-full h-96 overflow-y-scroll border border-gray-300 p-2 mb-4 rounded-lg">
                     {messages.length > 0 ? (
                         messages.map((msg, index) => {

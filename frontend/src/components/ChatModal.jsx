@@ -9,8 +9,10 @@ let socket;
 
 function ChatModal({ isOpen, onClose, userId, onMessagesRead }) {
     const [users, setUsers] = useState([]);
+    const [filteredUsers, setFilteredUsers] = useState([]); // For filtered users based on search
     const [newMessageUsers, setNewMessageUsers] = useState(new Set());
     const [error, setError] = useState('');
+    const [searchTerm, setSearchTerm] = useState(''); // For storing search input
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -35,6 +37,7 @@ function ChatModal({ isOpen, onClose, userId, onMessagesRead }) {
                         const usersData = await userResponse.json();
                         const chatUsers = uniqueUsers.map(id => usersData.find(user => user.user_id === id));
                         setUsers(chatUsers);
+                        setFilteredUsers(chatUsers); // Initialize filteredUsers to all users
                     }
 
                     const unreadMessages = chats.filter(chat => chat.receiver_id === userId && !chat.is_read);
@@ -70,6 +73,17 @@ function ChatModal({ isOpen, onClose, userId, onMessagesRead }) {
         onClose(); // Close modal on user click
     };
 
+    // Search filter logic
+    const handleSearchChange = (e) => {
+        const value = e.target.value.toLowerCase();
+        setSearchTerm(value);
+
+        const filtered = users.filter(user =>
+            user.firstname.toLowerCase().includes(value)
+        );
+        setFilteredUsers(filtered);
+    };
+
     if (!isOpen) return null; // Don't render if the modal is not open
 
     return (
@@ -78,26 +92,39 @@ function ChatModal({ isOpen, onClose, userId, onMessagesRead }) {
                 <button className="absolute top-3 right-3 text-gray-600" onClick={onClose}>
                     <IoClose size={24} />
                 </button>
-                <h2 className="text-lg font-bold mb-4">Your Chats</h2>
+                <div className="flex items-center mb-4 space-x-2">
+                    <h2 className="text-lg font-bold">Your Chats</h2>
+                    <input
+                        type="text"
+                        value={searchTerm}
+                        onChange={handleSearchChange}
+                        placeholder="Search"
+                        className="border border-gray-300 rounded-lg px-3 py-1 w-33" // Set a fixed width here
+                    />
+                </div>
                 {error && <p className="text-red-500">{error}</p>}
                 <ul className="space-y-3">
-                    {users.map(user => (
-                        <li
-                            key={user.user_id}
-                            className={`flex items-center justify-between p-3 border rounded-lg ${newMessageUsers.has(user.user_id) ? 'bg-green-100' : 'bg-gray-100'}`}
-                            onClick={() => handleUserClick(user.user_id)}
-                        >
-                            <div className="flex items-center space-x-3">
-                                <img
-                                    className="w-10 h-10 rounded-full"
-                                    src={user.user_image_url || 'default-avatar.png'} // Avatar logic here
-                                    alt={`${user.firstname}'s avatar`}
-                                />
-                                <p>{user.firstname}</p>
-                            </div>
-                            {newMessageUsers.has(user.user_id) && <p className="text-green-600">New message</p>}
-                        </li>
-                    ))}
+                    {filteredUsers.length > 0 ? (
+                        filteredUsers.map(user => (
+                            <li
+                                key={user.user_id}
+                                className={`flex items-center justify-between p-3 border rounded-lg ${newMessageUsers.has(user.user_id) ? 'bg-green-100' : 'bg-gray-100'}`}
+                                onClick={() => handleUserClick(user.user_id)}
+                            >
+                                <div className="flex items-center space-x-3">
+                                    <img
+                                        className="w-10 h-10 rounded-full"
+                                        src={user.user_image_url || 'default-avatar.png'} // Avatar logic here
+                                        alt={`${user.firstname}'s avatar`}
+                                    />
+                                    <p>{user.firstname}</p>
+                                </div>
+                                {newMessageUsers.has(user.user_id) && <p className="text-green-600">New message</p>}
+                            </li>
+                        ))
+                    ) : (
+                        <p className="text-gray-500">No users found.</p>
+                    )}
                 </ul>
             </div>
         </div>
