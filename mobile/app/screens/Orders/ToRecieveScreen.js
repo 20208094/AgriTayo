@@ -11,12 +11,11 @@ const ToReceiveScreen = () => {
     return (
         <ScrollView className="p-4">
             {orders.map((order) => (
-                <View key={order.id} className="bg-blue-100 p-4 mb-4 rounded-lg flex-row items-center justify-between">
+                <View key={order.id} className="bg-gray-200 p-4 mb-4 rounded-lg flex-row items-center justify-between">
                     <View>
                         <Text className="text-lg font-bold">{order.item}</Text>
                         <Text className="text-gray-600">Expected by: {order.expectedDate}</Text>
                     </View>
-                    <Icon name="cube" size={24} color="#66b2ff" className="ml-2" />
                 </View>
             ))}
         </ScrollView>

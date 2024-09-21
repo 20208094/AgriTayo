@@ -44,7 +44,6 @@ import ShopScreen from "./app/screens/farmers/Shop/ShopScreen";
 import ViewShopScreen from "./app/screens/farmers/Shop/ViewShopScreen";
 import ViewSalesHistoryScreen from "./app/screens/farmers/Shop/ViewSalesHistory/ViewSalesHistoryScreen";
 import MyProductsScreen from "./app/screens/farmers/Shop/MyProducts/MyProductsScreen";
-import FinanceScreen from "./app/screens/farmers/Shop/FinanceScreen";
 import ShopPerformaceScreen from "./app/screens/farmers/Shop/ShopPerformanceScreen";
 import BiddingScreen from "./app/screens/farmers/Shop/FarmersBidding/BiddingScreen";
 import BiddingDetailsFarmersScreen from "./app/screens/farmers/Shop/FarmersBidding/BiddingDetailsFarmersScreen";
@@ -298,11 +297,6 @@ function App() {
             <Stack.Screen
               name="My Products"
               component={MyProductsScreen}
-              options={screenOptions}
-            />
-            <Stack.Screen
-              name="My Finance"
-              component={FinanceScreen}
               options={screenOptions}
             />
             <Stack.Screen

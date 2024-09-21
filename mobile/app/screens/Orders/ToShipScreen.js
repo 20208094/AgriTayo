@@ -11,12 +11,11 @@ const ToShipScreen = () => {
     return (
         <ScrollView className="p-4">
             {orders.map((order) => (
-                <View key={order.id} className="bg-purple-100 p-4 mb-4 rounded-lg flex-row items-center justify-between">
+                <View key={order.id} className="bg-gray-200 p-4 mb-4 rounded-lg flex-row items-center justify-between">
                     <View>
                         <Text className="text-lg font-bold">{order.item}</Text>
                         <Text className="text-gray-600">Shipping by: {order.shippingDate}</Text>
                     </View>
-                    <Icon name="paper-plane" size={24} color="#b366ff" className="ml-2" />
                 </View>
             ))}
         </ScrollView>

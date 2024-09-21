@@ -11,13 +11,12 @@ const CompletedScreen = () => {
     return (
         <ScrollView className="p-4">
             {orders.map((order) => (
-                <View key={order.id} className="bg-green-100 p-4 mb-4 rounded-lg flex-row items-center justify-between">
+                <View key={order.id} className="bg-gray-200 p-4 mb-4 rounded-lg flex-row items-center justify-between">
                     <View>
                         <Text className="text-lg font-bold">{order.item}</Text>
                         <Text className="text-gray-600">Completed on: {order.date}</Text>
                         <Text className="text-green-600">Total: {order.total}</Text>
                     </View>
-                    <Icon name="checkmark-circle" size={24} color="#00b251" className="ml-2" />
                 </View>
             ))}
         </ScrollView>
