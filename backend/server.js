@@ -8,6 +8,7 @@ const multer = require('multer'); // For handling file uploads
 const { createServer } = require('http'); 
 const { Server } = require('socket.io');
 const { initializeSocket, getIo } = require('./socket')
+const { setSocketIOInstance } = require('./supabase_connection/crud_services/notifications');
 
 // Import CRUD services
 const {
@@ -126,6 +127,7 @@ const {
     getNotifications,
     addNotification,
     markNotificationAsRead,
+    markAllNotificationsAsRead,
     deleteNotification
 } = require('./supabase_connection/crud_services/notifications');
 
@@ -162,6 +164,7 @@ const server = createServer(app); // Create the HTTP server
 
 // Initialize Socket.IO
 initializeSocket(server);
+setSocketIOInstance(getIo());
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -318,8 +321,11 @@ app.delete('/api/payments/:id', deletePayment);
 
 // API routes for notifications
 app.get('/api/notifications', getNotifications);
-app.post('/api/notifications', addNotification);
+app.post('/api/notifications', (req, res) => {
+    addNotification(req, res, getIo());
+});
 app.put('/api/notifications/:id', markNotificationAsRead);
+app.post('/api/notifications/mark-all-as-read', markAllNotificationsAsRead);
 app.delete('/api/notifications/:id', deleteNotification);
 
 app.get('/api/crop_sub_categories', getCropSubCategories)

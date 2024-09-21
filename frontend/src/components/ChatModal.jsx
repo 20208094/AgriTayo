@@ -7,7 +7,7 @@ const API_KEY = import.meta.env.VITE_API_KEY;
 
 let socket;
 
-function ChatModal({ isOpen, onClose, userId }) {
+function ChatModal({ isOpen, onClose, userId, onMessagesRead }) {
     const [users, setUsers] = useState([]);
     const [newMessageUsers, setNewMessageUsers] = useState(new Set());
     const [error, setError] = useState('');
@@ -66,6 +66,7 @@ function ChatModal({ isOpen, onClose, userId }) {
 
     const handleUserClick = (id) => {
         navigate(`/chat/${id}`);
+        onMessagesRead(); // Reset unread count when navigating to chat
         onClose(); // Close modal on user click
     };
 

@@ -2,11 +2,10 @@ const supabase = require('../db');
 const formidable = require('formidable');
 const imageHandler = require('../imageHandler');
 
-// Assuming `io` will be initialized elsewhere and imported here
 let io;
 
 function setSocketIOInstance(socketIOInstance) {
-    io = socketIOInstance; // Store the socket.io instance for later use
+    io = socketIOInstance;
 }
 
 // Function to retrieve all chats
@@ -99,37 +98,38 @@ async function addChat(req, res, io) {
     }
 }
 
-// Function to update the read status of a chat message
 async function updateChatReadStatus(req, res) {
-    
-    const { sender_id } = req.body; 
-    const { user_id } = req.body; 
-    const userId = user_id
-    console.log('update chat called:', sender_id, user_id);
-    try {
+    const { sender_id, user_id } = req.body; 
+    const userId = user_id;
 
+    try {
         if (!sender_id || !userId) {
             return res.status(400).json({ error: 'Sender ID and User ID are required for update' });
         }
 
-        console.log('starting:');
         // Update all messages where the sender_id matches and the receiver_id is the user
-        const { data, error } = await supabase
+        const { error } = await supabase
             .from('chats')
             .update({ is_read: true })
             .eq('sender_id', sender_id)
-            .eq('receiver_id', userId)
+            .eq('receiver_id', userId);
+
         if (error) {
             console.error('Supabase query failed:', error.message);
             return res.status(500).json({ error: 'Internal server error', details: error.message });
         }
-        console.log('done updated successfully:');
-        res.status(200).json({ message: 'Chat read status updated successfully', data });
+
+        if (io) {
+            // Emit a blank socket event
+            io.emit('chat message', {}); // Emit an empty object
+            console.log('Emitted read status for chat messages');
+        }
+
+        res.status(200).json({ message: 'Chat read status updated successfully' });
     } catch (err) {
         console.error('Error executing update process:', err.message);
         res.status(500).json({ error: 'Internal server error', details: err.message });
     }
-    console.log('exiting:');
 }
 
 // Function to delete a chat message, including associated image

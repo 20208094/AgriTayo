@@ -131,6 +131,14 @@ function NotificationsPage() {
                 </select>
                 <input
                     type="text"
+                    name="title"
+                    value={formData.title}
+                    onChange={handleInputChange}
+                    placeholder="Title"
+                    required
+                />
+                <input
+                    type="text"
                     name="message"
                     value={formData.message}
                     onChange={handleInputChange}
@@ -145,9 +153,10 @@ function NotificationsPage() {
                     <tr>
                         <th style={{ border: '1px solid black', padding: '8px' }}>ID</th>
                         <th style={{ border: '1px solid black', padding: '8px' }}>User</th>
+                        <th style={{ border: '1px solid black', padding: '8px' }}>Title</th>
                         <th style={{ border: '1px solid black', padding: '8px' }}>Message</th>
                         <th style={{ border: '1px solid black', padding: '8px' }}>Read</th>
-                        <th style={{ border: '1px solid black', padding: '8px' }}>Notification Date</th>
+                        <th style={{ border: '1px solid black', padding: '8px' }}>Date</th>
                         <th style={{ border: '1px solid black', padding: '8px' }}>Actions</th>
                     </tr>
                 </thead>
@@ -158,6 +167,7 @@ function NotificationsPage() {
                             <td style={{ border: '1px solid black', padding: '8px' }}>
                                 {users.find((user) => user.user_id === notification.user_id)?.firstname} {users.find((user) => user.user_id === notification.user_id)?.lastname}
                             </td>
+                            <td style={{ border: '1px solid black', padding: '8px' }}>{notification.title}</td>
                             <td style={{ border: '1px solid black', padding: '8px' }}>{notification.message}</td>
                             <td style={{ border: '1px solid black', padding: '8px' }}>{notification.is_read ? 'Yes' : 'No'}</td>
                             <td style={{ border: '1px solid black', padding: '8px' }}>{new Date(notification.notification_date).toLocaleString()}</td>
