@@ -1,62 +1,99 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TextInput, Button, FlatList, StyleSheet, KeyboardAvoidingView, Platform, Image, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, TextInput, FlatList, KeyboardAvoidingView, Platform, Image, TouchableOpacity, Alert, ActivityIndicator, Keyboard } from 'react-native';
 import io from 'socket.io-client';
-import * as ImagePicker from 'expo-image-picker'; // Import from expo-image-picker
-import { REACT_NATIVE_API_KEY } from '@env'; // Use .env for API key
+import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import { styled } from 'nativewind';
+import ImageViewing from 'react-native-image-viewing';
+import { REACT_NATIVE_API_KEY } from '@env';
 
 const SOCKET_URL = 'https://agritayo.azurewebsites.net';
+
+// Styled components with NativeWind
+const Container = styled(View, 'flex-1 bg-white p-4');
+const ChatContainer = styled(View, 'flex-1');
+const MessageInputContainer = styled(View, 'border-t border-gray-200 p-2 flex-row items-center');  // Adjusted flex-row to align icons properly
+const InputWrapper = styled(View, 'flex-row flex-1 items-center border border-gray-300 rounded-lg p-1 bg-white text-black');
+const Input = styled(TextInput, 'flex-1 bg-white text-black p-2');
+const SendButton = styled(TouchableOpacity, 'p-2 rounded-full bg-[#00B251] ml-2');
+const IconButton = styled(TouchableOpacity, 'ml-1 p-2');
+const ChatBubble = styled(View, 'p-3 m-1 rounded-lg max-w-full');
+const ChatBubbleText = styled(Text, 'text-white text-sm');
+const ChatImage = styled(Image, 'w-48 h-48 rounded-lg mt-2');
+const ProfileImage = styled(Image, 'w-10 h-10 rounded-full mr-2');
+const NameText = styled(Text, 'font-bold text-xs text-gray-600 mb-1');
+const HeaderText = styled(Text, 'text-lg font-bold text-center text-gray-800 py-2 bg-gray-100');
+const ImagePreview = styled(Image, 'w-16 h-16 rounded-lg mr-2');
 
 const ChatScreen = ({ route }) => {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
-  const [newImage, setNewImage] = useState(null); // For storing the selected image
+  const [newImage, setNewImage] = useState(null);
+  const [isImageViewerVisible, setIsImageViewerVisible] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
+
   const socket = useRef(null);
-  const { receiverId } = route.params; // Get receiverId from route params
-  const userId = 1; // Default user ID
+  const { receiverId, receiverName } = route.params;
+  const userId = 1;
+
+  // Ref for FlatList
+  const flatListRef = useRef(null);
 
   useEffect(() => {
     // Initialize socket connection
     socket.current = io(SOCKET_URL, {
       transports: ['websocket'],
-      reconnectionAttempts: 5, // Allow reconnections
-      reconnectionDelay: 1000, // Delay between reconnections
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
     });
 
-    // Handle incoming messages
     socket.current.on('chat message', (msg) => {
-      setMessages((prevMessages) => [...prevMessages, msg]);
+      setMessages((prevMessages) => [msg, ...prevMessages]);
     });
 
-    // Fetch initial messages
     const fetchMessages = async () => {
       if (userId && receiverId) {
         try {
+          setLoading(true);
           const response = await fetch(`https://agritayo.azurewebsites.net/api/chats`, {
             headers: {
-              'x-api-key': REACT_NATIVE_API_KEY
-            }
+              'x-api-key': REACT_NATIVE_API_KEY,
+            },
           });
 
           if (response.ok) {
             const allMessages = await response.json();
-            setMessages(allMessages); // Store all messages
+            setMessages(allMessages.reverse());
           } else {
             console.error('Failed to fetch messages:', response.statusText);
           }
         } catch (error) {
           console.error('Error fetching messages:', error);
+        } finally {
+          setLoading(false);
         }
       }
     };
 
     fetchMessages();
 
-    // Clean up socket connection on unmount
     return () => {
       socket.current.disconnect();
     };
   }, [receiverId, userId]);
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => setKeyboardVisible(true));
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => setKeyboardVisible(false));
+
+    return () => {
+      keyboardDidHideListener.remove();
+      keyboardDidShowListener.remove();
+    };
+  }, []);
 
   const handleSendMessage = async () => {
     if (newMessage.trim() || newImage) {
@@ -64,40 +101,42 @@ const ChatScreen = ({ route }) => {
       formData.append('sender_id', userId.toString());
       formData.append('receiver_id', receiverId.toString());
       formData.append('chat_message', newMessage);
-      formData.append('receiver_type', 'User'); // Include receiver_type field
-  
+      formData.append('receiver_type', 'User');
+
       if (newImage) {
         const { uri } = newImage;
         const name = uri.split('/').pop();
-        const type = 'image/jpeg'; // Default type if not provided
-  
-        // Read file from filesystem
-        const file = await FileSystem.readAsStringAsync(uri, { encoding: FileSystem.EncodingType.Base64 });
-  
-        formData.append('image', {
-          uri: `data:${type};base64,${file}`, // Encode file as Base64
-          type,
-          name,
-        });
+        const type = 'image/jpeg';
+
+        try {
+          const file = await FileSystem.readAsStringAsync(uri, { encoding: FileSystem.EncodingType.Base64 });
+          formData.append('image', {
+            uri: `data:${type};base64,${file}`,
+            type,
+            name,
+          });
+        } catch (error) {
+          console.error('Error reading image file:', error);
+          Alert.alert('Error', 'Failed to upload image. Please try again.');
+          return;
+        }
       }
-  
+
       try {
         const response = await fetch('https://agritayo.azurewebsites.net/api/chats', {
           method: 'POST',
           headers: {
-            'Accept': 'application/json',
+            Accept: 'application/json',
             'x-api-key': REACT_NATIVE_API_KEY,
           },
-          body: formData, // Use FormData for both image and message data
+          body: formData,
         });
-  
+
         if (response.ok) {
           const savedMessage = await response.json();
-          console.log('Message saved to DB:', savedMessage.data);
-  
-          // Clear inputs
           setNewMessage('');
-          setNewImage(null); // Clear the image input
+          setNewImage(null);
+          setMessages((prevMessages) => [savedMessage, ...prevMessages]);
         } else {
           console.error('Failed to send message:', response.statusText);
           Alert.alert('Error', 'Failed to send message. Please try again.');
@@ -119,109 +158,137 @@ const ChatScreen = ({ route }) => {
 
     if (!result.canceled && result.assets && result.assets.length > 0) {
       const selectedImage = result.assets[0];
-      const { uri, type } = selectedImage;
-      console.log(uri)
       setNewImage(selectedImage);
     }
   };
 
-  const userIdStr = String(userId);
-  const receiverIdStr = String(receiverId);
+  const openCamera = async () => {
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 1,
+    });
+
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      const selectedImage = result.assets[0];
+      setNewImage(selectedImage);
+    }
+  };
+
+  const viewImage = (uri) => {
+    setSelectedImage([{ uri }]);
+    setIsImageViewerVisible(true);
+  };
+
+  const removeSelectedImage = () => {
+    setNewImage(null);
+  };
+
+  const scrollToBottom = () => {
+    if (flatListRef.current) {
+      flatListRef.current.scrollToOffset({ offset: 0 });
+    }
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   return (
     <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}
     >
-      <View style={styles.chatContainer}>
-        <FlatList
-          data={messages}
-          renderItem={({ item, index }) => {
-            const senderIdStr = String(item.sender_id);
-            const msgReceiverIdStr = String(item.receiver_id);
+      <HeaderText>{receiverName}</HeaderText>
 
-            // Check if the message is between the current user and the receiver
-            const isSenderMatch = senderIdStr === userIdStr && msgReceiverIdStr === receiverIdStr;
-            const isReceiverMatch = msgReceiverIdStr === userIdStr && senderIdStr === receiverIdStr;
+      <Container>
+        {loading && <ActivityIndicator size="large" color="#00B251" />}
 
-            if (isSenderMatch || isReceiverMatch) {
+        <ChatContainer>
+          <FlatList
+            ref={flatListRef}
+            data={messages}
+            renderItem={({ item }) => {
+              const isSender = item.sender_id === userId;
+              const senderName = isSender ? 'You' : receiverName;
+
               return (
-                <View key={index} style={styles.messageContainer}>
-                  <Text style={styles.messageText}>
-                    <Text style={styles.userId}>{senderIdStr === userIdStr ? 'You' : senderIdStr}:</Text> {item.chat_message}
-                  </Text>
-                  {item.chat_image_url && (
-                    <Image source={{ uri: item.chat_image_url }} style={styles.chatImage} />
+                <View style={{ flexDirection: isSender ? 'row-reverse' : 'row', alignItems: 'center', marginVertical: 5 }}>
+                  {!isSender && (
+                    <ProfileImage source={{ uri: item.sender_profile_image_url || 'https://example.com/default-profile.png' }} />
                   )}
+                  <View style={{ alignItems: isSender ? 'flex-end' : 'flex-start', flex: 1 }}>
+                    {!isSender && <NameText>{senderName}</NameText>}
+                    {item.chat_message && (
+                      <ChatBubble style={{ backgroundColor: isSender ? '#00B251' : '#E5E5EA', maxWidth: '100%', marginHorizontal: 10 }}>
+                        <ChatBubbleText style={{ color: isSender ? 'white' : 'black' }}>{item.chat_message}</ChatBubbleText>
+                      </ChatBubble>
+                    )}
+                    {item.chat_image_url && (
+                      <TouchableOpacity onPress={() => viewImage(item.chat_image_url)}>
+                        <ChatImage source={{ uri: item.chat_image_url }} />
+                      </TouchableOpacity>
+                    )}
+                  </View>
                 </View>
               );
-            }
-
-            return null; // Do not render the item if it doesn't match
-          }}
-          keyExtractor={(item, index) => index.toString()}
-          style={styles.messageList}
-        />
-        <View style={styles.inputContainer}>
-          <TextInput
-            value={newMessage}
-            onChangeText={setNewMessage}
-            placeholder="Type a message..."
-            style={styles.input}
+            }}
+            keyExtractor={(item, index) => index.toString()}
+            style={{ flex: 1 }}
+            inverted
+            windowSize={10}
+            initialNumToRender={20}
           />
-          <Button title="Send" onPress={handleSendMessage} />
-          <TouchableOpacity onPress={pickImage} style={styles.button}>
-            <Text>Select Image</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+        </ChatContainer>
+
+        <MessageInputContainer>
+                   {/* Icon buttons for camera and image */}
+          <View style={{ flexDirection: 'row', marginTop: 5 }}>
+            <IconButton onPress={openCamera}>
+              <Icon name="camera-alt" size={24} color="#00B251" />
+            </IconButton>
+            <IconButton onPress={pickImage}>
+              <Icon name="photo" size={24} color="#00B251" />
+            </IconButton>
+          </View>
+          <InputWrapper>
+            {newImage && (
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <ImagePreview source={{ uri: newImage.uri }} />
+                <TouchableOpacity onPress={removeSelectedImage}>
+                  <Icon name="close" size={24} color="red" />
+                </TouchableOpacity>
+              </View>
+            )}
+
+            <Input
+              value={newMessage}
+              onChangeText={setNewMessage}
+              placeholder="Type a message..."
+              accessible
+              accessibilityLabel="Message input field"
+              multiline
+            />
+
+            <SendButton onPress={handleSendMessage}>
+              <Icon name="send" size={24} color="white" />
+            </SendButton>
+          </InputWrapper>
+
+ 
+        </MessageInputContainer>
+
+        {selectedImage && (
+          <ImageViewing
+            images={selectedImage}
+            imageIndex={0}
+            visible={isImageViewerVisible}
+            onRequestClose={() => setIsImageViewerVisible(false)}
+          />
+        )}
+      </Container>
     </KeyboardAvoidingView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  chatContainer: {
-    flex: 1,
-    padding: 10,
-    justifyContent: 'space-between',
-  },
-  messageList: {
-    flex: 1,
-    marginBottom: 10,
-  },
-  messageContainer: {
-    marginBottom: 10,
-  },
-  messageText: {
-    fontSize: 16,
-  },
-  userId: {
-    fontWeight: 'bold',
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  input: {
-    flex: 1,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    padding: 10,
-    marginRight: 10,
-  },
-  button: {
-    padding: 10,
-    backgroundColor: '#ddd',
-    borderRadius: 5,
-  },
-  chatImage: {
-    width: 200,
-    height: 200,
-    marginVertical: 5,
-  },
-});
 
 export default ChatScreen;
