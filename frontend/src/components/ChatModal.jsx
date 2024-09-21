@@ -69,26 +69,32 @@ function ChatModal({ isOpen, onClose, userId }) {
         onClose(); // Close modal on user click
     };
 
+    if (!isOpen) return null; // Don't render if the modal is not open
+
     return (
-        <div className={`modal ${isOpen ? 'open' : ''}`}>
-            <div className="modal-content">
-                <button className="close-modal" onClick={onClose}>
-                    <IoClose />
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[1050]">
+            <div className="bg-white w-full max-w-lg mx-4 rounded-lg p-6 relative">
+                <button className="absolute top-3 right-3 text-gray-600" onClick={onClose}>
+                    <IoClose size={24} />
                 </button>
-                <h2>Your Chats</h2>
+                <h2 className="text-lg font-bold mb-4">Your Chats</h2>
                 {error && <p className="text-red-500">{error}</p>}
-                <ul>
+                <ul className="space-y-3">
                     {users.map(user => (
                         <li
                             key={user.user_id}
-                            className={`chat-user ${newMessageUsers.has(user.user_id) ? 'new-message' : ''}`}
+                            className={`flex items-center justify-between p-3 border rounded-lg ${newMessageUsers.has(user.user_id) ? 'bg-green-100' : 'bg-gray-100'}`}
                             onClick={() => handleUserClick(user.user_id)}
                         >
-                            {/* <img src={user.user_image_url || 'default-avatar.png'} alt={`${user.user_name}'s avatar`} /> */}
-                            <div>
+                            <div className="flex items-center space-x-3">
+                                <img
+                                    className="w-10 h-10 rounded-full"
+                                    src={user.user_image_url || 'default-avatar.png'} // Avatar logic here
+                                    alt={`${user.firstname}'s avatar`}
+                                />
                                 <p>{user.firstname}</p>
-                                {newMessageUsers.has(user.user_id) && <p className="new-message-label">New message</p>}
                             </div>
+                            {newMessageUsers.has(user.user_id) && <p className="text-green-600">New message</p>}
                         </li>
                     ))}
                 </ul>
