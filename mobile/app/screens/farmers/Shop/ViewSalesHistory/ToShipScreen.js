@@ -7,15 +7,18 @@ function ToShipScreen({ navigation }) {
   const toShipOrders = [
     {
       title: "Order #1234",
-      description: "2 items",
+      description:
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus accumsan, tortor eget laoreet luctus, odio urna gravida nisi, sit amet ultrices nisl velit sit amet risus. Integer fermentum nunc sit amet magna fringilla, in convallis odio tincidunt.",
       date: "2024-08-15",
       image: placeholderimg,
+      price: 100
     },
     {
       title: "Order #1235",
-      description: "1 item",
+      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus accumsan, tortor eget laoreet luctus, odio urna gravida nisi, sit amet ultrices nisl velit sit amet risus. Integer fermentum nunc sit amet magna fringilla, in convallis odio tincidunt.",
       date: "2024-08-14",
       image: placeholderimg,
+      price: 100
     },
   ];
 
@@ -32,7 +35,6 @@ function ToShipScreen({ navigation }) {
             <Image source={toShipOrder.image} className="w-16 h-16 rounded-lg mr-4" />
             <View className="flex-1">
               <Text className="text-lg font-semibold text-gray-800">{toShipOrder.title}</Text>
-              <Text className="text-sm text-gray-600">{toShipOrder.description}</Text>
               <Text className="text-sm text-green-600">Date: {toShipOrder.date}</Text>
             </View>
           </TouchableOpacity>

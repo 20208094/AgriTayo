@@ -68,10 +68,18 @@ function BiddingScreen({navigation}) {
 
   return (
     <SafeAreaView className="flex-1 p-4 bg-gray-200">
-      <Text className="">My Bids</Text>
-      <TouchableOpacity className='' onPress={() => navigation.navigate('Add Bid')}>
-        <Text className=''>Add Bid</Text>
-      </TouchableOpacity>
+      {/* Header Section */}
+      <View className="flex-row justify-between items-center mb-4">
+        <Text className="text-lg font-semibold text-gray-800">My Bids</Text>
+        <TouchableOpacity
+          className="bg-[#00b251] rounded-lg px-4 py-2"
+          onPress={() => navigation.navigate('Add Bid')}
+        >
+          <Text className="text-white text-base">Add Bid</Text>
+        </TouchableOpacity>
+      </View>
+      
+      {/* Bidding Items */}
       <ScrollView>
         <View className="flex-col">
           {dummyData.map(item => {
@@ -81,7 +89,7 @@ function BiddingScreen({navigation}) {
               <TouchableOpacity
                 key={item.id}
                 className="bg-white rounded-lg shadow-md flex-row items-start p-4 mb-4 border border-gray-300"
-                onPress={() => navigation.navigate('Shop Bidding Details', {item})}
+                onPress={() => navigation.navigate('Shop Bidding Details', { item })}
                 style={{ elevation: 3 }}
                 activeOpacity={0.8}
               >

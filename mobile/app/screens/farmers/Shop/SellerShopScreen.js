@@ -11,7 +11,11 @@ import {
 import { styled } from "nativewind";
 import { useNavigation } from "@react-navigation/native";
 import michael from "../../../assets/ehh.png";
-import SearchBarC, { NotificationIcon, MessagesIcon, MarketIcon } from "../../../components/SearchBarC";
+import SearchBarC, {
+  NotificationIcon,
+  MessagesIcon,
+  MarketIcon,
+} from "../../../components/SearchBarC";
 import { Ionicons } from "@expo/vector-icons"; // Importing icons
 
 function SellerShopScreen({ route }) {
@@ -28,7 +32,9 @@ function SellerShopScreen({ route }) {
       headerRight: () => (
         <View style={{ flexDirection: "row", marginRight: 15 }}>
           <MarketIcon onPress={() => navigation.navigate("CartScreen")} />
-          <NotificationIcon onPress={() => navigation.navigate("Notifications")} />
+          <NotificationIcon
+            onPress={() => navigation.navigate("Notifications")}
+          />
           <MessagesIcon onPress={() => navigation.navigate("ChatListScreen")} />
         </View>
       ),
@@ -79,7 +85,7 @@ function SellerShopScreen({ route }) {
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
       <ScrollView>
-      <View className="px-4 py-2">
+        <View className="px-4 py-2">
           <SearchBarC />
         </View>
 
@@ -89,9 +95,7 @@ function SellerShopScreen({ route }) {
             className="w-12 h-12 rounded-full absolute top-4 left-4"
           />
           <View className="ml-20">
-            <Text className="text-lg font-bold">
-              {product.seller.shopName}
-            </Text>
+            <Text className="text-lg font-bold">{product.seller.shopName}</Text>
             <Text className="text-sm text-gray-500">Active 2 minutes ago</Text>
             <View className="flex-row items-center space-x-2 mt-1">
               <Text className="text-yellow-500">⭐ {product.rating}/5.0</Text>
@@ -101,9 +105,7 @@ function SellerShopScreen({ route }) {
             </View>
           </View>
           <View className="absolute top-4 right-4">
-            <TouchableOpacity
-              className="px-4 py-1 mb-2 bg-[#00B251] rounded-md"
-            >
+            <TouchableOpacity className="px-4 py-1 mb-2 bg-[#00B251] rounded-md">
               <Text className="text-white font-bold text-center">+ Follow</Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -154,9 +156,7 @@ function SellerShopScreen({ route }) {
                   <Text
                     style={{
                       color:
-                        selectedProductTab === tab
-                          ? primaryColor
-                          : "#757575",
+                        selectedProductTab === tab ? primaryColor : "#757575",
                     }}
                     className="text-sm font-bold"
                   >
@@ -169,19 +169,14 @@ function SellerShopScreen({ route }) {
             {/* Product Grid */}
             <View className="flex flex-wrap flex-row p-2">
               {productCards.map((product) => (
-                <View
-                  key={product.id}
-                  className="w-1/2 p-2"
-                >
+                <View key={product.id} className="w-1/2 p-2">
                   <View className="bg-white border border-white rounded-lg p-2">
                     <Image
                       source={product.image}
                       className="w-full h-32 rounded-lg mb-2"
                       resizeMode="cover"
                     />
-                    <Text className="text-sm font-bold">
-                      {product.name}
-                    </Text>
+                    <Text className="text-sm font-bold">{product.name}</Text>
                     <Text className="text-[#00B251] text-sm font-bold mt-1">
                       ₱{product.price}
                     </Text>
@@ -223,7 +218,9 @@ function SellerShopScreen({ route }) {
                     <Text className="text-base">{category.name}</Text>
                   </View>
                   <View className="flex-row items-center">
-                    <Text className="text-gray-500 text-sm">({category.count})</Text>
+                    <Text className="text-gray-500 text-sm">
+                      ({category.count})
+                    </Text>
                     <Text className="text-gray-400 ml-2">{">"}</Text>
                   </View>
                 </TouchableOpacity>
@@ -243,18 +240,21 @@ function SellerShopScreen({ route }) {
                           className="w-full h-32 rounded-lg mb-2"
                           resizeMode="cover"
                         />
-                        <Text className="text-sm font-bold">
-                          {item.name}
-                        </Text>
+                        <Text className="text-sm font-bold">{item.name}</Text>
                       </View>
                     </View>
                   )}
                 />
 
                 {/* Back to Categories */}
-                <TouchableOpacity onPress={() => setSelectedCategory(null)} className="flex-row items-center mt-4">
+                <TouchableOpacity
+                  onPress={() => setSelectedCategory(null)}
+                  className="flex-row items-center mt-4"
+                >
                   <Ionicons name="arrow-back" size={20} color={primaryColor} />
-                  <Text className="text-[#00B251] font-bold ml-2">Back to Categories</Text>
+                  <Text className="text-[#00B251] font-bold ml-2">
+                    Back to Categories
+                  </Text>
                 </TouchableOpacity>
               </>
             )}

@@ -81,7 +81,7 @@ const Reports = ({ data, dataType }) => {
   return (
     <SafeAreaView className="flex flex-row justify-end px-4 mt-4">
       <TouchableOpacity
-        className="bg-green-600 py-3 px-6 rounded-lg shadow-lg w-2/4 max-w-xs"
+        className="bg-green-600 py-3 px-6 rounded-lg shadow-lg w-1/2 max-w-xs"
         onPress={generatePdf}
         activeOpacity={0.8}
       >

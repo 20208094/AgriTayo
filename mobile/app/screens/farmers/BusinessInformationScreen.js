@@ -106,6 +106,8 @@ function BusinessInformationScreen({ navigation, route }) {
       newErrors.businessInformation =
         "Business Information option is required.";
       isValid = false;
+    } else if (selectedBusinessInformation === 'later') {
+      navigation.navigate('My Shop')
     } else {
       newErrors.businessInformation = "";
     }
@@ -178,27 +180,8 @@ function BusinessInformationScreen({ navigation, route }) {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
-      <ScrollView contentContainerStyle={{ flexGrow: 1, padding: 16 }}>
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginTop: 16,
-          }}
-        >
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <FontAwesome name="arrow-left" size={24} color="#00B251" />
-          </TouchableOpacity>
-          <Text style={{ fontSize: 24, fontWeight: "bold", color: "black" }}>
-            Business Information
-          </Text>
-          <TouchableOpacity onPress={() => {}}>
-            <Text style={{ color: "#00B251", fontWeight: "bold" }}>Save</Text>
-          </TouchableOpacity>
-        </View>
-
+    <SafeAreaView className="flex-1 bg-white" edges={['bottom', 'left', 'right']}>
+      <ScrollView className="px-2">
         <View
           style={{
             flexDirection: "row",

@@ -6,8 +6,12 @@ import Reports from '../../../../components/Reports';
 
 function SoldOutScreen({navigation}) {
   const soldOutItems = [
-    { id: 1, name: "Product A", date: "2024-08-10", image: placeholderimg },
-    { id: 2, name: "Product B", date: "2024-08-11", image: placeholderimg },
+    { id: 1, name: "Product A", date: "2024-08-10", image: placeholderimg,  description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus accumsan, tortor eget laoreet luctus, odio urna gravida nisi, sit amet ultrices nisl velit sit amet risus. Integer fermentum nunc sit amet magna fringilla, in convallis odio tincidunt.",
+      price: 100, date: "2024-08-10"
+    },
+    { id: 2, name: "Product B", date: "2024-08-11", image: placeholderimg, description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus accumsan, tortor eget laoreet luctus, odio urna gravida nisi, sit amet ultrices nisl velit sit amet risus. Integer fermentum nunc sit amet magna fringilla, in convallis odio tincidunt.",
+      price: 100, date: "2024-08-10"
+     },
   ];
 
   return (
@@ -20,7 +24,7 @@ function SoldOutScreen({navigation}) {
             <Image source={soldOutItem.image} className="w-16 h-16 rounded-lg mr-4" />
             <View className="flex-1">
               <Text className="text-lg font-semibold text-gray-800">{soldOutItem.name}</Text>
-              <Text className="text-sm text-gray-600">Sold Out on: {soldOutItem.date}</Text>
+              <Text className="text-sm text-green-600">Sold Out on: {soldOutItem.date}</Text>
             </View>
           </TouchableOpacity>
         ))}
