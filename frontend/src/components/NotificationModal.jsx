@@ -83,7 +83,18 @@ function NotificationDropdown({ userId, isOpen, onClose }) {
 
     return (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-            <div className="bg-white rounded-lg shadow-lg max-w-sm w-full">
+            <div className="bg-white rounded-lg shadow-lg w-96 max-w-full relative">
+                {/* Close button in the top-right corner */}
+                <button
+                    className="absolute top-2 right-2 text-gray-400 hover:text-gray-700"
+                    onClick={onClose}
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+
+                {/* Modal Header with Tabs */}
                 <div className="flex justify-between border-b border-gray-200">
                     <button
                         className={`py-2 w-full text-center ${view === 'unread' ? 'font-bold' : 'text-gray-500'}`}
@@ -98,20 +109,18 @@ function NotificationDropdown({ userId, isOpen, onClose }) {
                         Read
                     </button>
                 </div>
-                <div className="flex justify-between items-center p-2">
+
+                {/* Mark All as Read button */}
+                <div className="p-4 flex justify-end">
                     <button
-                        className="bg-blue-500 text-white rounded px-4 py-2"
+                        className="bg-green-600 text-white rounded px-4 py-2"
                         onClick={markAllAsRead}
                     >
                         Mark All as Read
                     </button>
-                    <button
-                        className="text-gray-500 hover:text-gray-700"
-                        onClick={onClose}
-                    >
-                        Close
-                    </button>
                 </div>
+
+                {/* Notification list */}
                 <div className="p-4 max-h-60 overflow-y-auto">
                     {notifications.length > 0 ? (
                         notifications
@@ -127,7 +136,7 @@ function NotificationDropdown({ userId, isOpen, onClose }) {
                                     </div>
                                     {!notification.is_read && (
                                         <button
-                                            className="ml-2 text-blue-500 hover:text-blue-700"
+                                            className="ml-2 text-green-600 hover:text-blue-700"
                                             onClick={() => markAsRead(notification.notification_id)}
                                         >
                                             Mark as Read
