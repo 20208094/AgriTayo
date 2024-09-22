@@ -107,11 +107,11 @@ function App() {
           const data = await response.json();
           setUserId(data.user_id);
           setUserType(data.user_type_id);
-          console.log('userid= ', {userId})
-          console.log('usertypwid= ', {userType})
+          console.log('userid= ', { userId })
+          console.log('usertypwid= ', { userType })
 
-        
-          console.log('uuuuuser',data.user_id)
+
+          console.log('uuuuuser', data.user_id)
 
           socket.emit('login', data.user_id);
         } else {
@@ -134,7 +134,7 @@ function App() {
 
   return (
     <Router>
-      <Layout userType={userType} userId={userId} refreshProfile={refreshProfile} setRefreshProfile={setRefreshProfile}/>
+      <Layout userType={userType} userId={userId} refreshProfile={refreshProfile} setRefreshProfile={setRefreshProfile} />
     </Router>
   );
 }
@@ -178,12 +178,12 @@ function Layout({ userType, userId, refreshProfile, setRefreshProfile }) {
 
   return (
     <div className="flex">
-      {!isAuthPage && <TopNavbar userType={userType} userId={userId} refreshProfile={refreshProfile}/>}
+      {!isAuthPage && <TopNavbar userType={userType} userId={userId} refreshProfile={refreshProfile} />}
       {!isAuthPage && <LeftSidebar userType={userType} />}
       {/* {!isAuthPage && <SubSidebar userType={userType} />} */}
 
       {/* this use the array of the pathsWithOrderTopNavigationbar */}
-      {pathsWithOrderTopNavigationbar.includes(location.pathname) && <OrdersTopNavigationbar/>}
+      {pathsWithOrderTopNavigationbar.includes(location.pathname) && <OrdersTopNavigationbar />}
 
       {/* Main Content */}
       <div className="main-content flex-1 pt-10 ml-0 md:ml-20">
@@ -192,17 +192,17 @@ function Layout({ userType, userId, refreshProfile, setRefreshProfile }) {
           <Route exact path="/sample" element={<SampleSearch />} />
           {/* for market */}
           <Route exact path="/crop-category" element={<CropCategoryPage />} />
-          <Route  exact path="/crop-subcategory/:cropCategoryId" element={<CropSubCategoryPage/>}/>
-          <Route exact path='/product-list/:cropSubCategoryId' element={<ProductListPage/>}/>
-          <Route exact path = '/product-details/:productListId' element={<ProductDetaulsPage/>}/>
+          <Route exact path="/crop-subcategory/:cropCategoryId" element={<CropSubCategoryPage />} />
+          <Route exact path='/product-list/:cropSubCategoryId' element={<ProductListPage />} />
+          <Route exact path='/product-details/:productListId' element={<ProductDetaulsPage />} />
 
-          <Route exact path="/downloadapp" element={<DownloadAppPage />} />
+          <Route exact path="/download" element={<DownloadAppPage />} />
           <Route exact path="/users" element={<UsersPage />} />
           {/* for accounts */}
           <Route exact path='/profile' element={<Profile onProfileUpdate={() => setRefreshProfile(prev => prev + 1)} />} />
-            <Route path="crop_category" element={<CropCategoryPageCRUD />} />
-            <Route path="users" element={<UsersPage />} />
-            <Route exact path='addresses' element={<Addresses/>}/>
+          <Route path="crop_category" element={<CropCategoryPageCRUD />} />
+          <Route path="users" element={<UsersPage />} />
+          <Route exact path='addresses' element={<Addresses />} />
           <Route exact path='addresses' element={<Addresses />} />
           <Route exact path='/change_password' element={<ChangePassword />} />
           <Route exact path='/confirm_change_password' element={<ConfirmChangePassword />} />
@@ -220,11 +220,11 @@ function Layout({ userType, userId, refreshProfile, setRefreshProfile }) {
           <Route exact path="/admin-dash" element={<AdminDashboardPage />} />
           <Route exact path='/analytics' element={<AnalyticsPage />} />
           <Route exact path='/marketAnalytics' element={<MarketAnalyticsPage />} />
-          <Route exact path='/salesAnalytics' element={<SalesAnalyticsPage/>}/>
-          <Route exact path='/newUsersAnalytics' element={<NewUsersAnalyticsPage/>}/>
-          <Route exact path='/ordersAnalytics' element={<OrdersAnalyticsPage/>}/>
-          <Route exact path='/individualCropPriceChangesAnalytics' element={<IndividualCropPriceChangesPage/>}/>
-          <Route exact path='/profitAnalytics' element={<ProfitAnalyticsPage/>}/>
+          <Route exact path='/salesAnalytics' element={<SalesAnalyticsPage />} />
+          <Route exact path='/newUsersAnalytics' element={<NewUsersAnalyticsPage />} />
+          <Route exact path='/ordersAnalytics' element={<OrdersAnalyticsPage />} />
+          <Route exact path='/individualCropPriceChangesAnalytics' element={<IndividualCropPriceChangesPage />} />
+          <Route exact path='/profitAnalytics' element={<ProfitAnalyticsPage />} />
           <Route exact path="/reports" element={<ReportsPage />} />
           <Route exact path="/chat" element={<ChatPage />} />
           <Route path="/chatlist" element={<ChatListPage />} />
@@ -266,10 +266,17 @@ function Layout({ userType, userId, refreshProfile, setRefreshProfile }) {
             <Route path="payments" element={<PaymentsPage />} />
             <Route path="notifications" element={<NotificationsPage />} />
             <Route path="crop-category" element={<CropCategoryPage />} />
-            <Route path="profile" element={<Profile onProfileUpdate={() => setRefreshProfile(prev => prev + 1)}/>} />
+            <Route path="profile" element={<Profile onProfileUpdate={() => setRefreshProfile(prev => prev + 1)} />} />
             <Route path="address" element={<Addresses />} />
             <Route path="change_password" element={<ChangePassword />} />
+            <Route path="download" element={<DownloadAppPage />} />
             <Route path="delete_account" element={<DeleteAccount />} />
+            <Route path='marketAnalytics' element={<MarketAnalyticsPage />} />
+            <Route path='salesAnalytics' element={<SalesAnalyticsPage />} />
+            <Route path='newUsersAnalytics' element={<NewUsersAnalyticsPage />} />
+            <Route path='ordersAnalytics' element={<OrdersAnalyticsPage />} />
+            <Route path='individualCropPriceChangesAnalytics' element={<IndividualCropPriceChangesPage />} />
+            <Route path='profitAnalytics' element={<ProfitAnalyticsPage />} />
           </Route>
           {/* SELLER ROUTES */}
           <Route

@@ -28,14 +28,14 @@ function TopNavbar({ userType, userId, refreshProfile }) {
 
         const fetchUnreadMessages = async () => {
             try {
-                const chatResponse = await fetch(`/api/chats/u`, {
+                const chatResponse = await fetch(`/api/chats`, {
                     headers: { 'x-api-key': import.meta.env.VITE_API_KEY }
                 });
 
                 if (chatResponse.ok) {
                     const chats = await chatResponse.json();
                     const unreadMessages = chats.filter(chat => chat.receiver_id === userId && !chat.is_read);
-                    setUnreadCount(unreadMessages.length);
+                    setUnreadCount(0);
                     setHasNewMessage(unreadMessages.length > 0);
                 }
             } catch (error) {

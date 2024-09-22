@@ -25,6 +25,43 @@ async function getChats(req, res) {
     }
 }
 
+async function getChatsId(req, res) { 
+    try {
+        const { userId, receiverId } = req.params;
+        const receiverIdNum = parseInt(receiverId, 10);
+        const userIdNum = parseInt(userId, 10);
+
+        console.log('getchatsid called', userId, receiverId);
+
+        // Supabase query to fetch messages based on sender and receiver
+        const { data: messagesUserToReceiver, error: errorUserToReceiver } = await supabase
+            .from('chats')
+            .select('*')
+            .eq('sender_id', userIdNum)
+            .eq('receiver_id', receiverIdNum);
+
+        const { data: messagesReceiverToUser, error: errorReceiverToUser } = await supabase
+            .from('chats')
+            .select('*')
+            .eq('sender_id', receiverIdNum)
+            .eq('receiver_id', userIdNum);
+
+        if (errorUserToReceiver || errorReceiverToUser) {
+            console.error('Supabase query failed:', errorUserToReceiver?.message || errorReceiverToUser?.message);
+            return res.status(500).json({ error: 'Internal server error', details: errorUserToReceiver?.message || errorReceiverToUser?.message });
+        }
+
+        // Combine both results
+        const filteredMessages = [...(messagesUserToReceiver || []), ...(messagesReceiverToUser || [])];
+
+        // Return the filtered messages
+        res.json(filteredMessages);
+    } catch (err) {
+        console.error('Error executing Supabase query:', err.message);
+        res.status(500).json({ error: 'Internal server error', details: err.message });
+    }
+}
+
 // Function to add a new chat message with an optional image
 async function addChat(req, res, io) {
     try {
@@ -180,6 +217,7 @@ async function deleteChat(req, res) {
 // Export functions and the function to set the socket instance
 module.exports = {
     getChats,
+    getChatsId,
     addChat,
     updateChatReadStatus,
     deleteChat,

@@ -33,7 +33,8 @@ function ChatPage() {
                 (msg.receiver_id === userId && msg.sender_id === receiverIdNum);
         
             // Check if the incoming message is unread
-            const unreadCount = !msg.is_read ? 1 : 0;
+            const unreadCount = !msg.is_read && msg.receiver_id === userId ? 1 : 0;
+            console.log('unr:',unreadCount)
             
             // If there's an unread message, mark it as read
             if (unreadCount !== 0) {
@@ -49,7 +50,6 @@ function ChatPage() {
         
         return () => {
             socket.off("chat message");
-            markMessagesAsRead();
             socket.disconnect();
         };
     }, [userId, receiverId]);
@@ -107,28 +107,26 @@ function ChatPage() {
     useEffect(() => {
         const fetchMessages = async () => {
             if (userId && receiverId) {
+                console.log('u:',userId,receiverId)
                 try {
-                    const response = await fetch(`/api/chats`, {
+                    const response = await fetch(`/api/chatsId/${userId}/${receiverId}`, {
                         headers: { "x-api-key": API_KEY },
                     });
-
+    
                     if (response.ok) {
                         const allMessages = await response.json();
-                        const filteredMessages = allMessages.filter(
-                            (message) =>
-                                (message.sender_id === userId ||
-                                    message.receiver_id === userId) &&
-                                (message.sender_id === receiverIdNum ||
-                                    message.receiver_id === receiverIdNum)
-                        );
-                        const sortedMessages = filteredMessages.sort((a, b) => a.chat_id - b.chat_id);
-                    
+                        const sortedMessages = allMessages.sort((a, b) => a.chat_id - b.chat_id);
+    
                         setMessages(sortedMessages);
-
-                        const unreadCount = filteredMessages.filter(message => !message.is_read).length;
+    
+                        const unreadCount = sortedMessages.filter(message => 
+                            !message.is_read && message.receiver_id === userId
+                        ).length;
+                        console.log('unread:',unreadCount)
                         console.log('Unread messages count:', unreadCount);
-                        if (unreadCount != 0) {
-                            console.log('executing mark as read');
+                        console.log('messages 2:', allMessages);
+                        if (unreadCount !== 0) {
+                            console.log('Executing mark as read');
                             markMessagesAsRead();
                         }
                     } else {
@@ -139,9 +137,9 @@ function ChatPage() {
                 }
             }
         };
-
+    
         fetchMessages();
-    }, [userId, receiverId]);
+    }, [userId, receiverId]);    
 
     useEffect(() => {
         if (messagesEndRef.current) {

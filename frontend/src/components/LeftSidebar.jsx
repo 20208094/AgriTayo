@@ -93,15 +93,15 @@ function LeftSidebar({ userType }) {
                 </div>
 
                 {/* DEV LINKS */}
-                <SidebarTitle text="Developer"/>
+                {/* <SidebarTitle text="Developer"/>
                 <SidebarItem to="/sample" icon={FaDev} text="Sample" />
                 <SidebarItem to="/crop-category" icon={FaDev} text="Crop Category" />
                 <SidebarItem to="/admin-dash" icon={FaDev} text="Admin Dash" />
-                <SidebarItem to="/downloadapp" icon={FaDev} text="Download App" />
+                <SidebarItem to="/download" icon={FaDev} text="Download App" />
                 <SidebarItem to='/profile' icon={FaDev} text='Profile' />
                 <SidebarItem to='/all' icon={FaDev} text='Orders' />
-                <SidebarItem to='/chatlist' icon={FaDev} text='Chat List' />
-                <SidebarTitle text="Market"/>
+                <SidebarItem to='/chatlist' icon={FaDev} text='Chat List' /> */}
+                
 
 
                 {/* Conditional Sidebar Content */}
@@ -110,7 +110,7 @@ function LeftSidebar({ userType }) {
                 {userType === 3 && <BuyerSidebar />}
 
                 {/* Login/Logout Link */}
-                {userType ? (
+                {/* {userType ? (
                     <>
                         <SidebarItem
                             to="#"
@@ -127,7 +127,7 @@ function LeftSidebar({ userType }) {
                     </>
                 ) : (
                     <SidebarItem to="/login" icon={IoLogIn} text="Login" />
-                )}
+                )} */}
 
                 {/* Pin Toggle Button */}
                 <button onClick={handlePinToggle} className={`pin-button ${window.innerWidth <= 767 ? 'hidden' : ''}`}>

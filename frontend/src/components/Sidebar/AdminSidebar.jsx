@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import SidebarItem from './SidebarTemplates/SidebarItem';
 import DropdownItem from './SidebarTemplates/DropdownItem';
-import { FaBox, FaUser, FaShoppingCart, FaTag, FaTasks, FaCheckCircle, FaShippingFast, FaClipboardList, FaMoneyBillWave, FaTruck, FaBell } from 'react-icons/fa';
+import SidebarTitle from './SidebarTemplates/SidebarTitle';
+import { FaShoppingBasket, FaDownload, FaBox, FaUser, FaShoppingCart, FaTag, FaTasks, FaCheckCircle, FaShippingFast, FaClipboardList, FaMoneyBillWave, FaTruck, FaBell } from 'react-icons/fa';
 import { MdSpaceDashboard } from "react-icons/md";
 import { GiThreeLeaves } from "react-icons/gi";
 import { RiSettings3Fill } from "react-icons/ri";
 import { IoMdArrowDropdown } from "react-icons/io";
-import { RxDashboard } from "react-icons/rx";
+import { HiUsers } from "react-icons/hi2";
+import { FaCartShopping, FaMoneyBillTrendUp } from "react-icons/fa6";
+import { IoPricetags } from "react-icons/io5";
 
 
 function AdminSidebar() {
@@ -15,8 +18,24 @@ function AdminSidebar() {
     return (
         <div className="w-full">
             <SidebarItem to="/admin/dashboard" icon={MdSpaceDashboard} text="Dashboard" />
-            <SidebarItem to="/admin/crop-category" icon={GiThreeLeaves} text="Crop Category" />
-            
+            <SidebarItem to="/admin/download" icon={FaDownload} text="Download App" />
+
+            {/* MARKET ROUTES */}
+            <SidebarTitle text="Market" />
+
+            <SidebarItem to="/admin/crop-category" icon={GiThreeLeaves} text="View Market" />
+
+            {/* ANALYTICS ROUTES */}
+            <SidebarTitle text="Analytics" />
+            <SidebarItem to="/admin/marketAnalytics" icon={FaShoppingBasket} text="Market Analytics" />
+            <SidebarItem to="/admin/salesAnalytics" icon={FaMoneyBillWave} text="Sales Analytics" />
+            <SidebarItem to="/admin/newUsersAnalytics" icon={HiUsers} text="Users Analytics" />
+            <SidebarItem to="/admin/ordersAnalytics" icon={FaCartShopping} text="Orders Analytics" />
+            <SidebarItem to="/admin/individualCropPriceChangesAnalytics" icon={IoPricetags} text="Price Changes" />
+            <SidebarItem to="/admin/profitAnalytics" icon={FaMoneyBillTrendUp} text="Profit Analytics" />
+
+            <SidebarTitle text="Admin" />
+
             {/* Dev Menu Dropdown */}
             <button
                 className="sidebar-item w-full"
@@ -24,11 +43,12 @@ function AdminSidebar() {
             >
                 <RiSettings3Fill className="sidebar-icon" />
                 <span className="sidebar-text">Dev Menu</span>
-                
+
                 <IoMdArrowDropdown
                     className={`${showDevLinks ? 'rotate-180' : 'rotate-0'} dropdown-arrow`}
                 />
             </button>
+
             <div className={`transition-all duration-300 ease-in-out ${showDevLinks ? 'max-h-screen' : 'max-h-0 overflow-hidden'}`}>
                 <DropdownItem to="/admin/user_type" icon={FaUser} text="User Type" />
                 <DropdownItem to="/admin/users" icon={FaUser} text="Users" />
