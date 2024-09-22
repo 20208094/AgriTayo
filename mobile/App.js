@@ -4,8 +4,10 @@ import { createStackNavigator } from "@react-navigation/stack";
 import { useEffect, useState } from "react";
 import { Alert } from "react-native";
 import NetInfo from "@react-native-community/netinfo";
+import io from "socket.io-client";
 import SplashScreen from "./app/screens/Splash/SplashScreen";
 import LoginScreen from "./app/screens/Login/LoginScreen";
+import LogoutModal from "./app/screens/Login/LogoutModal";
 import RegisterScreenBuyers from "./app/screens/Register/RegisterScreenBuyers";
 import HomePageScreen from "./app/screens/Home/HomePageScreen";
 import NavigationBar from "./app/components/NavigationBar";
@@ -40,6 +42,8 @@ import MessageSellerScreen from "./app/screens/Message/MessageSellerScreen";
 import NegotiateToSellerScreen from "./app/screens/Message/NegotiateToSellerScreen";
 import BiddingDetailsScreen from "./app/screens/Bidding/BiddingDetailsScreen";
 import OrderDetailsScreen from "./app/screens/Orders/OrderDetailsScreen";
+import ProfileScreen from "./app/screens/Profile/ProfileScreen";
+import Navigator from "./app/components/Navigator";
 // for farmers
 import ShopScreen from "./app/screens/farmers/Shop/ShopScreen";
 import ViewShopScreen from "./app/screens/farmers/Shop/ViewShopScreen";
@@ -59,12 +63,17 @@ import FarmersOrderDetailsScreen from "./app/screens/farmers/Shop/ViewSalesHisto
 // for chat
 import ChatScreen from "./app/screens/ChatScreen";
 import ChatListScreen from "./app/screens/ChatListScreen";
+import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from '@env';
+const SOCKET_URL = 'https://agritayo.azurewebsites.net';
 
 const Stack = createStackNavigator();
+const API_KEY = REACT_NATIVE_API_KEY
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [isConnected, setConnected] = useState(true);
+  const [userSession, setUserSession] = useState(null);
+  const navigationRef = React.createRef();
 
   useEffect(() => {
     const unsubscribe = NetInfo.addEventListener((state) => {
@@ -86,6 +95,48 @@ function App() {
     );
   };
 
+  const fetchUserSession = async (navigation) => {
+    try {
+      const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/session`, {
+        headers: {
+          'x-api-key': REACT_NATIVE_API_KEY,
+        },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setUserSession(data);
+        // navigation.navigate('HomePageScreen');
+      } else {
+        setUserSession(null);
+        navigationRef.current?.navigate('Login');
+      }
+    } catch (error) {
+      console.error('Error fetching user session:', error);
+      setUserSession(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUserSession(); // Call to fetch the user session when the app starts
+
+    // Connect to socket
+    socket = io(SOCKET_URL, { transports: ['websocket'] });
+
+    socket.on('connect', () => {
+      console.log('WebSocket connected:', socket.id);
+    });
+
+    socket.on('disconnect', () => {
+      console.log('WebSocket disconnected');
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
+
   useEffect(() => {
     setTimeout(() => {
       setIsLoading(false);
@@ -101,30 +152,15 @@ function App() {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="NavigationBar">
+      <Stack.Navigator initialRouteName="Splash">
         {isLoading ? (
-          <Stack.Screen
-          name="NavigationBar"
-          component={NavigationBar}
-          options={{ ...screenOptions, headerShown: false }}
-        />
-        ) : (
-          <>
           <Stack.Screen
             name="Splash"
             component={SplashScreen}
             options={{ headerShown: false }}
           />
-            <Stack.Screen
-              name="ChatListScreen"
-              component={ChatListScreen}
-              options={{ ...screenOptions, headerShown: true }}
-            />
-            <Stack.Screen
-              name="ChatScreen"
-              component={ChatScreen}
-              options={{ ...screenOptions, headerShown: true }}
-            />
+        ) : userSession ? (
+          <>
             <Stack.Screen
               name="NavigationBar"
               component={NavigationBar}
@@ -136,16 +172,15 @@ function App() {
               options={screenOptions}
             />
             <Stack.Screen
-              name="Login"
-              component={LoginScreen}
-              options={{ ...screenOptions, headerShown: false }}
+              name="ChatListScreen"
+              component={ChatListScreen}
+              options={{ ...screenOptions, headerShown: true }}
             />
             <Stack.Screen
-              name="Register"
-              component={RegisterScreenBuyers}
-              options={{ ...screenOptions, headerShown: false }}
+              name="ChatScreen"
+              component={ChatScreen}
+              options={{ ...screenOptions, headerShown: true }}
             />
-
             <Stack.Screen
               name="CartScreen"
               component={CartScreen}
@@ -175,31 +210,6 @@ function App() {
               name="Notification Details"
               component={NotificationDetailsScreen}
               options={screenOptions}
-            />
-            <Stack.Screen
-              name="OTP Screen"
-              component={OTPScreen}
-              options={{ ...screenOptions, headerShown: false }}
-            />
-            <Stack.Screen
-              name="Change Email"
-              component={ChangeEmailScreen}
-              options={{ ...screenOptions, headerShown: false }}
-            />
-            <Stack.Screen
-              name="Forgot Password"
-              component={ForgotPasswordScreen}
-              options={{ ...screenOptions, headerShown: false }}
-            />
-            <Stack.Screen
-              name="Change Password OTP"
-              component={ChangePasswordOTPSCreen}
-              options={{ ...screenOptions, headerShown: false }}
-            />
-            <Stack.Screen
-              name="New Password"
-              component={NewPasswordScreen}
-              options={{ ...screenOptions, headerShown: false }}
             />
             <Stack.Screen
               name="View Profile"
@@ -286,7 +296,6 @@ function App() {
               component={MarketAnalyticScreen}
               options={screenOptions}
             />
-
             <Stack.Screen
               name="View Shop"
               component={ViewShopScreen}
@@ -348,39 +357,90 @@ function App() {
               options={screenOptions}
             />
             <Stack.Screen
-            name='Bidding Details'
-            component={BiddingDetailsScreen}
-            options={screenOptions}
+              name='Bidding Details'
+              component={BiddingDetailsScreen}
+              options={screenOptions}
             />
             <Stack.Screen
-            name='Shop Bidding Details'
-            component={BiddingDetailsFarmersScreen}
-            options={screenOptions}
+              name='Shop Bidding Details'
+              component={BiddingDetailsFarmersScreen}
+              options={screenOptions}
             />
             <Stack.Screen
-            name='Add Bid'
-            component={AddBidScreen}
-            options={screenOptions}
+              name='Add Bid'
+              component={AddBidScreen}
+              options={screenOptions}
             />
             <Stack.Screen
-            name='Farmers Product Details'
-            component={FarmersProductDetailScreen}
-            options={screenOptions}
+              name='Farmers Product Details'
+              component={FarmersProductDetailScreen}
+              options={screenOptions}
             />
             <Stack.Screen
-            name='Farmers Orders Details'
-            component={FarmersOrderDetailsScreen}
-            options={screenOptions}
+              name='Farmers Orders Details'
+              component={FarmersOrderDetailsScreen}
+              options={screenOptions}
             />
             <Stack.Screen
-            name='Order Details'
-            component={OrderDetailsScreen}
-            options={screenOptions}
+              name='Order Details'
+              component={OrderDetailsScreen}
+              options={screenOptions}
+            />
+            <Stack.Screen
+              name="Navigator"
+              options={{ ...screenOptions, headerShown: false }}
+            >
+              {({ navigation }) => <Navigator fetchUserSession={(nav) => fetchUserSession(nav)} navigation={navigation} />}
+            </Stack.Screen>
+          </>
+        ) : (
+          <>
+            <Stack.Screen
+              name="Login"
+              options={{ ...screenOptions, headerShown: false }}
+            >
+              {({ navigation }) => <LoginScreen fetchUserSession={fetchUserSession} navigation={navigation} />}
+            </Stack.Screen>
+            <Stack.Screen
+              name="Navigator"
+              options={{ ...screenOptions, headerShown: false }}
+            >
+              {({ navigation }) => <Navigator fetchUserSession={(nav) => fetchUserSession(nav)} navigation={navigation} />}
+            </Stack.Screen>
+            <Stack.Screen
+              name="Register"
+              component={RegisterScreenBuyers}
+              options={{ ...screenOptions, headerShown: false }}
+            />
+            <Stack.Screen
+              name="OTP Screen"
+              component={OTPScreen}
+              options={{ ...screenOptions, headerShown: false }}
+            />
+            <Stack.Screen
+              name="Change Email"
+              component={ChangeEmailScreen}
+              options={{ ...screenOptions, headerShown: false }}
+            />
+            <Stack.Screen
+              name="Forgot Password"
+              component={ForgotPasswordScreen}
+              options={{ ...screenOptions, headerShown: false }}
+            />
+            <Stack.Screen
+              name="Change Password OTP"
+              component={ChangePasswordOTPSCreen}
+              options={{ ...screenOptions, headerShown: false }}
+            />
+            <Stack.Screen
+              name="New Password"
+              component={NewPasswordScreen}
+              options={{ ...screenOptions, headerShown: false }}
             />
           </>
         )}
       </Stack.Navigator>
-    </NavigationContainer>
+    </NavigationContainer >
   );
 }
 

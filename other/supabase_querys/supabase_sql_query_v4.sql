@@ -101,6 +101,9 @@ CREATE TABLE crops (
     crop_quantity INT,
     crop_weight DECIMAL(10, 4),
     metric_system_id INT,
+    stocks INT,
+    availability VARCHAR(20) CHECK (availability IN ('live', 'reviewing', 'violation', 'delisted')),
+    availability_message TEXT,
     FOREIGN KEY (sub_category_id) REFERENCES crop_sub_category(crop_sub_category_id) ON DELETE SET NULL,
     FOREIGN KEY (shop_id) REFERENCES shop(shop_id) ON DELETE SET NULL,
     FOREIGN KEY (metric_system_id) REFERENCES metric_system(metric_system_id) ON DELETE SET NULL

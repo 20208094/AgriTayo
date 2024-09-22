@@ -33,7 +33,7 @@ function ChatPage() {
                 (msg.receiver_id === userId && msg.sender_id === receiverIdNum);
         
             // Check if the incoming message is unread
-            const unreadCount = !msg.is_read && msg.receiver_id === userId ? 1 : 0;
+            const unreadCount = !msg.is_read && msg.receiver_id === userId;
             console.log('unr:',unreadCount)
             
             // If there's an unread message, mark it as read
