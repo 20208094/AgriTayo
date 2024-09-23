@@ -19,7 +19,7 @@ function AnalyticsPage() {
                 onClick={() =>
                   navigate("/admin/marketAnalytics", {
                     state: {
-                      category: items, 
+                      category: items,
                       selectedItemId: item.id,
                     },
                   })
