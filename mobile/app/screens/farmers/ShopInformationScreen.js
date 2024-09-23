@@ -37,23 +37,8 @@ function ShopInformationScreen({ route, navigation }) {
     }
   };
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      <ScrollView className="px-4">
-        <View className="flex-row justify-between items-center mt-4">
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Icon
-              name="arrow-left"
-              type="font-awesome"
-              size={24}
-              color="#00B251"
-            />
-          </TouchableOpacity>
-          <Text className="text-xl font-bold text-black">Shop Information</Text>
-          <TouchableOpacity onPress={() => {}}>
-            <Text className="text-green-600 font-bold">Save</Text>
-          </TouchableOpacity>
-        </View>
-
+    <SafeAreaView className="flex-1 bg-white" edges={['bottom', 'left', 'right']}>
+      <ScrollView className="px-2">
         <View className="flex-row justify-between items-center mt-4">
           <View className="flex-1 border-b-2 border-green-800 pb-2">
             <Text className="text-center text-green-800">Shop Information</Text>

@@ -12,40 +12,40 @@ function OrderDetailsScreen({ route }) {
 
   return (
     // add ka nalang ng description
-    <SafeAreaView className="">
-      <View className="">
+    <SafeAreaView className="flex-1 bg-white">
+      <View className="p-4">
         {cancelledOrder ? (
           <>
-            <Text className="">{cancelledOrder.item}</Text>
-            <Text className="">{cancelledOrder.date}</Text>
-            <Text className="">{cancelledOrder.reason}</Text>
-            <Image className='' source={cancelledOrder.image}/>
+            <Image className="w-full h-72 object-cover"source={cancelledOrder.image}/>
+            <Text className="text-2xl font-bold text-[#00B251] mt-4">{cancelledOrder.item}</Text>
+            <Text className="text-sm text-gray-600">{cancelledOrder.date}</Text>
+            <Text className="text-xl font-bold text-red-600">{cancelledOrder.reason}</Text>
           </>
         ) : completedOrder ? (
           <>
-            <Text className="">{completedOrder.item}</Text>
-            <Text className="">{completedOrder.date}</Text>
-            <Text className="">{completedOrder.total}</Text>
-            <Image className='' source={completedOrder.image}/>
+            <Image className='w-full h-72 object-cover' source={completedOrder.image}/>
+            <Text className="text-2xl font-bold text-[#00B251] mt-4">{completedOrder.item}</Text>
+            <Text className="text-sm text-gray-600">{completedOrder.date}</Text>
+            <Text className="text-xl font-bold text-green-500">{completedOrder.total}</Text>
           </>
         ) : toPayOrder ? (
           <>
-            <Text className="">{toPayOrder.item}</Text>
-            <Text className="">{toPayOrder.total}</Text>
-            <Text className="">{toPayOrder.dueDate}</Text>
-            <Image className='' source={toPayOrder.image}/>
+            <Image className='w-full h-72 object-cover' source={toPayOrder.image}/>
+            <Text className="text-2xl font-bold text-[#00B251] mt-4">{toPayOrder.item}</Text>
+            <Text className="text-xl font-bold text-green-500">{toPayOrder.total}</Text>
+            <Text className="text-sm text-gray-600">{toPayOrder.dueDate}</Text>
           </>
         ) : toReceiveOrder ? (
           <>
-            <Text className="">{toReceiveOrder.item}</Text>
-            <Text className="">{toReceiveOrder.expectedDate}</Text>
-            <Image className='' source={toReceiveOrder.image}/>
+            <Image className='w-full h-72 object-cover' source={toReceiveOrder.image}/>
+            <Text className="text-2xl font-bold text-[#00B251] mt-4">{toReceiveOrder.item}</Text>
+            <Text className="text-sm text-gray-600">{toReceiveOrder.expectedDate}</Text>
           </>
         ) : toShipOrder ? (
           <>
-            <Text className="">{toShipOrder.item}</Text>
-            <Text className="">{toShipOrder.shippingDate}</Text>
-            <Image className='' source={toShipOrder.image}/>
+            <Image className='w-full h-72 object-cover' source={toShipOrder.image}/>
+            <Text className="text-2xl font-bold text-[#00B251] mt-4">{toShipOrder.item}</Text>
+            <Text className="text-sm text-gray-600">{toShipOrder.shippingDate}</Text>
           </>
         ) : (
           <Text>No item available</Text>

@@ -15,7 +15,6 @@ function ShopScreen({ navigation }) {
     name: "Michael",
     followers: 0,
     verify: "Verified",
-    financeBalance: 500,
   };
 
   return (

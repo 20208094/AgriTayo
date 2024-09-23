@@ -5,7 +5,8 @@ import placeholderimg from '../../../../assets/placeholder.png'; // Adjust the p
 
 function CancelledScreen({ navigation }) {
     const cancelledOrders = [
-        { title: 'Order #1229', description: '2 items', date: '2024-08-10', reason: 'Mali pala', image: placeholderimg },
+        { title: 'Order #1229', description:
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus accumsan, tortor eget laoreet luctus, odio urna gravida nisi, sit amet ultrices nisl velit sit amet risus. Integer fermentum nunc sit amet magna fringilla, in convallis odio tincidunt.",date: '2024-08-10', reason: 'Mali pala', image: placeholderimg, price: 100 },
     ];
 
     return (

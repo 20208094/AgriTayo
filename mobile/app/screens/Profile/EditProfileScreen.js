@@ -9,11 +9,10 @@ import {
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { styled } from "nativewind";
-import { FontAwesome } from '@expo/vector-icons';
+import { FontAwesome } from "@expo/vector-icons";
 
 function EditProfileScreen({ navigation, route }) {
-
-    const { profile } = route.params;
+  const { profile } = route.params;
   const handleRegister = () => {
     // handle registration logic here
   };
@@ -124,13 +123,13 @@ function EditProfileScreen({ navigation, route }) {
             autoCorrect={false}
           />
           <TouchableOpacity
-            onPress={() => navigation.navigate('View Profile', {profile})}
+            onPress={() => navigation.navigate("View Profile", { profile })}
             className="w-full p-3 bg-[#00B251] rounded-lg shadow-md"
           >
             <Text className="text-white text-center text-lg">Confirm</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={() => navigation.navigate('View Profile', {profile})}
+            onPress={() => navigation.navigate("View Profile", { profile })}
             className="w-full p-3 bg-gray-300 rounded-lg shadow-md mt-4"
           >
             <Text className="text-gray-800 text-center text-lg">Cancel</Text>

@@ -42,6 +42,9 @@ import MessageSellerScreen from "./app/screens/Message/MessageSellerScreen";
 import NegotiateToSellerScreen from "./app/screens/Message/NegotiateToSellerScreen";
 import BiddingDetailsScreen from "./app/screens/Bidding/BiddingDetailsScreen";
 import OrderDetailsScreen from "./app/screens/Orders/OrderDetailsScreen";
+import SellerFaq from "./app/screens/farmers/Shop/LearnAndHelp/SellerFaqScreen";
+import ChatSupportScreen from "./app/screens/farmers/Shop/LearnAndHelp/ChatSupportScreen";
+import EditShopScreen from "./app/screens/farmers/Shop/ViewSalesHistory/EditShopScreen";
 import ProfileScreen from "./app/screens/Profile/ProfileScreen";
 import Navigator from "./app/components/Navigator";
 // for farmers
@@ -60,6 +63,8 @@ import SellerShopScreen from "./app/screens/farmers/Shop/SellerShopScreen";
 import AddBidScreen from "./app/screens/farmers/Shop/FarmersBidding/AddBidScreen";
 import FarmersProductDetailScreen from "./app/screens/farmers/Shop/MyProducts/FarmersProductDetailsScreen";
 import FarmersOrderDetailsScreen from "./app/screens/farmers/Shop/ViewSalesHistory/FarmersOrderDetailsScreen";
+import ViewShopDetailsScreen from "./app/screens/farmers/Shop/ViewShopDetailsScreen";
+import AddProductScreen from "./app/screens/farmers/Shop/MyProducts/AddProductScreen";
 // for chat
 import ChatScreen from "./app/screens/ChatScreen";
 import ChatListScreen from "./app/screens/ChatListScreen";
@@ -244,17 +249,17 @@ function App() {
             <Stack.Screen
               name="Welcome To Agritayo!"
               component={StartSelling}
-              options={{ ...screenOptions, headerShown: false }}
+              options={{ ...screenOptions}}
             />
             <Stack.Screen
               name="Shop Information"
               component={ShopInformationScreen}
-              options={{ ...screenOptions, headerShown: false }}
+              options={{ ...screenOptions}}
             />
             <Stack.Screen
               name="Business Information"
               component={BusinessInformationScreen}
-              options={{ ...screenOptions, headerShown: false }}
+              options={{ ...screenOptions}}
             />
             <Stack.Screen
               name="My Shop"
@@ -392,6 +397,31 @@ function App() {
             >
               {({ navigation }) => <Navigator fetchUserSession={(nav) => fetchUserSession(nav)} navigation={navigation} />}
             </Stack.Screen>
+            <Stack.Screen
+            name='View Shop Details'
+            component={ViewShopDetailsScreen}
+            options={screenOptions}
+            />
+            <Stack.Screen
+            name='Add Product'
+            component={AddProductScreen}
+            options={screenOptions}
+            />
+            <Stack.Screen
+            name='Seller FAQ'
+            component={SellerFaq}
+            options={screenOptions}
+            />
+            <Stack.Screen
+            name='Chat Support'
+            component={ChatSupportScreen}
+            options={screenOptions}
+            />
+            <Stack.Screen
+            name='Edit Shop'
+            component={EditShopScreen}
+            options={screenOptions}
+            />
           </>
         ) : (
           <>

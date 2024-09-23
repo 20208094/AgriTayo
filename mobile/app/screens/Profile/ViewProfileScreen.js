@@ -13,7 +13,12 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
 import { Ionicons } from "@expo/vector-icons"; // Ensure you have this package installed
 import GoBack from "../../components/GoBack";
-import { NotificationIcon, MessagesIcon, MarketIcon } from "../../components/SearchBarC"; // Import your custom icons
+import {
+  NotificationIcon,
+  MessagesIcon,
+  MarketIcon,
+} from "../../components/SearchBarC"; // Import your custom icons
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 const editButton = require("../../assets/edit.png");
 const userImage = require("../../assets/user.png"); // Import the user image
@@ -28,10 +33,26 @@ function ViewProfileScreen({ route, navigation }) {
   const [birthday, setBirthday] = useState(profile.birthday);
   const [gender, setGender] = useState(profile.gender);
   const [email, setEmail] = useState(profile.email);
-  const [phone, setPhone] = useState(profile.phone || "091234567890"); // Default phone number
+  const [phone, setPhone] = useState(profile.phone || "091234567890"); 
+  const [formattedDate, setFormattedDate] = useState("");
+  const [date, setDate] = useState(new Date());
+  const [show, setShow] = useState(false);
+  // Default phone number
 
   const [modalVisible, setModalVisible] = useState(false); // State to control modal visibility
   const [profileImage, setProfileImage] = useState(userImage); // State for the profile image
+
+  const handleDateChange = (event, selectedDate) => {
+    if (event.type === "set") {
+      const currentDate = selectedDate || date;
+      setShow(false);
+      setDate(currentDate);
+      setFormattedDate(currentDate.toLocaleDateString());
+      setBirthDay(currentDate.toLocaleDateString());
+    } else {
+      setShow(false);
+    }
+  };
 
   // Function to handle image selection from gallery
   const selectImageFromGallery = async () => {
@@ -79,7 +100,9 @@ function ViewProfileScreen({ route, navigation }) {
       headerRight: () => (
         <View style={{ flexDirection: "row", marginRight: 15 }}>
           <MarketIcon onPress={() => navigation.navigate("CartScreen")} />
-          <NotificationIcon onPress={() => navigation.navigate("Notifications")} />
+          <NotificationIcon
+            onPress={() => navigation.navigate("Notifications")}
+          />
           <MessagesIcon onPress={() => navigation.navigate("ChatListScreen")} />
         </View>
       ),
@@ -143,11 +166,24 @@ function ViewProfileScreen({ route, navigation }) {
               <Ionicons name="calendar-outline" size={20} color="#50d71e" />{" "}
               Birthday
             </Text>
-            <TextInput
-              value={birthday}
-              onChangeText={setBirthday}
-              className="mt-1 text-lg text-gray-900 border border-gray-300 rounded-lg p-2"
+            <TouchableOpacity
+            onPress={() => setShow(true)}
+            className="w-full p-3 mb-4 bg-white rounded-lg shadow-md"
+          >
+            <Text className="text-gray-800">
+              {formattedDate || "Select Birthday"}
+            </Text>
+          </TouchableOpacity>
+          {show && (
+            <DateTimePicker
+              testID="dateTimePicker"
+              value={date}
+              mode="date"
+              is24Hour={true}
+              display="default"
+              onChange={handleDateChange}
             />
+          )}
           </View>
           <View className="mb-4">
             <Text className="text-base text-gray-600 flex-row items-center">

@@ -7,15 +7,19 @@ function CompletedScreen({ navigation }) {
   const completedOrders = [
     {
       title: "Order #1232",
-      description: "3 items",
+      description:
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus accumsan, tortor eget laoreet luctus, odio urna gravida nisi, sit amet ultrices nisl velit sit amet risus. Integer fermentum nunc sit amet magna fringilla, in convallis odio tincidunt.",
       date: "2024-08-13",
       image: placeholderimg,
+      price: 100
     },
     {
       title: "Order #1231",
-      description: "1 item",
+      description:
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus accumsan, tortor eget laoreet luctus, odio urna gravida nisi, sit amet ultrices nisl velit sit amet risus. Integer fermentum nunc sit amet magna fringilla, in convallis odio tincidunt.",
       date: "2024-08-12",
       image: placeholderimg,
+      price: 100
     },
   ];
 
@@ -34,7 +38,6 @@ function CompletedScreen({ navigation }) {
             <Image source={completedOrder.image} className="w-16 h-16 rounded-lg mr-4" />
             <View className="flex-1">
               <Text className="text-lg font-semibold text-gray-800">{completedOrder.title}</Text>
-              <Text className="text-sm text-gray-600">{completedOrder.description}</Text>
               <Text className="text-sm text-green-600">Completed on: {completedOrder.date}</Text>
             </View>
           </TouchableOpacity>

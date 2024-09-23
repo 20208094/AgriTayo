@@ -192,6 +192,15 @@ function MarketAnalyticScreen({ route }) {
         swipeEnabled: true,
         tabBarScrollEnabled: true,
         lazy: true,
+        tabBarShowLabel: true,
+        tabBarActiveTintColor: "#00b251",
+        tabBarInactiveTintColor: "gray",
+        tabBarStyle: { backgroundColor: "white", elevation: 3 },
+        tabBarIndicatorStyle: {
+          backgroundColor: "#00b251",
+          height: 4,
+          borderRadius: 2,
+        }
       }}
       initialRouteName={
         category.find((item) => item.id === selectedItemId)?.name ?? category[0]?.name

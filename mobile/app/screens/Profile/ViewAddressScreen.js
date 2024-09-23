@@ -1,14 +1,31 @@
-import React from "react";
+import React, {useState} from "react";
 import { View, Text, TouchableOpacity, Image } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import { Icon } from "react-native-elements";
 import { styled } from "nativewind";
 import { NotificationIcon, MessagesIcon } from "../../components/SearchBarC";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 function ViewAddressScreen({ route }) {
   const { profile } = route.params;
   const navigation = useNavigation();
+
+  const [formattedDate, setFormattedDate] = useState("");
+  const [date, setDate] = useState(new Date());
+  const [show, setShow] = useState(false);
+
+  const handleDateChange = (event, selectedDate) => {
+    if (event.type === "set") {
+      const currentDate = selectedDate || date;
+      setShow(false);
+      setDate(currentDate);
+      setFormattedDate(currentDate.toLocaleDateString());
+      setBirthDay(currentDate.toLocaleDateString());
+    } else {
+      setShow(false);
+    }
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-gray-100 pt-0">

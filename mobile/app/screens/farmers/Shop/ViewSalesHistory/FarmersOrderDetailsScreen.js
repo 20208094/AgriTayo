@@ -1,54 +1,28 @@
 import React from "react";
-import { SafeAreaView, View, Text, Image} from "react-native";
+import { SafeAreaView, View, Text, Image, ScrollView } from "react-native";
 
 function FarmersOrderDetailsScreen({ route }) {
-  const { toShipOrder, completedOrder, cancelledOrder, returnOrder, reviewOrder } = route.params;
-  return (
-    // palagyan ako ng description
-    <SafeAreaView className="">
-      <View className="">
-        {toShipOrder ? (
-          <>
-            <Text className="">{toShipOrder.title}</Text>
-            <Text className="">{toShipOrder.description}</Text>
-            <Text className="">{toShipOrder.date}</Text>
-            <Image className='' source={toShipOrder.image}/>
-          </>
-        ) : completedOrder ? (
-          <>
-            <Text className="">{completedOrder.title}</Text>
-            <Text className="">{completedOrder.description}</Text>
-            <Text className="">{completedOrder.date}</Text>
-            <Image className='' source={completedOrder.image}/>
-          </>
-        ) : cancelledOrder ? (
-          <>
-            <Text className="">{cancelledOrder.title}</Text>
-            <Text className="">{cancelledOrder.description}</Text>
-            <Text className="">{cancelledOrder.date}</Text>
-            <Text className="">{cancelledOrder.reason}</Text>
-            <Image className='' source={cancelledOrder.image}/>
-          </>
-        ) : returnOrder ? (
-          <>
-            <Text className="">{returnOrder.title}</Text>
-            <Text className="">{returnOrder.description}</Text>
-            <Text className="">{returnOrder.date}</Text>
-            <Image className='' source={returnOrder.image}/>
-          </>
-           ) : reviewOrder ? (
-            <>
-              <Text className="">{reviewOrder.title}</Text>
-              <Text className="">{reviewOrder.description}</Text>
-              <Text className="">{reviewOrder.date}</Text>
-              <Image className='' source={reviewOrder.image}/>
-            </>
-        ) : (
-          <Text>No item available</Text>
-        )}
-      </View>
-    </SafeAreaView>
-  );
+    const { toShipOrder, completedOrder, cancelledOrder, returnOrder, reviewOrder } = route.params;
+
+    const order = toShipOrder || completedOrder || cancelledOrder || returnOrder || reviewOrder;
+
+    return (
+        <SafeAreaView className="flex-1 bg-white">
+            <ScrollView className="p-4">
+                {order ? (
+                    <>
+                        <Image className="w-full h-72 object-cover" source={order.image} />
+                        <Text className="text-2xl font-bold text-[#00B251] mt-4">{order.title}</Text>
+                        <Text className="text-base my-2 text-gray-800">{order.description}</Text>
+                        <Text className="text-sm text-gray-600">Date: {order.date}</Text>
+                        <Text className='text-xl font-bold text-[#00B251]'>Price: ₱{order.price}</Text>
+                    </>
+                ) : (
+                    <Text className="text-center text-gray-600">No item available</Text>
+                )}
+            </ScrollView>
+        </SafeAreaView>
+    );
 }
 
 export default FarmersOrderDetailsScreen;

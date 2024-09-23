@@ -4,6 +4,7 @@ import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import * as FileSystem from 'expo-file-system';
 
+
 const Reports = ({ data, dataType }) => {
   const generatePdf = async () => {
     try {
@@ -18,9 +19,9 @@ const Reports = ({ data, dataType }) => {
 
       // Table header
       const tableHeader = `
-        <table border="1" cellpadding="5" cellspacing="0">
-          <tr>
-            ${headers.map(header => `<th>${header.charAt(0).toUpperCase() + header.slice(1)}</th>`).join('')}
+        <table border="1" cellpadding="5" cellspacing="0" style="width: 100%; border-collapse: collapse;">
+          <tr style="background-color: #00B251; color: white;">
+            ${headers.map(header => `<th style="padding: 8px;">${header.charAt(0).toUpperCase() + header.slice(1)}</th>`).join('')}
           </tr>
       `;
 
@@ -29,7 +30,7 @@ const Reports = ({ data, dataType }) => {
         .map(
           (item) => `
           <tr>
-            ${headers.map(header => `<td>${item[header]}</td>`).join('')}
+            ${headers.map(header => `<td style="padding: 8px; text-align: center;">${item[header]}</td>`).join('')}
           </tr>
         `
         )
@@ -40,12 +41,12 @@ const Reports = ({ data, dataType }) => {
       const reportTitle = `${dataType.charAt(0).toUpperCase() + dataType.slice(1)} Report`;
       const reportDate = `Date: ${new Date().toLocaleDateString()}`;
 
-      // HTML structure for the PDF
+      // HTML structure for the PDF with the logo at the top
       const html = `
         <html>
-          <body style="font-family: Arial, sans-serif;">
-            <h1 style="text-align: center;">${reportTitle}</h1>
-            <p style="text-align: center;">${reportDate}</p>
+          <body style="font-family: Arial, sans-serif; margin: 0; padding: 0; box-sizing: border-box;">
+            <h1 style="text-align: center; color: #00B251;">${reportTitle}</h1>
+            <p style="text-align: center; font-size: 14px;">${reportDate}</p>
             <div style="margin-top: 20px;">
               ${tableHeader}
               ${tableRows}
@@ -81,7 +82,7 @@ const Reports = ({ data, dataType }) => {
   return (
     <SafeAreaView className="flex flex-row justify-end px-4 mt-4">
       <TouchableOpacity
-        className="bg-green-600 py-3 px-6 rounded-lg shadow-lg w-2/4 max-w-xs"
+        className="bg-[#00B251] py-3 px-4 rounded-lg shadow-lg"
         onPress={generatePdf}
         activeOpacity={0.8}
       >

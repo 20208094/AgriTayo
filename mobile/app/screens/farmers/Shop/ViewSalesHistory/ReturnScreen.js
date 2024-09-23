@@ -5,7 +5,8 @@ import placeholderimg from '../../../../assets/placeholder.png'; // Adjust the p
 
 function ReturnScreen({ navigation }) {
     const returnOrders = [
-        { title: 'Order #1227', description: '1 item', date: '2024-08-09', image: placeholderimg },
+        { title: 'Order #1227', description:
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus accumsan, tortor eget laoreet luctus, odio urna gravida nisi, sit amet ultrices nisl velit sit amet risus. Integer fermentum nunc sit amet magna fringilla, in convallis odio tincidunt.", date: '2024-08-09', image: placeholderimg, price: 100},
     ];
 
     return (
