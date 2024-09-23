@@ -1,111 +1,126 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
-  PointElement,
-  LineElement,
+  BarElement,
   Title,
   Tooltip,
   Legend,
 } from 'chart.js';
-import { Line } from 'react-chartjs-2';
+import { Bar } from 'react-chartjs-2';
 import Modal from '../../../../components/Modal/Modal'; // Adjust path based on your folder structure
 
 ChartJS.register(
   CategoryScale,
   LinearScale,
-  PointElement,
-  LineElement,
+  BarElement,
   Title,
   Tooltip,
   Legend
 );
 
+const API_KEY = import.meta.env.VITE_API_KEY;
+
 const SalesAnalyticsPage = () => {
   const [selectedFilter, setSelectedFilter] = useState('12 Months');
   const [modalVisible, setModalVisible] = useState(false);
+  const [totalPriceStatus4, setTotalPriceStatus4] = useState(Array(12).fill(0)); // Array for each month
+  const [totalPriceAll, setTotalPriceAll] = useState(0);
 
   // Dummy data for sales analytics
   const getSalesData = (filter) => {
-    const data = {
-      "7 Days": {
-        dates: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-        average: [120, 130, 125, 140, 150, 160, 170],
-        highest: [140, 150, 145, 160, 170, 180, 190],
-        lowest: [100, 110, 105, 120, 130, 140, 150],
-        sold: [120, 130, 125, 140, 150, 160, 170],
-      },
-      "14 Days": {
-        dates: ["Week 1", "Week 2"],
-        average: [120, 130],
-        highest: [140, 150],
-        lowest: [100, 110],
-        sold: [1200, 1300],
-      },
-      "6 Months": {
-        dates: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
-        average: [120, 130, 125, 140, 150, 160],
-        highest: [140, 150, 145, 160, 170, 180],
-        lowest: [100, 110, 105, 120, 130, 140],
-        sold: [1200, 1300, 1250, 1400, 1500, 1600],
-      },
-      "12 Months": {
-        dates: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-        average: [120, 130, 125, 140, 150, 160, 155, 165, 170, 180, 190, 200],
-        highest: [140, 150, 145, 160, 170, 180, 175, 185, 190, 200, 210, 220],
-        lowest: [100, 110, 105, 120, 130, 140, 135, 145, 150, 160, 170, 180],
-        sold: [1200, 1300, 1250, 1400, 1500, 1600, 1550, 1650, 1700, 1800, 1900, 2000],
-      },
-      Yearly: {
-        dates: ["2020", "2021", "2022", "2023"],
-        average: [120, 130, 125, 140],
-        highest: [140, 150, 145, 160],
-        lowest: [100, 110, 105, 120],
-        sold: [5000, 5200, 5100, 5300],
-      },
-    };
-
-    return data[filter] || data["12 Months"];
+    // ... (keep this as it is)
   };
 
-  const renderSalesAnalyticsChart = () => {
-    const salesData = getSalesData(selectedFilter);
+  // Function to fetch orders based on selected filter
+  const fetchOrdersAndCalculateTotalPrices = async () => {
+    try {
+      console.log("Fetching orders...");
+      const response = await fetch('/api/orders', {
+        headers: {
+          'x-api-key': API_KEY,
+        },
+      });
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const orders = await response.json();
+      console.log("Orders fetched:", orders);
 
+      // Reset totals for each fetch
+      const totalStatus4 = Array(12).fill(0); // Initialize an array for each month
+      let totalAll = 0;
+
+      // Filter orders based on the selected filter
+      const filteredOrders = orders.filter(order => {
+        const orderDate = new Date(order.order_date);
+        const currentDate = new Date();
+
+        if (selectedFilter === '7 Days') {
+          return (currentDate - orderDate) / (1000 * 3600 * 24) <= 7;
+        } else if (selectedFilter === '14 Days') {
+          return (currentDate - orderDate) / (1000 * 3600 * 24) <= 14;
+        } else if (selectedFilter === '6 Months') {
+          return (currentDate - orderDate) / (1000 * 3600 * 24) <= 180;
+        } else if (selectedFilter === '12 Months') {
+          return (currentDate - orderDate) / (1000 * 3600 * 24) <= 365;
+        } else if (selectedFilter === 'Yearly') {
+          return orderDate.getFullYear() === currentDate.getFullYear();
+        }
+        return false;
+      });
+
+      // Calculate total price for filtered orders with status_id = 4, grouped by month
+      filteredOrders.forEach(order => {
+        if (order.status_id === 4) {
+          const orderDate = new Date(order.order_date);
+          const month = orderDate.getMonth(); // Get month index (0-11)
+          totalStatus4[month] += parseFloat(order.total_price);
+          totalAll += parseFloat(order.total_price);
+        }
+      });
+
+      console.log("Total price for status_id = 4 by month:", totalStatus4);
+      setTotalPriceStatus4(totalStatus4);
+      console.log("Total price for all orders:", totalAll);
+      setTotalPriceAll(totalAll);
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchOrdersAndCalculateTotalPrices();
+  }, [selectedFilter]); // Fetch orders when selectedFilter changes
+
+  const renderSalesAnalyticsChart = () => {
+    // Months for x-axis
+    const months = [
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
+    ];
+
+    // Bar chart data
     const data = {
-      labels: salesData.dates,
+      labels: months, // Set months as labels for x-axis
       datasets: [
         {
-          label: "Average",
-          data: salesData.average,
-          borderColor: "rgba(0, 128, 0, 0.5)",
-          fill: false,
-        },
-        {
-          label: "Highest",
-          data: salesData.highest,
-          borderColor: "rgba(255, 69, 58, 0.5)",
-          fill: false,
-        },
-        {
-          label: "Lowest",
-          data: salesData.lowest,
-          borderColor: "rgba(25, 118, 210, 0.5)",
-          fill: false,
+          label: "Total Price for Status ID 4",
+          data: totalPriceStatus4, // Monthly total prices
+          backgroundColor: "rgba(0, 128, 0, 0.5)",
         },
       ],
     };
 
     const options = {
       responsive: true,
-      tooltips: {
-        enabled: true,
-        mode: "index",
-        intersect: false,
-        callbacks: {
-          label: function (tooltipItem, data) {
-            const dataset = data.datasets[tooltipItem.datasetIndex];
-            return `${dataset.label}: ₱${tooltipItem.yLabel}`;
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: function (tooltipItem) {
+              return `${tooltipItem.dataset.label}: ₱${tooltipItem.raw}`;
+            },
           },
         },
       },
@@ -116,7 +131,7 @@ const SalesAnalyticsPage = () => {
       },
     };
 
-    return <Line data={data} options={options} />
+    return <Bar data={data} options={options} />;
   };
 
   return (
@@ -125,6 +140,18 @@ const SalesAnalyticsPage = () => {
         <h5 className="text-xl font-bold text-center text-green-700 mb-4">
           SALES ANALYTICS SUMMARY
         </h5>
+
+        {/* Display the fetched total price for status_id = 4 */}
+        <p className="text-sm font-bold text-green-500 mb-2">
+          Total Price for Orders with Status ID 4:{" "}
+          <span className="text-green-700">₱{totalPriceStatus4.reduce((a, b) => a + b, 0).toFixed(2)}</span>
+        </p>
+
+        {/* Display the fetched total price for all orders */}
+        <p className="text-sm font-bold text-green-500 mb-2">
+          Total Price for All Orders:{" "}
+          <span className="text-green-700">₱{totalPriceAll.toFixed(2)}</span>
+        </p>
 
         <p className="text-sm font-bold text-green-500 mb-2">
           Current Filter:{" "}
@@ -139,9 +166,7 @@ const SalesAnalyticsPage = () => {
         </button>
 
         <Modal isOpen={modalVisible} onClose={() => setModalVisible(false)}>
-          <h3 className="text-lg font-bold mb-4 text-center">
-            Select a filter
-          </h3>
+          <h3 className="text-lg font-bold mb-4 text-center">Select a filter</h3>
           {["7 Days", "14 Days", "6 Months", "12 Months", "Yearly"].map(
             (filter) => (
               <button
@@ -167,25 +192,6 @@ const SalesAnalyticsPage = () => {
             Close
           </button>
         </Modal>
-
-        <p className="text-sm font-bold text-green-500 mb-2">
-          Average:{" "}
-          <span className="text-green-700">
-            ₱{getSalesData(selectedFilter).average.slice(-1)[0]}
-          </span>
-        </p>
-        <p className="text-sm font-bold text-green-500 mb-2">
-          Highest:{" "}
-          <span className="text-green-700">
-            ₱{getSalesData(selectedFilter).highest.slice(-1)[0]}
-          </span>
-        </p>
-        <p className="text-sm font-bold text-green-500 mb-2">
-          Lowest:{" "}
-          <span className="text-green-700">
-            ₱{getSalesData(selectedFilter).lowest.slice(-1)[0]}
-          </span>
-        </p>
 
         {renderSalesAnalyticsChart()}
       </div>
