@@ -9,23 +9,24 @@ const API_KEY = import.meta.env.VITE_API_KEY;
 let socket;
 
 function ChatPage() {
-    const [messages, setMessages] = useState([]);
-    const [users, setUsers] = useState([]);
-    const [senderData, setSenderData] = useState(null);
-    const [receiverData, setReceiverData] = useState(null);
-    const [newMessage, setNewMessage] = useState("");
-    const [newImage, setNewImage] = useState(null);
-    const [userId, setUserId] = useState(null);
-    const [error, setError] = useState("");
-    const [fullImageView, setFullImageView] = useState(null);
-    const { receiverId } = useParams();
-    const navigate = useNavigate();
-    const messagesEndRef = useRef(null);
+  const [messages, setMessages] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [newMessageUsers, setNewMessageUsers] = useState(new Set());
+  const [senderData, setSenderData] = useState(null);
+  const [receiverData, setReceiverData] = useState(null);
+  const [newMessage, setNewMessage] = useState("");
+  const [newImage, setNewImage] = useState(null);
+  const [userId, setUserId] = useState(null);
+  const [error, setError] = useState("");
+  const [fullImageView, setFullImageView] = useState(null);
+  const { receiverId } = useParams();
+  const navigate = useNavigate();
+  const messagesEndRef = useRef(null);
 
-    const receiverIdNum = Number(receiverId);
+  const receiverIdNum = Number(receiverId);
 
-    useEffect(() => {
-        socket = io();
+  useEffect(() => {
+    socket = io();
 
         socket.on("chat message", (msg) => {
             const isMessageForThisChat =
@@ -54,55 +55,71 @@ function ChatPage() {
         };
     }, [userId, receiverId]);
 
-    useEffect(() => {
-        const fetchUserSession = async () => {
-            try {
-                const response = await fetch("/api/session", {
-                    headers: { "x-api-key": API_KEY },
-                });
+  useEffect(() => {
+    const fetchUserSession = async () => {
+      try {
+        const response = await fetch("/api/session", {
+          headers: { "x-api-key": API_KEY },
+        });
 
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.user_id) {
-                        setUserId(data.user_id);
-                    } else {
-                        navigate("/login");
-                    }
-                } else {
-                    console.error("Failed to fetch user session:", response.statusText);
-                }
-            } catch (error) {
-                console.error("Error fetching user session:", error);
-                setError("Failed to fetch user session. Please try again.");
-            }
-        };
+        if (response.ok) {
+          const data = await response.json();
+          if (data.user_id) {
+            setUserId(data.user_id);
+          } else {
+            navigate("/login");
+          }
+        } else {
+          console.error("Failed to fetch user session:", response.statusText);
+        }
+      } catch (error) {
+        console.error("Error fetching user session:", error);
+        setError("Failed to fetch user session. Please try again.");
+      }
+    };
 
-        const fetchUsers = async () => {
-            try {
-                const response = await fetch("/api/users", {
-                    headers: {
-                        "x-api-key": API_KEY,
-                    },
-                });
-                if (!response.ok) {
-                    throw new Error("Network response was not ok");
-                }
-                const usersData = await response.json();
-                setUsers(usersData);
+    const fetchUsers = async () => {
+      try {
+        const response = await fetch("/api/users", {
+          headers: {
+            "x-api-key": API_KEY,
+          },
+        });
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        const usersData = await response.json();
+        setUsers(usersData);
 
-                const sender = usersData.find((user) => user.user_id === userId);
-                const receiver = usersData.find((user) => user.user_id === receiverIdNum);
+        const sender = usersData.find((user) => user.user_id === userId);
+        const receiver = usersData.find((user) => user.user_id === receiverIdNum);
 
-                setSenderData(sender);
-                setReceiverData(receiver);
-            } catch (error) {
-                console.error("Error fetching users:", error);
-            }
-        };
+        setSenderData(sender);
+        setReceiverData(receiver);
 
-        fetchUserSession();
-        fetchUsers();
-    }, [navigate, userId, receiverIdNum]);
+        // Check for unread messages
+        const chatResponse = await fetch(`/api/chats`, {
+          headers: { "x-api-key": API_KEY },
+        });
+
+        if (chatResponse.ok) {
+          const chats = await chatResponse.json();
+          const unreadMessages = chats.filter(
+            (chat) => chat.receiver_id === userId && !chat.is_read
+          );
+          const usersWithNewMessages = new Set(
+            unreadMessages.map((chat) => chat.sender_id)
+          );
+          setNewMessageUsers(usersWithNewMessages);
+        }
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      }
+    };
+
+    fetchUserSession();
+    fetchUsers();
+  }, [navigate, userId, receiverIdNum]);
 
     useEffect(() => {
         const fetchMessages = async () => {
@@ -141,194 +158,248 @@ function ChatPage() {
         fetchMessages();
     }, [userId, receiverId]);    
 
-    useEffect(() => {
-        if (messagesEndRef.current) {
-            messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
+
+  const markMessagesAsRead = async () => {
+    const senderId = receiverId;
+    const url = `/api/chats/read`;
+    const method = 'PUT';
+    const bodyData = JSON.stringify({ sender_id: senderId, user_id: userId });
+
+    try {
+        const response = await fetch(url, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': API_KEY,
+            },
+            body: bodyData,
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
         }
-    }, [messages]);
-
-    const markMessagesAsRead = async () => {
-        const senderId = receiverId;
-        const url = `/api/chats/read`;
-        const method = "PUT";
-        const bodyData = JSON.stringify({ sender_id: senderId, user_id: userId });
+    } catch (error) {
+        console.error('Error marking messages as read:', error);
+    }
+};
 
 
-        try {
-            console.log('tried')
-            const response = await fetch(url, {
-                method: method,
-                headers: {
-                    "Content-Type": "application/json",
-                    "x-api-key": API_KEY,
-                },
-                body: bodyData,
-            });
+  const handleSendMessage = async (e) => {
+    e.preventDefault();
 
-            if (!response.ok) {
-                throw new Error("Network response was not ok");
-            }
-        } catch (error) {
-            console.error("Error marking messages as read:", error);
+    if (newMessage.trim() || newImage) {
+      const formData = new FormData();
+      formData.append("sender_id", userId);
+      formData.append("receiver_id", receiverId);
+      formData.append("chat_message", newMessage);
+      formData.append("receiver_type", "User");
+      formData.append("sent_at", new Date());
+      if (newImage) {
+        formData.append("image", newImage);
+      }
+
+      try {
+        const response = await fetch("/api/chats", {
+          method: "POST",
+          headers: { "x-api-key": API_KEY },
+          body: formData,
+        });
+
+        if (response.ok) {
+          setNewMessage("");
+          setNewImage(null);
+        } else {
+          console.error("Failed to send message:", response.statusText);
         }
-    };
+      } catch (error) {
+        console.error("Error sending message:", error);
+      }
+    }
+  };
 
-    const handleSendMessage = async (e) => {
-        e.preventDefault();
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setNewImage(file);
+    }
+  };
 
-        if (newMessage.trim() || newImage) {
-            const formData = new FormData();
-            formData.append("sender_id", userId);
-            formData.append("receiver_id", receiverId);
-            formData.append("chat_message", newMessage);
-            formData.append("receiver_type", "User");
-            if (newImage) {
-                formData.append("image", newImage);
-            }
-            console.log('saving to db:')
-            try {
-                const response = await fetch("/api/chats", {
-                    method: "POST",
-                    headers: { "x-api-key": API_KEY },
-                    body: formData,
-                });
+  const handleImageClick = (imageUrl) => {
+    setFullImageView(imageUrl);
+  };
 
-                if (response.ok) {
-                    setNewMessage("");
-                    setNewImage(null);
-                    console.log('saved to db:')
-                } else {
-                    console.error("Failed to send message:", response.statusText);
-                }
-            } catch (error) {
-                console.error("Error sending message:", error);
-            }
-        }
-    };
+  const closeFullImageView = () => {
+    setFullImageView(null);
+  };
 
-    const handleImageChange = (e) => {
-        setNewImage(e.target.files[0]);
-    };
+  const removeImage = () => {
+    setNewImage(null);
+  };
 
-    const handleImageClick = (imageUrl) => {
-        setFullImageView(imageUrl);
-    };
+  const isOnline = (user) => {
+    return user.is_online ? "Online" : "Offline";
+  };
 
-    const closeFullImageView = () => {
-        setFullImageView(null);
-    };
-
-    return (
-        <div className="flex flex-col items-center justify-center w-full min-h-full bg-gray-100 p-4 overflow-hidden">
-            <h2 className="text-2xl font-bold text-green-600 mb-4">
-                Chat with User {receiverId}
-            </h2>
-            <div className="w-full max-w-2xl bg-white p-4 rounded-lg shadow-lg">
-                <div className="chat-messages w-full h-96 overflow-y-scroll border border-gray-300 p-2 mb-4 rounded-lg">
-                    {messages.length > 0 ? (
-                        messages.map((msg, index) => {
-                            const isSentByUser = msg.sender_id === userId;
-                            return (
-                                <div
-                                    key={index}
-                                    className={`chat-message mb-2 ${
-                                        isSentByUser ? "sent justify-end" : "received justify-start"
-                                    }`}
-                                >
-                                    {!isSentByUser && receiverData && (
-                                        <div className="avatar mr-2">
-                                            <img
-                                                src={receiverData.user_image_url}
-                                                alt="User Avatar"
-                                                className="w-10 h-10 rounded-full"
-                                            />
-                                        </div>
-                                    )}
-                                    <div
-                                        className={`message-content p-2 rounded-lg ${
-                                            isSentByUser
-                                                ? "bg-green-600 text-white"
-                                                : "bg-gray-200"
-                                        }`}
-                                    >
-                                        {msg.chat_message}
-                                        {msg.chat_image_url && (
-                                            <img
-                                                src={msg.chat_image_url}
-                                                alt="Chat Image"
-                                                className="w-40 mt-2 rounded-lg cursor-pointer"
-                                                onClick={() =>
-                                                    handleImageClick(msg.chat_image_url)
-                                                }
-                                            />
-                                        )}
-                                    </div>
-                                </div>
-                            );
-                        })
-                    ) : (
-                        <p>No messages to display</p>
-                    )}
-                    <div ref={messagesEndRef} />
-                </div>
-
-                {fullImageView && (
-                    <div
-                        className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"
-                        onClick={closeFullImageView}
-                    >
-                        <img
-                            src={fullImageView}
-                            alt="Full View"
-                            className="max-w-full max-h-full"
-                        />
+  return (
+    <div className="flex flex-col md:flex-row h-full min-h-3.5 bg-gray-100">
+      {/* Left Sidebar: User List */}
+      <div className="w-full md:w-1/3 lg:w-1/4 bg-white p-4 shadow-md mt-4">
+        <h2 className="text-xl font-semibold mb-4 text-green-600">Inbox</h2>
+        <ul className="divide-y divide-gray-300">
+          {users.map((user) => (
+            <li
+              key={user.user_id}
+              className="flex items-center p-3 hover:bg-green-200 cursor-pointer text-green-600"
+              onClick={() => navigate(`/chat/${user.user_id}`)}
+            >
+              <img
+                src={user.user_image_url || "default-avatar.png"}
+                alt={`${user.firstname}'s avatar`}
+                className="w-10 h-10 rounded-full mr-4"
+              />
+              <div className="flex-1">
+                <p className="font-medium">{user.firstname}</p>
+                {/* Show "New message" if there are unread messages */}
+                    <div className="flex justify-between items-center">
+                        <p className="text-sm text-gray-500">
+                            {newMessageUsers.has(user.user_id) ? "New message" : ""}
+                        </p>
+                {/*show online/offline status */}
+                        <p className="text-sm text-gray-500">
+                            {isOnline(user)}
+                        </p>
                     </div>
-                )}
 
-                <form className="flex items-center" onSubmit={handleSendMessage}>
-                    {newImage && (
-                        <div className="relative mr-4">
-                            <img
-                                src={URL.createObjectURL(newImage)}
-                                alt="Selected"
-                                className="w-10 h-10 object-cover rounded-lg"
-                            />
-                            <button
-                                type="button"
-                                className="absolute top-0 right-0 bg-white text-gray-600 rounded-full p-1"
-                                onClick={() => setNewImage(null)}
-                            >
-                                <IoClose />
-                            </button>
-                        </div>
-                    )}
-                    <input
-                        type="text"
-                        value={newMessage}
-                        onChange={(e) => setNewMessage(e.target.value)}
-                        placeholder="Type your message"
-                        className="chat-input flex-1 border border-gray-300 rounded-full px-4 py-2"
-                    />
-                    <label className="cursor-pointer">
-                        <IoIosAttach className="text-2xl text-gray-600" />
-                        <input
-                            type="file"
-                            className="hidden"
-                            accept="image/*"
-                            onChange={handleImageChange}
-                        />
-                    </label>
-                    <button
-                        type="submit"
-                        className="bg-green-600 text-white p-3 rounded-full ml-2"
-                    >
-                        <FaPaperPlane className="text-xl" />
-                    </button>
-                </form>
-                {error && <p className="text-red-500 mt-2">{error}</p>}
+                </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* Right Chat Area */}
+      <div className="w-full md:w-2/3 lg:w-3/4 bg-gray-100 flex flex-col justify-between mt-4">
+        {/* Header */}
+        {receiverData && (
+          <div className="flex items-center bg-white p-4 shadow-sm">
+            <img
+              src={receiverData.user_image_url || "default-avatar.png"}
+              alt="Receiver Avatar"
+              className="w-12 h-12 rounded-full mr-4"
+            />
+            <div>
+              <h3 className="font-semibold text-lg text-green-600">
+                {receiverData.firstname}
+              </h3>
+              <p className="text-sm text-gray-500">
+                {/* Show online/offline status */}
+                {isOnline(receiverData)}
+              </p>
             </div>
+          </div>
+        )}
+
+       {/* Chat Messages */}
+       <div className="flex-1 p-4 overflow-y-scroll">
+          {messages.length > 0 ? (
+            messages.map((msg, index) => {
+              const isSentByUser = msg.sender_id === userId;
+              return (
+                <div key={index} className={`flex mb-4 ${isSentByUser ? "justify-end" : "justify-start"}`}>
+  {!isSentByUser && (
+    <img
+      src={receiverData?.user_image_url || "default-avatar.png"}
+      alt="Avatar"
+      className="w-8 h-8 rounded-full mr-2"
+    />
+  )}
+  <div className="flex flex-col items-end">
+    <div className={`rounded-lg p-4 max-w-xs ${isSentByUser ? "bg-green-600 text-white" : "bg-gray-200 text-gray-800"} break-words relative`}>
+      <p>{msg.chat_message}</p>
+      {msg.chat_image_url && (
+        <img
+          src={msg.chat_image_url}
+          alt="Sent"
+          className="mt-2 max-w-60 cursor-pointer"
+          onClick={() => handleImageClick(msg.chat_image_url)}
+        />
+      )}
+    </div>
+    {/* Timestamp aligned to bottom of chat bubble */}
+    <p className="text-xs mt-1 text-gray-500">
+      {new Date(msg.sent_at).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
+    </p>
+  </div>
+</div>
+
+              );
+            })
+          ) : (
+            <p className="text-center text-gray-500">No messages yet</p>
+          )}
+          <div ref={messagesEndRef} />
         </div>
-    );
+
+
+
+{/* Message Input */}
+<form onSubmit={handleSendMessage} className="flex items-center bg-white p-4">
+          {newImage && (
+            <div className="relative">
+              <img src={URL.createObjectURL(newImage)} alt="Preview" className="w-16 h-16 object-cover rounded-md mr-4" />
+              <button
+                type="button"
+                className="absolute top-0 right-0 bg-green-600 text-white rounded-full p-1"
+                onClick={removeImage}
+              >
+                <IoClose size={18} />
+              </button>
+            </div>
+          )}
+          <input
+            type="text"
+            className="flex-1 border border-gray-300 rounded-full px-4 py-2 mr-4"
+            placeholder="Type a message..."
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+          />
+          <input
+            type="file"
+            id="file-upload"
+            className="hidden"
+            accept="image/*"
+            onChange={handleImageChange}
+          />
+          <label htmlFor="file-upload" className="cursor-pointer text-gray-500 hover:text-green-600 mr-4">
+            <IoIosAttach size={24} />
+          </label>
+          <button
+            type="submit"
+            className="bg-green-600 text-white rounded-full p-2 hover:bg-green-700"
+          >
+            <FaPaperPlane />
+          </button>
+        </form>
+      
+
+
+       {/* Full Image View */}
+      {fullImageView && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-80 flex justify-center items-center z-50"
+          onClick={closeFullImageView}
+        >
+          <img src={fullImageView} alt="Full View" className="max-w-full max-h-full" />
+        </div>
+      )}
+
+      </div>
+    </div>
+  );
 }
 
 export default ChatPage;
