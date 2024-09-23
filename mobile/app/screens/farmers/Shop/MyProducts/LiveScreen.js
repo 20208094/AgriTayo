@@ -33,17 +33,27 @@ function LiveScreen({ navigation }) {
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
       <SearchBarC />
-      <View className="">
-        <Reports data={liveItems} dataType="liveItems" />
+
+      {/* Container for aligning Reports and the Add New Product button */}
+      <View className="flex-row justify-between items-center px-4 mb-4">
+        
+
+
+        {/* Add New Product button */}
         <TouchableOpacity
-          className="bg-green-600 py-4 px-3 rounded-lg shadow-lg w-1/2 max-w-xs"
+          className="bg-[#00B251] mt-auto py-3 px-3 rounded-lg shadow-lg"
           onPress={() => navigation.navigate("Add Product")}
         >
           <Text className="text-white font-semibold text-center">
             Add New Product
           </Text>
         </TouchableOpacity>
+
+        {/* Reports section */}
+        <Reports data={liveItems} dataType="liveItems" />
       </View>
+
+      {/* Scroll view for live items */}
       <ScrollView className="p-4">
         {liveItems.map((liveItem) => (
           <TouchableOpacity
