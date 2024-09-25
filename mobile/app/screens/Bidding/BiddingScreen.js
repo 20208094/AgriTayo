@@ -163,16 +163,35 @@ const BiddingCard = ({ data }) => {
 };
 
 function BiddingScreen() {
+  const [searchQuery, setSearchQuery] = useState(""); // Track search query
+  const [filteredData, setFilteredData] = useState(dummyData); // Track filtered data
+
+  // Function to handle search filtering
+  const handleSearch = (query) => {
+    setSearchQuery(query); // Update the search query
+
+    if (query.trim() === "") {
+      setFilteredData(dummyData); // Show all data when search is cleared
+    } else {
+      const filtered = dummyData.filter((item) =>
+        item.name.toLowerCase().includes(query.toLowerCase()) || 
+        item.shopName.toLowerCase().includes(query.toLowerCase())
+      );
+      setFilteredData(filtered); // Update the filtered data
+    }
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-[#d1d5db]">
       {/* Search Bar */}
       <View className="px-4 py-3 bg-white shadow-md">
-        <SearchBarC />
+        {/* Pass search function and query to SearchBarC */}
+        <SearchBarC value={searchQuery} onChangeText={handleSearch} />
       </View>
 
       {/* Bidding List */}
       <FlatList
-        data={dummyData}
+        data={filteredData} // Use filteredData instead of dummyData
         renderItem={({ item }) => <BiddingCard data={item} />}
         keyExtractor={(item) => item.id.toString()}
         horizontal

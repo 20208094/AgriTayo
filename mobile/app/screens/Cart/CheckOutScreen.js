@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { NotificationIcon, MessagesIcon } from "../../components/SearchBarC";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons"; // Add vector icons
 import { styled } from "nativewind";
 import GoBack from "../../components/GoBack";
 
@@ -31,8 +32,8 @@ const EmptyText = styled(Text, "text-center text-gray-500 mt-4");
 
 const ModalContainer = styled(View, "flex-1 justify-center items-center bg-[#00000080]");
 const ModalContent = styled(View, "w-3/4 bg-white p-6 rounded-lg shadow-lg");
-const PaymentOptionButton = styled(TouchableOpacity, "bg-[#00b251] p-3 rounded-lg mt-4");
-const PaymentOptionText = styled(Text, "text-center text-lg font-bold text-white");
+const PaymentOptionButton = styled(TouchableOpacity, "flex-row items-center bg-[#00b251] p-3 rounded-lg mt-4");
+const PaymentOptionText = styled(Text, "text-center text-lg font-bold text-white flex-1");
 
 function CheckOutScreen() {
   const navigation = useNavigation();
@@ -73,7 +74,7 @@ function CheckOutScreen() {
             <NotificationIcon />
           </TouchableOpacity>
           <HeaderTitle>Checkout</HeaderTitle>
-          <TouchableOpacity onPress={() => navigation.navigate("ChatListScreen")}>
+          <TouchableOpacity onPress={() => navigation.navigate("Messages")}>
             <MessagesIcon />
           </TouchableOpacity>
         </Header>
@@ -107,10 +108,16 @@ function CheckOutScreen() {
         <ModalContainer>
           <ModalContent>
             <Text className="text-center text-xl font-bold mb-4">Choose Payment Method</Text>
+
+            {/* Cash on Delivery (COD) Option */}
             <PaymentOptionButton onPress={() => handlePaymentOption("COD")}>
+              <Icon name="truck" size={24} color="white" />
               <PaymentOptionText>Cash on Delivery (COD)</PaymentOptionText>
             </PaymentOptionButton>
+
+            {/* G-Cash Option */}
             <PaymentOptionButton onPress={() => handlePaymentOption("G-Cash")}>
+              <Icon name="wallet" size={24} color="white" />
               <PaymentOptionText>G-Cash</PaymentOptionText>
             </PaymentOptionButton>
           </ModalContent>
