@@ -15,7 +15,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Icon } from "react-native-elements";
 
 function BusinessInformationScreen({ navigation, route }) {
-  const { profile } = route.params;
+  const { userData, shopName } = route.params;
 
   const [birCertificate, setBirCertificate] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
@@ -394,9 +394,9 @@ function BusinessInformationScreen({ navigation, route }) {
           </Text>
         <TouchableOpacity 
           className='bg-gray-100 rounded-md p-3 my-2 flex-row justify-between items-center'
-          onPress={() => navigation.navigate("Address", {profile})}
+          onPress={() => navigation.navigate("Address", {userData})}
         >
-          <Text className='text-base text-black'>Registered Address: {profile.address}</Text>
+          {/* <Text className='text-base text-black'>Registered Address: {userData.address}</Text> */}
           <Icon name="chevron-right" type="font-awesome" size={24} color="#2F855A" />
         </TouchableOpacity>
         </View>

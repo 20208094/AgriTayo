@@ -28,7 +28,7 @@ function ShopPerformanceScreen({ navigation }) {
           <Text className="text-center text-sm text-gray-600">Business Insights</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity
+        {/* <TouchableOpacity
           className="items-center"
           onPress={() => navigation.navigate('Account Health')}
         >
@@ -36,7 +36,7 @@ function ShopPerformanceScreen({ navigation }) {
             <FontAwesome5 name="heartbeat" size={24} color="#00B251" />
           </View>
           <Text className="text-center text-sm text-gray-600">Account Health</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
     </SafeAreaView>
   );

@@ -6,7 +6,7 @@ import { Icon } from "react-native-elements";
 import ehh from "../../assets/ehh.png";
 
 function StartSelling({ navigation, route }) {
-  const { profile } = route.params;
+  const { userData } = route.params;
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -18,7 +18,7 @@ function StartSelling({ navigation, route }) {
         </Text>
         <TouchableOpacity
           className="bg-green-600 py-4 px-8 rounded-full"
-          onPress={() => navigation.navigate('Shop Information', { profile })}
+          onPress={() => navigation.navigate('Shop Information', { userData })}
         >
           <Text className="text-white text-lg font-semibold">Start Registration</Text>
         </TouchableOpacity>

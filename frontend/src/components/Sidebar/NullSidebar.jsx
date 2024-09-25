@@ -15,7 +15,6 @@ import { RiPlantFill } from "react-icons/ri";
 
 
 function NullSidebar() {
-
     return (
         <div className="w-full">
             <SidebarItem to="/" icon={RiPlantFill} text="About" />

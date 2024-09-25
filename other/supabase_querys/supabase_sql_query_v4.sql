@@ -51,6 +51,7 @@ CREATE TABLE shop (
     shop_id SERIAL PRIMARY KEY,
     shop_name VARCHAR(100) NOT NULL,
     shop_address TEXT,
+    shop_location GEOGRAPHY(POINT, 4326) NOT NULL,
     shop_description TEXT,
     user_id INT,
     shop_image_url VARCHAR(255),

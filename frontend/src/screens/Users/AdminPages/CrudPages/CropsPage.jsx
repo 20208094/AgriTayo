@@ -11,7 +11,7 @@ function CropsPage() {
     crop_description: '',
     category_id: '',
     shop_id: '',
-    crop_image: '',
+    image: null, // Changed to null to handle file
     crop_rating: '',
     crop_price: '',
     crop_quantity: '',
@@ -99,8 +99,11 @@ function CropsPage() {
   };
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    const { name, value, type, files } = e.target;
+    setFormData({ 
+      ...formData, 
+      [name]: type === 'file' ? files[0] : value // Handle file input
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -108,14 +111,19 @@ function CropsPage() {
     const url = isEdit ? `/api/crops/${formData.crop_id}` : '/api/crops';
     const method = isEdit ? 'PUT' : 'POST';
 
+    const dataToSend = new FormData(); // Use FormData for file uploads
+    for (const key in formData) {
+      dataToSend.append(key, formData[key]);
+    }
+
     try {
       const response = await fetch(url, {
         method: method,
         headers: {
-          'Content-Type': 'application/json',
           'x-api-key': API_KEY,
+          // Do not set Content-Type header when using FormData
         },
-        body: JSON.stringify(formData)
+        body: dataToSend
       });
       if (!response.ok) {
         throw new Error('Network response was not ok');
@@ -127,7 +135,7 @@ function CropsPage() {
         crop_description: '',
         category_id: '',
         shop_id: '',
-        crop_image: '',
+        image: null, // Reset to null
         crop_rating: '',
         crop_price: '',
         crop_quantity: '',
@@ -209,11 +217,11 @@ function CropsPage() {
           ))}
         </select>
         <input
-          type="text"
-          name="crop_image"
-          value={formData.crop_image}
+          type="file" // Changed to file input
+          name="image"
           onChange={handleInputChange}
-          placeholder="Crop Image URL"
+          accept="image/*" // Limit file types to images
+          required
         />
         <input
           type="number"

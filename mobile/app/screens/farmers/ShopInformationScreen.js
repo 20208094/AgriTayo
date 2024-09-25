@@ -11,7 +11,7 @@ import { styled } from "nativewind";
 import { Icon } from "react-native-elements";
 
 function ShopInformationScreen({ route, navigation }) {
-  const { profile } = route.params;
+  const { userData } = route.params;
 
   const [shopName, setShopName] = useState("");
   const shopName_regex = /^[A-Za-z\s]{2,}$/;
@@ -28,7 +28,7 @@ function ShopInformationScreen({ route, navigation }) {
     }
     if (!hasError) {
       if (shopName_regex.test(shopName)) {
-        navigation.navigate("Business Information", { profile });
+        navigation.navigate("Business Information", { userData, shopName });
       } else {
         if (!shopName_regex.test(shopName)) {
           setShopNameError("Invalid Shop Name. Please try again.");
@@ -62,12 +62,12 @@ function ShopInformationScreen({ route, navigation }) {
         {shopNameError ? (
           <Text className="w-4/5 text-red-500 mb-4">{shopNameError}</Text>
         ) : null}
-        <TouchableOpacity
+        {/* <TouchableOpacity
           className="bg-gray-100 rounded-md p-4 my-2 flex-row justify-between items-center"
-          onPress={() => navigation.navigate("Pickup Address", { profile })}
+          onPress={() => navigation.navigate("Pickup Address", { userData })}
         >
           <Text className="text-base text-black">
-            Pickup Address: {profile.address}
+            Pickup Address: {userData.address}
           </Text>
           <Icon
             name="chevron-right"
@@ -75,15 +75,15 @@ function ShopInformationScreen({ route, navigation }) {
             size={24}
             color="#2F855A"
           />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
 
         <TouchableOpacity
           className="bg-gray-100 rounded-md p-4 my-2 flex-row justify-between items-center"
           onPress={() =>
-            navigation.navigate("Email Authentication", { profile })
+            navigation.navigate("Email Authentication", { userData })
           }
         >
-          <Text className="text-base text-black">Email: {profile.email}</Text>
+          <Text className="text-base text-black">Email: {userData.email}</Text>
           <Icon
             name="chevron-right"
             type="font-awesome"
@@ -94,10 +94,10 @@ function ShopInformationScreen({ route, navigation }) {
 
         <TouchableOpacity
           className="bg-gray-100 rounded-md p-4 my-2 flex-row justify-between items-center"
-          onPress={() => navigation.navigate("Authentication", { profile })}
+          onPress={() => navigation.navigate("Authentication", { userData })}
         >
           <Text className="text-base text-black">
-            Phone Number: {profile.phone}
+            Phone Number: {userData.phone_number}
           </Text>
           <Icon
             name="chevron-right"

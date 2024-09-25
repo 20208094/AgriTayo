@@ -12,14 +12,15 @@ import { styled } from "nativewind";
 import { FontAwesome } from "@expo/vector-icons";
 
 function EditProfileScreen({ navigation, route }) {
-  const { profile } = route.params;
+  const { userData } = route.params;
   const handleRegister = () => {
     // handle registration logic here
   };
 
   const genderOptions = [
-    { label: "Male", value: "male" },
-    { label: "Female", value: "female" },
+    { label: "Male", value: "Male" },
+    { label: "Female", value: "Female" },
+    { label: "Other", value: "Other" },
   ];
   const [selectedGender, setSelectedGender] = useState("");
 
@@ -43,7 +44,7 @@ function EditProfileScreen({ navigation, route }) {
         <View className="w-full max-w-md mx-auto">
           <TextInput
             className="w-full p-3 mb-4 bg-white rounded-lg shadow-md"
-            placeholder="First Name"
+            placeholder={userData.firstname}
           />
           <TextInput
             className="w-full p-3 mb-4 bg-white rounded-lg shadow-md"
@@ -90,12 +91,6 @@ function EditProfileScreen({ navigation, route }) {
           </View>
           <TextInput
             className="w-full p-3 mb-4 bg-white rounded-lg shadow-md"
-            placeholder="Address"
-            multiline={true}
-            numberOfLines={3}
-          />
-          <TextInput
-            className="w-full p-3 mb-4 bg-white rounded-lg shadow-md"
             placeholder="Email"
             keyboardType="email-address"
             autoCapitalize="none"
@@ -123,13 +118,13 @@ function EditProfileScreen({ navigation, route }) {
             autoCorrect={false}
           />
           <TouchableOpacity
-            onPress={() => navigation.navigate("View Profile", { profile })}
+            onPress={() => navigation.navigate("View Profile", { userData })}
             className="w-full p-3 bg-[#00B251] rounded-lg shadow-md"
           >
             <Text className="text-white text-center text-lg">Confirm</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={() => navigation.navigate("View Profile", { profile })}
+            onPress={() => navigation.navigate("View Profile", { userData })}
             className="w-full p-3 bg-gray-300 rounded-lg shadow-md mt-4"
           >
             <Text className="text-gray-800 text-center text-lg">Cancel</Text>

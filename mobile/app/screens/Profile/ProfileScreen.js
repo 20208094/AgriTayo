@@ -5,46 +5,51 @@ import { useNavigation } from "@react-navigation/native";
 import { Icon } from "react-native-elements";
 import michael from "../../assets/ehh.png";
 import { styled } from "nativewind";
-import LogoutModal from "../Login/LogoutModal";
+import LogoutModal from "../Authentication/LogoutModal";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from '@env';
 
 function ProfileScreen({ fetchUserSession }) {
   const navigation = useNavigation();
   const [isModalVisible, setModalVisible] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); // Loading state is initially true
+  const [userData, setUserData] = useState(null);
 
   useEffect(() => {
-    const fetchUserSession = async () => {
-      try {
-        console.log("Fetching user session...");
-        const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/session`, {
-          headers: {
-            'x-api-key': REACT_NATIVE_API_KEY
-          }
-        });
-        if (response.ok) {
-          const data = await response.json();
-          console.log("User session data:", data);
-          if (data.user) {
-            console.log("User is logged in, navigating to HomePageScreen");
-            navigation.navigate('HomePageScreen');
-          } else {
-            console.log("No user found in session");
-          }
+    if (userData) {
+      console.log('Updated userData:', userData.user_id);
+    }
+  }, [userData]);
+
+  const getAsyncUserData = async () => {
+    try {
+      const storedData = await AsyncStorage.getItem('userData');
+      console.log('stored:', storedData);
+      
+      if (storedData) {
+        const parsedData = JSON.parse(storedData);  // Parse storedData
+        console.log('parsedData:', parsedData);      // Log the parsed data
+        
+        if (Array.isArray(parsedData)) {
+          const user = parsedData[0];  // Assuming user data is the first element of the array
+          console.log('user:', user);   // Log the user object
+          setUserData(user);            // Set userData state to the user object
         } else {
-          console.log("Failed to fetch user session:", response.status);
+          setUserData(parsedData);      // If it's not an array, directly set parsed data
         }
-      } catch (error) {
-        console.error('Login Error fetching user session:', error);
-      } finally {
-        setLoading(false);
       }
-    };
+    } catch (error) {
+      console.error('Failed to load user data:', error);
+    } finally {
+      setLoading(false); // Set loading to false when done
+    }
+  };
 
-    fetchUserSession();
-  }, [navigation]);
+  useEffect(() => {
+    getAsyncUserData();
+  }, []);
 
-  const profile = {
+  const profilersed = {
     id: 1,
     firstname: "Michael",
     middlename: "Rosario",
@@ -66,17 +71,17 @@ function ProfileScreen({ fetchUserSession }) {
       <View className="mt-1 bg-green-200 pt-0 pb-6 rounded-b-lg">
         <View className="flex-row items-center px-4">
           <View className="relative mr-4">
-            <Image source={michael} className="w-24 h-24 rounded-full" />
+            <Image source={{uri: userData.user_image_url}} className="w-24 h-24 rounded-full" />
             <View className="absolute bottom-0 right-0 bg-green-600 p-1 rounded-full">
               <Icon name="camera" type="font-awesome" size={16} color="white" />
             </View>
           </View>
           <View>
             <Text className="text-2xl font-bold mt-4 text-black">
-              {profile.firstname} {profile.lastname}
+              {userData.firstname} {userData.lastname}
             </Text>
-            <Text className="text-black">{profile.email}</Text>
-            <Text className="text-black">{profile.phone}</Text>
+            <Text className="text-black">{userData.email}</Text>
+            <Text className="text-black">{userData.phone}</Text>
           </View>
         </View>
       </View>
@@ -121,21 +126,21 @@ function ProfileScreen({ fetchUserSession }) {
 
       <View className="mt-4 px-4">
         <View className="bg-white rounded-lg shadow p-4 space-y-4">
-          <TouchableOpacity className="flex-row items-center justify-between" onPress={() => navigation.navigate("View Profile", { profile })}>
+          <TouchableOpacity className="flex-row items-center justify-between" onPress={() => navigation.navigate("View Profile", { userData })}>
             <View className="flex-row items-center">
               <Icon name="user" type="font-awesome" size={20} color="green" />
               <Text className="text-gray-800 font-semibold ml-4">View Profile</Text>
             </View>
             <Icon name="chevron-right" type="font-awesome" size={20} color="gray" />
           </TouchableOpacity>
-          <TouchableOpacity className="flex-row items-center justify-between" onPress={() => navigation.navigate("Address", { profile })}>
+          <TouchableOpacity className="flex-row items-center justify-between" onPress={() => navigation.navigate("Address", { userData })}>
             <View className="flex-row items-center">
               <Icon name="address-book" type="font-awesome" size={20} color="green" />
               <Text className="text-gray-800 font-semibold ml-4">Address</Text>
             </View>
             <Icon name="chevron-right" type="font-awesome" size={20} color="gray" />
           </TouchableOpacity>
-          <TouchableOpacity className="flex-row items-center justify-between" onPress={() => navigation.navigate("Welcome To Agritayo!", { profile })}>
+          <TouchableOpacity className="flex-row items-center justify-between" onPress={() => navigation.navigate("Welcome To Agritayo!", { userData })}>
             <View className="flex-row items-center">
               <Icon name="plus" type="font-awesome" size={20} color="green" />
               <Text className="text-gray-800 font-semibold ml-4">Start Selling</Text>

@@ -4,10 +4,11 @@ import { createStackNavigator } from "@react-navigation/stack";
 import { useEffect, useState } from "react";
 import { Alert } from "react-native";
 import NetInfo from "@react-native-community/netinfo";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import io from "socket.io-client";
 import SplashScreen from "./app/screens/Splash/SplashScreen";
-import LoginScreen from "./app/screens/Login/LoginScreen";
-import LogoutModal from "./app/screens/Login/LogoutModal";
+import LoginScreen from "./app/screens/Authentication/LoginScreen";
+import LogoutModal from "./app/screens/Authentication/LogoutModal";
 import RegisterScreenBuyers from "./app/screens/Register/RegisterScreenBuyers";
 import HomePageScreen from "./app/screens/Home/HomePageScreen";
 import NavigationBar from "./app/components/NavigationBar";
@@ -19,9 +20,9 @@ import ProductDetailsScreenNoData from "./app/screens/Home/ProductDetailsScreenN
 import NotificationDetailsScreen from "./app/screens/Notification/NotificationDetailsScreen";
 import OTPScreen from "./app/screens/Register/OTPScreen";
 import ChangeEmailScreen from "./app/screens/Register/ChangeEmailScreen";
-import ForgotPasswordScreen from "./app/screens/Login/ForgotPasswordScreen";
-import ChangePasswordOTPSCreen from "./app/screens/Login/ChangePasswordOTPScreen";
-import NewPasswordScreen from "./app/screens/Login/NewPasswordScreen";
+import ForgotPasswordScreen from "./app/screens/Authentication/ForgotPasswordScreen";
+import ChangePasswordOTPSCreen from "./app/screens/Authentication/ChangePasswordOTPScreen";
+import NewPasswordScreen from "./app/screens/Authentication/NewPasswordScreen";
 import ViewProfileScreen from "./app/screens/Profile/ViewProfileScreen";
 import AddressScreen from "./app/screens/Profile/Address/AddressScreen";
 import AddAddressScreen from "./app/screens/Profile/Address/AddAdressScreen";
@@ -66,8 +67,8 @@ import FarmersOrderDetailsScreen from "./app/screens/farmers/Shop/ViewSalesHisto
 import ViewShopDetailsScreen from "./app/screens/farmers/Shop/ViewShopDetailsScreen";
 import AddProductScreen from "./app/screens/farmers/Shop/MyProducts/AddProductScreen";
 // for chat
-import ChatScreen from "./app/screens/ChatScreen";
-import ChatListScreen from "./app/screens/ChatListScreen";
+import ChatScreen from "./app/screens/Chat/ChatScreen";
+import ChatListScreen from "./app/screens/Chat/ChatListScreen";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from '@env';
 const SOCKET_URL = 'https://agritayo.azurewebsites.net';
 
@@ -78,6 +79,8 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [isConnected, setConnected] = useState(true);
   const [userSession, setUserSession] = useState(null);
+  const [userData, setUserData] = useState(null);
+
   const navigationRef = React.createRef();
 
   useEffect(() => {
@@ -100,39 +103,75 @@ function App() {
     );
   };
 
-  const fetchUserSession = async (navigation) => {
+  const fetchUserSession = async () => {
     try {
       const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/session`, {
         headers: {
           'x-api-key': REACT_NATIVE_API_KEY,
         },
       });
+
       if (response.ok) {
         const data = await response.json();
         setUserSession(data);
-        // navigation.navigate('HomePageScreen');
+        await fetchUsers(data); // Fetch users after setting the session
       } else {
+        console.warn('Session fetch failed:', response.status);
         setUserSession(null);
-        navigationRef.current?.navigate('Login');
       }
     } catch (error) {
       console.error('Error fetching user session:', error);
       setUserSession(null);
     } finally {
-      setIsLoading(false);
+      setIsLoading(false); // Set loading to false regardless of outcome
     }
   };
 
+  const fetchUsers = async (sessionData) => {
+    try {
+      const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/users`, {
+        headers: {
+          'x-api-key': REACT_NATIVE_API_KEY,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch users');
+      }
+
+      const users = await response.json();
+      const filteredUsers = users.filter(user => user.user_id === sessionData.user_id);
+      // console.log("Filtered Users:", filteredUsers);
+
+      try {
+        await AsyncStorage.setItem('userData', JSON.stringify(filteredUsers));
+        // console.log("userData saved successfully");
+      } catch (error) {
+        console.error('Error saving userData:', error);
+      }
+      
+      try {
+        await AsyncStorage.setItem('userSession', JSON.stringify(filteredUsers));
+        // console.log("userSession saved successfully");
+      } catch (error) {
+        console.error('Error saving userSession:', error);
+      }
+    } catch (error) {
+      console.error('Error fetching users:', error);
+    }
+  };
+
+  const loadSessionData = async () => {
+    await fetchUserSession();
+  };
+
   useEffect(() => {
-    fetchUserSession(); // Call to fetch the user session when the app starts
+    loadSessionData();
 
-    // Connect to socket
-    socket = io(SOCKET_URL, { transports: ['websocket'] });
-
+    const socket = io(SOCKET_URL, { transports: ['websocket'] });
     socket.on('connect', () => {
       console.log('WebSocket connected:', socket.id);
     });
-
     socket.on('disconnect', () => {
       console.log('WebSocket disconnected');
     });
@@ -249,17 +288,17 @@ function App() {
             <Stack.Screen
               name="Welcome To Agritayo!"
               component={StartSelling}
-              options={{ ...screenOptions}}
+              options={{ ...screenOptions }}
             />
             <Stack.Screen
               name="Shop Information"
               component={ShopInformationScreen}
-              options={{ ...screenOptions}}
+              options={{ ...screenOptions }}
             />
             <Stack.Screen
               name="Business Information"
               component={BusinessInformationScreen}
-              options={{ ...screenOptions}}
+              options={{ ...screenOptions }}
             />
             <Stack.Screen
               name="My Shop"
@@ -398,29 +437,29 @@ function App() {
               {({ navigation }) => <Navigator fetchUserSession={(nav) => fetchUserSession(nav)} navigation={navigation} />}
             </Stack.Screen>
             <Stack.Screen
-            name='View Shop Details'
-            component={ViewShopDetailsScreen}
-            options={screenOptions}
+              name='View Shop Details'
+              component={ViewShopDetailsScreen}
+              options={screenOptions}
             />
             <Stack.Screen
-            name='Add Product'
-            component={AddProductScreen}
-            options={screenOptions}
+              name='Add Product'
+              component={AddProductScreen}
+              options={screenOptions}
             />
             <Stack.Screen
-            name='Seller FAQ'
-            component={SellerFaq}
-            options={screenOptions}
+              name='Seller FAQ'
+              component={SellerFaq}
+              options={screenOptions}
             />
             <Stack.Screen
-            name='Chat Support'
-            component={ChatSupportScreen}
-            options={screenOptions}
+              name='Chat Support'
+              component={ChatSupportScreen}
+              options={screenOptions}
             />
             <Stack.Screen
-            name='Edit Shop'
-            component={EditShopScreen}
-            options={screenOptions}
+              name='Edit Shop'
+              component={EditShopScreen}
+              options={screenOptions}
             />
           </>
         ) : (

@@ -24,7 +24,6 @@ async function getCrops(req, res) {
 async function addCrop(req, res) {
     try {
         const form = new formidable.IncomingForm({ multiples: true });
-
         form.parse(req, async (err, fields, files) => {
             if (err) {
                 console.error('Formidable error:', err);
@@ -42,12 +41,27 @@ async function addCrop(req, res) {
                 crop_weight,
                 metric_system_id
             } = fields;
+
+            const getSingleValue = (value) => Array.isArray(value) ? value[0] : value;
+
+            const subCategoryId = parseInt(getSingleValue(sub_category_id), 10);
+            const shopId = parseInt(getSingleValue(shop_id), 10);
+            const cropRating = parseInt(getSingleValue(crop_rating), 10);
+            const cropPrice = parseInt(getSingleValue(crop_price), 10);
+            const cropQuantity = parseInt(getSingleValue(crop_quantity), 10);
+            const cropWeight = parseInt(getSingleValue(crop_weight), 10);
+            const metricSystemId = parseInt(getSingleValue(metric_system_id), 10);
+
             const crop_image_file = files.crop_image ? files.crop_image[0] : null;
 
+            const image = files.image ? files.image[0] : null;
+
             let crop_image_url = null;
-            if (crop_image_file) {
+
+            if (image) {
                 try {
-                    crop_image_url = await imageHandler.uploadImage(crop_image_file);
+                    crop_image_url = await imageHandler.uploadImage(image);
+                    console.log('Image uploaded successfully, URL:', crop_image_url);
                 } catch (uploadError) {
                     console.error('Image upload error:', uploadError.message);
                     return res.status(500).json({ error: 'Image upload failed' });
@@ -57,34 +71,38 @@ async function addCrop(req, res) {
             const { data, error } = await supabase
                 .from('crops')
                 .insert([{
-                    crop_name,
-                    crop_description,
-                    sub_category_id,
-                    shop_id,
-                    crop_image_url,
-                    crop_rating,
-                    crop_price,
-                    crop_quantity,
-                    crop_weight,
-                    metric_system_id
+                    crop_name: getSingleValue(crop_name),
+                    crop_description: getSingleValue(crop_description),
+                    sub_category_id: getSingleValue(subCategoryId),
+                    shop_id: getSingleValue(shopId),
+                    crop_rating: getSingleValue(cropRating),
+                    crop_price: getSingleValue(cropPrice),
+                    crop_quantity: getSingleValue(cropQuantity),
+                    crop_weight: getSingleValue(cropWeight),
+                    metric_system_id: getSingleValue(metricSystemId),
+                    crop_image_url
                 }]);
 
             if (error) {
                 console.error('Supabase query failed:', error.message);
                 return res.status(500).json({ error: 'Internal server error' });
             }
-
             res.status(201).json({ message: 'Crop added successfully', data });
         });
     } catch (err) {
-        console.error('Error executing addCrop process:', err.message);
+        console.error('Unexpected error during addCrop execution:', err.message);
         res.status(500).json({ error: 'Internal server error' });
     }
 }
 
+
 async function updateCrop(req, res) {
     try {
         const { id } = req.params;
+
+        if (!id) {
+            return res.status(400).json({ error: 'ID is required for update' });
+        }
 
         const form = new formidable.IncomingForm({ multiples: true });
 
@@ -105,52 +123,70 @@ async function updateCrop(req, res) {
                 crop_weight,
                 metric_system_id
             } = fields;
+
             const new_image_file = files.crop_image ? files.crop_image[0] : null;
 
-            let crop_image_url = null;
+            // Fetch current crop data to get the existing image URL
+            const { data: existingData, error: fetchError } = await supabase
+                .from('crops')
+                .select('crop_image_url')
+                .eq('crop_id', id)
+                .single();
+
+            if (fetchError) {
+                console.error('Failed to fetch existing crop:', fetchError.message);
+                return res.status(500).json({ error: 'Failed to fetch existing crop' });
+            }
+
+            const existingImageUrl = existingData.crop_image_url;
+            let crop_image_url = existingImageUrl;
+
+            // Handle image upload and deletion of the existing image
             if (new_image_file) {
-                // Fetch existing image URL
-                const { data: existingData, error: fetchError } = await supabase
-                    .from('crops')
-                    .select('crop_image_url')
-                    .eq('crop_id', id)
-                    .single();
+                console.log('Received new image file for update:', new_image_file);
 
-                if (fetchError) {
-                    console.error('Failed to fetch existing crop:', fetchError.message);
-                    return res.status(500).json({ error: 'Failed to fetch existing crop' });
-                }
-
-                const existingImageUrl = existingData.crop_image_url;
-
-                // Delete old image
+                // Delete old image if it exists
                 if (existingImageUrl) {
-                    await imageHandler.deleteImage(existingImageUrl);
+                    console.log('Deleting existing image:', existingImageUrl);
+                    try {
+                        await imageHandler.deleteImage(existingImageUrl);
+                        console.log('Existing image successfully deleted');
+                    } catch (deleteError) {
+                        console.error('Failed to delete existing image:', deleteError.message);
+                        return res.status(500).json({ error: 'Failed to delete image' });
+                    }
                 }
 
-                // Upload new image
+                // Upload the new image
                 try {
                     crop_image_url = await imageHandler.uploadImage(new_image_file);
+                    console.log('New image uploaded successfully, URL:', crop_image_url);
                 } catch (uploadError) {
                     console.error('Image upload error:', uploadError.message);
                     return res.status(500).json({ error: 'Image upload failed' });
                 }
             }
+            
+            const getSingleValue = (value) => Array.isArray(value) ? value[0] : value;
 
+            // Prepare the update data
+            const updateData = {
+                crop_name: getSingleValue(crop_name),
+                crop_description: getSingleValue(crop_description),
+                sub_category_id: parseInt(sub_category_id, 10),
+                shop_id: parseInt(shop_id, 10),
+                crop_rating: parseInt(crop_rating, 10),
+                crop_price: parseInt(crop_price, 10),
+                crop_quantity: parseInt(crop_quantity, 10),
+                crop_weight: parseInt(crop_weight, 10),
+                metric_system_id: parseInt(metric_system_id, 10),
+                crop_image_url // Only set if a new image is uploaded
+            };
+
+            // Update the crop in the database
             const { data, error } = await supabase
                 .from('crops')
-                .update({
-                    crop_name,
-                    crop_description,
-                    sub_category_id,
-                    shop_id,
-                    crop_image_url: crop_image_url || undefined,  // Only update image URL if a new image was uploaded
-                    crop_rating,
-                    crop_price,
-                    crop_quantity,
-                    crop_weight,
-                    metric_system_id
-                })
+                .update(updateData)
                 .eq('crop_id', id);
 
             if (error) {
@@ -158,6 +194,7 @@ async function updateCrop(req, res) {
                 return res.status(500).json({ error: 'Internal server error' });
             }
 
+            // Successful update
             res.status(200).json({ message: 'Crop updated successfully', data });
         });
     } catch (err) {
@@ -165,6 +202,7 @@ async function updateCrop(req, res) {
         res.status(500).json({ error: 'Internal server error' });
     }
 }
+
 
 async function deleteCrop(req, res) {
     try {

@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, ActivityIndicator } from "react-native";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from '@env';
-import LoginScreen from "../screens/Login/LoginScreen";
+import LoginScreen from "../screens/Authentication/LoginScreen";
 import NavigationBar from "../components/NavigationBar"; // Import your NavigationBar
 import HomePageScreen from "../screens/Home/HomePageScreen";
 

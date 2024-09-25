@@ -7,53 +7,29 @@ import {
   ScrollView,
   Image,
   Modal,
-  Pressable,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
-import { Ionicons } from "@expo/vector-icons"; // Ensure you have this package installed
-import GoBack from "../../components/GoBack";
-import {
-  NotificationIcon,
-  MessagesIcon,
-  MarketIcon,
-} from "../../components/SearchBarC"; // Import your custom icons
-import DateTimePicker from "@react-native-community/datetimepicker";
+import { Ionicons } from "@expo/vector-icons"; 
+import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from '@env';
+const SOCKET_URL = 'https://agritayo.azurewebsites.net';
 
 const editButton = require("../../assets/edit.png");
-const userImage = require("../../assets/user.png"); // Import the user image
 
 function ViewProfileScreen({ route, navigation }) {
-  const { profile } = route.params;
+  const { userData } = route.params;
 
   // State to manage input values
-  const [firstName, setFirstName] = useState(profile.firstname);
-  const [middleName, setMiddleName] = useState(profile.middlename);
-  const [lastName, setLastName] = useState(profile.lastname);
-  const [birthday, setBirthday] = useState(profile.birthday);
-  const [gender, setGender] = useState(profile.gender);
-  const [email, setEmail] = useState(profile.email);
-  const [phone, setPhone] = useState(profile.phone || "091234567890"); 
-  const [formattedDate, setFormattedDate] = useState("");
-  const [date, setDate] = useState(new Date());
-  const [show, setShow] = useState(false);
-  // Default phone number
-
-  const [modalVisible, setModalVisible] = useState(false); // State to control modal visibility
-  const [profileImage, setProfileImage] = useState(userImage); // State for the profile image
-
-  const handleDateChange = (event, selectedDate) => {
-    if (event.type === "set") {
-      const currentDate = selectedDate || date;
-      setShow(false);
-      setDate(currentDate);
-      setFormattedDate(currentDate.toLocaleDateString());
-      setBirthDay(currentDate.toLocaleDateString());
-    } else {
-      setShow(false);
-    }
-  };
-
+  const [firstName, setFirstName] = useState(userData.firstname);
+  const [middleName, setMiddleName] = useState(userData.middlename);
+  const [lastName, setLastName] = useState(userData.lastname);
+  const [birthday, setBirthday] = useState(userData.birthday);
+  const [gender, setGender] = useState(userData.gender);
+  const [email, setEmail] = useState(userData.email);
+  const [phone, setPhone] = useState(userData.phone_number);
+  const [profileImage, setProfileImage] = useState(userData.user_image_url);
+  const [modalVisible, setModalVisible] = useState(false);
+  
   // Function to handle image selection from gallery
   const selectImageFromGallery = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -65,75 +41,83 @@ function ViewProfileScreen({ route, navigation }) {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
-      aspect: [4, 3],
       quality: 1,
     });
 
     if (!result.canceled) {
-      setProfileImage({ uri: result.assets[0].uri });
+      setProfileImage(result.assets[0].uri);
       setModalVisible(false);
     }
   };
 
-  // Function to handle taking a picture
-  const takePicture = async () => {
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    if (status !== "granted") {
-      alert("Sorry, we need camera permissions to make this work!");
-      return;
+  // Function to handle saving the profile
+  const handleSubmit = async () => {
+    const formData = new FormData();
+    formData.append('user_id', userData.user_id);
+    formData.append('user_type_id', userData.user_type_id);
+    formData.append('firstname', firstName);
+    formData.append('middlename', middleName);
+    formData.append('lastname', lastName);
+    formData.append('email', email);
+    formData.append('phone_number', phone);
+    formData.append('gender', gender);
+    formData.append('birthday', birthday);
+
+    if (profileImage) {
+      formData.append('image', {
+        uri: profileImage,
+        name: 'profile.jpg', // You can generate a name or take from the image
+        type: 'image/jpeg' // Change as per your image type
+      });
+      console.log("Image added to FormData:", profileImage);
+    } else {
+      console.log("No image selected to upload.");
     }
 
-    const result = await ImagePicker.launchCameraAsync({
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-    });
+    try {
+      console.log("Sending request to update profile...");
+      const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/users/${userData.user_id}`, {
+        method: 'PUT',
+        headers: {
+          'x-api-key': REACT_NATIVE_API_KEY,
+        },
+        body: formData,
+      });
 
-    if (!result.canceled) {
-      setProfileImage({ uri: result.assets[0].uri });
-      setModalVisible(false);
+      console.log("Response Status:", response.status);
+      if (response.ok) {
+        alert("Profile updated successfully!");
+        navigation.goBack(); // Navigate back after successful update
+      } else {
+        const errorData = await response.json();
+        console.error("Error response data:", errorData);
+        throw new Error(errorData.message || "Failed to update profile");
+      }
+    } catch (error) {
+      console.error("Failed to update profile:", error);
+      alert("Failed to update profile: " + error.message);
     }
-  };
+};
 
-  React.useLayoutEffect(() => {
-    navigation.setOptions({
-      headerRight: () => (
-        <View style={{ flexDirection: "row", marginRight: 15 }}>
-          <MarketIcon onPress={() => navigation.navigate("CartScreen")} />
-          <NotificationIcon
-            onPress={() => navigation.navigate("Notifications")}
-          />
-          <MessagesIcon onPress={() => navigation.navigate("ChatListScreen")} />
-        </View>
-      ),
-    });
-  }, [navigation]);
 
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
       <ScrollView className="flex-1 px-4">
         <View className="bg-white p-4 rounded-lg shadow-sm relative">
-          {/* Circular frame with user image and shadow effect */}
+          {/* Circular frame with user image */}
           <View className="items-center mb-4 mt-8">
             <View className="relative w-24 h-24 rounded-full border-4 border-green-500 shadow-lg bg-white">
               <Image
-                source={profileImage}
+                source={{ uri: profileImage }}
                 className="w-full h-full rounded-full"
               />
               <TouchableOpacity
                 className="absolute bottom-0 right-0 bg-green-500 p-2 rounded-full"
-                onPress={() => setModalVisible(true)} // Show modal on press
+                onPress={() => setModalVisible(true)}
               >
                 <Ionicons name="pencil" size={20} color="white" />
               </TouchableOpacity>
             </View>
-          </View>
-
-          <View className="flex-row items-center mb-2">
-            <Ionicons name="person-circle-outline" size={24} color="#50d71e" />
-            <Text className="text-lg font-medium text-gray-800 ml-2">
-              Account Information
-            </Text>
           </View>
 
           <View className="mb-4">
@@ -162,34 +146,15 @@ function ViewProfileScreen({ route, navigation }) {
           </View>
 
           <View className="mb-4">
-            <Text className="text-base text-gray-600 flex-row items-center">
-              <Ionicons name="calendar-outline" size={20} color="#50d71e" />{" "}
-              Birthday
-            </Text>
-            <TouchableOpacity
-            onPress={() => setShow(true)}
-            className="w-full p-3 mb-4 bg-white rounded-lg shadow-md"
-          >
-            <Text className="text-gray-800">
-              {formattedDate || "Select Birthday"}
-            </Text>
-          </TouchableOpacity>
-          {show && (
-            <DateTimePicker
-              testID="dateTimePicker"
-              value={date}
-              mode="date"
-              is24Hour={true}
-              display="default"
-              onChange={handleDateChange}
+            <Text className="text-base text-gray-600">Birthday</Text>
+            <TextInput
+              value={birthday}
+              onChangeText={setBirthday}
+              className="mt-1 text-lg text-gray-900 border border-gray-300 rounded-lg p-2"
             />
-          )}
           </View>
           <View className="mb-4">
-            <Text className="text-base text-gray-600 flex-row items-center">
-              <Ionicons name="male-female-outline" size={20} color="#50d71e" />{" "}
-              Gender
-            </Text>
+            <Text className="text-base text-gray-600">Gender</Text>
             <TextInput
               value={gender}
               onChangeText={setGender}
@@ -197,9 +162,7 @@ function ViewProfileScreen({ route, navigation }) {
             />
           </View>
           <View className="mb-4">
-            <Text className="text-base text-gray-600 flex-row items-center">
-              <Ionicons name="mail-outline" size={20} color="#50d71e" /> Email
-            </Text>
+            <Text className="text-base text-gray-600">Email</Text>
             <TextInput
               value={email}
               onChangeText={setEmail}
@@ -207,29 +170,22 @@ function ViewProfileScreen({ route, navigation }) {
             />
           </View>
           <View className="mb-4">
-            <Text className="text-base text-gray-600 flex-row items-center">
-              <Ionicons name="call-outline" size={20} color="#50d71e" /> Phone
-            </Text>
+            <Text className="text-base text-gray-600">Phone</Text>
             <TextInput
               value={phone}
               onChangeText={setPhone}
               className="mt-1 text-lg text-gray-900 border border-gray-300 rounded-lg p-2"
-              placeholder="091234567890" // Placeholder for phone number
+              placeholder="091234567890"
             />
           </View>
-        </View>
 
-        <TouchableOpacity
-          className="bg-green-500 py-3 rounded-lg flex-row justify-center items-center shadow-lg mt-4 mb-4"
-          onPress={() => navigation.navigate("Edit Profile", { profile })}
-        >
-          <Image
-            source={editButton}
-            className="w-6 h-6"
-            style={{ tintColor: "white" }}
-          />
-          <Text className="text-lg text-white ml-2">Edit Profile</Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            className="bg-green-500 py-3 rounded-lg flex-row justify-center items-center shadow-lg mt-4 mb-4"
+            onPress={handleSubmit}
+          >
+            <Text className="text-lg text-white">Submit</Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
 
       {/* Modal for user gallery */}
@@ -252,13 +208,6 @@ function ViewProfileScreen({ route, navigation }) {
               <Text className="text-lg text-white ml-2">
                 Select from Gallery
               </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              className="mt-4 p-4 bg-green-500 rounded-lg flex-row justify-center items-center"
-              onPress={takePicture}
-            >
-              <Ionicons name="camera-outline" size={24} color="white" />
-              <Text className="text-lg text-white ml-2">Take a Picture</Text>
             </TouchableOpacity>
             <TouchableOpacity
               className="mt-4 p-4 bg-red-500 rounded-lg flex-row justify-center items-center"
