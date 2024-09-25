@@ -228,41 +228,39 @@ const MarketAnalyticsPage = () => {
   };
 
   return (
-    <div className="p-4">
+    <div className="p-4 md:p-8 bg-gray-100 min-h-screen">
       {!selectedCategory ? (
-        <div>
-          <h2 className="text-2xl font-bold mb-4">Select a Category</h2>
-          <ul className="subsidebar-links-container">
+        <div className="text-center">
+          <h2 className="text-3xl font-bold text-green-600 mb-6">Select a Category</h2>
+          <ul className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {Object.keys(categoryData).map((category, index) => (
               <div
                 key={index}
-                className="mb-2 cursor-pointer flex items-center"
+                className="p-4 bg-white shadow-md rounded-lg cursor-pointer hover:bg-green-100"
                 onClick={() => setSelectedCategory(category)}
               >
-                <span>{category}</span>
+                <span className="text-lg font-semibold text-green-600">{category}</span>
               </div>
             ))}
           </ul>
         </div>
       ) : !selectedItem ? (
-        <div>
-          <h2 className="text-2xl font-bold mb-4">
-            {selectedCategory} Items
-          </h2>
-          <ul className="items-list">
+        <div className="text-center">
+          <h2 className="text-3xl font-bold text-green-600 mb-6">{selectedCategory} Items</h2>
+          <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {categoryData[selectedCategory].map((item) => (
               <button
                 key={item.id}
-                className="item-button mb-2 p-2 bg-green-200 rounded"
+                className="p-4 bg-white shadow-md rounded-lg flex flex-col items-center justify-between"
                 onClick={() => setSelectedItem(item)}
               >
-                <span>{item.name}</span>
+                <span className="text-lg font-semibold text-green-600 mb-4">{item.name}</span>
                 <MiniGraph data={getDataForItem(item.id, '7 Days')} />
               </button>
             ))}
           </ul>
           <button
-            className="mt-4 text-blue-500 underline"
+            className="mt-8 text-green-500 underline"
             onClick={() => setSelectedCategory(null)}
           >
             Go Back to Categories
@@ -342,7 +340,7 @@ const MarketAnalyticsPage = () => {
           {renderAnalyticsChart(selectedItem.id)}
 
           <button
-            className="mt-4 text-blue-500 underline"
+            className="mt-8 text-green-500 underline"
             onClick={() => setSelectedItem(null)}
           >
             Go Back to {selectedCategory} Items
