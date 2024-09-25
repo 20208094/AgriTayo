@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -28,13 +28,8 @@ const SalesAnalyticsPage = () => {
   const [totalPriceStatus4, setTotalPriceStatus4] = useState(Array(12).fill(0)); // Array for each month
   const [totalPriceAll, setTotalPriceAll] = useState(0);
 
-  // Dummy data for sales analytics
-  const getSalesData = (filter) => {
-    // ... (keep this as it is)
-  };
-
   // Function to fetch orders based on selected filter
-  const fetchOrdersAndCalculateTotalPrices = async () => {
+  const fetchOrdersAndCalculateTotalPrices = useCallback(async () => {
     try {
       console.log("Fetching orders...");
       const response = await fetch('/api/orders', {
@@ -88,26 +83,59 @@ const SalesAnalyticsPage = () => {
     } catch (error) {
       console.error('Error fetching orders:', error);
     }
-  };
+  }, [selectedFilter]); // Only re-create the function when selectedFilter changes
 
+  // Fetch orders when selectedFilter changes
   useEffect(() => {
     fetchOrdersAndCalculateTotalPrices();
-  }, [selectedFilter]); // Fetch orders when selectedFilter changes
+  }, [fetchOrdersAndCalculateTotalPrices]); // Use the memoized function in the dependency array
+
+  // Generate x-axis labels based on the selected filter
+  const generateLabels = () => {
+    const currentDate = new Date();
+
+    if (selectedFilter === '7 Days') {
+      const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      const labels = [];
+      for (let i = 0; i < 7; i++) {
+        const dayIndex = (currentDate.getDay() - i + 7) % 7;
+        labels.unshift(daysOfWeek[dayIndex]); // Insert at the beginning
+      }
+      return labels;
+    } else if (selectedFilter === '14 Days') {
+      const labels = [];
+      for (let i = 0; i < 14; i++) {
+        const date = new Date();
+        date.setDate(currentDate.getDate() - i);
+        labels.unshift(date.toDateString().slice(0, 3)); // e.g., "Mon"
+      }
+      return labels;
+    } else if (selectedFilter === '6 Months') {
+      const labels = [];
+      for (let i = 0; i < 6; i++) {
+        const monthIndex = (currentDate.getMonth() + i) % 12;
+        labels.push(new Date(2020, monthIndex, 1).toLocaleString('default', { month: 'long' }));
+      }
+      return labels;
+    } else if (selectedFilter === '12 Months') {
+      return ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    } else if (selectedFilter === 'Yearly') {
+      const currentYear = currentDate.getFullYear();
+      return Array.from({ length: 5 }, (_, i) => (currentYear - i).toString()).reverse();
+    }
+  };
 
   const renderSalesAnalyticsChart = () => {
-    // Months for x-axis
-    const months = [
-      "January", "February", "March", "April", "May", "June",
-      "July", "August", "September", "October", "November", "December"
-    ];
+    // Generate labels based on selected filter
+    const labels = generateLabels();
 
     // Bar chart data
     const data = {
-      labels: months, // Set months as labels for x-axis
+      labels: labels, // Set labels based on the selected filter
       datasets: [
         {
           label: "Total Price for Status ID 4",
-          data: totalPriceStatus4, // Monthly total prices
+          data: totalPriceStatus4.slice(0, labels.length), // Limit data based on label length
           backgroundColor: "rgba(0, 128, 0, 0.5)",
         },
       ],
@@ -171,11 +199,10 @@ const SalesAnalyticsPage = () => {
             (filter) => (
               <button
                 key={filter}
-                className={`p-2 rounded-lg mb-2 w-full ${
-                  selectedFilter === filter
+                className={`p-2 rounded-lg mb-2 w-full ${selectedFilter === filter
                     ? "bg-green-500 text-white"
                     : "bg-gray-200 text-green-700"
-                }`}
+                  }`}
                 onClick={() => {
                   setSelectedFilter(filter);
                   setModalVisible(false);
