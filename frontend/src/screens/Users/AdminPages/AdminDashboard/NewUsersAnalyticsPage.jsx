@@ -215,7 +215,11 @@ const NewUsersAnalyticsPage = () => {
         </h5>
       <div className="grid grid-cols-5 auto-rows-auto gap-4">
         {/* Fifth column for the filter button */}
-        <div className="p-6 flex items-center justify-center min-h-[120px]">
+        <div className=" p-6 flex flex-col items-center justify-center min-h-[120px]">
+          <p className="text-sm font-bold text-green-500">
+            Current Filter: {" "}
+            <span className="text-green-700">{selectedFilter}</span>
+          </p>
           <button
             onClick={() => setModalVisible(true)}
             className="bg-green-500 text-white py-2 px-4 rounded-lg flex items-center justify-center"

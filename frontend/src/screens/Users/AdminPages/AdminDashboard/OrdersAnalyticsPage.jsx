@@ -1,113 +1,157 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
   PointElement,
   LineElement,
+  ArcElement,
   Title,
   Tooltip,
   Legend,
 } from 'chart.js';
-import { Line } from 'react-chartjs-2';
-import Modal from '../../../../components/Modal/Modal'; // Adjust based on your folder structure
+import { Line, Pie } from 'react-chartjs-2';
+import Modal from '../../../../components/Modal/Modal';
 
 ChartJS.register(
   CategoryScale,
   LinearScale,
   PointElement,
   LineElement,
+  ArcElement,
   Title,
   Tooltip,
   Legend
 );
 
+const API_KEY = import.meta.env.VITE_API_KEY;
+
 const OrdersAnalyticsPage = () => {
   const [selectedFilter, setSelectedFilter] = useState('12 Months');
   const [modalVisible, setModalVisible] = useState(false);
+  const [orderCounts, setOrderCounts] = useState({});
 
-  // Dummy data for orders analytics
-  const getOrdersData = (filter) => {
-    const data = {
-      "7 Days": {
-        dates: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-        toPay: [2, 5, 3, 4, 6, 2, 7],
-        toShip: [3, 4, 3, 6, 7, 5, 8],
-        toReceive: [1, 3, 4, 2, 4, 3, 5],
-        completed: [10, 12, 9, 15, 18, 20, 22],
-        cancelled: [1, 0, 2, 1, 0, 1, 3],
-      },
-      "14 Days": {
-        dates: ["Week 1", "Week 2"],
-        toPay: [25, 30],
-        toShip: [28, 35],
-        toReceive: [15, 20],
-        completed: [70, 85],
-        cancelled: [4, 6],
-      },
-      "6 Months": {
-        dates: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
-        toPay: [50, 40, 60, 55, 70, 80],
-        toShip: [40, 45, 55, 65, 60, 75],
-        toReceive: [35, 30, 40, 50, 45, 60],
-        completed: [300, 350, 400, 450, 500, 550],
-        cancelled: [10, 15, 12, 10, 8, 20],
-      },
-      "12 Months": {
-        dates: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-        toPay: [90, 80, 100, 95, 120, 130, 110, 150, 140, 170, 180, 190],
-        toShip: [80, 85, 95, 105, 110, 120, 130, 135, 140, 160, 170, 180],
-        toReceive: [70, 65, 75, 85, 90, 95, 100, 110, 120, 130, 140, 150],
-        completed: [600, 650, 700, 750, 800, 850, 900, 950, 1000, 1050, 1100, 1150],
-        cancelled: [15, 20, 18, 22, 25, 30, 28, 32, 35, 40, 45, 50],
-      },
-      Yearly: {
-        dates: ["2020", "2021", "2022", "2023"],
-        toPay: [400, 450, 470, 500],
-        toShip: [350, 420, 440, 480],
-        toReceive: [320, 380, 400, 450],
-        completed: [2500, 2800, 3000, 3500],
-        cancelled: [100, 120, 140, 160],
-      },
-    };
-
-    return data[filter] || data["12 Months"];
+  // Create a mapping between status_id and status names
+  const statusMap = {
+    1: 'Placed',
+    2: 'Processed',
+    3: 'Shipped',
+    4: 'Delivered',
+    5: 'Cancelled',
   };
 
-  const renderOrdersChart = () => {
-    const ordersData = getOrdersData(selectedFilter);
+  const fetchOrders = useCallback(async () => {
+    try {
+      const response = await fetch('/api/orders', {
+        headers: {
+          'x-api-key': API_KEY,
+        },
+      });
 
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+      const data = await response.json();
+      const counts = {
+        Placed: [],
+        Processed: [],
+        Shipped: [],
+        Delivered: [],
+        Cancelled: [],
+      };
+
+      // Populate counts based on status_id
+      data.forEach(order => {
+        const statusName = statusMap[order.status_id];
+        if (statusName in counts) {
+          counts[statusName].push(order);
+        }
+      });
+
+      setOrderCounts(counts);
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchOrders();
+  }, [fetchOrders]);
+
+  const generateLabels = () => {
+    const currentDate = new Date();
+    const labels = [];
+    if (selectedFilter === '7 Days') {
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(currentDate.getDate() - i);
+        labels.push(date.toDateString().slice(0, 3)); // e.g., "Mon"
+      }
+    } else if (selectedFilter === '14 Days') {
+      for (let i = 13; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(currentDate.getDate() - i);
+        labels.push(date.toDateString().slice(0, 3)); // e.g., "Mon"
+      }
+    } else if (selectedFilter === '6 Months') {
+      for (let i = 5; i >= 0; i--) {
+        const monthIndex = (currentDate.getMonth() - i + 12) % 12; // Get month index (0-11)
+        labels.push(new Date(2020, monthIndex, 1).toLocaleString('default', { month: 'long' }));
+      }
+    } else if (selectedFilter === '12 Months') {
+      for (let i = 11; i >= 0; i--) {
+        const monthIndex = (currentDate.getMonth() - i + 12) % 12;
+        labels.push(new Date(2020, monthIndex, 1).toLocaleString('default', { month: 'long' }));
+      }
+    } else if (selectedFilter === 'Yearly') {
+      const currentYear = currentDate.getFullYear();
+      return Array.from({ length: 5 }, (_, i) => (currentYear - i).toString()).reverse();
+    }
+    return labels;
+  };
+
+  const renderOrderStatusLineChart = (status) => {
+    const filteredOrders = orderCounts[status]?.filter(order => {
+      const orderDate = new Date(order.order_date);
+      const currentDate = new Date();
+      if (selectedFilter === '7 Days') {
+        return (currentDate - orderDate) / (1000 * 3600 * 24) <= 7;
+      } else if (selectedFilter === '14 Days') {
+        return (currentDate - orderDate) / (1000 * 3600 * 24) <= 14;
+      } else if (selectedFilter === '6 Months') {
+        return (currentDate - orderDate) / (1000 * 3600 * 24) <= 180;
+      } else if (selectedFilter === '12 Months') {
+        return (currentDate - orderDate) / (1000 * 3600 * 24) <= 365;
+      } else if (selectedFilter === 'Yearly') {
+        return orderDate.getFullYear() === currentDate.getFullYear();
+      }
+      return false;
+    }) || [];
+
+    const labels = generateLabels();
     const data = {
-      labels: ordersData.dates,
+      labels: labels,
       datasets: [
         {
-          label: "To Pay",
-          data: ordersData.toPay,
-          borderColor: "rgba(255, 193, 7, 0.5)", // Yellow
-          fill: false,
-        },
-        {
-          label: "To Ship",
-          data: ordersData.toShip,
-          borderColor: "rgba(54, 162, 235, 0.5)", // Blue
-          fill: false,
-        },
-        {
-          label: "To Receive",
-          data: ordersData.toReceive,
-          borderColor: "rgba(75, 192, 192, 0.5)", // Aqua
-          fill: false,
-        },
-        {
-          label: "Completed",
-          data: ordersData.completed,
-          borderColor: "rgba(0, 128, 0, 0.5)", // Green
-          fill: false,
-        },
-        {
-          label: "Cancelled",
-          data: ordersData.cancelled,
-          borderColor: "rgba(255, 99, 132, 0.5)", // Red
+          label: status,
+          data: labels.map(label => {
+            const dateIndex = filteredOrders.findIndex(order => {
+              const orderDate = new Date(order.order_date);
+              if (selectedFilter === '7 Days' || selectedFilter === '14 Days') {
+                return orderDate.toDateString().slice(0, 3) === label;
+              } else if (selectedFilter === '6 Months' || selectedFilter === '12 Months') {
+                return new Date(2020, orderDate.getMonth(), 1).toLocaleString('default', { month: 'long' }) === label;
+              } else if (selectedFilter === 'Yearly') {
+                return orderDate.getFullYear().toString() === label;
+              }
+              return false;
+            });
+            return dateIndex !== -1 ? 1 : 0; // Count orders for the respective time period
+          }),
+          backgroundColor: 'rgba(54, 162, 235, 0.7)', // Change color as needed
+          borderColor: 'rgba(54, 162, 235, 1)',
+          borderWidth: 2,
           fill: false,
         },
       ],
@@ -115,25 +159,66 @@ const OrdersAnalyticsPage = () => {
 
     const options = {
       responsive: true,
-      tooltips: {
-        enabled: true,
-        mode: "index",
-        intersect: false,
-        callbacks: {
-          label: function (tooltipItem, data) {
-            const dataset = data.datasets[tooltipItem.datasetIndex];
-            return `${dataset.label}: ${tooltipItem.yLabel} Orders`;
+      scales: {
+        x: {
+          title: {
+            display: true,
+            text: 'Date',
           },
         },
-      },
-      scales: {
         y: {
+          title: {
+            display: true,
+            text: 'Count',
+          },
           beginAtZero: true,
         },
       },
     };
 
     return <Line data={data} options={options} />;
+  };
+
+  const renderOrdersPieChart = () => {
+    if (Object.keys(orderCounts).length === 0) {
+      return <p>No data available for the chart.</p>;
+    }
+
+    const data = {
+      labels: Object.keys(orderCounts),
+      datasets: [
+        {
+          label: 'Order Status Distribution',
+          data: Object.values(orderCounts).map(counts => counts.length),
+          backgroundColor: [
+            'rgba(54, 162, 235, 0.7)',
+            'rgba(255, 206, 86, 0.7)',
+            'rgba(75, 192, 192, 0.7)',
+            'rgba(153, 102, 255, 0.7)',
+            'rgba(255, 99, 132, 0.7)',
+          ],
+        },
+      ],
+    };
+
+    const options = {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: 'top',
+        },
+        tooltip: {
+          callbacks: {
+            label: function (tooltipItem) {
+              const count = tooltipItem.raw;
+              return `${tooltipItem.label}: ${count} orders`;
+            },
+          },
+        },
+      },
+    };
+
+    return <Pie data={data} options={options} />;
   };
 
   return (
@@ -143,10 +228,13 @@ const OrdersAnalyticsPage = () => {
           ORDERS ANALYTICS SUMMARY
         </h5>
 
-        <p className="text-sm font-bold text-green-500 mb-2">
-          Current Filter:{" "}
-          <span className="text-green-700">{selectedFilter}</span>
-        </p>
+        <h5 className="text-xl font-bold text-green-700 mb-4">
+            Current Filter
+          </h5>
+          <p className="text-sm font-bold text-green-500 mb-2">
+            Current Filter:{" "}
+            <span className="text-green-700">{selectedFilter}</span>
+          </p>
 
         <button
           onClick={() => setModalVisible(true)}
@@ -155,19 +243,22 @@ const OrdersAnalyticsPage = () => {
           <span>Select Filter</span>
         </button>
 
+        {/* Display total counts of each order status */}
+        <div className="text-center mb-4">
+          {Object.entries(orderCounts).map(([status, orders]) => (
+            <p key={status} className="text-sm font-bold text-green-500">
+              Total {status}: {orders.length}
+            </p>
+          ))}
+        </div>
+
         <Modal isOpen={modalVisible} onClose={() => setModalVisible(false)}>
-          <h3 className="text-lg font-bold mb-4 text-center">
-            Select a filter
-          </h3>
+          <h3 className="text-lg font-bold mb-4 text-center">Select a filter</h3>
           {["7 Days", "14 Days", "6 Months", "12 Months", "Yearly"].map(
             (filter) => (
               <button
                 key={filter}
-                className={`p-2 rounded-lg mb-2 w-full ${
-                  selectedFilter === filter
-                    ? "bg-green-500 text-white"
-                    : "bg-gray-200 text-green-700"
-                }`}
+                className={`p-2 rounded-lg mb-2 w-full ${selectedFilter === filter ? "bg-green-500 text-white" : "bg-gray-200 text-green-700"}`}
                 onClick={() => {
                   setSelectedFilter(filter);
                   setModalVisible(false);
@@ -184,39 +275,22 @@ const OrdersAnalyticsPage = () => {
             Close
           </button>
         </Modal>
+      </div>
 
-        <p className="text-sm font-bold text-green-500 mb-2">
-          Total Orders to Pay:{" "}
-          <span className="text-green-700">
-            {getOrdersData(selectedFilter).toPay.slice(-1)[0]}
-          </span>
-        </p>
-        <p className="text-sm font-bold text-green-500 mb-2">
-          Total Orders to Ship:{" "}
-          <span className="text-green-700">
-            {getOrdersData(selectedFilter).toShip.slice(-1)[0]}
-          </span>
-        </p>
-        <p className="text-sm font-bold text-green-500 mb-2">
-          Total Orders to Receive:{" "}
-          <span className="text-green-700">
-            {getOrdersData(selectedFilter).toReceive.slice(-1)[0]}
-          </span>
-        </p>
-        <p className="text-sm font-bold text-green-500 mb-2">
-          Total Completed Orders:{" "}
-          <span className="text-green-700">
-            {getOrdersData(selectedFilter).completed.slice(-1)[0]}
-          </span>
-        </p>
-        <p className="text-sm font-bold text-green-500 mb-2">
-          Total Cancelled Orders:{" "}
-          <span className="text-green-700">
-            {getOrdersData(selectedFilter).cancelled.slice(-1)[0]}
-          </span>
-        </p>
 
-        {renderOrdersChart()}
+      {/* Render Line Chart for each status */}
+      <div className="bg-white p-4 rounded-lg shadow-md mb-6">
+        {['Placed', 'Processed', 'Shipped', 'Delivered', 'Cancelled'].map(status => (
+          <div key={status} className="mb-4">
+            {renderOrderStatusLineChart(status)}
+          </div>
+        ))}
+      </div>
+
+      {/* Render Pie Chart */}
+      <div className="bg-white p-4 rounded-lg shadow-md">
+        <h6 className="text-lg font-bold text-green-700 mb-2">Order Status Distribution</h6>
+        {renderOrdersPieChart()}
       </div>
     </div>
   );
