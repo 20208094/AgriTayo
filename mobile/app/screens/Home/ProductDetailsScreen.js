@@ -10,6 +10,11 @@ function ProductDetailsScreen({ navigation, route }) {
   const { product } = route.params; // Receive the product data
   const [quantity, setQuantity] = useState(1);
 
+  // Check if product has the 'seller' field, otherwise set default values
+  const shopInfo = product.seller || {
+    shopName: 'Unknown Shop',
+    shop_image_url: null, // Default to null if no image is provided
+  };
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -26,6 +31,23 @@ function ProductDetailsScreen({ navigation, route }) {
   const increaseQuantity = () => setQuantity(quantity + 1);
   const decreaseQuantity = () => setQuantity(quantity > 1 ? quantity - 1 : 1);
 
+  const handleShopPress = () => {
+    // Ensure that navigation works even if the product lacks a seller
+    if (shopInfo.shopName !== 'Unknown Shop') {
+      navigation.navigate('Seller Shop', { product });
+    } else {
+      alert("No seller information available for this product.");
+    }
+  };
+
+  const handleNegotiatePress = () => {
+    navigation.navigate('Negotiate To Seller', { product });
+  };
+
+  const handleMessagePress = () => {
+    navigation.navigate('Message Seller', { product });
+  };
+
   return (
     <ScrollView className="flex-1 bg-white p-2.5">
       <Image
@@ -41,47 +63,61 @@ function ProductDetailsScreen({ navigation, route }) {
         <View className="flex-row justify-between items-center mb-2.5">
           <Text className="text-base text-gray-700">⭐ {product.crop_rating} (192)</Text>
           <View className="flex-row items-center mb-2.5">
-  <TouchableOpacity
-    className="bg-[#00B251] p-2.5 rounded-lg"
-    onPress={decreaseQuantity}
-  >
-    <Text className="text-lg font-bold text-white">-</Text>
-  </TouchableOpacity>
-  <Text className="text-lg mx-2.5">{quantity} pcs</Text>
-  <TouchableOpacity
-    className="bg-[#00B251] p-2.5 rounded-lg"
-    onPress={increaseQuantity}
-  >
-    <Text className="text-lg font-bold text-white">+</Text>
-  </TouchableOpacity>
-</View>
-
+            <TouchableOpacity
+              className="bg-[#00B251] p-2.5 rounded-lg"
+              onPress={decreaseQuantity}
+            >
+              <Text className="text-lg font-bold text-white">-</Text>
+            </TouchableOpacity>
+            <Text className="text-lg mx-2.5">{quantity} pcs</Text>
+            <TouchableOpacity
+              className="bg-[#00B251] p-2.5 rounded-lg"
+              onPress={increaseQuantity}
+            >
+              <Text className="text-lg font-bold text-white">+</Text>
+            </TouchableOpacity>
+          </View>
         </View>
         <Text className="text-lg font-bold mb-2.5">Description</Text>
         <Text className="text-base text-gray-700 mb-5">{product.crop_description}</Text>
 
-        {/* New Buttons */}
+        {/* Shop Info Section */}
+        <View className="border border-green-600 flex-row items-center justify-between border p-3 rounded-lg mb-5">
+          <View className="flex-row items-center">
+            <Image
+              source={shopInfo.shop_image_url ? { uri: shopInfo.shop_image_url } : placeholderimg} // Shop image
+              className="w-12 h-12 rounded-full"
+              resizeMode="cover"
+            />
+            <View className="ml-4">
+              <Text className="text-lg font-bold">{shopInfo.shopName}</Text>
+              <Text className="text-gray-500 text-sm">Active 3 Minutes Ago</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Existing Buttons */}
         <View className="flex-row justify-between mb-5">
           <TouchableOpacity
-            className="bg-[#00B251] p-3.5 rounded-lg items-center flex-1 mr-2.5 flex-row justify-center"
-            onPress={() => navigation.navigate('Seller Shop', { product })}
+            className="border border-green-600 bg-white px-3 py-2 rounded-md items-center flex-row justify-center mr-2"
+            onPress={handleShopPress}
           >
-            <FontAwesome name="shopping-bag" size={20} color="white" className="mr-2" />
-            <Text className="text-white font-bold text-base">Shop</Text>
+            <FontAwesome name="shopping-bag" size={16} color="#00B251" className="mr-2" />
+            <Text className="text-green-600 font-bold text-base">Shop</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            className="bg-[#00B251] p-3.5 rounded-lg items-center flex-1 mr-2.5 flex-row justify-center"
-            onPress={() => navigation.navigate("Negotiate To Seller", { product })}
+            className="border border-green-600 bg-white px-3 py-1 rounded-md items-center flex-row justify-center mr-2"
+            onPress={handleNegotiatePress}
           >
-            <FontAwesome name="balance-scale" size={20} color="white" className="mr-2" />
-            <Text className="text-white font-bold text-base">Negotiate</Text>
+            <FontAwesome name="balance-scale" size={16} color="#00B251" className="mr-2" />
+            <Text className="text-green-600 font-bold text-base">Negotiate</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            className="bg-[#00B251] p-3.5 rounded-lg items-center flex-1 flex-row justify-center"
-            onPress={() => navigation.navigate("Message Seller", { product })}
+            className="border border-green-600 bg-white px-3 py-2 rounded-md items-center flex-row justify-center mr-2"
+            onPress={handleMessagePress}
           >
-            <FontAwesome name="envelope" size={20} color="white" className="mr-2" />
-            <Text className="text-white font-bold text-base">Message</Text>
+            <FontAwesome name="envelope" size={16} color="#00B251" className="mr-2" />
+            <Text className="text-green-600 font-bold text-base">Message</Text>
           </TouchableOpacity>
         </View>
 

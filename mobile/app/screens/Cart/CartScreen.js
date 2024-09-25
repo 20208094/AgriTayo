@@ -124,13 +124,13 @@ function CartScreen() {
       <StyledView className="flex-row my-2 mx-2.5">
         <TouchableOpacity
           onPress={editItem}
-          className="bg-orange-400 justify-center items-center w-12 rounded-l-lg my-0.5">
-          <Image source={editButton} className="w-6 h-6 tint-white" style={{tintColor: 'white'}} />
+          className="bg-[#F4A261] justify-center items-center w-12 rounded-l-lg my-0.5">
+          <Image source={editButton} className="w-6 h-6 tint-white" style={{ tintColor: 'white' }} />
         </TouchableOpacity>
         <TouchableOpacity
           onPress={deleteItem}
-          className="bg-red-500 justify-center items-center w-12 rounded-r-lg my-0.5">
-          <Image source={deleteButton} className="w-6 h-6" style={{tintColor: 'white'}} />
+          className="bg-[#E76F51] justify-center items-center w-12 rounded-r-lg my-0.5">
+          <Image source={deleteButton} className="w-6 h-6" style={{ tintColor: 'white' }} />
         </TouchableOpacity>
       </StyledView>
     );
@@ -146,8 +146,8 @@ function CartScreen() {
         renderRightActions={renderRightActions}
         overshootRight={false}>
         <TouchableOpacity onPress={showItemDetails}>
-          <StyledView className="my-2 mx-2.5 border border-gray-300 rounded-lg bg-white">
-            <StyledView className="p-4 flex-row items-center">
+          <StyledView className="my-2 mx-3 border border-gray-200 rounded-lg bg-white shadow-lg p-4">
+            <StyledView className="flex-row items-center">
               <StyledView className="mr-4">
                 <CheckBox
                   isChecked={item.selected}
@@ -157,25 +157,25 @@ function CartScreen() {
               </StyledView>
               <Image
                 source={placeholderImage}
-                className="w-20 h-20 rounded-lg"
+                className="w-16 h-16 rounded-lg"
                 resizeMode="cover"
               />
               <StyledView className="ml-4 flex-1">
-                <StyledView className="flex-row items-center mb-2">
-                  <StyledText className="text-lg font-medium text-gray-800">{item.title}</StyledText>
+                <StyledView className="flex-row items-center mb-1">
+                  <StyledText className="text-lg font-semibold text-gray-900">{item.title}</StyledText>
                 </StyledView>
-                <StyledText className="text-base text-gray-600">₱ {item.price.toFixed(2)}</StyledText>
+                <StyledText className="text-base text-gray-700">₱ {item.price.toFixed(2)}</StyledText>
               </StyledView>
               <StyledView className="flex-col items-center ml-4">
                 <TouchableOpacity
                   onPress={incrementQuantity}
-                  className="bg-[#00b251] justify-center items-center w-7 h-7 rounded-full mb-1.5">
+                  className="bg-[#00B215] justify-center items-center w-7 h-7 rounded-full mb-1.5">
                   <Text className="text-white text-xl">+</Text>
                 </TouchableOpacity>
-                <StyledText className="text-base text-gray-800 mb-1">{item.quantity}</StyledText>
+                <StyledText className="text-base text-gray-900 mb-1">{item.quantity}</StyledText>
                 <TouchableOpacity
                   onPress={decrementQuantity}
-                  className="bg-red-500 justify-center items-center w-7 h-7 rounded-full">
+                  className="bg-[#FF3B30] justify-center items-center w-7 h-7 rounded-full">
                   <Text className="text-white text-xl">-</Text>
                 </TouchableOpacity>
               </StyledView>
@@ -187,15 +187,15 @@ function CartScreen() {
   };
 
   const renderShop = ({ item: shop, index: shopIndex }) => (
-    <StyledView className="bg-white rounded-lg shadow mb-4">
-      <StyledView className="p-4 flex-row items-center border-b border-gray-300 bg-gray-200 rounded-t-lg">
+    <StyledView className="bg-white rounded-lg shadow-lg mb-4">
+      <StyledView className="p-4 flex-row items-center border-b border-gray-300 bg-[#F1F5F9] rounded-t-lg">
         <StyledView className="mr-4">
           <CheckBox
             isChecked={shop.items.every(item => item.selected)}
             onClick={() => toggleShopSelection(shopIndex)}
           />
         </StyledView>
-        <StyledText className="text-xl font-bold text-gray-800">{shop.name}</StyledText>
+        <StyledText className="text-lg font-bold text-gray-900">{shop.name}</StyledText>
       </StyledView>
       <FlatList
         data={shop.items}
@@ -208,15 +208,14 @@ function CartScreen() {
   const handleCheckout = () => {
     const selectedItems = shops.flatMap(shop => shop.items.filter(item => item.selected));
     if (selectedItems.length > 0) {
-      navigation.navigate('CheckOutScreen', { checkedOutItems: selectedItems }); // Pass checked-out items
+      navigation.navigate("CheckoutScreen", { selectedItems });
     } else {
       Alert.alert("Checkout", "No items selected for checkout.");
     }
   };
 
   return (
-    <StyledView className="flex-1 bg-gray-100 p-2.5">
-      <StyledText className="text-2xl font-bold my-5 mx-2.5 text-gray-800">Cart</StyledText>
+    <StyledView className="flex-1 bg-gray-50 p-3">
       <FlatList
         data={shops}
         renderItem={renderShop}
@@ -224,8 +223,8 @@ function CartScreen() {
         contentContainerStyle={{ paddingBottom: 10 }} />
       <TouchableOpacity
         onPress={handleCheckout}
-        className="bg-[#00B251] justify-center items-center py-3 mx-2.5 rounded-lg mt-2.5">
-        <StyledText className="text-lg font-bold text-white">Checkout</StyledText>
+        className="bg-[#00B215] justify-center items-center py-4 mx-3 rounded-lg mt-4 shadow-lg">
+        <StyledText className="text-lg font-semibold text-white">Proceed to Checkout</StyledText>
       </TouchableOpacity>
 
       <Modal
@@ -234,23 +233,23 @@ function CartScreen() {
         visible={modalVisible}
         onRequestClose={() => setModalVisible(false)}>
         <StyledView className="flex-1 justify-center items-center bg-[#00000080]">
-          <StyledView className="bg-white rounded-lg w-[90%] p-4">
+          <StyledView className="bg-white rounded-lg w-[90%] p-4 shadow-lg">
             {selectedItem && (
               <>
-                <StyledText className="text-2xl font-bold text-gray-800">{selectedItem.title}</StyledText>
+                <StyledText className="text-2xl font-semibold text-gray-900">{selectedItem.title}</StyledText>
                 <Image
                   source={placeholderImage}
-                  className="w-full h-40 mt-4 rounded-lg"
+                  className="w-full h-48 mt-4 rounded-lg"
                   resizeMode="contain"
                 />
-                <StyledText className="text-lg text-gray-800 mt-4">Price: ₱ {selectedItem.price.toFixed(2)}</StyledText>
-                <StyledText className="text-lg text-gray-800 mt-2">Quantity: {selectedItem.quantity}</StyledText>
+                <StyledText className="text-lg text-gray-700 mt-4">Price: ₱ {selectedItem.price.toFixed(2)}</StyledText>
+                <StyledText className="text-lg text-gray-700 mt-2">Quantity: {selectedItem.quantity}</StyledText>
               </>
             )}
             <TouchableOpacity
               onPress={() => setModalVisible(false)}
-              className="bg-[#00b251] justify-center items-center py-3 mt-6 rounded-lg">
-              <StyledText className="text-lg font-bold text-white">Close</StyledText>
+              className="bg-[#00B215] justify-center items-center py-3 mt-6 rounded-lg">
+              <StyledText className="text-lg font-semibold text-white">Close</StyledText>
             </TouchableOpacity>
           </StyledView>
         </StyledView>

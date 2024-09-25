@@ -189,7 +189,7 @@ function App() {
             <Stack.Screen
               name="CartScreen"
               component={CartScreen}
-              options={{ ...screenOptions, headerShown: false }}
+              options={screenOptions}
             />
             <Stack.Screen
               name="Messages"
