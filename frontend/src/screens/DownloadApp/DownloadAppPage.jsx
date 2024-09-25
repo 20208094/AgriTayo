@@ -61,7 +61,7 @@ const testimonials = [
   },
 ];
 
-function AboutPage() {
+function DownloadPage() {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
@@ -198,4 +198,4 @@ function AboutPage() {
   );
 }
 
-export default AboutPage;
+export default DownloadPage;

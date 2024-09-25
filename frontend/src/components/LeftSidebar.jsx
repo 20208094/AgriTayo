@@ -6,6 +6,7 @@ import { FaDev } from "react-icons/fa6";
 import AdminSidebar from './Sidebar/AdminSidebar';
 import SellerSidebar from './Sidebar/SellerSidebar';
 import BuyerSidebar from './Sidebar/BuyerSidebar';
+import NullSidebar from './Sidebar/NullSidebar';
 import LogoutModal from './LogoutModal';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { RiPushpinFill, RiUnpinFill } from "react-icons/ri";
@@ -105,6 +106,7 @@ function LeftSidebar({ userType }) {
 
 
                 {/* Conditional Sidebar Content */}
+                {userType === null && <NullSidebar />}
                 {userType === 1 && <AdminSidebar />}
                 {userType === 2 && <SellerSidebar />}
                 {userType === 3 && <BuyerSidebar />}

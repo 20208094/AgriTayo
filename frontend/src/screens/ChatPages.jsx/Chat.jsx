@@ -255,7 +255,7 @@ function ChatPage() {
             <li
               key={user.user_id}
               className="flex items-center p-3 hover:bg-green-200 cursor-pointer text-green-600"
-              onClick={() => navigate(`/chat/${user.user_id}`)}
+              onClick={() => navigate(`/admin/chat/${user.user_id}`)}
             >
               <img
                 src={user.user_image_url || "default-avatar.png"}

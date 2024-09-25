@@ -64,9 +64,10 @@ import ToPay from './screens/Users/BuyerPages/Orders/ToPay';
 import ToRecieve from './screens/Users/BuyerPages/Orders/ToRecieve';
 import ToShip from './screens/Users/BuyerPages/Orders/ToShip';
 import OrdersTopNavigationbar from './screens/Users/BuyerPages/Orders/OrdersComponent/OrdersTopNavigationbar';
+import LandingPage from './screens/LandingPage'
 
-import ChatPage from './screens/Chat';
-import ChatListPage from './screens/ChatListPage';
+import ChatPage from './screens/ChatPages.jsx/Chat';
+import ChatListPage from './screens/ChatPages.jsx/ChatListPage';
 
 const API_KEY = import.meta.env.VITE_API_KEY;
 let socket;
@@ -110,7 +111,6 @@ function App() {
           console.log('userid= ', { userId })
           console.log('usertypwid= ', { userType })
 
-
           console.log('uuuuuser', data.user_id)
 
           socket.emit('login', data.user_id);
@@ -130,7 +130,6 @@ function App() {
   if (loading) {
     return <div>Loading...</div>;
   }
-
 
   return (
     <Router>
@@ -189,49 +188,10 @@ function Layout({ userType, userId, refreshProfile, setRefreshProfile }) {
       <div className="main-content flex-1 pt-10 ml-0 md:ml-20">
         <Routes>
           {/* FREE ROUTES used for development */}
-          <Route exact path="/sample" element={<SampleSearch />} />
-          {/* for market */}
-          <Route exact path="/crop-category" element={<CropCategoryPage />} />
-          <Route exact path="/crop-subcategory/:cropCategoryId" element={<CropSubCategoryPage />} />
-          <Route exact path='/product-list/:cropSubCategoryId' element={<ProductListPage />} />
-          <Route exact path='/product-details/:productListId' element={<ProductDetaulsPage />} />
-
+          <Route exact path="/" element={<LandingPage />} />
           <Route exact path="/download" element={<DownloadAppPage />} />
-          <Route exact path="/users" element={<UsersPage />} />
-          {/* for accounts */}
-          <Route exact path='/profile' element={<Profile onProfileUpdate={() => setRefreshProfile(prev => prev + 1)} />} />
-          <Route path="crop_category" element={<CropCategoryPageCRUD />} />
-          <Route path="users" element={<UsersPage />} />
-          <Route exact path='addresses' element={<Addresses />} />
-          <Route exact path='addresses' element={<Addresses />} />
-          <Route exact path='/change_password' element={<ChangePassword />} />
-          <Route exact path='/confirm_change_password' element={<ConfirmChangePassword />} />
-          <Route exact path='/changeEmail' element={<ChangeEmail />} />
-          <Route exact path='/deleteAccount' element={<DeleteAccount />} />
-          {/* for orders */}
-          <Route exact path='/all' element={<All />} />
-          <Route exact path='/cancelled' element={<Cancelled />} />
-          <Route exact path='/completed' element={<Completed />} />
-          <Route exact path='/returnOrRefund' element={<ReturnOrRefund />} />
-          <Route exact path='/toPay' element={<ToPay />} />
-          <Route exact path='/toRecieve' element={<ToRecieve />} />
-          <Route exact path='/toShip' element={<ToShip />} />
-          {/* for admin */}
-          <Route exact path="/admin-dash" element={<AdminDashboardPage />} />
-          <Route exact path='/analytics' element={<AnalyticsPage />} />
-          <Route exact path='/marketAnalytics' element={<MarketAnalyticsPage />} />
-          <Route exact path='/salesAnalytics' element={<SalesAnalyticsPage />} />
-          <Route exact path='/newUsersAnalytics' element={<NewUsersAnalyticsPage />} />
-          <Route exact path='/ordersAnalytics' element={<OrdersAnalyticsPage />} />
-          <Route exact path='/individualCropPriceChangesAnalytics' element={<IndividualCropPriceChangesPage />} />
-          <Route exact path='/profitAnalytics' element={<ProfitAnalyticsPage />} />
-          <Route exact path="/reports" element={<ReportsPage />} />
-          <Route exact path="/chat" element={<ChatPage />} />
-          <Route path="/chatlist" element={<ChatListPage />} />
-          <Route path="/chat/:receiverId" element={<ChatPage />} />
 
-
-          {/* ChangePassword ROUTES */}
+          {/* Change Password ROUTES */}
           {!userType && (
             <>
               <Route path="/login" element={<LoginPage />} />
@@ -277,6 +237,9 @@ function Layout({ userType, userId, refreshProfile, setRefreshProfile }) {
             <Route path='ordersAnalytics' element={<OrdersAnalyticsPage />} />
             <Route path='individualCropPriceChangesAnalytics' element={<IndividualCropPriceChangesPage />} />
             <Route path='profitAnalytics' element={<ProfitAnalyticsPage />} />
+            <Route path="chatlist" element={<ChatListPage />} />
+            <Route path="chat/:receiverId" element={<ChatPage />} />
+            <Route path="about" element={<LandingPage />} />
           </Route>
           {/* SELLER ROUTES */}
           <Route
