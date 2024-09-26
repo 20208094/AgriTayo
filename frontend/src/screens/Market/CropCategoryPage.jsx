@@ -6,7 +6,7 @@ const API_KEY = import.meta.env.VITE_API_KEY;
 const CropCategoryCard = ({ cropCategory }) => {
   return (
     <div className="bg-white rounded-lg shadow-lg hover:shadow-xl transform transition-transform duration-300 m-4 hover:scale-105">
-      <Link to={`/crop-subcategory/${cropCategory.crop_category_id}`}>
+      <Link to={`/admin/crop-subcategory/${cropCategory.crop_category_id}`}>
         <div className="rounded-t-lg overflow-hidden">
           <img
             src={cropCategory.crop_category_image_url}

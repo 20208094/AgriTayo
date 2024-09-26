@@ -112,24 +112,12 @@ function LeftSidebar({ userType }) {
                 {userType === 3 && <BuyerSidebar />}
 
                 {/* Login/Logout Link */}
-                {/* {userType ? (
+                {userType ? (
                     <>
-                        <SidebarItem
-                            to="#"
-                            icon={IoLogOut}
-                            text="Logout"
-                            onClick={() => setShowLogoutModal(true)}
-                        />
-                        {showLogoutModal && (
-                            <LogoutModal
-                                onConfirm={handleConfirmLogout}
-                                onCancel={() => setShowLogoutModal(false)}
-                            />
-                        )}
                     </>
                 ) : (
-                    <SidebarItem to="/login" icon={IoLogIn} text="Login" />
-                )} */}
+                    <SidebarItem className='align-bottom' to="/login" icon={IoLogIn} text="Login" />
+                )}
 
                 {/* Pin Toggle Button */}
                 <button onClick={handlePinToggle} className={`pin-button ${window.innerWidth <= 767 ? 'hidden' : ''}`}>

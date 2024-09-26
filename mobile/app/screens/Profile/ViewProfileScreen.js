@@ -14,6 +14,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from '@env';
 const SOCKET_URL = 'https://agritayo.azurewebsites.net';
 
+import AsyncStorage from "@react-native-async-storage/async-storage";
 const editButton = require("../../assets/edit.png");
 
 function ViewProfileScreen({ route, navigation }) {
@@ -62,18 +63,18 @@ function ViewProfileScreen({ route, navigation }) {
     formData.append('phone_number', phone);
     formData.append('gender', gender);
     formData.append('birthday', birthday);
-
+  
     if (profileImage) {
       formData.append('image', {
         uri: profileImage,
-        name: 'profile.jpg', // You can generate a name or take from the image
-        type: 'image/jpeg' // Change as per your image type
+        name: 'profile.jpg',
+        type: 'image/jpeg',
       });
       console.log("Image added to FormData:", profileImage);
     } else {
       console.log("No image selected to upload.");
     }
-
+  
     try {
       console.log("Sending request to update profile...");
       const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/users/${userData.user_id}`, {
@@ -83,11 +84,30 @@ function ViewProfileScreen({ route, navigation }) {
         },
         body: formData,
       });
-
+  
       console.log("Response Status:", response.status);
       if (response.ok) {
         alert("Profile updated successfully!");
-        navigation.goBack(); // Navigate back after successful update
+  
+        // Construct updated user data
+        const updatedUserData = {
+          ...userData,
+          firstname: firstName,
+          middlename: middleName,
+          lastname: lastName,
+          email: email,
+          phone_number: phone,
+          gender: gender,
+          birthday: birthday,
+          user_image_url: profileImage, // Add the profile image URL
+        };
+  
+        // Save updated data to AsyncStorage
+        await AsyncStorage.setItem('userData', JSON.stringify(updatedUserData));
+        console.log("Updated profile data saved to AsyncStorage!");
+  
+        // Navigate back and pass the updated user data
+        navigation.goBack(updatedUserData); 
       } else {
         const errorData = await response.json();
         console.error("Error response data:", errorData);
@@ -97,7 +117,8 @@ function ViewProfileScreen({ route, navigation }) {
       console.error("Failed to update profile:", error);
       alert("Failed to update profile: " + error.message);
     }
-};
+  };
+  
 
 
   return (

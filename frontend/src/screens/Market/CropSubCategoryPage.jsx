@@ -62,7 +62,7 @@ function CropSubCategoryPage() {
                         return (
                             <Link
                                 key={subCategory.crop_sub_category_id}
-                                to={`/product-list/${subCategory.crop_sub_category_id}`}
+                                to={`/admin/product-list/${subCategory.crop_sub_category_id}`}
                                 className="bg-white rounded-lg shadow-md flex-row items-start p-4 mb-4 border border-gray-300"
                                 style={{ display: 'flex', alignItems: 'start', marginBottom: '15px' }}
                             >

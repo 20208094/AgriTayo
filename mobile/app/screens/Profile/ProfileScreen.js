@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { View, Image, Text, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useFocusEffect  } from "@react-navigation/native";
 import { Icon } from "react-native-elements";
 import michael from "../../assets/ehh.png";
 import { styled } from "nativewind";
@@ -24,18 +24,15 @@ function ProfileScreen({ fetchUserSession }) {
   const getAsyncUserData = async () => {
     try {
       const storedData = await AsyncStorage.getItem('userData');
-      console.log('stored:', storedData);
       
       if (storedData) {
-        const parsedData = JSON.parse(storedData);  // Parse storedData
-        console.log('parsedData:', parsedData);      // Log the parsed data
+        const parsedData = JSON.parse(storedData); // Parse storedData
         
         if (Array.isArray(parsedData)) {
           const user = parsedData[0];  // Assuming user data is the first element of the array
-          console.log('user:', user);   // Log the user object
-          setUserData(user);            // Set userData state to the user object
+          setUserData(user); // Set userData state to the user object
         } else {
-          setUserData(parsedData);      // If it's not an array, directly set parsed data
+          setUserData(parsedData); // If it's not an array, directly set parsed data
         }
       }
     } catch (error) {
@@ -45,22 +42,12 @@ function ProfileScreen({ fetchUserSession }) {
     }
   };
 
-  useEffect(() => {
-    getAsyncUserData();
-  }, []);
-
-  const profilersed = {
-    id: 1,
-    firstname: "Michael",
-    middlename: "Rosario",
-    lastname: "Calalo",
-    birthday: "02/05/2000",
-    gender: "Male",
-    address: "Baguio City",
-    email: "michaelcalalo@gmail.com",
-    phone: 6391234567890,
-    password: "pogiako123",
-  };
+  // Use useFocusEffect to re-fetch data when the screen is focused (navigated back)
+  useFocusEffect(
+    React.useCallback(() => {
+      getAsyncUserData();
+    }, [])
+  );
 
   if (loading) {
     return <Text>Loading...</Text>; // or your loading spinner

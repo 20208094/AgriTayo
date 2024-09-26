@@ -56,8 +56,7 @@ function AddProductScreen({ navigation }) {
   };
 
   // Function to handle product submission
-// Function to handle product submission
-const handleAddProduct = async () => {
+  const handleAddProduct = async () => {
     // Validate required fields
     if (!formData.crop_name || !formData.crop_price || !formData.category_id || !formData.shop_id) {
       alert("Please fill all required fields.");
@@ -104,146 +103,144 @@ const handleAddProduct = async () => {
       console.log("No crop image to append.");
     }
   
-    // console.log("Form Data being sent:", JSON.stringify(Object.fromEntries(formBody)));
+    try {
+      const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crops`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "multipart/form-data",
+          "x-api-key": REACT_NATIVE_API_KEY,
+        },
+        body: formBody,
+      });
 
-  try {
-    const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crops`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "multipart/form-data",
-        "x-api-key": REACT_NATIVE_API_KEY,
-      },
-      body: formBody,
-    });
-
-    console.log("Response status:", response.status);
-    
-    if (response.ok) {
-      alert("Product added successfully!");
-      navigation.goBack();
-    } else {
-      const errorData = await response.json();
-      console.error("Error response data:", errorData);
-      alert("Failed to add product: " + errorData.message);
+      console.log("Response status:", response.status);
+      
+      if (response.ok) {
+        alert("Product added successfully!");
+        navigation.goBack();
+      } else {
+        const errorData = await response.json();
+        console.error("Error response data:", errorData);
+        alert("Failed to add product: " + errorData.message);
+      }
+    } catch (error) {
+      console.error("Failed to add product:", error);
+      alert("Failed to add product: " + error.message);
     }
-  } catch (error) {
-    console.error("Failed to add product:", error);
-    alert("Failed to add product: " + error.message);
-  }
-};
-  
+  };
   
   return (
-    <SafeAreaView className="flex-1 bg-gray-100 p-4">
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#f0f0f0', padding: 16 }}>
       <ScrollView>
-        <View className="bg-white p-4 rounded-lg shadow-sm relative">
-          {/* Product Name Input */}
-          <View className="mb-4">
-            <Text className="text-base text-gray-600">Crop Name</Text>
+        <View style={{ backgroundColor: 'white', padding: 16, borderRadius: 8, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 4 }}>
+          {/* Crop Name Input */}
+          <View style={{ marginBottom: 16 }}>
+            <Text style={{ fontSize: 16, color: '#666' }}>Crop Name</Text>
             <TextInput
               value={formData.crop_name}
               onChangeText={(text) => setFormData({ ...formData, crop_name: text })}
-              className="mt-1 text-lg text-gray-900 border border-gray-300 rounded-lg p-2"
+              style={{ marginTop: 8, fontSize: 18, color: '#333', borderColor: '#ccc', borderWidth: 1, borderRadius: 4, padding: 8 }}
               placeholder="Enter crop name"
             />
           </View>
 
-          {/* Product Description Input */}
-          <View className="mb-4">
-            <Text className="text-base text-gray-600">Crop Description</Text>
+          {/* Crop Description Input */}
+          <View style={{ marginBottom: 16 }}>
+            <Text style={{ fontSize: 16, color: '#666' }}>Crop Description</Text>
             <TextInput
               value={formData.crop_description}
               onChangeText={(text) => setFormData({ ...formData, crop_description: text })}
-              className="mt-1 text-lg text-gray-900 border border-gray-300 rounded-lg p-2"
+              style={{ marginTop: 8, fontSize: 18, color: '#333', borderColor: '#ccc', borderWidth: 1, borderRadius: 4, padding: 8 }}
               placeholder="Enter crop description"
               multiline
             />
           </View>
 
-          {/* Product Price Input */}
-          <View className="mb-4">
-            <Text className="text-base text-gray-600">Crop Price</Text>
+          {/* Crop Price Input */}
+          <View style={{ marginBottom: 16 }}>
+            <Text style={{ fontSize: 16, color: '#666' }}>Crop Price</Text>
             <TextInput
               value={formData.crop_price}
               onChangeText={(text) => setFormData({ ...formData, crop_price: text })}
-              className="mt-1 text-lg text-gray-900 border border-gray-300 rounded-lg p-2"
+              style={{ marginTop: 8, fontSize: 18, color: '#333', borderColor: '#ccc', borderWidth: 1, borderRadius: 4, padding: 8 }}
               placeholder="Enter crop price"
               keyboardType="numeric"
-              required
             />
           </View>
 
-          {/* Category and Shop Selection (Placeholder) */}
-          <View className="mb-4">
-            <Text className="text-base text-gray-600">Select Category</Text>
+          {/* Category ID Input */}
+          <View style={{ marginBottom: 16 }}>
+            <Text style={{ fontSize: 16, color: '#666' }}>Select Category ID</Text>
             <TextInput
               value={formData.category_id}
               onChangeText={(text) => setFormData({ ...formData, category_id: text })}
-              className="mt-1 text-lg text-gray-900 border border-gray-300 rounded-lg p-2"
+              style={{ marginTop: 8, fontSize: 18, color: '#333', borderColor: '#ccc', borderWidth: 1, borderRadius: 4, padding: 8 }}
               placeholder="Enter category ID"
-              required
             />
           </View>
-          <View className="mb-4">
-            <Text className="text-base text-gray-600">Select Shop</Text>
+
+          {/* Shop ID Input */}
+          <View style={{ marginBottom: 16 }}>
+            <Text style={{ fontSize: 16, color: '#666' }}>Select Shop ID</Text>
             <TextInput
               value={formData.shop_id}
               onChangeText={(text) => setFormData({ ...formData, shop_id: text })}
-              className="mt-1 text-lg text-gray-900 border border-gray-300 rounded-lg p-2"
+              style={{ marginTop: 8, fontSize: 18, color: '#333', borderColor: '#ccc', borderWidth: 1, borderRadius: 4, padding: 8 }}
               placeholder="Enter shop ID"
-              required
             />
           </View>
 
           {/* Additional Fields */}
-          <View className="mb-4">
-            <Text className="text-base text-gray-600">Crop Rating</Text>
+          <View style={{ marginBottom: 16 }}>
+            <Text style={{ fontSize: 16, color: '#666' }}>Crop Rating</Text>
             <TextInput
               value={formData.crop_rating}
               onChangeText={(text) => setFormData({ ...formData, crop_rating: text })}
-              className="mt-1 text-lg text-gray-900 border border-gray-300 rounded-lg p-2"
+              style={{ marginTop: 8, fontSize: 18, color: '#333', borderColor: '#ccc', borderWidth: 1, borderRadius: 4, padding: 8 }}
               placeholder="Enter crop rating"
               keyboardType="numeric"
             />
           </View>
-          <View className="mb-4">
-            <Text className="text-base text-gray-600">Crop Quantity</Text>
+
+          <View style={{ marginBottom: 16 }}>
+            <Text style={{ fontSize: 16, color: '#666' }}>Crop Quantity</Text>
             <TextInput
               value={formData.crop_quantity}
               onChangeText={(text) => setFormData({ ...formData, crop_quantity: text })}
-              className="mt-1 text-lg text-gray-900 border border-gray-300 rounded-lg p-2"
+              style={{ marginTop: 8, fontSize: 18, color: '#333', borderColor: '#ccc', borderWidth: 1, borderRadius: 4, padding: 8 }}
               placeholder="Enter crop quantity"
               keyboardType="numeric"
             />
           </View>
-          <View className="mb-4">
-            <Text className="text-base text-gray-600">Crop Weight</Text>
+
+          <View style={{ marginBottom: 16 }}>
+            <Text style={{ fontSize: 16, color: '#666' }}>Crop Weight</Text>
             <TextInput
               value={formData.crop_weight}
               onChangeText={(text) => setFormData({ ...formData, crop_weight: text })}
-              className="mt-1 text-lg text-gray-900 border border-gray-300 rounded-lg p-2"
+              style={{ marginTop: 8, fontSize: 18, color: '#333', borderColor: '#ccc', borderWidth: 1, borderRadius: 4, padding: 8 }}
               placeholder="Enter crop weight"
               keyboardType="numeric"
             />
           </View>
-          <View className="mb-4">
-            <Text className="text-base text-gray-600">Metric System ID</Text>
+
+          <View style={{ marginBottom: 16 }}>
+            <Text style={{ fontSize: 16, color: '#666' }}>Metric System ID</Text>
             <TextInput
               value={formData.metric_system_id}
               onChangeText={(text) => setFormData({ ...formData, metric_system_id: text })}
-              className="mt-1 text-lg text-gray-900 border border-gray-300 rounded-lg p-2"
+              style={{ marginTop: 8, fontSize: 18, color: '#333', borderColor: '#ccc', borderWidth: 1, borderRadius: 4, padding: 8 }}
               placeholder="Enter metric system ID"
-              required
             />
           </View>
 
           {/* Image Picker and Display */}
-          <View className="items-center mb-4">
+          <View style={{ alignItems: 'center', marginBottom: 16 }}>
             {formData.crop_image ? (
-              <View className="relative w-40 h-40 rounded-lg border-2 border-gray-300">
-                <Image source={{ uri: formData.crop_image }} className="w-full h-full rounded-lg" />
+              <View style={{ width: 160, height: 160, borderRadius: 8, borderColor: '#ccc', borderWidth: 2 }}>
+                <Image source={{ uri: formData.crop_image }} style={{ width: '100%', height: '100%', borderRadius: 8 }} />
                 <TouchableOpacity
-                  className="absolute top-0 right-0 bg-red-600 p-2 rounded-full"
+                  style={{ position: 'absolute', top: 0, right: 0, backgroundColor: 'red', borderRadius: 50, padding: 8 }}
                   onPress={removeImage}
                 >
                   <Ionicons name="close" size={24} color="white" />
@@ -251,21 +248,21 @@ const handleAddProduct = async () => {
               </View>
             ) : (
               <TouchableOpacity
-                className="bg-green-500 p-4 rounded-lg flex items-center justify-center"
+                style={{ backgroundColor: 'green', padding: 16, borderRadius: 8, flexDirection: 'row', alignItems: 'center' }}
                 onPress={() => setModalVisible(true)}
               >
                 <Ionicons name="image-outline" size={24} color="white" />
-                <Text className="text-white text-lg ml-2">Select Image</Text>
+                <Text style={{ color: 'white', fontSize: 18, marginLeft: 8 }}>Select Image</Text>
               </TouchableOpacity>
             )}
           </View>
 
           {/* Submit Button */}
           <TouchableOpacity
-            className="bg-green-500 py-3 rounded-lg flex-row justify-center items-center shadow-lg"
+            style={{ backgroundColor: 'green', paddingVertical: 12, borderRadius: 8, alignItems: 'center' }}
             onPress={handleAddProduct}
           >
-            <Text className="text-lg text-white">Add Product</Text>
+            <Text style={{ fontSize: 18, color: 'white' }}>Add Product</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -277,24 +274,22 @@ const handleAddProduct = async () => {
         visible={modalVisible}
         onRequestClose={() => setModalVisible(false)}
       >
-        <View className="flex-1 justify-center items-center bg-black bg-opacity-50">
-          <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
-            <Text className="text-lg font-semibold text-gray-900">
-              Select Product Image
-            </Text>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+          <View style={{ backgroundColor: 'white', padding: 24, borderRadius: 8, width: '80%' }}>
+            <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#333' }}>Select Product Image</Text>
             <TouchableOpacity
-              className="mt-4 p-4 bg-green-500 rounded-lg flex-row justify-center items-center"
+              style={{ marginTop: 16, padding: 16, backgroundColor: 'green', borderRadius: 8, flexDirection: 'row', alignItems: 'center' }}
               onPress={selectImageFromGallery}
             >
               <Ionicons name="image-outline" size={24} color="white" />
-              <Text className="text-lg text-white ml-2">Select from Gallery</Text>
+              <Text style={{ color: 'white', fontSize: 18, marginLeft: 8 }}>Select from Gallery</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              className="mt-4 p-4 bg-red-500 rounded-lg flex-row justify-center items-center"
+              style={{ marginTop: 16, padding: 16, backgroundColor: 'red', borderRadius: 8, flexDirection: 'row', alignItems: 'center' }}
               onPress={() => setModalVisible(false)}
             >
               <Ionicons name="close-outline" size={24} color="white" />
-              <Text className="text-lg text-white ml-2">Cancel</Text>
+              <Text style={{ color: 'white', fontSize: 18, marginLeft: 8 }}>Cancel</Text>
             </TouchableOpacity>
           </View>
         </View>

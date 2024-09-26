@@ -6,6 +6,7 @@ import {
   TextInput,
   Image,
   Modal,
+  Alert,
 } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -13,6 +14,7 @@ import { FontAwesome } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { Ionicons } from "@expo/vector-icons";
 import { Icon } from "react-native-elements";
+import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from '@env';
 
 function BusinessInformationScreen({ navigation, route }) {
   const { userData, shopName } = route.params;
@@ -173,9 +175,82 @@ function BusinessInformationScreen({ navigation, route }) {
     return isValid;
   };
 
+  // The API call to submit shop information
+  const createShop = async () => {
+    console.log("Starting shop creation process");
+    try {
+      const formData = new FormData();
+      formData.append("shop_name", shopName);
+      formData.append("shop_description", "Shop Desc");
+      formData.append("longitude", 120.59337385538859);
+      formData.append("latitude", 16.41197917848812);
+      formData.append("user_id", userData.user_id);
+      formData.append("seller_type", selectedSellerType);
+      formData.append("registered_name", registeredName);
+      formData.append("tin", tin);
+      formData.append("vat_status", vatStatus);
+      formData.append("sworn_declaration", swornDeclaration);
+      formData.append("terms_accepted", isTermsAccepted);
+      // formData.append("bir_certificate", {
+      //   uri: birCertificate.uri,
+      //   name: "bir_certificate.jpg", // Assuming image is in jpg format
+      //   type: "image/jpeg", // Adjust type if different
+      // });
+  
+      console.log("Form data prepared:", {
+        shopName,
+        shopDescription: "Shop Desc",
+        longitude: 120.59337385538859,
+        latitude: 16.41197917848812,
+        userId: userData.user_id,
+        sellerType: selectedSellerType,
+        registeredName,
+        tin,
+        vatStatus,
+        swornDeclaration,
+        termsAccepted: isTermsAccepted,
+        // birCertificate: {
+        //   uri: birCertificate.uri,
+        //   name: "bir_certificate.jpg",
+        //   type: "image/jpeg",
+        // },
+      });
+  
+      const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/shops`, {
+        method: "POST",
+        body: formData,
+        headers: {
+          'x-api-key': REACT_NATIVE_API_KEY,
+      },
+      });
+  
+      console.log("API response status:", response.status);
+      const data = await response.json();
+      console.log("API response data:", data);
+  
+      if (response.ok) {
+        // Shop creation successful
+        Alert.alert("Success", "Shop created successfully!");
+        navigation.navigate("My Shop", { shopData: data });
+        console.log("Shop created successfully:", data);
+      } else {
+        // Handle any errors returned from the server
+        Alert.alert("Error", data.message || "Failed to create shop");
+        console.error("Failed to create shop, server responded with:", data);
+      }
+    } catch (error) {
+      console.error("An error occurred while creating the shop:", error);
+      Alert.alert("Error", "An error occurred while creating the shop");
+    }
+  };
+  
   const handleSubmit = () => {
+    console.log("Handling submit...");
+    createShop(); // Submit the shop creation API call
     if (validateForm()) {
-      navigation.navigate("My Shop");
+      console.log("Form is valid, submitting shop creation...");
+    } else {
+      console.log("Form validation failed");
     }
   };
 

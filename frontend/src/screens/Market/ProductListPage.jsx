@@ -74,7 +74,7 @@ function CropListPage() {
                         return (
                             <Link
                                 key={crop.crop_id}
-                                to={`/product-details/${crop.crop_id}`}
+                                to={`/admin/product-details/${crop.crop_id}`}
                                 className="bg-white rounded-lg shadow-md p-4 flex flex-col items-center border border-gray-300"
                             >
                                 <img

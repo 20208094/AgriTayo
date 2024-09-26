@@ -68,6 +68,7 @@ import LandingPage from './screens/LandingPage'
 
 import ChatPage from './screens/ChatPages.jsx/Chat';
 import ChatListPage from './screens/ChatPages.jsx/ChatListPage';
+import ProductDetailsPage from './screens/Market/ProductDetailsPage';
 
 const API_KEY = import.meta.env.VITE_API_KEY;
 let socket;
@@ -226,6 +227,9 @@ function Layout({ userType, userId, refreshProfile, setRefreshProfile }) {
             <Route path="payments" element={<PaymentsPage />} />
             <Route path="notifications" element={<NotificationsPage />} />
             <Route path="crop-category" element={<CropCategoryPage />} />
+            <Route path="crop-subcategory/:cropCategoryId" element={<CropSubCategoryPage />} />
+            <Route path="product-list/:cropSubCategoryId" element={<ProductListPage />} />
+            <Route path="product-details/:productListId" element={<ProductDetailsPage />} />
             <Route path="profile" element={<Profile onProfileUpdate={() => setRefreshProfile(prev => prev + 1)} />} />
             <Route path="address" element={<Addresses />} />
             <Route path="change_password" element={<ChangePassword />} />

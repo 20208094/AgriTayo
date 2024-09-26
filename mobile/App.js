@@ -281,6 +281,11 @@ function App() {
               options={screenOptions}
             />
             <Stack.Screen
+              name="Profile Screen"
+              component={ProfileScreen}
+              options={screenOptions}
+            />
+            <Stack.Screen
               name="Edit Address"
               component={EditAddress}
               options={screenOptions}
