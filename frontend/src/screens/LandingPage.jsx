@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import MainLogo from '/AgriTayo_Logo.png';
 import bg from '/farm-bg.png';
+import vegAsset from '/veg-asset.png';
 
 const featureData = [
   { title: 'Support Local Farmers', description: 'Every purchase helps hardworking farmers directly, empowering local communities.' },
@@ -17,7 +18,7 @@ const devTeam = [
 ];
 
 const aboutSection = [
-  { title: 'What is AgriTayo?', description: 'AgriTayo is an e-commerce application for both farmers and consumers. The purpose of the app is to allow farmers to post their products, while also allowing consumers to directly buy products from the farmers.' },
+  { title: 'What is AgriTayo?', description: 'AgriTayo is an e-commerce application for both farmers and consumers. The purpose of the app is to allow farmers to post their products, while also allowing consumers to directly buy products from the farmers. AgriTayo is both a web-based and a mobile application designed to digitize trading of agricultural products. It is the objective of this application is to connect farmers with buyers directly through direct transactions.' },
   { title: 'Why Choose AgriTayo?', description: 'At AgriTayo, we are committed to supporting local farmers and making buying easier. Every product you buy helps reduce food miles and supports fair trade farming practices.' }
 ];
 
@@ -25,6 +26,7 @@ function LandingPage() {
   const featuresRef = useRef(null);
   const devTeamRef = useRef(null);
   const aboutRef = useRef(null); 
+  const objectiveRef = useRef(null); 
   const sectionRefs = [featuresRef, aboutRef, devTeamRef]; 
   const [currentSection, setCurrentSection] = useState(0);
   const [atBottom, setAtBottom] = useState(false);
@@ -91,13 +93,15 @@ function LandingPage() {
         </p>
       </div>
 
-      <section ref={featuresRef} className="py-28  text-center">
-      {featureData.map(({ title, description }, index) => (
-            <div key={index} className="p-6  rounded-lg transition-transform duration-300 transform hover:scale-105">
+      <section ref={featuresRef} className="py-36 text-center bg-cover bg-center"style={{ backgroundImage: `url(${vegAsset})`, backgroundSize: 'cover', backgroundPosition: 'center'}}>
+        <div className="bg-white bg-opacity-80 p-6 rounded-lg transition-transform duration-300 transform hover:scale-105 inline-block mx-auto">
+          {featureData.map(({ title, description }, index) => (
+            <div key={index} className="p-6 transition-transform duration-300 transform hover:scale-105">
               <h3 className="text-xl md:text-3xl font-bold text-[#008F41]">{title}</h3>
               <p className="text-gray-800">{description}</p>
             </div>
           ))}
+        </div>
       </section>
 
       <section ref={aboutRef} className="py-28" style={{ backgroundImage: `url(${bg})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
@@ -106,7 +110,7 @@ function LandingPage() {
             <h1 className="text-8xl md:text-6xl font-bold text-[#00B251] flex-1" style={{ textShadow: '2px 2px 4px black' }}>
               {title}
             </h1>
-            <p className="text-2xl md:text-2xl text-white max-w-[800px] mx-auto flex-1" style={{ textShadow: '1px 1px 2px black' }}>
+            <p className="text-xl md:text-1xl text-white max-w-[800px] mx-auto flex-1" style={{ textShadow: '2px 2px 4px black' }}>
               {description}
             </p>
           </div>
@@ -121,12 +125,12 @@ function LandingPage() {
       </section>
 
       <section ref={devTeamRef} className="py-16 bg-[#F5F9F5] text-center">
-        <h2 className="text-8xl md:text-6xl font-bold text-[#00B251] mb-4">About the Team</h2>
+        <h2 className="text-8xl md:text-6xl font-bold text-[#00B251] mb-4">Meet The Team</h2>
         <p className="text-lg text-gray-700 max-w-[900px] mx-auto mb-6">
           <span className="font-semibold text-[#00B251]">AgriTayo</span> was developed by 4th year <span className="font-semibold text-[#b91c1c]">University of Baguio</span> students as their Capstone Project and Research.
         </p>
 
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-1 gap-8 mb-12">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-5 gap-8 mb-12">
           {devTeam.map(({ title, description }, index) => (
             <div key={index} className="p-6 transition-transform duration-300 transform hover:scale-105 flex flex-col justify-center items-center">
               <h3 className="text-xl md:text-xl font-bold text-[#008F41] text-center">{title}</h3>
