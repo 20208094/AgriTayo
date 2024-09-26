@@ -25,7 +25,7 @@ function LandingPage() {
   const featuresRef = useRef(null);
   const devTeamRef = useRef(null);
   const aboutRef = useRef(null); 
-  const sectionRefs = [featuresRef, devTeamRef]; 
+  const sectionRefs = [featuresRef, aboutRef, devTeamRef]; 
   const [currentSection, setCurrentSection] = useState(0);
   const [atBottom, setAtBottom] = useState(false);
 
@@ -91,31 +91,29 @@ function LandingPage() {
         </p>
       </div>
 
-      <section ref={featuresRef} className="py-28 bg-[#00B251] text-center">
-        <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 mb-6">
-          {featureData.map(({ title, description }, index) => (
-            <div key={index} className="p-6 bg-white rounded-lg shadow-md transition-transform duration-300 transform hover:scale-105">
+      <section ref={featuresRef} className="py-28  text-center">
+      {featureData.map(({ title, description }, index) => (
+            <div key={index} className="p-6  rounded-lg transition-transform duration-300 transform hover:scale-105">
               <h3 className="text-xl md:text-3xl font-bold text-[#008F41]">{title}</h3>
               <p className="text-gray-800">{description}</p>
             </div>
           ))}
-        </div>
       </section>
 
       <section ref={aboutRef} className="py-28" style={{ backgroundImage: `url(${bg})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
         {aboutSection.map(({ title, description }, index) => (
-          <div key={index} className="max-w-4xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-8 mb-8">
-            <h2 className="text-2xl md:text-3xl font-bold text-[#00B251] flex-1" style={{ textShadow: '2px 2px 4px black' }}>
+          <div key={index} className="max-w-4xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-8 mb-20">
+            <h1 className="text-8xl md:text-6xl font-bold text-[#00B251] flex-1" style={{ textShadow: '2px 2px 4px black' }}>
               {title}
-            </h2>
-            <p className="text-lg text-white max-w-[800px] mx-auto flex-1" style={{ textShadow: '1px 1px 2px black' }}>
+            </h1>
+            <p className="text-2xl md:text-2xl text-white max-w-[800px] mx-auto flex-1" style={{ textShadow: '1px 1px 2px black' }}>
               {description}
             </p>
           </div>
         ))}
 
         <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-center gap-8">
-          <h1 className="text-2xl text-[#00B251] font-bold" style={{ textShadow: '2px 2px 4px black' }}>
+          <h1 className="text-3xl md:text-3xl text-[#00B251] font-bold text-center" style={{ textShadow: '2px 2px 4px black' }}>
             Join us in creating a healthier, more sustainable produce trading system.
           </h1>
         </div>
@@ -123,7 +121,7 @@ function LandingPage() {
       </section>
 
       <section ref={devTeamRef} className="py-16 bg-[#F5F9F5] text-center">
-        <h2 className="text-2xl md:text-3xl font-bold text-[#00B251] mb-4">About the Team</h2>
+        <h2 className="text-8xl md:text-6xl font-bold text-[#00B251] mb-4">About the Team</h2>
         <p className="text-lg text-gray-700 max-w-[900px] mx-auto mb-6">
           <span className="font-semibold text-[#00B251]">AgriTayo</span> was developed by 4th year <span className="font-semibold text-[#b91c1c]">University of Baguio</span> students as their Capstone Project and Research.
         </p>
