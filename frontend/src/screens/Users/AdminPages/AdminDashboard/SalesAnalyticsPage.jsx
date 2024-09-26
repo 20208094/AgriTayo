@@ -153,22 +153,40 @@ const SalesAnalyticsPage = () => {
 
   return (
     <div className="p-4">
-      <div className="grid grid-cols-3 grid-rows-1 gap-4 mb-6">
-        {/* Current Filter Button Card */}
-        <div className="bg-white p-4 rounded-lg shadow-md">
-          <h5 className="text-xl font-bold text-center text-green-700 mb-4">
-            Current Filter
-          </h5>
-          <p className="text-sm font-bold text-green-500 mb-2">
-            Current Filter:{" "}
-            <span className="text-green-700">{selectedFilter}</span>
-          </p>
-          <button
-            onClick={() => setModalVisible(true)}
-            className="bg-green-500 text-white p-2 rounded-lg flex items-center justify-center mb-4"
-          >
-            <span>Select Filter</span>
-          </button>
+      <h5 className="text-xl font-bold text-center text-green-700 mb-4 pt-8">
+          Sales Analytics Summary
+        </h5>
+      <div className="grid grid-cols-2 auto-rows-auto gap-4">
+        {/* Total Price for Orders with Status Delivered Card */}
+        <div className="bg-white p-4 rounded-lg shadow-md flex flex-col justify-center items-center">
+        <h5 className="text-xl font-bold text-center text-green-500 mb-4">Total Price for Orders with Status Delivered</h5>
+        <p className="text-sm font-bold text-green-700 mb-2">
+          ₱{totalPriceStatus4.reduce((a, b) => a + b, 0).toFixed(2)}
+        </p>
+      </div>
+
+      <div className="bg-white p-4 rounded-lg shadow-md flex flex-col justify-center items-center">
+        <p className="text-xl font-bold text-center text-green-500 mb-4">Total Price for All Orders</p>
+        <p className="text-sm font-bold text-green-700 mb-2">
+          ₱{totalPriceAll.toFixed(2)}
+        </p>
+      </div>
+
+        {/* Bar Graph with Filter Button */}
+        <div className="col-span-2 relative bg-white p-4 rounded-lg shadow-md">
+          <div className="flex justify-between items-center mb-4">
+            <div>
+              <p className="text-sm font-bold text-green-500 mb-2">
+                Current Filter: <span className="text-green-700">{selectedFilter}</span>
+              </p>
+            </div>
+            <button
+              onClick={() => setModalVisible(true)}
+              className="bg-green-500 text-white p-2 rounded-lg"
+            >
+              Select Filter
+            </button>
+          </div>
           <Modal isOpen={modalVisible} onClose={() => setModalVisible(false)}>
             <h3 className="text-lg font-bold mb-4 text-center">Select a filter</h3>
             {["7 Days", "14 Days", "6 Months", "12 Months", "Yearly"].map((filter) => (
@@ -190,32 +208,8 @@ const SalesAnalyticsPage = () => {
               Close
             </button>
           </Modal>
+          {renderSalesAnalyticsChart()}
         </div>
-
-        {/* Total Price for Orders with Status Delivered Card */}
-        <div className="bg-white p-4 rounded-lg shadow-md">
-          <h5 className="text-xl font-bold text-center text-green-700 mb-4">
-            Total Price for Orders with Status Delivered
-          </h5>
-          <p className="text-sm font-bold text-green-500 mb-2">
-            ₱{totalPriceStatus4.reduce((a, b) => a + b, 0).toFixed(2)}
-          </p>
-        </div>
-
-        {/* Total Price for All Orders Card */}
-        <div className="bg-white p-4 rounded-lg shadow-md">
-          <h5 className="text-xl font-bold text-center text-green-700 mb-4">
-            Total Price for All Orders
-          </h5>
-          <p className="text-sm font-bold text-green-500 mb-2">
-            ₱{totalPriceAll.toFixed(2)}
-          </p>
-        </div>
-      </div>
-
-      {/* Column 2 - Bar Graph */}
-      <div className="bg-white p-4 rounded-lg shadow-md">
-        {renderSalesAnalyticsChart()}
       </div>
     </div>
   );

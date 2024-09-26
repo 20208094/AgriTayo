@@ -165,7 +165,7 @@ const MiniGraph = ({ data }) => {
       }
     },
     elements: {
-      point:{
+      point: {
         radius: 0 // Hide points on the line
       }
     },
@@ -229,9 +229,12 @@ const MarketAnalyticsPage = () => {
 
   return (
     <div className="p-4 md:p-8 bg-gray-100 min-h-screen">
+
       {!selectedCategory ? (
+
         <div className="text-center">
           <h2 className="text-3xl font-bold text-green-600 mb-6">Select a Category</h2>
+
           <ul className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {Object.keys(categoryData).map((category, index) => (
               <div
@@ -245,8 +248,18 @@ const MarketAnalyticsPage = () => {
           </ul>
         </div>
       ) : !selectedItem ? (
-        <div className="text-center">
-          <h2 className="text-3xl font-bold text-green-600 mb-6">{selectedCategory} Items</h2>
+
+        <div className="text-center ">
+          <div className='grid flex'>
+            <h2 className="text-3xl font-bold text-green-600 mb-6   w-5/5">{selectedCategory} Items</h2>
+            <button
+              className="absolute insert-y-0 right-0 mr-2 text-green-500 text-2xl w-1/8"
+              onClick={() => setSelectedCategory(null)}
+            >
+              X
+            </button>
+          </div>
+
           <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {categoryData[selectedCategory].map((item) => (
               <button
@@ -259,93 +272,104 @@ const MarketAnalyticsPage = () => {
               </button>
             ))}
           </ul>
-          <button
-            className="mt-8 text-green-500 underline"
-            onClick={() => setSelectedCategory(null)}
-          >
-            Go Back to Categories
-          </button>
         </div>
       ) : (
-        <div>
-          <h5 className="text-xl font-bold text-center text-green-700 mb-4">
-            {selectedItem.name.toUpperCase()} SUMMARY
-          </h5>
-
-          <p className="text-sm font-bold text-green-500 mb-2">
-            Current Available Listings: <span className="text-green-700">30 Listings</span>
-          </p>
-          <p className="text-sm font-bold text-green-500 mb-2">
-            Current Highest Price/Kilo: <span className="text-green-700">₱70/kilo</span>
-          </p>
-          <p className="text-sm font-bold text-green-500 mb-4">
-            Current Lowest Price/Kilo: <span className="text-green-700">₱50/kilo</span>
-          </p>
-
-          <button
-            onClick={() => setModalVisible(true)}
-            className="bg-green-500 text-white p-2 rounded-lg flex items-center justify-center mb-4"
-          >
-            <span>{selectedFilter} Summary</span>
-          </button>
-
-          <Modal isOpen={modalVisible} onClose={() => setModalVisible(false)}>
-            <h3 className="text-lg font-bold mb-4 text-center">
-              Select a filter
-            </h3>
-            {["7 Days", "14 Days", "6 Months", "12 Months", "Yearly"].map(
-              (filter) => (
-                <button
-                  key={filter}
-                  className={`p-2 rounded-lg mb-2 w-full ${selectedFilter === filter
-                      ? "bg-green-500 text-white"
-                      : "bg-gray-200 text-green-700"
-                    }`}
-                  onClick={() => {
-                    setSelectedFilter(filter);
-                    setModalVisible(false);
-                  }}
-                >
-                  {filter}
-                </button>
-              )
-            )}
+        <>
+          <div className='grid flex text-center'>
+            <h2 className="text-3xl font-bold text-green-600 mb-6   w-5/5">{selectedCategory} Analytics</h2>
             <button
-              onClick={() => setModalVisible(false)}
-              className="bg-gray-300 text-green-700 p-2 rounded-lg w-full"
+              className="absolute insert-y-0 right-0 mr-2 text-green-500 text-2xl w-1/8"
+              onClick={() => {
+                setSelectedItem(null);
+              }}
             >
-              Close
+              X
             </button>
-          </Modal>
+          </div>
+          <div className="grid grid-cols-3 auto-rows-auto gap-4">
+            {/* Current Available Listings */}
+            <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center">
+              <h5 className="text-xl font-bold text-green-500 mb-4">Current Available Listings</h5>
+              <p className="text-2xl font-bold text-green-700">30 Listings</p>
+            </div>
 
-          <p className="text-sm font-bold text-green-500 mb-2">
-            Average:{" "}
-            <span className="text-green-700">
-              ₱{getDataForItem(selectedItem.id, selectedFilter).average.slice(-1)[0]}
-            </span>
-          </p>
-          <p className="text-sm font-bold text-green-500 mb-2">
-            Highest:{" "}
-            <span className="text-green-700">
-              ₱{getDataForItem(selectedItem.id, selectedFilter).highest.slice(-1)[0]}
-            </span>
-          </p>
-          <p className="text-sm font-bold text-green-500 mb-2">
-            Lowest:{" "}
-            <span className="text-green-700">
-              ₱{getDataForItem(selectedItem.id, selectedFilter).lowest.slice(-1)[0]}
-            </span>
-          </p>
+            {/* Current Highest Price/Kilo */}
+            <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center">
+              <h5 className="text-xl font-bold text-green-500 mb-4">Current Highest Price/Kilo</h5>
+              <p className="text-2xl font-bold text-green-700">₱70/kilo</p>
+            </div>
 
-          {renderAnalyticsChart(selectedItem.id)}
+            {/* Current Lowest Price/Kilo */}
+            <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center">
+              <h5 className="text-xl font-bold text-green-500 mb-4">Current Lowest Price/Kilo</h5>
+              <p className="text-2xl font-bold text-green-700">₱50/kilo</p>
+            </div>
 
-          <button
-            className="mt-8 text-green-500 underline"
-            onClick={() => setSelectedItem(null)}
-          >
-            Go Back to {selectedCategory} Items
-          </button>
-        </div>
+            {/* Average */}
+            <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center">
+              <h5 className="text-xl font-bold text-green-500 mb-4">Average</h5>
+              <p className="text-2xl font-bold text-green-700">
+                ₱{getDataForItem(selectedItem.id, selectedFilter).average.slice(-1)[0]}
+              </p>
+            </div>
+
+            {/* Highest */}
+            <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center">
+              <h5 className="text-xl font-bold text-green-500 mb-4">Highest</h5>
+              <p className="text-2xl font-bold text-green-700">
+                ₱{getDataForItem(selectedItem.id, selectedFilter).highest.slice(-1)[0]}
+              </p>
+            </div>
+
+            {/* Lowest */}
+            <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center">
+              <h5 className="text-xl font-bold text-green-500 mb-4">Lowest</h5>
+              <p className="text-2xl font-bold text-green-700">
+                ₱{getDataForItem(selectedItem.id, selectedFilter).lowest.slice(-1)[0]}
+              </p>
+            </div>
+
+            {/* Line Graph with Filter Button */}
+            <div className="col-span-3 row-span-2 bg-white p-4 rounded-lg shadow-md">
+              <div className="flex justify-between items-center mb-4">
+                <div>
+                  <h5 className="text-xl font-bold text-center text-green-700 mb-4">Current Filter</h5>
+                  <p className="text-sm font-bold text-green-500 mb-2">
+                    Current Filter: <span className="text-green-700">{selectedFilter}</span>
+                  </p>
+                </div>
+                <button
+                  onClick={() => setModalVisible(true)}
+                  className="bg-green-500 text-white p-2 rounded-lg"
+                >
+                  Select Filter
+                </button>
+              </div>
+              <Modal isOpen={modalVisible} onClose={() => setModalVisible(false)}>
+                <h3 className="text-lg font-bold mb-4 text-center">Select a filter</h3>
+                {['7 Days', '14 Days', '6 Months', '12 Months', 'Yearly'].map((filter) => (
+                  <button
+                    key={filter}
+                    className={`p-2 rounded-lg mb-2 w-full ${selectedFilter === filter ? "bg-green-500 text-white" : "bg-gray-200 text-green-700"}`}
+                    onClick={() => {
+                      setSelectedFilter(filter);
+                      setModalVisible(false);
+                    }}
+                  >
+                    {filter}
+                  </button>
+                ))}
+                <button
+                  onClick={() => setModalVisible(false)}
+                  className="bg-gray-300 text-green-700 p-2 rounded-lg w-full"
+                >
+                  Close
+                </button>
+              </Modal>
+              {renderAnalyticsChart(selectedItem.id)}
+            </div>
+          </div>
+        </>
       )}
     </div>
   );
