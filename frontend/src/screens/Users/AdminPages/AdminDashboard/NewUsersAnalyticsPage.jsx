@@ -18,7 +18,7 @@ ChartJS.register(
   CategoryScale,
   LinearScale,
   BarElement,
-  ArcElement, // Register ArcElement for Pie chart
+  ArcElement,
   Title,
   Tooltip,
   Legend
@@ -33,7 +33,6 @@ const NewUsersAnalyticsPage = () => {
     sellers: [],
   });
 
-  // State for total counts
   const [totalBuyersCount, setTotalBuyersCount] = useState(0);
   const [totalSellersCount, setTotalSellersCount] = useState(0);
 
@@ -56,15 +55,14 @@ const NewUsersAnalyticsPage = () => {
       let totalBuyers = 0;
       let totalSellers = 0;
 
-      // Group users by date and count buyers and sellers
       data.forEach((user) => {
-        const date = new Date(user.created_at).toISOString().split('T')[0]; // Format date as YYYY-MM-DD
+        const date = new Date(user.created_at).toISOString().split('T')[0];
         const index = dates.indexOf(date);
 
         if (index === -1) {
           dates.push(date);
-          buyers.push(user.user_type_id === 3 ? 1 : 0); // 3 for buyers
-          sellers.push(user.user_type_id === 2 ? 1 : 0); // 2 for sellers
+          buyers.push(user.user_type_id === 3 ? 1 : 0);
+          sellers.push(user.user_type_id === 2 ? 1 : 0);
         } else {
           if (user.user_type_id === 3) {
             buyers[index] += 1;
@@ -73,7 +71,6 @@ const NewUsersAnalyticsPage = () => {
           }
         }
 
-        // Count total buyers and sellers
         if (user.user_type_id === 3) {
           totalBuyers += 1;
         } else if (user.user_type_id === 2) {
@@ -81,7 +78,6 @@ const NewUsersAnalyticsPage = () => {
         }
       });
 
-      // Ensure buyers and sellers arrays have the same length as dates
       while (buyers.length < dates.length) {
         buyers.push(0);
       }
@@ -89,7 +85,6 @@ const NewUsersAnalyticsPage = () => {
         sellers.push(0);
       }
 
-      // Update state with total counts
       setTotalBuyersCount(totalBuyers);
       setTotalSellersCount(totalSellers);
 
@@ -107,24 +102,60 @@ const NewUsersAnalyticsPage = () => {
     fetchNewUsersData(selectedFilter);
   }, [selectedFilter]);
 
+  const generateLabels = () => {
+    const currentDate = new Date();
+    const labels = [];
+    if (selectedFilter === '7 Days') {
+      const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      for (let i = 6; i >= 0; i--) {
+        const dayIndex = (currentDate.getDay() - i + 7) % 7;
+        labels.push(daysOfWeek[dayIndex]);
+      }
+      return labels;
+    } else if (selectedFilter === '14 Days') {
+      for (let i = 13; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(currentDate.getDate() - i);
+        labels.push(date.toDateString().slice(0, 3));
+      }
+      return labels;
+    } else if (selectedFilter === '6 Months') {
+      for (let i = 5; i >= 0; i--) {
+        const monthIndex = (currentDate.getMonth() - i + 12) % 12;
+        labels.push(new Date(2020, monthIndex, 1).toLocaleString('default', { month: 'short' }));
+      }
+      return labels;
+    } else if (selectedFilter === '12 Months') {
+      const currentMonth = currentDate.getMonth();
+      for (let i = 1; i <= 12; i++) {
+        const monthIndex = (currentMonth + i) % 12;
+        labels.push(new Date(2020, monthIndex, 1).toLocaleString('default', { month: 'short' }));
+      }
+      return labels;
+    } else if (selectedFilter === 'Yearly') {
+      const currentYear = currentDate.getFullYear();
+      return Array.from({ length: 5 }, (_, i) => (currentYear - i).toString()).reverse();
+    }
+  };
+
   const renderNewUsersBarChart = () => {
+    const labels = generateLabels();
+
     const data = {
-      labels: newUsersData.dates,
+      labels,
       datasets: [
         {
           label: 'Added Buyers',
-          data: newUsersData.buyers,
+          data: newUsersData.buyers.slice(0, labels.length),
           backgroundColor: 'rgba(0, 128, 0, 0.7)',
-          // Adjust bar width
           barThickness: 20,
           categoryPercentage: 0.8,
           barPercentage: 1.0,
         },
         {
           label: 'Added Sellers',
-          data: newUsersData.sellers,
+          data: newUsersData.sellers.slice(0, labels.length),
           backgroundColor: 'rgba(25, 118, 210, 0.7)',
-          // Adjust bar width
           barThickness: 20,
           categoryPercentage: 0.8,
           barPercentage: 1.0,
@@ -152,7 +183,6 @@ const NewUsersAnalyticsPage = () => {
       scales: {
         x: {
           stacked: false,
-          // Adjust the space between bars
           barThickness: 40,
           categoryPercentage: 0.8,
           barPercentage: 0.9,
@@ -174,8 +204,8 @@ const NewUsersAnalyticsPage = () => {
         {
           data: [totalBuyersCount, totalSellersCount],
           backgroundColor: [
-            'rgba(0, 128, 0, 0.7)', // Buyers
-            'rgba(25, 118, 210, 0.7)', // Sellers
+            'rgba(0, 128, 0, 0.7)',
+            'rgba(25, 118, 210, 0.7)',
           ],
           borderColor: [
             'rgba(0, 128, 0, 1)',
@@ -211,25 +241,12 @@ const NewUsersAnalyticsPage = () => {
   return (
     <div className="p-4">
       <h5 className="text-xl font-bold text-center text-green-700 mb-4 pt-8">
-          NEW USERS ANALYTICS SUMMARY
-        </h5>
-      <div className="grid grid-cols-5 auto-rows-auto gap-4">
-        {/* Fifth column for the filter button */}
-        <div className=" p-6 flex flex-col items-center justify-center min-h-[120px]">
-          <p className="text-sm font-bold text-green-500">
-            Current Filter: {" "}
-            <span className="text-green-700">{selectedFilter}</span>
-          </p>
-          <button
-            onClick={() => setModalVisible(true)}
-            className="bg-green-500 text-white py-2 px-4 rounded-lg flex items-center justify-center"
-          >
-            <span>Select Filter</span>
-          </button>
-        </div>
+        New Users Analytics Summary
+      </h5>
+      <div className="grid grid-cols-4 auto-rows-auto gap-4">
         {/* Cards for the first row */}
         <div className="bg-white p-6 rounded-lg shadow-md flex flex-col items-center justify-center min-h-[120px]">
-          <p className="text-sm font-bold text-green-500">
+          <p className="text-sm font-bold text-green-500 ">
             New Buyers Count for the Week
           </p>
           <p className="text-xl font-bold text-green-700">
@@ -264,21 +281,35 @@ const NewUsersAnalyticsPage = () => {
             {totalSellersCount}
           </p>
         </div>
-
-        {/* Second row */}
-        <div className="col-span-3 bg-white p-4 rounded-lg shadow-md min-h-[300px]">
+  
+        {/* Bar Graph with Filter Button */}
+        <div className="col-span-2 row-span-2 bg-white p-4 rounded-lg shadow-md flex flex-col">
+          <div className="flex justify-between items-center mb-4">
+            <div>
+              <p className="text-sm font-bold text-green-500">
+                Current Filter:{" "}
+                <span className="text-green-700">{selectedFilter}</span>
+              </p>
+            </div>
+            <button
+              onClick={() => setModalVisible(true)}
+              className="bg-green-500 text-white py-2 px-4 rounded-lg"
+            >
+              Select Filter
+            </button>
+          </div>
           {renderNewUsersBarChart()}
         </div>
-        <div className="col-span-2 bg-white p-4 rounded-lg shadow-md min-h-[300px]">
+  
+        {/* Pie Chart */}
+        <div className="col-span-2 row-span-2 col-start-3 bg-white p-4 rounded-lg shadow-md min-h-[300px]">
           {renderOverallUsersPieChart()}
         </div>
       </div>
-
+  
       {/* Modal */}
       <Modal isOpen={modalVisible} onClose={() => setModalVisible(false)}>
-        <h3 className="text-lg font-bold mb-4 text-center">
-          Select a filter
-        </h3>
+        <h3 className="text-lg font-bold mb-4 text-center">Select a filter</h3>
         {['7 Days', '14 Days', '6 Months', '12 Months', 'Yearly'].map(
           (filter) => (
             <button
@@ -305,7 +336,7 @@ const NewUsersAnalyticsPage = () => {
         </button>
       </Modal>
     </div>
-  );
+  );  
 };
 
 export default NewUsersAnalyticsPage;

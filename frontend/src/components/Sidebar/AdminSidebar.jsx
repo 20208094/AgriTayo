@@ -31,8 +31,8 @@ function AdminSidebar() {
             <SidebarItem to="/admin/salesAnalytics" icon={FaMoneyBillWave} text="Sales Analytics" />
             <SidebarItem to="/admin/newUsersAnalytics" icon={HiUsers} text="Users Analytics" />
             <SidebarItem to="/admin/ordersAnalytics" icon={FaCartShopping} text="Orders Analytics" />
-            <SidebarItem to="/admin/individualCropPriceChangesAnalytics" icon={IoPricetags} text="Price Changes" />
-            <SidebarItem to="/admin/profitAnalytics" icon={FaMoneyBillTrendUp} text="Profit Analytics" />
+            {/* <SidebarItem to="/admin/individualCropPriceChangesAnalytics" icon={IoPricetags} text="Price Changes" /> */}
+            {/* <SidebarItem to="/admin/profitAnalytics" icon={FaMoneyBillTrendUp} text="Profit Analytics" /> */}
 
             <SidebarTitle text="Admin" />
 

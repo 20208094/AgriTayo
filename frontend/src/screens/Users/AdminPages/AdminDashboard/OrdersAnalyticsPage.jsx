@@ -128,7 +128,7 @@ const OrdersAnalyticsPage = () => {
       }
       return false;
     }) || [];
-
+  
     const labels = generateLabels();
     const data = {
       labels: labels,
@@ -149,14 +149,14 @@ const OrdersAnalyticsPage = () => {
             });
             return dateIndex !== -1 ? 1 : 0; // Count orders for the respective time period
           }),
-          backgroundColor: 'rgba(54, 162, 235, 0.7)', // Change color as needed
-          borderColor: 'rgba(54, 162, 235, 1)',
+          backgroundColor: getStatusColor(status),
+          borderColor: getStatusColor(status),
           borderWidth: 2,
           fill: false,
         },
       ],
     };
-
+  
     const options = {
       responsive: true,
       scales: {
@@ -175,8 +175,20 @@ const OrdersAnalyticsPage = () => {
         },
       },
     };
-
+  
     return <Line data={data} options={options} />;
+  };
+  
+  // Helper function to get color based on status
+  const getStatusColor = (status) => {
+    const colors = {
+      Placed: 'rgba(54, 162, 235, 0.7)',
+      Processed: 'rgba(255, 206, 86, 0.7)',
+      Shipped: 'rgba(75, 192, 192, 0.7)',
+      Delivered: 'rgba(153, 102, 255, 0.7)',
+      Cancelled: 'rgba(255, 99, 132, 0.7)',
+    };
+    return colors[status] || 'rgba(0, 0, 0, 0.7)';
   };
 
   const renderOrdersPieChart = () => {
@@ -223,77 +235,112 @@ const OrdersAnalyticsPage = () => {
 
   return (
     <div className="p-4">
-      <div className="bg-white p-4 rounded-lg shadow-md mb-6">
-        <h5 className="text-xl font-bold text-center text-green-700 mb-4">
-          ORDERS ANALYTICS SUMMARY
-        </h5>
-
-        <h5 className="text-xl font-bold text-green-700 mb-4">
-            Current Filter
-          </h5>
-          <p className="text-sm font-bold text-green-500 mb-2">
-            Current Filter:{" "}
-            <span className="text-green-700">{selectedFilter}</span>
+      <h5 className="text-xl font-bold text-center text-green-700 mb-4 pt-8">
+        Orders Analytics Summary
+      </h5>
+      <div className="grid grid-cols-8 auto-rows-auto gap-4">
+        {/* Total Placed */}
+        <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center">
+          <h5 className="text-xl font-bold text-green-500 mb-4">Total Placed</h5>
+          <p className="text-2xl font-bold text-green-700">
+            {orderCounts.Placed?.length || 0}
           </p>
-
-        <button
-          onClick={() => setModalVisible(true)}
-          className="bg-green-500 text-white p-2 rounded-lg flex items-center justify-center mb-4"
-        >
-          <span>Select Filter</span>
-        </button>
-
-        {/* Display total counts of each order status */}
-        <div className="text-center mb-4">
-          {Object.entries(orderCounts).map(([status, orders]) => (
-            <p key={status} className="text-sm font-bold text-green-500">
-              Total {status}: {orders.length}
-            </p>
-          ))}
         </div>
-
-        <Modal isOpen={modalVisible} onClose={() => setModalVisible(false)}>
-          <h3 className="text-lg font-bold mb-4 text-center">Select a filter</h3>
-          {["7 Days", "14 Days", "6 Months", "12 Months", "Yearly"].map(
-            (filter) => (
-              <button
-                key={filter}
-                className={`p-2 rounded-lg mb-2 w-full ${selectedFilter === filter ? "bg-green-500 text-white" : "bg-gray-200 text-green-700"}`}
-                onClick={() => {
-                  setSelectedFilter(filter);
-                  setModalVisible(false);
-                }}
-              >
-                {filter}
-              </button>
-            )
-          )}
+  
+        {/* Total Processed */}
+        <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center">
+          <h5 className="text-xl font-bold text-green-500 mb-4">Total Processed</h5>
+          <p className="text-2xl font-bold text-green-700">
+            {orderCounts.Processed?.length || 0}
+          </p>
+        </div>
+  
+        {/* Total Shipped */}
+        <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center">
+          <h5 className="text-xl font-bold text-green-500 mb-4">Total Shipped</h5>
+          <p className="text-2xl font-bold text-green-700">
+            {orderCounts.Shipped?.length || 0}
+          </p>
+        </div>
+  
+        {/* Total Delivered */}
+        <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center">
+          <h5 className="text-xl font-bold text-green-500 mb-4">Total Delivered</h5>
+          <p className="text-2xl font-bold text-green-700">
+            {orderCounts.Delivered?.length || 0}
+          </p>
+        </div>
+  
+        {/* Total Cancelled */}
+        <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center">
+          <h5 className="text-xl font-bold text-green-500 mb-4">Total Cancelled</h5>
+          <p className="text-2xl font-bold text-green-700">
+            {orderCounts.Cancelled?.length || 0}
+          </p>
+        </div>
+  
+        {/* Filter Button */}
+        <div className=" p-4 flex flex-col items-center justify-center">
+          <p className="text-sm font-bold text-green-500 mb-2">
+            Current Filter: <span className="text-green-700">{selectedFilter}</span>
+          </p>
           <button
-            onClick={() => setModalVisible(false)}
-            className="bg-gray-300 text-green-700 p-2 rounded-lg w-full"
+            onClick={() => setModalVisible(true)}
+            className="bg-green-500 text-white p-2 rounded-lg"
           >
-            Close
+            Select Filter
           </button>
-        </Modal>
+        </div>
+  
+        {/* Line Charts */}
+        <div className="col-span-2 row-span-2 row-start-2 bg-white p-4 rounded-lg shadow-md">
+          {renderOrderStatusLineChart('Placed')}
+        </div>
+        <div className="col-span-2 row-span-2 col-start-3 row-start-2 bg-white p-4 rounded-lg shadow-md">
+          {renderOrderStatusLineChart('Processed')}
+        </div>
+        <div className="col-span-2 row-span-2 col-start-5 row-start-2 bg-white p-4 rounded-lg shadow-md">
+          {renderOrderStatusLineChart('Shipped')}
+        </div>
+        <div className="col-span-2 row-span-2 col-start-2 row-start-4 bg-white p-4 rounded-lg shadow-md">
+          {renderOrderStatusLineChart('Delivered')}
+        </div>
+        <div className="col-span-2 row-span-2 col-start-4 row-start-4 bg-white p-4 rounded-lg shadow-md">
+          {renderOrderStatusLineChart('Cancelled')}
+        </div>
+  
+        {/* Pie Chart */}
+        <div className="col-span-2 row-span-4 col-start-7 row-start-2 bg-white p-4 rounded-lg shadow-md">
+          <h6 className="text-lg font-bold text-green-700 mb-2">Order Status Distribution</h6>
+          {renderOrdersPieChart()}
+        </div>
       </div>
-
-
-      {/* Render Line Chart for each status */}
-      <div className="bg-white p-4 rounded-lg shadow-md mb-6">
-        {['Placed', 'Processed', 'Shipped', 'Delivered', 'Cancelled'].map(status => (
-          <div key={status} className="mb-4">
-            {renderOrderStatusLineChart(status)}
-          </div>
+  
+      {/* Modal */}
+      <Modal isOpen={modalVisible} onClose={() => setModalVisible(false)}>
+        <h3 className="text-lg font-bold mb-4 text-center">Select a filter</h3>
+        {['7 Days', '14 Days', '6 Months', '12 Months', 'Yearly'].map((filter) => (
+          <button
+            key={filter}
+            className={`p-2 rounded-lg mb-2 w-full ${selectedFilter === filter ? "bg-green-500 text-white" : "bg-gray-200 text-green-700"}`}
+            onClick={() => {
+              setSelectedFilter(filter);
+              setModalVisible(false);
+            }}
+          >
+            {filter}
+          </button>
         ))}
-      </div>
-
-      {/* Render Pie Chart */}
-      <div className="bg-white p-4 rounded-lg shadow-md">
-        <h6 className="text-lg font-bold text-green-700 mb-2">Order Status Distribution</h6>
-        {renderOrdersPieChart()}
-      </div>
+        <button
+          onClick={() => setModalVisible(false)}
+          className="bg-gray-300 text-green-700 p-2 rounded-lg w-full"
+        >
+          Close
+        </button>
+      </Modal>
     </div>
   );
+  
 };
 
 export default OrdersAnalyticsPage;
