@@ -17,7 +17,7 @@ const devTeam = [
 ];
 
 const aboutSection = [
-  { title: 'What is AgriTayo?', description: 'AgriTayo is an e-commerce system for farmers and consumers. The purpose of the system is to allow farmers to post their products, while also allowing consumers to directly buy products from the farmers.' },
+  { title: 'What is AgriTayo?', description: 'AgriTayo is an e-commerce application for both farmers and consumers. The purpose of the app is to allow farmers to post their products, while also allowing consumers to directly buy products from the farmers.' },
   { title: 'Why Choose AgriTayo?', description: 'At AgriTayo, we are committed to supporting local farmers and making buying easier. Every product you buy helps reduce food miles and supports fair trade farming practices.' }
 ];
 
@@ -91,7 +91,7 @@ function LandingPage() {
         </p>
       </div>
 
-      <section ref={featuresRef} className="py-28 bg-[#fef9c3] text-center">
+      <section ref={featuresRef} className="py-28 bg-[#00B251] text-center">
         <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 mb-6">
           {featureData.map(({ title, description }, index) => (
             <div key={index} className="p-6 bg-white rounded-lg shadow-md transition-transform duration-300 transform hover:scale-105">
@@ -102,7 +102,7 @@ function LandingPage() {
         </div>
       </section>
 
-      <section ref={aboutRef} className="py-16" style={{ backgroundImage: `url(${bg})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+      <section ref={aboutRef} className="py-28" style={{ backgroundImage: `url(${bg})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
         {aboutSection.map(({ title, description }, index) => (
           <div key={index} className="max-w-4xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-8 mb-8">
             <h2 className="text-2xl md:text-3xl font-bold text-[#00B251] flex-1" style={{ textShadow: '2px 2px 4px black' }}>
