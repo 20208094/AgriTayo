@@ -313,7 +313,7 @@ function App() {
             <Stack.Screen
               name="CheckOutScreen"
               component={CheckOutScreen}
-              options={{ ...screenOptions, headerShown: false }}
+              options={screenOptions}
             />
             <Stack.Screen
               name="Authentication"

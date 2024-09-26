@@ -67,17 +67,6 @@ function CheckOutScreen() {
   return (
     <ScreenContainer>
       <Container>
-        <Header>
-          <TouchableOpacity
-            onPress={() => navigation.navigate("Notifications")}
-          >
-            <NotificationIcon />
-          </TouchableOpacity>
-          <HeaderTitle>Checkout</HeaderTitle>
-          <TouchableOpacity onPress={() => navigation.navigate("Messages")}>
-            <MessagesIcon />
-          </TouchableOpacity>
-        </Header>
 
         {checkedOutItems.length > 0 ? (
           <FlatList
