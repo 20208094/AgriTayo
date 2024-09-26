@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "expo/AppEntry.js",
   "scripts": {
-    "start": "expo start --reset-cache",
+    "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web"
@@ -52,7 +52,8 @@
     "react-native-tab-view": "^3.5.2",
     "react-native-vector-icons": "^10.1.0",
     "socket.io-client": "^4.8.0",
-    "tailwindcss": "^3.3.2"
+    "tailwindcss": "^3.3.2",
+    "react-native-gesture-handler": "~2.16.1"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"

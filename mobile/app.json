@@ -11,10 +11,21 @@
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "agritayo.id"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "splash": {
+      "image": "./app/assets/logolabel.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FFFFFF"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "b113c776-95fe-4af2-a523-13d57348c096"
+      }
     }
   }
 }
