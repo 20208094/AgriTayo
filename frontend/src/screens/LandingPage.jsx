@@ -83,18 +83,21 @@ function LandingPage() {
   return (
     <div className="bg-gradient-to-b from-[#E6F5E1] to-[#ffffff] flex flex-col">
       <div className="h-screen flex flex-col items-center justify-center relative" style={{ backgroundImage: `url(${bg})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
-        <img src={MainLogo} alt="AgriTayo Logo" className="h-auto w-full max-w-[300px] md:max-w-[450px] drop-shadow-lg mx-auto mb-6" />
-        <h1 className="text-6xl md:text-8xl font-bold mb-4 shadow-lg text-center mx-auto" style={{ color: '#00B251', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.7)' }}>
-          Welcome to AgriTayo
-        </h1>
+        <div className="bg-white bg-opacity-10 backdrop-blur-lg p-6 mx-auto text-center items-center justify-center">
+          <img src={MainLogo} alt="AgriTayo Logo" className="h-auto w-full max-w-[300px] md:max-w-[450px] drop-shadow-lg mx-auto mb-6" />
+          
+          <h1 className="text-6xl md:text-8xl font-bold mb-4" style={{ color: '#00B251', textShadow: '2px 2px 4px black'}}>
+            AGRITAYO
+          </h1>
 
-        <p className="text-lg md:text-xl text-gray-200 max-w-[600px] text-center mb-6 shadow-lg" style={{ textShadow: '2px 2px 4px rgba(0, 0, 0, 0.7)' }}>
-          Connecting local farmers with buyers across La Trinidad. Fresh produce, farm-to-table, with just a few clicks.
-        </p>
+          <p className="text-lg md:text-xl text-white max-w-[600px] mx-auto mb-6 " style={{ textShadow: '2px 2px 4px black'}}>
+            Connecting local farmers with buyers across La Trinidad. Fresh produce, farm-to-table, with just a few clicks.
+          </p>
+        </div>
       </div>
 
       <section ref={featuresRef} className="py-36 text-center bg-cover bg-center"style={{ backgroundImage: `url(${vegAsset})`, backgroundSize: 'cover', backgroundPosition: 'center'}}>
-        <div className="bg-white bg-opacity-80 p-6 rounded-lg transition-transform duration-300 transform hover:scale-105 inline-block mx-auto">
+        <div className="bg-white bg-opacity-90 p-6 rounded-lg transition-transform duration-300 transform hover:scale-105 inline-block mx-auto">
           {featureData.map(({ title, description }, index) => (
             <div key={index} className="p-6 transition-transform duration-300 transform hover:scale-105">
               <h3 className="text-xl md:text-3xl font-bold text-[#008F41]">{title}</h3>
