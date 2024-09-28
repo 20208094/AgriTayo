@@ -16,9 +16,9 @@ const NotificationTable = ({ notification, moveToRead, showButton }) => {
     >
       <View className="flex-row justify-between items-center">
         <Text className="flex-1 text-base">
-          <Text className="font-bold">{notification.title}</Text>
+          <Text className="font-bold text-green-600">{notification.title}</Text>
           {"\n"}
-          {notification.message}
+          <Text className="font-bold text-gray-500">{notification.message}</Text>
         </Text>
         {showButton && (
           <TouchableOpacity

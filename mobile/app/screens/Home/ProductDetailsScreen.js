@@ -64,61 +64,64 @@ function ProductDetailsScreen({ navigation, route }) {
           <Text className="text-base text-gray-700">⭐ {product.crop_rating} (192)</Text>
           <View className="flex-row items-center mb-2.5">
             <TouchableOpacity
-              className="bg-[#00B251] p-2.5 rounded-lg"
+              className="border border-green-600 bg-white p-2.5 rounded-lg"
               onPress={decreaseQuantity}
             >
-              <Text className="text-lg font-bold text-white">-</Text>
+              <Text className="text-lg font-bold text-green-600">-</Text>
             </TouchableOpacity>
             <Text className="text-lg mx-2.5">{quantity} pcs</Text>
             <TouchableOpacity
-              className="bg-[#00B251] p-2.5 rounded-lg"
+              className="border border-green-600 bg-white p-2.5 rounded-lg"
               onPress={increaseQuantity}
             >
-              <Text className="text-lg font-bold text-white">+</Text>
+              <Text className="text-lg font-bold text-green-600">+</Text>
             </TouchableOpacity>
           </View>
         </View>
         <Text className="text-lg font-bold mb-2.5">Description</Text>
         <Text className="text-base text-gray-700 mb-5">{product.crop_description}</Text>
+        <TouchableOpacity
+          className="bg-[#00B251] p-3.5 rounded-lg items-center mb-5"
+          onPress={() => navigation.navigate("Cart")}
+        >
+          <Text className="text-white font-bold text-base">Add to Cart</Text>
+        </TouchableOpacity>
 
-        {/* Shop Info Section */}
+        {/* Shop Info Section with clickable image and buttons */}
         <View className="border border-green-600 flex-row items-center justify-between border p-3 rounded-lg mb-5">
           <View className="flex-row items-center">
-            <Image
-              source={shopInfo.shop_image_url ? { uri: shopInfo.shop_image_url } : placeholderimg} // Shop image
-              className="w-12 h-12 rounded-full"
-              resizeMode="cover"
-            />
-            <View className="ml-4">
-              <Text className="text-lg font-bold">{shopInfo.shopName}</Text>
+            <TouchableOpacity onPress={handleShopPress}>
+              <Image
+                source={shopInfo.shop_image_url ? { uri: shopInfo.shop_image_url } : placeholderimg} // Shop image
+                className="w-20 h-20 rounded-full"
+                resizeMode="cover"
+              />
+            </TouchableOpacity>
+            <View className="ml-6">
+              <TouchableOpacity onPress={handleShopPress}>
+                <Text className="text-lg font-bold">{shopInfo.shopName}</Text>
+              </TouchableOpacity>
               <Text className="text-gray-500 text-sm">Active 3 Minutes Ago</Text>
             </View>
           </View>
-        </View>
 
-        {/* Existing Buttons */}
-        <View className="flex-row justify-between mb-5">
-          <TouchableOpacity
-            className="border border-green-600 bg-white px-3 py-2 rounded-md items-center flex-row justify-center mr-2"
-            onPress={handleShopPress}
-          >
-            <FontAwesome name="shopping-bag" size={16} color="#00B251" className="mr-2" />
-            <Text className="text-green-600 font-bold text-base">Shop</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            className="border border-green-600 bg-white px-3 py-1 rounded-md items-center flex-row justify-center mr-2"
-            onPress={handleNegotiatePress}
-          >
-            <FontAwesome name="balance-scale" size={16} color="#00B251" className="mr-2" />
-            <Text className="text-green-600 font-bold text-base">Negotiate</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            className="border border-green-600 bg-white px-3 py-2 rounded-md items-center flex-row justify-center mr-2"
-            onPress={handleMessagePress}
-          >
-            <FontAwesome name="envelope" size={16} color="#00B251" className="mr-2" />
-            <Text className="text-green-600 font-bold text-base">Message</Text>
-          </TouchableOpacity>
+          {/* Buttons positioned inside the shop info section */}
+          <View className="flex grid grid-cols-1 grid-rows-2 gap-4 ">
+            <TouchableOpacity
+              className="border border-green-600 bg-white px-3 py-1 rounded-md items-center flex-row justify-center mr-2"
+              onPress={handleNegotiatePress}
+            >
+              <FontAwesome name="balance-scale" size={16} color="#00B251" className="mr-2" />
+              <Text className="text-green-600 font-bold text-base">Negotiate</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              className="border border-green-600 bg-white px-3 py-1 rounded-md items-center flex-row justify-center mr-2"
+              onPress={handleMessagePress}
+            >
+              <FontAwesome name="envelope" size={16} color="#00B251" className="mr-2" />
+              <Text className="text-green-600 font-bold text-base">Message</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         <View className="mb-5">
@@ -141,12 +144,7 @@ function ProductDetailsScreen({ navigation, route }) {
           </View>
           {/* Add more placeholder items as needed */}
         </ScrollView>
-        <TouchableOpacity
-          className="bg-[#00B251] p-3.5 rounded-lg items-center mb-5"
-          onPress={() => navigation.navigate("Cart")}
-        >
-          <Text className="text-white font-bold text-base">Add to Cart</Text>
-        </TouchableOpacity>
+        
       </View>
     </ScrollView>
   );

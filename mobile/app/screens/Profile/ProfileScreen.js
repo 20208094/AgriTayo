@@ -58,7 +58,7 @@ function ProfileScreen({ fetchUserSession }) {
       <View className="mt-1 bg-green-200 pt-0 pb-6 rounded-b-lg">
         <View className="flex-row items-center px-4">
           <View className="relative mr-4">
-            <Image source={{uri: userData.user_image_url}} className="w-24 h-24 rounded-full" />
+            <Image source={{uri: userData.user_image_url}} className="mt-5 w-24 h-24 rounded-full" />
             <View className="absolute bottom-0 right-0 bg-green-600 p-1 rounded-full">
               <Icon name="camera" type="font-awesome" size={16} color="white" />
             </View>
