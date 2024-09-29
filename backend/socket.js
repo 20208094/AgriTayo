@@ -15,15 +15,17 @@ function initializeSocket(server) {
     io.on('connection', (socket) => {
         console.log('A user connected:', socket.id);
 
-        // Store the user ID associated with the socket ID
+        // Handle user login and store the user ID associated with the socket ID
         socket.on('login', (userId) => {
             userSockets[userId] = socket.id;
-            // console.log(`User ${userId} logged in with socket ID: ${socket.id}`);
+            console.log(`User ${userId} logged in with socket ID: ${socket.id}`);
+
+            // Emit the updated active users list to all clients
+            io.emit('activeUsers', Object.keys(userSockets));
+            console.log('Currently active users:', Object.keys(userSockets));
         });
 
-        // console.log('Currently connected users:', userSockets);
-
-        // Listen for 'chat message' event
+        // Listen for chat messages and forward them to the correct recipient
         socket.on('chat message', (msg) => {
             try {
                 // Emit the chat message to the intended receiver
@@ -43,7 +45,7 @@ function initializeSocket(server) {
             }
         });
 
-        // Listen for 'notification' event from the client
+        // Listen for notifications and send them to the correct user
         socket.on('notification', (notif) => {
             try {
                 // Emit the notification to the intended user
@@ -60,14 +62,24 @@ function initializeSocket(server) {
                 console.error('Error handling notification:', error);
             }
         });
+        
+        socket.on('requestActiveUsers', () => {
+            // Emit the current list of active users to the requesting client
+            socket.emit('activeUsers', Object.keys(userSockets));
+        });
 
+        // Handle user disconnects
         socket.on('disconnect', () => {
             console.log('User disconnected:', socket.id);
-            // Remove the socket from userSockets when the user disconnects
+            // Remove the disconnected user's socket from userSockets
             for (const userId in userSockets) {
                 if (userSockets[userId] === socket.id) {
                     delete userSockets[userId];
                     console.log(`User ${userId} disconnected`);
+
+                    // Emit the updated active users list to all clients
+                    io.emit('activeUsers', Object.keys(userSockets));
+                    console.log('Currently active users after disconnect:', Object.keys(userSockets));
                     break;
                 }
             }

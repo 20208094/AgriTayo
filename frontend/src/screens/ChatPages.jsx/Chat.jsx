@@ -22,11 +22,17 @@ function ChatPage() {
   const { receiverId } = useParams();
   const navigate = useNavigate();
   const messagesEndRef = useRef(null);
+  const [activeUsers, setActiveUsers] = useState([]);
 
   const receiverIdNum = Number(receiverId);
 
   useEffect(() => {
     socket = io();
+
+    socket.on('activeUsers', (users) => {
+      console.log('Active users:', users);
+      setActiveUsers(users);
+    });
 
     socket.on("chat message", (msg) => {
       const isMessageForThisChat =
@@ -51,6 +57,7 @@ function ChatPage() {
 
     return () => {
       socket.off("chat message");
+      socket.off("activeUsers");
       socket.disconnect();
     };
   }, [userId, receiverId]);
@@ -239,10 +246,31 @@ function ChatPage() {
     setNewImage(null);
   };
 
-  const isOnline = (user) => {
-    return user.is_online ? "Online" : "Offline";
+  
+  useEffect(() => {
+    const checkActiveUsers = () => {
+      if (activeUsers.length === 0) {
+        // Re-fetch active users or emit an event to update them
+        socket.emit("requestActiveUsers"); // Assuming you have this event set up in the server
+        socket.on('activeUsers', (users) => {
+          setActiveUsers(users); // Update the active users state
+      });
+      }
+    };
+
+    // Check active users every 5 seconds
+    const intervalId = setInterval(checkActiveUsers, 5000);
+    return () => clearInterval(intervalId);
+  }, [activeUsers]);
+
+  const isOnline = (userid) => {
+    console.log("Active Users:", activeUsers, "Type:", typeof activeUsers, "Is Array:", Array.isArray(activeUsers));  // Logs contents, data type, and whether activeUsers is an array
+  
+    // Convert userid to a string before checking if it's included in activeUsers
+    return activeUsers.includes(String(userid)) ? "Online" : "Offline";
   };
 
+  
   return (
     <div className="flex flex-col md:flex-row h-full min-h-3.5 bg-gray-100">
       {/* Left Sidebar: User List */}
@@ -269,7 +297,7 @@ function ChatPage() {
                   </p>
                   {/*show online/offline status */}
                   <p className="text-sm text-gray-500">
-                    {isOnline(user)}
+                    {isOnline(user.user_id)}
                   </p>
                 </div>
 
@@ -295,7 +323,7 @@ function ChatPage() {
               </h3>
               <p className="text-sm text-gray-500">
                 {/* Show online/offline status */}
-                {isOnline(receiverData)}
+                {isOnline(receiverData.user_id)}
               </p>
             </div>
           </div>

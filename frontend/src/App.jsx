@@ -80,6 +80,7 @@ function App() {
   const [refreshProfile, setRefreshProfile] = useState(0);
 
   useEffect(() => {
+    // Initialize socket connection
     socket = io({ transports: ['websocket'] });
 
     socket.on('connect', () => {
@@ -102,19 +103,20 @@ function App() {
       try {
         const response = await fetch('/api/session', {
           headers: {
-            'x-api-key': API_KEY
-          }
+            'x-api-key': API_KEY,
+          },
         });
+
         if (response.ok) {
           const data = await response.json();
           setUserId(data.user_id);
           setUserType(data.user_type_id);
-          console.log('userid= ', { userId })
-          console.log('usertypwid= ', { userType })
 
-          console.log('uuuuuser', data.user_id)
-
-          socket.emit('login', data.user_id);
+          // Emit login event to the server after fetching the user session
+          if (data.user_id) {
+            console.log(`Emitting login for user ID: ${data.user_id}`);
+            socket.emit('login', data.user_id);
+          }
         } else {
           console.error('Failed to fetch user session:', response.statusText);
         }
