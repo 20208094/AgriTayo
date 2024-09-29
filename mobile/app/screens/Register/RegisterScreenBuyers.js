@@ -10,6 +10,7 @@ import {
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { styled } from "nativewind";
 import { FontAwesome } from "@expo/vector-icons";
+import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env"; // Import environment variables
 
 function RegisterScreenBuyers({ navigation }) {
   const [firstName, setFirstName] = useState("");
@@ -32,6 +33,8 @@ function RegisterScreenBuyers({ navigation }) {
   const [confirmPasswordError, setConfirmPasswordError] = useState("");
   const [phoneError, setPhoneError] = useState("");
 
+  const [loading, setLoading] = useState(false); // Loading state to handle spinner
+
   const firstname_regex = /^[A-Za-z\s]{2,}$/;
   const middlename_regex = /^[A-Za-z\s]{2,}$/;
   const lastname_regex = /^[A-Za-z\s]{2,}$/;
@@ -39,7 +42,8 @@ function RegisterScreenBuyers({ navigation }) {
   const email_regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const phone_regex = /^(?:\+63|0)?9\d{9}$/;
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
+    // Reset error states
     setFirstNameError("");
     setMiddleNameError("");
     setLastNameError("");
@@ -52,26 +56,18 @@ function RegisterScreenBuyers({ navigation }) {
 
     let hasError = false;
 
-    if (!firstName) {
-      setFirstNameError("Enter your First Name");
-      hasError = true;
-    } else if (!firstname_regex.test(firstName)) {
+    // Validation checks (omitted for brevity, same as before)
+    if (!firstName || !firstname_regex.test(firstName)) {
       setFirstNameError("Invalid First Name. Please try again.");
       hasError = true;
     }
 
-    if (!middleName) {
-      setMiddleNameError("Enter your Middle Name");
-      hasError = true;
-    } else if (!middlename_regex.test(middleName)) {
+    if (!middleName || !middlename_regex.test(middleName)) {
       setMiddleNameError("Invalid Middle Name. Please try again.");
       hasError = true;
     }
 
-    if (!lastName) {
-      setLastNameError("Enter your Last Name");
-      hasError = true;
-    } else if (!lastname_regex.test(lastName)) {
+    if (!lastName || !lastname_regex.test(lastName)) {
       setLastNameError("Invalid Last Name. Please try again.");
       hasError = true;
     }
@@ -86,40 +82,68 @@ function RegisterScreenBuyers({ navigation }) {
       hasError = true;
     }
 
-    if (!email) {
-      setEmailError("Enter your Email");
-      hasError = true;
-    } else if (!email_regex.test(email)) {
+    if (!email || !email_regex.test(email)) {
       setEmailError("Invalid Email. Please try again.");
       hasError = true;
     }
 
-    if (!password) {
-      setPasswordError("Enter your Password");
-      hasError = true;
-    } else if (!password_regex.test(password)) {
+    if (!password || !password_regex.test(password)) {
       setPasswordError("Invalid Password. Please try again.");
       hasError = true;
     }
 
-    if (!confirmPassword) {
-      setConfirmPasswordError("Confirm your Password");
-      hasError = true;
-    } else if (confirmPassword !== password) {
+    if (!confirmPassword || confirmPassword !== password) {
       setConfirmPasswordError("Passwords do not match.");
       hasError = true;
     }
 
-    if (!phone) {
-      setPhoneError("Enter your Phone Number");
-      hasError = true;
-    } else if (!phone_regex.test(phone)) {
+    if (!phone || !phone_regex.test(phone)) {
       setPhoneError("Invalid Phone Number. Please try again.");
       hasError = true;
     }
 
-    if (!hasError) {
-      navigation.navigate("OTP Screen");
+    if (hasError) {
+      return;
+    }
+
+    // If validation passes, proceed to call the backend API for registration
+    setLoading(true); // Show loading state while making API call
+    try {
+      const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": REACT_NATIVE_API_KEY, // Secure API key
+        },
+        body: JSON.stringify({
+          firstname: firstName,
+          middlename: middleName,
+          lastname: lastName,
+          birthday: birthDay,
+          gender,
+          email,
+          password,
+          phone_number: phone,
+          user_type_id: 3,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Registration successful:", data);
+
+        // Navigate to OTP Screen or login screen after successful registration
+        navigation.navigate("OTP Screen", { email });
+      } else {
+        const errorData = await response.json();
+        console.error("Registration failed:", errorData);
+        setEmailError(errorData.error || "Registration failed. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error during registration:", error);
+      setEmailError("An error occurred. Please try again.");
+    } finally {
+      setLoading(false); // Hide loading state
     }
   };
 
@@ -127,8 +151,6 @@ function RegisterScreenBuyers({ navigation }) {
     { label: "Male", value: "male" },
     { label: "Female", value: "female" },
   ];
-
-  const [selectedGender, setSelectedGender] = useState("");
 
   const [show, setShow] = useState(false);
   const [date, setDate] = useState(new Date());
@@ -241,19 +263,6 @@ function RegisterScreenBuyers({ navigation }) {
 
           <TextInput
             className="w-full p-3 mb-4 bg-white rounded-lg shadow-md"
-            placeholder="Phone Number"
-            keyboardType="phone-pad"
-            autoCapitalize="none"
-            autoCorrect={false}
-            value={phone}
-            onChangeText={setPhone}
-          />
-          {phoneError ? (
-            <Text className="w-4/5 text-red-500 mb-4">{phoneError}</Text>
-          ) : null}
-
-          <TextInput
-            className="w-full p-3 mb-4 bg-white rounded-lg shadow-md"
             placeholder="Password"
             secureTextEntry={true}
             autoCapitalize="none"
@@ -280,11 +289,24 @@ function RegisterScreenBuyers({ navigation }) {
             </Text>
           ) : null}
 
+          <TextInput
+            className="w-full p-3 mb-6 bg-white rounded-lg shadow-md"
+            placeholder="Phone Number"
+            keyboardType="phone-pad"
+            value={phone}
+            onChangeText={setPhone}
+          />
+          {phoneError ? (
+            <Text className="w-4/5 text-red-500 mb-4">{phoneError}</Text>
+          ) : null}
+
           <TouchableOpacity
             onPress={handleRegister}
             className="w-full p-3 bg-[#00B251] rounded-lg shadow-md"
           >
-            <Text className="text-white text-center text-lg">Register</Text>
+            <Text className="text-white text-center text-lg">
+              {loading ? "Registering..." : "Register"}
+            </Text>
           </TouchableOpacity>
 
           <TouchableOpacity

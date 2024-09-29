@@ -34,7 +34,7 @@ function LoginScreen({ navigation, fetchUserSession }) {
             console.log("No user found in session");
           }
         } else {
-          console.log("Failed to fetch user session:", response.status);
+          // console.log("Failed to fetch user session:", response.status);
         }
       } catch (error) {
         console.error('Login Error fetching user session:', error);

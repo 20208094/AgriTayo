@@ -31,13 +31,12 @@ const Navigator = ({ fetchUserSession, navigation }) => {
 
   if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" color="#0000ff" />
+      <View>
       </View>
-    ); // Loading indicator while checking session
+    ); 
   }
 
-  return null; // Return null as this component handles navigation
+  return null;
 };
 
 export default Navigator;

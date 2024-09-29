@@ -35,7 +35,7 @@ function initializeSocket(server) {
                         chat_message: msg.chat_message,
                         chat_image_url: msg.chat_image_url || null,
                         is_read: false,
-                        sent_at: new Date().toISOString(),
+                        sent_at: msg.sent_at,
                     });
                 }
             } catch (error) {

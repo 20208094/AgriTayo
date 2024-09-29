@@ -70,7 +70,7 @@ import AddProductScreen from "./app/screens/farmers/Shop/MyProducts/AddProductSc
 import ChatScreen from "./app/screens/Chat/ChatScreen";
 import ChatListScreen from "./app/screens/Chat/ChatListScreen";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from '@env';
-const SOCKET_URL = 'https://agritayo.azurewebsites.net';
+const SOCKET_URL = REACT_NATIVE_API_BASE_URL;
 
 const Stack = createStackNavigator();
 const API_KEY = REACT_NATIVE_API_KEY
@@ -116,8 +116,9 @@ function App() {
         setUserSession(data);
         await fetchUsers(data); // Fetch users after setting the session
       } else {
-        console.warn('Session fetch failed:', response.status);
+        // console.warn('Session fetch failed:', response.status);
         setUserSession(null);
+        navigationRef.current?.navigate('Login');
       }
     } catch (error) {
       console.error('Error fetching user session:', error);
@@ -136,7 +137,7 @@ function App() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch users');
+        // throw new Error('Failed to fetch users');
       }
 
       const users = await response.json();

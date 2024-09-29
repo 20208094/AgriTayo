@@ -104,7 +104,6 @@ async function addChat(req, res, io) {
 
                 console.log('Added chat to db');
 
-
                 if (data && data.length > 0) {
                     const savedMessage = data[0]; 
                     const messageToSend = {
@@ -113,6 +112,7 @@ async function addChat(req, res, io) {
                         receiver_type: savedMessage.receiver_type,
                         chat_message: savedMessage.chat_message,
                         chat_image_url: savedMessage.chat_image_url,
+                        sent_at: new Date().toISOString(),
                     };
 
                     if (io) { // Ensure io is defined

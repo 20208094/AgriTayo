@@ -28,32 +28,32 @@ function ChatPage() {
   useEffect(() => {
     socket = io();
 
-        socket.on("chat message", (msg) => {
-            const isMessageForThisChat =
-                (msg.sender_id === userId && msg.receiver_id === receiverIdNum) ||
-                (msg.receiver_id === userId && msg.sender_id === receiverIdNum);
-        
-            // Check if the incoming message is unread
-            const unreadCount = !msg.is_read && msg.receiver_id === userId;
-            console.log('unr:',unreadCount)
-            
-            // If there's an unread message, mark it as read
-            if (unreadCount !== 0) {
-                console.log('Executing mark as read for socket message');
-                markMessagesAsRead();
-            }
-        
-            // If the message belongs to the current chat, add it to the list
-            if (isMessageForThisChat) {
-                setMessages((prevMessages) => [...prevMessages, msg]);
-            }
-        });
-        
-        return () => {
-            socket.off("chat message");
-            socket.disconnect();
-        };
-    }, [userId, receiverId]);
+    socket.on("chat message", (msg) => {
+      const isMessageForThisChat =
+        (msg.sender_id === userId && msg.receiver_id === receiverIdNum) ||
+        (msg.receiver_id === userId && msg.sender_id === receiverIdNum);
+
+      // Check if the incoming message is unread
+      const unreadCount = !msg.is_read && msg.receiver_id === userId;
+      console.log('unr:', unreadCount)
+
+      // If there's an unread message, mark it as read
+      if (unreadCount !== 0) {
+        console.log('Executing mark as read for socket message');
+        markMessagesAsRead();
+      }
+
+      // If the message belongs to the current chat, add it to the list
+      if (isMessageForThisChat) {
+        setMessages((prevMessages) => [...prevMessages, msg]);
+      }
+    });
+
+    return () => {
+      socket.off("chat message");
+      socket.disconnect();
+    };
+  }, [userId, receiverId]);
 
   useEffect(() => {
     const fetchUserSession = async () => {
@@ -121,42 +121,42 @@ function ChatPage() {
     fetchUsers();
   }, [navigate, userId, receiverIdNum]);
 
-    useEffect(() => {
-        const fetchMessages = async () => {
-            if (userId && receiverId) {
-                console.log('u:',userId,receiverId)
-                try {
-                    const response = await fetch(`/api/chatsId/${userId}/${receiverId}`, {
-                        headers: { "x-api-key": API_KEY },
-                    });
-    
-                    if (response.ok) {
-                        const allMessages = await response.json();
-                        const sortedMessages = allMessages.sort((a, b) => a.chat_id - b.chat_id);
-    
-                        setMessages(sortedMessages);
-    
-                        const unreadCount = sortedMessages.filter(message => 
-                            !message.is_read && message.receiver_id === userId
-                        ).length;
-                        console.log('unread:',unreadCount)
-                        console.log('Unread messages count:', unreadCount);
-                        console.log('messages 2:', allMessages);
-                        if (unreadCount !== 0) {
-                            console.log('Executing mark as read');
-                            markMessagesAsRead();
-                        }
-                    } else {
-                        console.error("Failed to fetch messages:", response.statusText);
-                    }
-                } catch (error) {
-                    console.error("Error fetching messages:", error);
-                }
+  useEffect(() => {
+    const fetchMessages = async () => {
+      if (userId && receiverId) {
+        console.log('u:', userId, receiverId)
+        try {
+          const response = await fetch(`/api/chatsId/${userId}/${receiverId}`, {
+            headers: { "x-api-key": API_KEY },
+          });
+
+          if (response.ok) {
+            const allMessages = await response.json();
+            const sortedMessages = allMessages.sort((a, b) => a.chat_id - b.chat_id);
+
+            setMessages(sortedMessages);
+
+            const unreadCount = sortedMessages.filter(message =>
+              !message.is_read && message.receiver_id === userId
+            ).length;
+            console.log('unread:', unreadCount)
+            console.log('Unread messages count:', unreadCount);
+            console.log('messages 2:', allMessages);
+            if (unreadCount !== 0) {
+              console.log('Executing mark as read');
+              markMessagesAsRead();
             }
-        };
-    
-        fetchMessages();
-    }, [userId, receiverId]);    
+          } else {
+            console.error("Failed to fetch messages:", response.statusText);
+          }
+        } catch (error) {
+          console.error("Error fetching messages:", error);
+        }
+      }
+    };
+
+    fetchMessages();
+  }, [userId, receiverId]);
 
   useEffect(() => {
     if (messagesEndRef.current) {
@@ -171,27 +171,25 @@ function ChatPage() {
     const bodyData = JSON.stringify({ sender_id: senderId, user_id: userId });
 
     try {
-        const response = await fetch(url, {
-            method: method,
-            headers: {
-                'Content-Type': 'application/json',
-                'x-api-key': API_KEY,
-            },
-            body: bodyData,
-        });
+      const response = await fetch(url, {
+        method: method,
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': API_KEY,
+        },
+        body: bodyData,
+      });
 
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
     } catch (error) {
-        console.error('Error marking messages as read:', error);
+      console.error('Error marking messages as read:', error);
     }
-};
-
+  };
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
-
     if (newMessage.trim() || newImage) {
       const formData = new FormData();
       formData.append("sender_id", userId);
@@ -265,17 +263,17 @@ function ChatPage() {
               <div className="flex-1">
                 <p className="font-medium">{user.firstname}</p>
                 {/* Show "New message" if there are unread messages */}
-                    <div className="flex justify-between items-center">
-                        <p className="text-sm text-gray-500">
-                            {newMessageUsers.has(user.user_id) ? "New message" : ""}
-                        </p>
-                {/*show online/offline status */}
-                        <p className="text-sm text-gray-500">
-                            {isOnline(user)}
-                        </p>
-                    </div>
-
+                <div className="flex justify-between items-center">
+                  <p className="text-sm text-gray-500">
+                    {newMessageUsers.has(user.user_id) ? "New message" : ""}
+                  </p>
+                  {/*show online/offline status */}
+                  <p className="text-sm text-gray-500">
+                    {isOnline(user)}
+                  </p>
                 </div>
+
+              </div>
             </li>
           ))}
         </ul>
@@ -303,39 +301,38 @@ function ChatPage() {
           </div>
         )}
 
-       {/* Chat Messages */}
-       <div className="flex-1 p-4 overflow-y-scroll">
+        {/* Chat Messages */}
+        <div className="flex-1 p-4 overflow-y-scroll">
           {messages.length > 0 ? (
             messages.map((msg, index) => {
               const isSentByUser = msg.sender_id === userId;
               return (
                 <div key={index} className={`flex mb-4 ${isSentByUser ? "justify-end" : "justify-start"}`}>
-  {!isSentByUser && (
-    <img
-      src={receiverData?.user_image_url || "default-avatar.png"}
-      alt="Avatar"
-      className="w-8 h-8 rounded-full mr-2"
-    />
-  )}
-  <div className="flex flex-col items-end">
-    <div className={`rounded-lg p-4 max-w-xs ${isSentByUser ? "bg-green-600 text-white" : "bg-gray-200 text-gray-800"} break-words relative`}>
-      <p>{msg.chat_message}</p>
-      {msg.chat_image_url && (
-        <img
-          src={msg.chat_image_url}
-          alt="Sent"
-          className="mt-2 max-w-60 cursor-pointer"
-          onClick={() => handleImageClick(msg.chat_image_url)}
-        />
-      )}
-    </div>
-    {/* Timestamp aligned to bottom of chat bubble */}
-    <p className="text-xs mt-1 text-gray-500">
-      {new Date(msg.sent_at).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
-    </p>
-  </div>
-</div>
-
+                  {!isSentByUser && (
+                    <img
+                      src={receiverData?.user_image_url || "default-avatar.png"}
+                      alt="Avatar"
+                      className="w-8 h-8 rounded-full mr-2"
+                    />
+                  )}
+                  <div className="flex flex-col items-end">
+                    <div className={`rounded-lg p-4 max-w-xs ${isSentByUser ? "bg-green-600 text-white" : "bg-gray-200 text-gray-800"} break-words relative`}>
+                      <p>{msg.chat_message}</p>
+                      {msg.chat_image_url && (
+                        <img
+                          src={msg.chat_image_url}
+                          alt="Sent"
+                          className="mt-2 max-w-60 cursor-pointer"
+                          onClick={() => handleImageClick(msg.chat_image_url)}
+                        />
+                      )}
+                    </div>
+                    {/* Timestamp aligned to bottom of chat bubble */}
+                    <p className="text-xs mt-1 text-gray-500">
+                      {new Date(msg.sent_at).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
+                    </p>
+                  </div>
+                </div>
               );
             })
           ) : (
@@ -344,10 +341,8 @@ function ChatPage() {
           <div ref={messagesEndRef} />
         </div>
 
-
-
-{/* Message Input */}
-<form onSubmit={handleSendMessage} className="flex items-center bg-white p-4">
+        {/* Message Input */}
+        <form onSubmit={handleSendMessage} className="flex items-center bg-white p-4">
           {newImage && (
             <div className="relative">
               <img src={URL.createObjectURL(newImage)} alt="Preview" className="w-16 h-16 object-cover rounded-md mr-4" />
@@ -384,19 +379,16 @@ function ChatPage() {
             <FaPaperPlane />
           </button>
         </form>
-      
 
-
-       {/* Full Image View */}
-      {fullImageView && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-80 flex justify-center items-center z-50"
-          onClick={closeFullImageView}
-        >
-          <img src={fullImageView} alt="Full View" className="max-w-full max-h-full" />
-        </div>
-      )}
-
+        {/* Full Image View */}
+        {fullImageView && (
+          <div
+            className="fixed inset-0 bg-black bg-opacity-80 flex justify-center items-center z-50"
+            onClick={closeFullImageView}
+          >
+            <img src={fullImageView} alt="Full View" className="max-w-full max-h-full" />
+          </div>
+        )}
       </div>
     </div>
   );
