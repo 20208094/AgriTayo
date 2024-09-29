@@ -12,12 +12,12 @@ function ForgotPasswordScreen({ navigation }) {
             Forgot Password
           </Text>
           <Text className="text-base text-gray-600 mb-4 text-center">
-            Please enter your email
+            Please enter your phone number
           </Text>
           <TextInput
             className="border border-gray-300 rounded-lg px-4 py-2 mb-4"
-            placeholder="Email"
-            keyboardType="email-address"
+            placeholder="Phone Number"
+            keyboardType="phone-pad"
             autoCapitalize="none"
             autoCorrect={false}
           />

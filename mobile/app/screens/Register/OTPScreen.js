@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -9,12 +9,14 @@ import {
 } from "react-native";
 import pic from "../../assets/emailotp.png";
 
-function OTPScreen({ navigation }) {
-  const email = "example@gmail.com";
+function OTPScreen({navigation}) {
+  const phoneNumber = "+639123456789";
 
   // for validation
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [otpError, setOtpError] = useState("");
+
+  const inputRefs = useRef([]);
 
   const handleOtp = () => {
     setOtpError("");
@@ -23,7 +25,7 @@ function OTPScreen({ navigation }) {
     if (otpString.length < 6) {
       setOtpError("Enter the 6 digit code");
     } else {
-      navigation.navigate("NavigationBar");
+      navigation.navigate("Login");
     }
   };
 
@@ -61,6 +63,17 @@ function OTPScreen({ navigation }) {
     const newOtp = [...otp];
     newOtp[index] = text;
     setOtp(newOtp);
+
+    // Move to the next input if available
+    if (text.length === 1 && index < 5) {
+      inputRefs.current[index + 1].focus();
+    }
+  };
+
+  const handleKeyPress = (e, index) => {
+    if (e.nativeEvent.key === "Backspace" && index > 0 && otp[index] === "") {
+      inputRefs.current[index - 1].focus();
+    }
   };
 
   return (
@@ -69,12 +82,12 @@ function OTPScreen({ navigation }) {
         <Image source={pic} className="w-3/4 h-1/4 mb-6" resizeMode="contain" />
 
         <Text className="text-3xl font-bold mb-4 text-gray-800 text-center">
-          Verify Your Email
+          Verify Your Phone Number
         </Text>
 
         <View className="mb-6">
           <Text className="text-gray-600 text-center">
-            A 6-digit code has been sent to {email}
+            A 6-digit code has been sent to {phoneNumber}
           </Text>
           <View className="flex-row justify-center">
             <TouchableOpacity
@@ -89,20 +102,24 @@ function OTPScreen({ navigation }) {
           {otp.map((value, index) => (
             <TextInput
               key={index}
+              ref={(ref) => (inputRefs.current[index] = ref)} // Store refs in the array
               className="w-14 p-3 bg-white rounded-lg shadow-md text-center"
               placeholder=""
               keyboardType="numeric"
               maxLength={1}
               onChangeText={(text) => handleChangeText(index, text)}
+              onKeyPress={(e) => handleKeyPress(e, index)}
               value={value}
             />
           ))}
         </View>
+
         {otpError ? (
-          <Text className="text-center text w-4/5 text-red-500 mb-4 ">
+          <Text className="text-center text w-4/5 text-red-500 mb-4">
             {otpError}
           </Text>
         ) : null}
+
         <Text className="text-gray-600 mb-4">
           - The OTP will expire in {formatTime(seconds)}
         </Text>
