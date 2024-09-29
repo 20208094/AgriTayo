@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import io from "socket.io-client";
 import { useParams, useNavigate } from "react-router-dom";
 import { FaPaperPlane } from "react-icons/fa";
-import { IoIosAttach } from "react-icons/io";
+import { IoIosImage } from "react-icons/io";
 import { IoClose } from "react-icons/io5";
 
 const API_KEY = import.meta.env.VITE_API_KEY;
@@ -374,8 +374,8 @@ function ChatPage() {
             accept="image/*"
             onChange={handleImageChange}
           />
-          <label htmlFor="file-upload" className="cursor-pointer text-gray-500 hover:text-green-600 mr-4">
-            <IoIosAttach size={24} />
+          <label htmlFor="file-upload" className="cursor-pointer text-green-600 hover:text-green-600 mr-4">
+            <IoIosImage size={24} />
           </label>
           <button
             type="submit"

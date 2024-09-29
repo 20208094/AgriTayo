@@ -46,7 +46,7 @@ function NotificationScreen() {
           }
           return <Icon name={iconName} size={20} color={color} />;
         },
-        tabBarActiveTintColor: "#16A34A",
+        tabBarActiveTintColor: "#00B215",
         tabBarInactiveTintColor: "gray",
       })}
     >

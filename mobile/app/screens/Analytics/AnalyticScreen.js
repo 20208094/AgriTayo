@@ -124,7 +124,7 @@ function AnalyticScreen({ navigation }) {
                 <Icon
                   name={categoryIcons[categoryKey]}
                   size={20}
-                  color="#059669" 
+                  color="#00B251" 
                   style={{ marginRight: 10 }} 
                 />
                 <Text style={{ fontSize: 18, fontWeight: "600", color: "#000" }}>
@@ -132,9 +132,9 @@ function AnalyticScreen({ navigation }) {
                 </Text>
               </View>
               {expandedCategory === categoryKey ? (
-                <Icon name="chevron-up" size={24} color="#059669" />
+                <Icon name="chevron-up" size={24} color="#00B251" />
               ) : (
-                <Icon name="chevron-down" size={24} color="#059669" />
+                <Icon name="chevron-down" size={24} color="#00B251" />
               )}
             </TouchableOpacity>
             {expandedCategory === categoryKey &&
@@ -145,8 +145,9 @@ function AnalyticScreen({ navigation }) {
                     marginLeft: 32,
                     marginTop: 8,
                     padding: 12,
-                    backgroundColor: "#a7f3d0", // green-200 color
+                    backgroundColor: "#FFFFFF", 
                     borderRadius: 12,
+                    
                   }}
                   onPress={() =>
                     navigation.navigate("Market Analytics", {
@@ -155,7 +156,7 @@ function AnalyticScreen({ navigation }) {
                     })
                   }
                 >
-                  <Text style={{ fontSize: 16, color: "#374151" }}>
+                  <Text style={{ fontSize: 16, color: "#00B251" }}>
                     {item.name}
                   </Text>
                 </TouchableOpacity>
