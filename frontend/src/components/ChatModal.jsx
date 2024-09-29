@@ -103,29 +103,31 @@ function ChatModal({ isOpen, onClose, userId, onMessagesRead }) {
                     />
                 </div>
                 {error && <p className="text-red-500">{error}</p>}
-                <ul className="space-y-3">
-                    {filteredUsers.length > 0 ? (
-                        filteredUsers.map(user => (
-                            <li
-                                key={user.user_id}
-                                className={`flex items-center justify-between p-3 border rounded-lg ${newMessageUsers.has(user.user_id) ? 'bg-green-100' : 'bg-gray-100'}`}
-                                onClick={() => handleUserClick(user.user_id)}
-                            >
-                                <div className="flex items-center space-x-3">
-                                    <img
-                                        className="w-10 h-10 rounded-full"
-                                        src={user.user_image_url || 'default-avatar.png'} // Avatar logic here
-                                        alt={`${user.firstname}'s avatar`}
-                                    />
-                                    <p>{user.firstname}</p>
-                                </div>
-                                {newMessageUsers.has(user.user_id) && <p className="text-green-600">New message</p>}
-                            </li>
-                        ))
-                    ) : (
-                        <p className="text-gray-500">No users found.</p>
-                    )}
-                </ul>
+                <div className="max-h-80 overflow-y-auto space-y-3"> {/* Add a fixed height and scroll */}
+                    <ul className="space-y-3">
+                        {filteredUsers.length > 0 ? (
+                            filteredUsers.map(user => (
+                                <li
+                                    key={user.user_id}
+                                    className={`flex items-center justify-between p-3 border rounded-lg ${newMessageUsers.has(user.user_id) ? 'bg-green-100' : 'bg-gray-100'}`}
+                                    onClick={() => handleUserClick(user.user_id)}
+                                >
+                                    <div className="flex items-center space-x-3">
+                                        <img
+                                            className="w-10 h-10 rounded-full"
+                                            src={user.user_image_url || 'default-avatar.png'} // Avatar logic here
+                                            alt={`${user.firstname}'s avatar`}
+                                        />
+                                        <p>{user.firstname}</p>
+                                    </div>
+                                    {newMessageUsers.has(user.user_id) && <p className="text-green-600">New message</p>}
+                                </li>
+                            ))
+                        ) : (
+                            <p className="text-gray-500">No users found.</p>
+                        )}
+                    </ul>
+                </div>
             </div>
         </div>
     );
