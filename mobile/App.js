@@ -115,6 +115,7 @@ function App() {
         const data = await response.json();
         setUserSession(data);
         await fetchUsers(data); // Fetch users after setting the session
+        // navigationRef.current?.navigate('HomePageScreen');
       } else {
         // console.warn('Session fetch failed:', response.status);
         setUserSession(null);

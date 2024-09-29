@@ -70,13 +70,13 @@ function LoginScreen({ navigation, fetchUserSession }) {
 
     if (!hasError) {
       if (
-        phone_regex.test(formData.email) &&
+        phone_regex.test(formData.phone_number) &&
         password_regex.test(formData.password)
       ) {
         try {
           console.log("Attempting to log in with:", formData);
           const response = await fetch(
-            `${REACT_NATIVE_API_BASE_URL}/api/login`,
+            `${REACT_NATIVE_API_BASE_URL}/api/loginMobile`,
             {
               method: "POST",
               headers: {

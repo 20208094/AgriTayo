@@ -154,6 +154,7 @@ const {
 } = require('./supabase_connection/crud_services/chat');
 
 const { login } = require('./supabase_connection/user_auth_services/login');
+const { loginMobile } = require('./supabase_connection/user_auth_services/loginMobile');
 const { register } = require('./supabase_connection/user_auth_services/register');
 const { logout } = require('./supabase_connection/user_auth_services/logout');
 const {notifySeller} = require('./supabase_connection/crud_services/notify.js')
@@ -215,6 +216,7 @@ app.get('/api/session', (req, res) => {
 
 // API for login
 app.post('/api/login', login);
+app.post('/api/loginMobile', loginMobile);
 
 // API for register
 app.post('/api/register', register);
