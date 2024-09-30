@@ -1,7 +1,7 @@
 import React from "react";
 import { Modal, View, Text, TouchableOpacity } from "react-native";
 
-const Modal = ({ isVisible, onClose, children }) => {
+const CustomModal = ({ isVisible, onClose, children }) => {
   return (
     <Modal
       transparent={true}
@@ -21,4 +21,4 @@ const Modal = ({ isVisible, onClose, children }) => {
   );
 };
 
-export default Modal
+export default CustomModal

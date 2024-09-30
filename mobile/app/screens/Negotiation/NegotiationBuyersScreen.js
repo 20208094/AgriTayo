@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react'
-import { SafeAreaView, View, Text, TouchableOpacity} from 'react-native'
+import { SafeAreaView, View, Text, TouchableOpacity, TextInput} from 'react-native'
 
 const dummyNegotiation = [
     {
@@ -46,7 +46,7 @@ function NegotiationBuyerScreen({navigation}){
                 />
                 <TextInput
                 keyboardType='numeric'
-                placeholer='Enter the amount'
+                placeholder='Enter the amount'
                 value={amount}
                 onChangeText={setAmount}
                 />

@@ -39,7 +39,7 @@ function ProductDetailsScreen({ navigation, route }) {
   };
 
   const handleNegotiatePress = () => {
-    navigation.navigate('Negotiate To Seller', { product });
+    navigation.navigate('Buyer Negotiation');
   };
 
   const handleMessagePress = () => {
