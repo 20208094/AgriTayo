@@ -48,6 +48,8 @@ import ChatSupportScreen from "./app/screens/farmers/Shop/LearnAndHelp/ChatSuppo
 import EditShopScreen from "./app/screens/farmers/Shop/ViewSalesHistory/EditShopScreen";
 import ProfileScreen from "./app/screens/Profile/ProfileScreen";
 import Navigator from "./app/components/Navigator";
+import NegotiationSellerScreen from "./app/screens/Negotiation/NegotiationSellerScreen";
+import NegotiationBuyerScreen from "./app/screens/Negotiation/NegotiationBuyersScreen";
 // for farmers
 import ShopScreen from "./app/screens/farmers/Shop/ShopScreen";
 import ViewShopScreen from "./app/screens/farmers/Shop/ViewShopScreen";
@@ -436,6 +438,16 @@ function App() {
               name='Order Details'
               component={OrderDetailsScreen}
               options={screenOptions}
+            />
+            <Stack.Screen
+            name='Buyer Negotiation'
+            component={NegotiationBuyerScreen}
+            options={screenOptions}
+            />
+            <Stack.Screen
+            name='Seller Negotiation'
+            component={NegotiationSellerScreen}
+            options={screenOptions}
             />
             <Stack.Screen
               name="Navigator"
