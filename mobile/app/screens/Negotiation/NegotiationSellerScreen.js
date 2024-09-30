@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'; 
 import { SafeAreaView, View, Text, TouchableOpacity, TextInput } from 'react-native'; 
-import Modal from '../../components/Modal';
+import CustomModal from '../../components/CustomModal';
 
 function NegotiationSellerScreen({ route }) {
     const { dummyNegotiation, negotiationData } = route.params;
@@ -60,7 +60,7 @@ function NegotiationSellerScreen({ route }) {
                 </View>
             )}
 
-            <Modal isVisible={modalVisible} onClose={toggleModal}>
+            <CustomModal isVisible={modalVisible} onClose={toggleModal}>
                 <Text className=''>Negotiate with Buyer</Text>
                 <Text className=''>Add the price and amount</Text>
                 <TextInput
@@ -84,7 +84,7 @@ function NegotiationSellerScreen({ route }) {
                 <TouchableOpacity  className='' onPress={handleNegotiate}>
                     <Text  className=''>Add for Negotiation</Text>
                 </TouchableOpacity>
-            </Modal>
+            </CustomModal>
 
             {negotiationSubmitted && (
                 <View className=''>
