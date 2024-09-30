@@ -97,7 +97,7 @@ function ProductDetailsScreen({ navigation, route }) {
                 resizeMode="cover"
               />
             </TouchableOpacity>
-            <View className="ml-6">
+            <View className="ml-3">
               <TouchableOpacity onPress={handleShopPress}>
                 <Text className="text-lg font-bold">{shopInfo.shopName}</Text>
               </TouchableOpacity>

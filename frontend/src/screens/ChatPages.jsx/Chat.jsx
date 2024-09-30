@@ -4,6 +4,9 @@ import { useParams, useNavigate } from "react-router-dom";
 import { FaPaperPlane } from "react-icons/fa";
 import { IoIosImage } from "react-icons/io";
 import { IoClose } from "react-icons/io5";
+import { FiSearch } from "react-icons/fi"; // For search icon
+import { HiMenuAlt1 } from "react-icons/hi"; // For hamburger icon
+import { IoMdClose } from "react-icons/io"; // For close icon
 
 const API_KEY = import.meta.env.VITE_API_KEY;
 let socket;
@@ -11,6 +14,7 @@ let socket;
 function ChatPage() {
   const [messages, setMessages] = useState([]);
   const [users, setUsers] = useState([]);
+  const [filteredUsers, setFilteredUsers] = useState([]); // For filtering users
   const [newMessageUsers, setNewMessageUsers] = useState(new Set());
   const [senderData, setSenderData] = useState(null);
   const [receiverData, setReceiverData] = useState(null);
@@ -22,6 +26,8 @@ function ChatPage() {
   const navigate = useNavigate();
   const messagesEndRef = useRef(null);
   const [activeUsers, setActiveUsers] = useState([]);
+  const [searchTerm, setSearchTerm] = useState(""); // State for search term
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Sidebar dropdown toggle for mobile
 
   const { receiverId, receiverType } = useParams();
   const receiverIdNum = Number(receiverId);
@@ -42,11 +48,11 @@ function ChatPage() {
 
       // Check if the incoming message is unread
       const unreadCount = !msg.is_read && msg.receiver_id === userId;
-      console.log('unr:', unreadCount)
+      console.log("unr:", unreadCount);
 
       // If there's an unread message, mark it as read
       if (unreadCount !== 0) {
-        console.log('Executing mark as read for socket message');
+        console.log("Executing mark as read for socket message");
         markMessagesAsRead();
       }
 
@@ -98,6 +104,7 @@ function ChatPage() {
         }
         const usersData = await response.json();
         setUsers(usersData);
+        setFilteredUsers(usersData); // Initialize filteredUsers with all users
 
         const sender = usersData.find((user) => user.user_id === userId);
         const receiver = usersData.find((user) => user.user_id === receiverIdNum);
@@ -132,7 +139,7 @@ function ChatPage() {
   useEffect(() => {
     const fetchMessages = async () => {
       if (userId && receiverId) {
-        console.log('u:', userId, receiverId)
+        console.log("u:", userId, receiverId);
         try {
           const response = await fetch(`/api/chatsId/${userId}/${receiverId}/${receiverType}/${senderType}`, {
             headers: { "x-api-key": API_KEY },
@@ -140,18 +147,20 @@ function ChatPage() {
 
           if (response.ok) {
             const allMessages = await response.json();
-            const sortedMessages = allMessages.sort((a, b) => a.chat_id - b.chat_id);
+            const sortedMessages = allMessages.sort(
+              (a, b) => a.chat_id - b.chat_id
+            );
 
             setMessages(sortedMessages);
 
-            const unreadCount = sortedMessages.filter(message =>
-              !message.is_read && message.receiver_id === userId
+            const unreadCount = sortedMessages.filter(
+              (message) => !message.is_read && message.receiver_id === userId
             ).length;
-            console.log('unread:', unreadCount)
-            console.log('Unread messages count:', unreadCount);
-            console.log('messages 2:', allMessages);
+            console.log("unread:", unreadCount);
+            console.log("Unread messages count:", unreadCount);
+            console.log("messages 2:", allMessages);
             if (unreadCount !== 0) {
-              console.log('Executing mark as read');
+              console.log("Executing mark as read");
               markMessagesAsRead();
             }
           } else {
@@ -175,24 +184,24 @@ function ChatPage() {
   const markMessagesAsRead = async () => {
     const senderId = receiverId;
     const url = `/api/chats/read`;
-    const method = 'PUT';
+    const method = "PUT";
     const bodyData = JSON.stringify({ sender_id: senderId, user_id: userId });
 
     try {
       const response = await fetch(url, {
         method: method,
         headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': API_KEY,
+          "Content-Type": "application/json",
+          "x-api-key": API_KEY,
         },
         body: bodyData,
       });
 
       if (!response.ok) {
-        throw new Error('Network response was not ok');
+        throw new Error("Network response was not ok");
       }
     } catch (error) {
-      console.error('Error marking messages as read:', error);
+      console.error("Error marking messages as read:", error);
     }
   };
 
@@ -271,18 +280,56 @@ function ChatPage() {
     return activeUsers.includes(String(userid)) ? "Online" : "Offline";
   };
 
-  
+  // Filter users based on search term
+  useEffect(() => {
+    const results = users.filter((user) =>
+      user.firstname.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredUsers(results);
+  }, [searchTerm, users]);
+
   return (
     <div className="flex flex-col md:flex-row h-full min-h-3.5 bg-gray-100">
       {/* Left Sidebar: User List */}
-      <div className="w-full md:w-1/3 lg:w-1/4 bg-white p-4 shadow-md mt-4">
-        <h2 className="text-xl font-semibold mb-4 text-green-600">Inbox</h2>
-        <ul className="divide-y divide-gray-300">
-          {users.map((user) => (
+      <div
+        className={`w-full md:w-1/3 lg:w-1/4 bg-white p-4 shadow-md mt-4 transition-transform duration-300 ease-in-out fixed md:relative ${
+          isSidebarOpen ? "top-0" : "top-[-100vh]"
+        } md:top-auto z-10`}
+      >
+
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-semibold mb-4 text-green-600">Inbox</h2>
+          <button
+            className="md:hidden text-green-600 focus:outline-none"
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          >
+            {isSidebarOpen ? <IoMdClose size={24} /> : <HiMenuAlt1 size={24} />}
+          </button>
+        </div>
+
+        <div className="mb-4">
+          <div className="relative">
+            <input
+              type="text"
+              className="w-full border border-gray-300 rounded-full px-4 py-2 pl-10 text-sm text-gray-600"
+              placeholder="Search users..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <FiSearch className="absolute left-3 top-2.5 text-gray-500" size={18} />
+          </div>
+        </div>
+
+        {/* Scrollable User List */}
+        <ul className="divide-y divide-gray-300 overflow-y-auto max-h-[calc(100vh-200px)]">
+          {filteredUsers.map((user) => (
             <li
               key={user.user_id}
               className="flex items-center p-3 hover:bg-green-200 cursor-pointer text-green-600"
-              onClick={() => navigate(`/admin/chat/${user.user_id}/User`)}
+              onClick={() => {
+                setIsSidebarOpen(false);
+                navigate(`/admin/chat/${user.user_id}/User`);
+              }}
             >
               <img
                 src={user.user_image_url || "default-avatar.png"}
@@ -291,17 +338,12 @@ function ChatPage() {
               />
               <div className="flex-1">
                 <p className="font-medium">{user.firstname}</p>
-                {/* Show "New message" if there are unread messages */}
                 <div className="flex justify-between items-center">
                   <p className="text-sm text-gray-500">
                     {newMessageUsers.has(user.user_id) ? "New message" : ""}
                   </p>
-                  {/*show online/offline status */}
-                  <p className="text-sm text-gray-500">
-                    {isOnline(user.user_id)}
-                  </p>
+                  <p className="text-sm text-gray-500">{isOnline(user.user_id)}</p>
                 </div>
-
               </div>
             </li>
           ))}
@@ -336,16 +378,29 @@ function ChatPage() {
             messages.map((msg, index) => {
               const isSentByUser = msg.sender_id === userId;
               return (
-                <div key={index} className={`flex mb-4 ${isSentByUser ? "justify-end" : "justify-start"}`}>
+                <div
+                  key={index}
+                  className={`flex mb-4 ${
+                    isSentByUser ? "justify-end" : "justify-start"
+                  }`}
+                >
                   {!isSentByUser && (
                     <img
-                      src={receiverData?.user_image_url || "default-avatar.png"}
+                      src={
+                        receiverData?.user_image_url || "default-avatar.png"
+                      }
                       alt="Avatar"
                       className="w-8 h-8 rounded-full mr-2"
                     />
                   )}
                   <div className="flex flex-col items-end">
-                    <div className={`rounded-lg p-4 max-w-xs ${isSentByUser ? "bg-green-600 text-white" : "bg-gray-200 text-gray-800"} break-words relative`}>
+                    <div
+                      className={`rounded-lg p-4 max-w-xs ${
+                        isSentByUser
+                          ? "bg-green-600 text-white"
+                          : "bg-gray-200 text-gray-800"
+                      } break-words relative`}
+                    >
                       <p>{msg.chat_message}</p>
                       {msg.chat_image_url && (
                         <img
@@ -358,7 +413,10 @@ function ChatPage() {
                     </div>
                     {/* Timestamp aligned to bottom of chat bubble */}
                     <p className="text-xs mt-1 text-gray-500">
-                      {new Date(msg.sent_at).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
+                      {new Date(msg.sent_at).toLocaleTimeString(undefined, {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
                     </p>
                   </div>
                 </div>
@@ -371,10 +429,17 @@ function ChatPage() {
         </div>
 
         {/* Message Input */}
-        <form onSubmit={handleSendMessage} className="flex items-center bg-white p-4">
+        <form
+          onSubmit={handleSendMessage}
+          className="flex items-center bg-white p-4"
+        >
           {newImage && (
             <div className="relative">
-              <img src={URL.createObjectURL(newImage)} alt="Preview" className="w-16 h-16 object-cover rounded-md mr-4" />
+              <img
+                src={URL.createObjectURL(newImage)}
+                alt="Preview"
+                className="w-16 h-16 object-cover rounded-md mr-4"
+              />
               <button
                 type="button"
                 className="absolute top-0 right-0 bg-green-600 text-white rounded-full p-1"
@@ -398,7 +463,10 @@ function ChatPage() {
             accept="image/*"
             onChange={handleImageChange}
           />
-          <label htmlFor="file-upload" className="cursor-pointer text-green-600 hover:text-green-600 mr-4">
+          <label
+            htmlFor="file-upload"
+            className="cursor-pointer text-green-600 hover:text-green-600 mr-4"
+          >
             <IoIosImage size={24} />
           </label>
           <button
@@ -415,7 +483,11 @@ function ChatPage() {
             className="fixed inset-0 bg-black bg-opacity-80 flex justify-center items-center z-50"
             onClick={closeFullImageView}
           >
-            <img src={fullImageView} alt="Full View" className="max-w-full max-h-full" />
+            <img
+              src={fullImageView}
+              alt="Full View"
+              className="max-w-full max-h-full"
+            />
           </div>
         )}
       </div>

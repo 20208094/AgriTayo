@@ -7,6 +7,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { styled } from 'nativewind';
 import ImageViewing from 'react-native-image-viewing';
 import { REACT_NATIVE_API_KEY } from '@env';
+import moment from 'moment'; // Make sure moment is installed
 
 const SOCKET_URL = 'https://agritayo.azurewebsites.net';
 
@@ -222,11 +223,19 @@ const ChatScreen = ({ route }) => {
                     {item.chat_message && (
                       <ChatBubble style={{ backgroundColor: isSender ? '#00B251' : '#E5E5EA', maxWidth: '100%', marginHorizontal: 10 }}>
                         <ChatBubbleText style={{ color: isSender ? 'white' : 'black' }}>{item.chat_message}</ChatBubbleText>
+                        {/* Adding the timestamp below the message */}
+                        <Text style={{ color: isSender ? 'white' : 'gray', fontSize: 10, marginTop: 5 }}>
+                          {moment(item.sent_at).format('h:mm A')}
+                        </Text>
                       </ChatBubble>
                     )}
                     {item.chat_image_url && (
                       <TouchableOpacity onPress={() => viewImage(item.chat_image_url)}>
                         <ChatImage source={{ uri: item.chat_image_url }} />
+                        {/* Adding the timestamp for image messages as well */}
+                        <Text style={{ color: isSender ? 'white' : 'gray', fontSize: 10, marginTop: 5 }}>
+                          {moment(item.sent_at).format('h:mm A')}
+                        </Text>
                       </TouchableOpacity>
                     )}
                   </View>
@@ -242,7 +251,7 @@ const ChatScreen = ({ route }) => {
         </ChatContainer>
 
         <MessageInputContainer>
-                   {/* Icon buttons for camera and image */}
+          {/* Icon buttons for camera and image */}
           <View style={{ flexDirection: 'row', marginTop: 5 }}>
             <IconButton onPress={openCamera}>
               <Icon name="camera-alt" size={24} color="#00B251" />
@@ -274,8 +283,6 @@ const ChatScreen = ({ route }) => {
               <Icon name="send" size={24} color="white" />
             </SendButton>
           </InputWrapper>
-
- 
         </MessageInputContainer>
 
         {selectedImage && (
