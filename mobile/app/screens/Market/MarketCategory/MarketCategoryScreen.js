@@ -5,22 +5,21 @@ import placeholderimg from '../../../assets/placeholder.png';
 import { REACT_NATIVE_API_KEY } from '@env';
 import SearchBarC from "../../../components/SearchBarC";
 
-
 // Define a component for displaying each item in the list
 const CategoryItemCard = ({ item }) => {
   const navigation = useNavigation();
 
   return (
     <TouchableOpacity
-      className="w-40 md:w-48 bg-white rounded-lg shadow-md mb-4 mx-2"
+      className="w-[48%] bg-white rounded-lg shadow-md mb-4"
       onPress={() => navigation.navigate('Product Details', { product: item })}
     >
       <Image
         source={item.crop_image_url ? { uri: item.crop_image_url } : placeholderimg}
-        className="w-full h-24 md:h-32 rounded-t-lg "
+        className="w-full h-40 rounded-t-lg"
         resizeMode="cover"
       />
-      <View className="p-2 flex items-center mt-2">
+      <View className="p-4">
         <Text className="text-lg font-semibold text-gray-800">{item.crop_name}</Text>
         <Text className="text-sm text-gray-600 mt-1">{item.crop_description}</Text>
         <Text className="text-base font-bold text-green-600 mt-2">₱ {item.crop_price}</Text>
@@ -202,7 +201,6 @@ function MarketCategoryScreen({ route }) {
 
             return (
               <View key={categoryId} className="flex-row items-center mr-2">
-                {/* Category Button */}
                 <TouchableOpacity
                   className="bg-gray-200 rounded-full px-4 py-2"
                   onPress={() => toggleDropdown(categoryId)}
@@ -210,7 +208,6 @@ function MarketCategoryScreen({ route }) {
                   <Text>{category.crop_category_name}</Text>
                 </TouchableOpacity>
 
-                {/* X Mark (Delete) Button */}
                 <TouchableOpacity
                   className="ml-2"
                   onPress={() => setSelectedCategories(prevSelectedCategories =>
@@ -220,7 +217,6 @@ function MarketCategoryScreen({ route }) {
                   <Text className="text-gray-500 font-bold">X</Text>
                 </TouchableOpacity>
 
-                {/* Modal for Dropdown */}
                 <Modal
                   visible={openDropdown[categoryId] === true}
                   transparent={true}
@@ -233,7 +229,6 @@ function MarketCategoryScreen({ route }) {
                     className="flex-1 justify-center items-center bg-gray bg-opacity-50"
                   >
                     <View className="bg-green-600 rounded-lg p-4 w-64 max-h-72">
-                      {/* Label for the category */}
                       <Text className="text-white text-lg font-bold mb-2">
                         {category.crop_category_name}
                       </Text>
@@ -258,7 +253,6 @@ function MarketCategoryScreen({ route }) {
         </ScrollView>
       </View>
 
-      {/* Modal for showing categories */}
       <Modal
         animationType="slide"
         transparent={true}

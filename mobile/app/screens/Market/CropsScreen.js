@@ -1,36 +1,35 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Image } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import logo from '../../assets/logo.png'; // Placeholder image
 import { REACT_NATIVE_API_KEY } from '@env';
 
+// Category Card Component
 const MarketCategoryCard = ({ cropCategory }) => {
   const navigation = useNavigation();
 
   const getImageSource = () => {
     const { crop_category_image_url } = cropCategory;
-
     if (typeof crop_category_image_url === 'string' && crop_category_image_url.trim() !== '') {
       return { uri: crop_category_image_url };
     }
-    
-    // If not a valid URL, return the default image
-    return logo;
+    return logo; // Return default image if no valid URL
   };
 
   return (
-    <SafeAreaView className="bg-white rounded-lg shadow m-2 w-[45%] mb-3">
+    <SafeAreaView className="bg-white rounded-lg shadow-lg m-2 flex-1 overflow-hidden">
       <TouchableOpacity
         onPress={() => navigation.navigate('Market Subcategory', { category: cropCategory.crop_category_id })}
+        className="flex-1"
       >
-        <View className="rounded-t-lg overflow-hidden">
+        <View>
           <Image 
             source={getImageSource()} 
-            className="w-full h-28" 
+            className="w-full h-40 object-cover" 
           />
-          <View className="p-2.5">
-            <Text className="text-base font-bold mb-1.5">
+          <View className="p-3 bg-gray-50">
+            <Text className="text-lg font-bold text-gray-800 text-center">
               {cropCategory.crop_category_name}
             </Text>
           </View>
@@ -40,6 +39,7 @@ const MarketCategoryCard = ({ cropCategory }) => {
   );
 };
 
+// Main CropsScreen Component
 function CropsScreen() {
   const [categories, setCategories] = useState([]);
   const API_KEY = REACT_NATIVE_API_KEY;
@@ -47,10 +47,10 @@ function CropsScreen() {
   // Fetch categories function
   const fetchCategories = async () => {
     try {
-        const response = await fetch('https://agritayo.azurewebsites.net/api/crop_categories', {
-          headers: {
-              'x-api-key': API_KEY
-          }
+      const response = await fetch('https://agritayo.azurewebsites.net/api/crop_categories', {
+        headers: {
+          'x-api-key': API_KEY
+        }
       });
       if (!response.ok) {
         throw new Error('Network response was not ok');
@@ -70,23 +70,16 @@ function CropsScreen() {
   );
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView contentContainerStyle={{ paddingHorizontal: 10, paddingBottom: 20 }}>
       <View className="flex-row flex-wrap justify-between">
         {categories.map((category) => (
-          <MarketCategoryCard
-            key={category.crop_category_id}
-            cropCategory={category}
-          />
+          <View key={category.crop_category_id} className="w-[48%]">
+            <MarketCategoryCard cropCategory={category} />
+          </View>
         ))}
       </View>
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    paddingBottom: 1, // Adjust this value as needed to ensure space for the bottom navigation bar
-  },
-});
 
 export default CropsScreen;

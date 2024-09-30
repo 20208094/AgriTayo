@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Image } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, Image, TextInput } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { REACT_NATIVE_API_KEY } from '@env';
 import { styled } from 'nativewind';
@@ -8,16 +8,20 @@ const API_URL = 'https://agritayo.azurewebsites.net/api/chats';
 
 // Styled components using NativeWind
 const Container = styled(View, 'flex-1 p-4 bg-white');
-const Title = styled(Text, 'text-xl font-bold mb-4 text-[#00B251]');
+const Header = styled(View, 'flex-row items-center justify-between mb-4');
+const Title = styled(Text, 'text-xl font-bold text-[#00B251]');
 const ErrorText = styled(Text, 'text-red-500 mb-4');
 const UserItem = styled(TouchableOpacity, 'flex-row items-center p-4 bg-white border-b border-gray-200');
 const UserName = styled(Text, 'text-lg font-semibold text-black');
 const LastMessage = styled(Text, 'text-sm text-gray-500');
 const Avatar = styled(Image, 'w-12 h-12 rounded-full bg-gray-200 mr-4');
 const TimeText = styled(Text, 'text-xs text-gray-400 ml-auto');
+const SearchInput = styled(TextInput, 'bg-gray-100 ml-5 rounded-full p-2 flex-1 text-gray-700 text-sm');
 
 const ChatListScreen = () => {
   const [users, setUsers] = useState([]);
+  const [filteredUsers, setFilteredUsers] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
   const [error, setError] = useState('');
   const navigation = useNavigation();
   const userId = 1; // Default user ID
@@ -61,6 +65,7 @@ const ChatListScreen = () => {
         });
 
         setUsers(uniqueUsers);
+        setFilteredUsers(uniqueUsers); // Initialize filteredUsers with full list
       } else {
         setError('Failed to fetch chats. Please try again.');
       }
@@ -76,16 +81,40 @@ const ChatListScreen = () => {
     }, [])
   );
 
+  // Handle search query changes and filter the chat list
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+
+    if (query) {
+      const filtered = users.filter(user =>
+        user.name.toLowerCase().includes(query.toLowerCase())
+      );
+      setFilteredUsers(filtered);
+    } else {
+      setFilteredUsers(users); // Reset to full list if search is cleared
+    }
+  };
+
   const handleUserClick = (receiverId, receiverName) => {
     navigation.navigate('ChatScreen', { receiverId, receiverName });
   };
 
   return (
     <Container>
-      <Title>Your Chats</Title>
+      {/* Header with title and search input */}
+      <Header>
+        <Title>Your Chats</Title>
+        <SearchInput
+          placeholder="Search by name"
+          value={searchQuery}
+          onChangeText={handleSearch}
+        />
+      </Header>
+
       {error && <ErrorText>{error}</ErrorText>}
+
       <FlatList
-        data={users}
+        data={filteredUsers}
         renderItem={({ item }) => (
           <UserItem onPress={() => handleUserClick(item.id, item.name)}>
             <Avatar source={{ uri: item.avatar }} />

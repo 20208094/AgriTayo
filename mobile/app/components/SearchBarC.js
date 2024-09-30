@@ -41,7 +41,7 @@ const NotificationIcon = ({ onPress }) => (
     name="notifications-outline"
     type="ionicon"
     size={30}
-    color="#2E7D32"
+    color="#00B251"
     onPress={onPress}
     containerStyle={styles.iconContainer}
   />
@@ -52,7 +52,7 @@ const MessagesIcon = ({ onPress }) => (
     name="mail-outline"
     type="ionicon"
     size={30}
-    color="#2E7D32"
+    color="#00B251"
     onPress={onPress}
     containerStyle={styles.iconContainer}
   />
@@ -110,7 +110,7 @@ const MarketIcon = ({ onPress }) => (
     name="cart-outline"
     type="ionicon"
     size={30}
-    color="#2E7D32"
+    color="#00B251"
     onPress={onPress}
     containerStyle={styles.iconContainer}
   />

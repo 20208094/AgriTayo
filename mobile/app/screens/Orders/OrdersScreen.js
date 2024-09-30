@@ -51,11 +51,11 @@ function OrdersScreen({ route }) {
           );
         },
         tabBarShowLabel: true,
-        tabBarActiveTintColor: "green",
+        tabBarActiveTintColor: "#00B215",
         tabBarInactiveTintColor: "gray",
         tabBarStyle: { backgroundColor: "white" },
         tabBarIndicatorStyle: {
-          backgroundColor: "green",
+          backgroundColor: "#00B215",
           height: 4,
         },
         tabBarLabel: ({ focused, color }) => (

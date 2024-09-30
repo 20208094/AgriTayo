@@ -184,7 +184,7 @@ function BiddingScreen() {
   return (
     <SafeAreaView className="flex-1 bg-[#d1d5db]">
       {/* Search Bar */}
-      <View className="px-4 py-3 bg-white shadow-md">
+      <View className="flex bg-white shadow-md">
         {/* Pass search function and query to SearchBarC */}
         <SearchBarC value={searchQuery} onChangeText={handleSearch} />
       </View>
