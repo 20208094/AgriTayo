@@ -27,7 +27,7 @@ const MarketCategoryCard = ({ cropCategory }) => {
         <View className="rounded-t-lg overflow-hidden">
           <Image 
             source={getImageSource()} 
-            className="w-full h-28" 
+            className="flex w-full h-28" 
           />
           <View className="p-2.5">
             <Text className="text-base font-bold mb-1.5">

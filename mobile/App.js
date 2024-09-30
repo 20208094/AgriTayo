@@ -190,9 +190,9 @@ function App() {
 
   const screenOptions = {
     headerTitleStyle: {
-      color: "#2E7D32",
+      color: "#00B251",
     },
-    headerTintColor: "#2E7D32",
+    headerTintColor: "#00B251",
   };
 
   return (

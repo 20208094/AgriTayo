@@ -1,16 +1,15 @@
-import React, { useState, useEffect } from "react";
-import { View, Image, Text, ScrollView, TouchableOpacity } from "react-native";
+import React, { useState } from "react";
+import { View, Image, Text, ScrollView, TouchableOpacity, Modal, Pressable } from "react-native";
 import { FontAwesome } from '@expo/vector-icons'; // Import FontAwesome icons
 import { styled } from "nativewind";
-import { useNavigation } from "@react-navigation/native";
 import placeholderimg from '../../assets/placeholder.png'; // Import the placeholder image
 import { NotificationIcon, MessagesIcon, MarketIcon } from "../../components/SearchBarC"; // Import your custom icons
 
 function ProductDetailsScreen({ navigation, route }) {
   const { product } = route.params; // Receive the product data
   const [quantity, setQuantity] = useState(1);
+  const [isModalVisible, setIsModalVisible] = useState(false); // For image full-view modal
 
-  // Check if product has the 'seller' field, otherwise set default values
   const shopInfo = product.seller || {
     shopName: 'Unknown Shop',
     shop_image_url: null, // Default to null if no image is provided
@@ -32,7 +31,6 @@ function ProductDetailsScreen({ navigation, route }) {
   const decreaseQuantity = () => setQuantity(quantity > 1 ? quantity - 1 : 1);
 
   const handleShopPress = () => {
-    // Ensure that navigation works even if the product lacks a seller
     if (shopInfo.shopName !== 'Unknown Shop') {
       navigation.navigate('Seller Shop', { product });
     } else {
@@ -48,105 +46,159 @@ function ProductDetailsScreen({ navigation, route }) {
     navigation.navigate('Message Seller', { product });
   };
 
+  const handleAddToCart = () => {
+    navigation.navigate("Cart", { product });
+  };
+
+  // Toggle Modal visibility
+  const toggleModal = () => {
+    setIsModalVisible(!isModalVisible);
+  };
+
   return (
-    <ScrollView className="flex-1 bg-white p-2.5">
-      <Image
-        source={product.crop_image_url ? { uri: product.crop_image_url } : placeholderimg}
-        className="w-full h-50 rounded-lg mb-2.5"
-      />
-      <View className="px-2.5">
-        <View className="flex-row justify-between items-center mb-2.5">
-          <Text className="text-xl font-bold">{product.crop_name}</Text>
-          <Text className="text-lg text-[#00B251] font-bold">₱ {product.crop_price}</Text>
-        </View>
-        <Text className="text-base text-[#00B251] mb-2.5 font-bold">Available in stock</Text>
-        <View className="flex-row justify-between items-center mb-2.5">
-          <Text className="text-base text-gray-700">⭐ {product.crop_rating} (192)</Text>
-          <View className="flex-row items-center mb-2.5">
-            <TouchableOpacity
-              className="border border-green-600 bg-white p-2.5 rounded-lg"
-              onPress={decreaseQuantity}
-            >
-              <Text className="text-lg font-bold text-green-600">-</Text>
-            </TouchableOpacity>
-            <Text className="text-lg mx-2.5">{quantity} pcs</Text>
-            <TouchableOpacity
-              className="border border-green-600 bg-white p-2.5 rounded-lg"
-              onPress={increaseQuantity}
-            >
-              <Text className="text-lg font-bold text-green-600">+</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-        <Text className="text-lg font-bold mb-2.5">Description</Text>
-        <Text className="text-base text-gray-700 mb-5">{product.crop_description}</Text>
-        <TouchableOpacity
-          className="bg-[#00B251] p-3.5 rounded-lg items-center mb-5"
-          onPress={() => navigation.navigate("Cart")}
-        >
-          <Text className="text-white font-bold text-base">Add to Cart</Text>
+    <View className="flex-1">
+      {/* Main content area */}
+      <ScrollView contentContainerStyle={{ paddingBottom: 80 }} className="bg-white p-2.5">
+        {/* Modal for full image view */}
+        <Modal visible={isModalVisible} transparent={true} animationType="fade">
+          <Pressable className="flex-1 bg-black bg-opacity-90 justify-center items-center" onPress={toggleModal}>
+            <Image
+              source={product.crop_image_url ? { uri: product.crop_image_url } : placeholderimg}
+              className="w-full h-full"
+              resizeMode="contain"
+            />
+          </Pressable>
+        </Modal>
+
+        {/* Main product image with click-to-open functionality */}
+        <TouchableOpacity onPress={toggleModal}>
+          <Image
+            source={product.crop_image_url ? { uri: product.crop_image_url } : placeholderimg}
+            className="w-full h-80 rounded-lg mb-2.5"
+          />
         </TouchableOpacity>
 
-        {/* Shop Info Section with clickable image and buttons */}
-        <View className="border border-green-600 flex-row items-center justify-between border p-3 rounded-lg mb-5">
-          <View className="flex-row items-center">
-            <TouchableOpacity onPress={handleShopPress}>
-              <Image
-                source={shopInfo.shop_image_url ? { uri: shopInfo.shop_image_url } : placeholderimg} // Shop image
-                className="w-20 h-20 rounded-full"
-                resizeMode="cover"
-              />
-            </TouchableOpacity>
-            <View className="ml-3">
-              <TouchableOpacity onPress={handleShopPress}>
-                <Text className="text-lg font-bold">{shopInfo.shopName}</Text>
+        <View className="px-2.5">
+          <View className="flex-row justify-between items-center mb-2.5">
+            <Text className="text-xl font-bold">{product.crop_name}</Text>
+            <Text className="text-lg text-[#00B251] font-bold">₱ {product.crop_price}</Text>
+          </View>
+          <Text className="text-base text-[#00B251] mb-2.5 font-bold">Available in stock</Text>
+          <View className="flex-row justify-between items-center mb-2.5">
+            <Text className="text-base text-gray-700">⭐ {product.crop_rating} (192)</Text>
+            <View className="flex-row items-center mb-2.5">
+              <TouchableOpacity
+                className="border border-green-600 bg-white p-2.5 rounded-lg"
+                onPress={decreaseQuantity}
+              >
+                <Text className="text-lg font-bold text-green-600">-</Text>
               </TouchableOpacity>
-              <Text className="text-gray-500 text-sm">Active 3 Minutes Ago</Text>
+              <Text className="text-lg mx-2.5">{quantity} pcs</Text>
+              <TouchableOpacity
+                className="border border-green-600 bg-white p-2.5 rounded-lg"
+                onPress={increaseQuantity}
+              >
+                <Text className="text-lg font-bold text-green-600">+</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+          <Text className="text-lg font-bold mb-2.5">Description</Text>
+          <Text className="text-base text-gray-700 mb-5">{product.crop_description}</Text>
+
+          <View className="border border-green-600 flex-row items-center justify-between border p-3 rounded-lg mb-5">
+            <View className="flex-row items-center">
+              <TouchableOpacity onPress={handleShopPress}>
+                <Image
+                  source={shopInfo.shop_image_url ? { uri: shopInfo.shop_image_url } : placeholderimg}
+                  className="w-20 h-20 rounded-full"
+                  resizeMode="cover"
+                />
+              </TouchableOpacity>
+              <View className="ml-3">
+                <TouchableOpacity onPress={handleShopPress}>
+                  <Text className="text-lg font-bold">{shopInfo.shopName}</Text>
+                </TouchableOpacity>
+                <Text className="text-gray-500 text-sm">Active 3 Minutes Ago</Text>
+              </View>
+            </View>
+
+            <View className="flex grid grid-cols-1 grid-rows-2 gap-4 ">
+              <TouchableOpacity
+                className="border border-green-600 bg-white px-3 py-1 rounded-md items-center flex-row justify-center mr-2"
+                onPress={handleNegotiatePress}
+              >
+                <FontAwesome name="balance-scale" size={16} color="#00B251" />
+                <Text className="text-green-600 font-bold text-base ml-2">Negotiate</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                className="border border-green-600 bg-white px-3 py-1 rounded-md items-center flex-row justify-center mr-2"
+                onPress={handleMessagePress}
+              >
+                <FontAwesome name="envelope" size={16} color="#00B251" />
+                <Text className="text-green-600 font-bold text-base ml-2">Message</Text>
+              </TouchableOpacity>
             </View>
           </View>
 
-          {/* Buttons positioned inside the shop info section */}
-          <View className="flex grid grid-cols-1 grid-rows-2 gap-4 ">
-            <TouchableOpacity
-              className="border border-green-600 bg-white px-3 py-1 rounded-md items-center flex-row justify-center mr-2"
-              onPress={handleNegotiatePress}
-            >
-              <FontAwesome name="balance-scale" size={16} color="#00B251" className="mr-2" />
-              <Text className="text-green-600 font-bold text-base">Negotiate</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              className="border border-green-600 bg-white px-3 py-1 rounded-md items-center flex-row justify-center mr-2"
-              onPress={handleMessagePress}
-            >
-              <FontAwesome name="envelope" size={16} color="#00B251" className="mr-2" />
-              <Text className="text-green-600 font-bold text-base">Message</Text>
-            </TouchableOpacity>
+          <View className="mb-5">
+            <Text className="text-lg font-bold mb-2.5">Related Products</Text>
+            {/* Add related product items here */}
           </View>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-5">
+            {/* Replace with dynamic image items */}
+            <View className="h-50 w-40 bg-gray-200 justify-center items-center rounded-lg mr-2.5">
+              <Text className="text-gray-400 text-lg">Your Image Here</Text>
+            </View>
+            <View className="h-50 w-40 bg-gray-200 justify-center items-center rounded-lg mr-2.5">
+              <Text className="text-gray-400 text-lg">Your Image Here</Text>
+            </View>
+            <View className="h-50 w-40 bg-gray-200 justify-center items-center rounded-lg mr-2.5">
+              <Text className="text-gray-400 text-lg">Your Image Here</Text>
+            </View>
+            <View className="h-50 w-40 bg-gray-200 justify-center items-center rounded-lg mr-2.5">
+              <Text className="text-gray-400 text-lg">Your Image Here</Text>
+            </View>
+            {/* Add more placeholder items as needed */}
+          </ScrollView>
         </View>
+      </ScrollView>
 
-        <View className="mb-5">
-          <Text className="text-lg font-bold mb-2.5">Related Products</Text>
-          {/* Add related product items here */}
-        </View>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-5">
-          {/* Replace with dynamic image items */}
-          <View className="h-50 w-40 bg-gray-200 justify-center items-center rounded-lg mr-2.5">
-            <Text className="text-gray-400 text-lg">Your Image Here</Text>
-          </View>
-          <View className="h-50 w-40 bg-gray-200 justify-center items-center rounded-lg mr-2.5">
-            <Text className="text-gray-400 text-lg">Your Image Here</Text>
-          </View>
-          <View className="h-50 w-40 bg-gray-200 justify-center items-center rounded-lg mr-2.5">
-            <Text className="text-gray-400 text-lg">Your Image Here</Text>
-          </View>
-          <View className="h-50 w-40 bg-gray-200 justify-center items-center rounded-lg mr-2.5">
-            <Text className="text-gray-400 text-lg">Your Image Here</Text>
-          </View>
-          {/* Add more placeholder items as needed */}
-        </ScrollView>
-        
+      {/* Sticky Bottom Bar */}
+      <View className="absolute bottom-0 left-0 right-0 bg-[#00B251] flex-row" style={{ height: 50 }}>
+        <TouchableOpacity
+          className="flex-1 flex-row items-center justify-center"
+          onPress={handleMessagePress}
+          style={{ paddingVertical: 5 }}
+        >
+          <FontAwesome name="envelope" size={25} color="white" />
+          <Text className="text-white font-bold text-lg ml-3">Message</Text>
+        </TouchableOpacity>
+
+        {/* Separator */}
+        <View className="w-px bg-white" />
+
+        <TouchableOpacity
+          className="flex-1 flex-row items-center justify-center"
+          onPress={handleNegotiatePress}
+          style={{ paddingVertical: 5 }}
+        >
+          <FontAwesome name="balance-scale" size={25} color="white" />
+          <Text className="text-white font-bold text-lg ml-3">Negotiate</Text>
+        </TouchableOpacity>
+
+        {/* Separator */}
+        <View className="w-px bg-white" />
+
+        <TouchableOpacity
+          className="flex-1 flex-row items-center justify-center"
+          onPress={handleAddToCart}
+          style={{ paddingVertical: 5 }}
+        >
+          <FontAwesome name="shopping-cart" size={25} color="white" />
+          <Text className="text-white font-bold text-lg ml-3">Add to Cart</Text>
+        </TouchableOpacity>
       </View>
-    </ScrollView>
+    </View>
   );
 }
 

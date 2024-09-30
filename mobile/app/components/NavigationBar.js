@@ -47,12 +47,12 @@ const NavigationBar = () => {
 
           return <Icon name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: "#2E7D32", // Set active tab color to green
+        tabBarActiveTintColor: "#00B251", // Set active tab color to green
         tabBarInactiveTintColor: "gray",
         headerTitleStyle: {
-          color: "#2E7D32", // Set header title color to green
+          color: "#00B251", // Set header title color to green
         },
-        headerTintColor: "#2E7D32", // Set the color of the header's back button and other icons to green
+        headerTintColor: "#00B251", // Set the color of the header's back button and other icons to green
       })}
     >
       <Tab.Screen
