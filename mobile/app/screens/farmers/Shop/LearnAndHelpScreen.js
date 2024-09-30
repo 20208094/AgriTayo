@@ -11,28 +11,32 @@ function LearnAndHelpScreen({ navigation }) {
     };
 
     return (
-        <SafeAreaView className="flex-1 bg-white p-4">
-            <Text className="text-xl font-semibold text-gray-800 mb-4">Learn and Help</Text>
-            <View className="flex-row justify-between">
+        <SafeAreaView className="flex-1 bg-white p-6">
+            {/* Header Text */}
+            <Text className="text-2xl font-bold text-gray-800 mb-6 text-center">Learn and Help</Text>
+
+            {/* Action Buttons */}
+            <View className="flex-row justify-center space-x-8">
+                {/* Seller FAQ Button */}
                 <TouchableOpacity 
-                    className="items-center" 
+                    className="items-center"
                     onPress={() => navigation.navigate('Seller FAQ')}
                 >
-                    <View className="h-16 w-16 justify-center items-center bg-gray-100 rounded-full mb-2">
-                        <FontAwesome5 name="lightbulb" size={24} color="#00B251" />
+                    <View className="h-20 w-20 justify-center items-center bg-gray-100 rounded-full shadow-lg mb-3">
+                        <FontAwesome5 name="lightbulb" size={26} color="#00B251" />
                     </View>
-                    <Text className="text-center text-sm text-gray-600">Seller FAQ</Text>
+                    <Text className="text-center text-base text-gray-700">Seller FAQ</Text>
                 </TouchableOpacity>
                 
-                {/* Modified Chat Support Button */}
+                {/* Chat Support Button */}
                 <TouchableOpacity 
                     className="items-center" 
                     onPress={handleChatSupportClick} // Navigate to chat with admin
                 >
-                    <View className="h-16 w-16 justify-center items-center bg-gray-100 rounded-full mb-2">
-                        <FontAwesome5 name="comments" size={24} color="#00B251" />
+                    <View className="h-20 w-20 justify-center items-center bg-gray-100 rounded-full shadow-lg mb-3">
+                        <FontAwesome5 name="comments" size={26} color="#00B251" />
                     </View>
-                    <Text className="text-center text-sm text-gray-600">Chat Support</Text>
+                    <Text className="text-center text-base text-gray-700">Chat Support</Text>
                 </TouchableOpacity>
             </View>
         </SafeAreaView>

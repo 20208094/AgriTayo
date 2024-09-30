@@ -193,11 +193,11 @@ function MarketAnalyticScreen({ route }) {
         tabBarScrollEnabled: true,
         lazy: true,
         tabBarShowLabel: true,
-        tabBarActiveTintColor: "#00b251",
+        tabBarActiveTintColor: "#00B251",
         tabBarInactiveTintColor: "gray",
         tabBarStyle: { backgroundColor: "white", elevation: 3 },
         tabBarIndicatorStyle: {
-          backgroundColor: "#00b251",
+          backgroundColor: "#00B251",
           height: 4,
           borderRadius: 2,
         }

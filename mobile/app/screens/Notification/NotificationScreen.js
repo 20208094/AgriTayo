@@ -48,6 +48,9 @@ function NotificationScreen() {
         },
         tabBarActiveTintColor: "#00B215",
         tabBarInactiveTintColor: "gray",
+        tabBarIndicatorStyle: {
+          backgroundColor: "#00B251",
+        }
       })}
     >
       <Tab.Screen name="Unread">

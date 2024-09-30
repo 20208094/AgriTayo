@@ -41,7 +41,7 @@ function ShopInformationScreen({ route, navigation }) {
       <ScrollView className="px-2">
         <View className="flex-row justify-between items-center mt-4">
           <View className="flex-1 border-b-2 border-green-800 pb-2">
-            <Text className="text-center text-green-800">Shop Information</Text>
+            <Text className="text-center text-green-600">Shop Information</Text>
           </View>
           <View className="flex-1 border-b-2 border-gray-300 pb-2">
             <Text className="text-center text-gray-300">
@@ -51,7 +51,7 @@ function ShopInformationScreen({ route, navigation }) {
         </View>
 
         <View className="mt-4">
-          <Text className="text-lg text-black mb-2">Shop Name *</Text>
+          <Text className="text-lg text-green-600 mb-2">Shop Name *</Text>
           <TextInput
             className="bg-gray-100 rounded-md p-4 text-black"
             placeholder="Shop Name"
@@ -88,7 +88,7 @@ function ShopInformationScreen({ route, navigation }) {
             name="chevron-right"
             type="font-awesome"
             size={24}
-            color="#2F855A"
+            color="#00B251"
           />
         </TouchableOpacity>
 
@@ -103,7 +103,7 @@ function ShopInformationScreen({ route, navigation }) {
             name="chevron-right"
             type="font-awesome"
             size={24}
-            color="#2F855A"
+            color="#00B251"
           />
         </TouchableOpacity>
 

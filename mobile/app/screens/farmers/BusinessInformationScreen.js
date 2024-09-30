@@ -281,11 +281,11 @@ function BusinessInformationScreen({ navigation, route }) {
             style={{
               flex: 1,
               borderBottomWidth: 2,
-              borderBottomColor: "#2F855A",
+              borderBottomColor: "#00B251",
               paddingBottom: 8,
             }}
           >
-            <Text style={{ textAlign: "center", color: "#2F855A" }}>
+            <Text style={{ textAlign: "center", color: "#00B251" }}>
               Business Information
             </Text>
           </View>
@@ -295,7 +295,7 @@ function BusinessInformationScreen({ navigation, route }) {
           style={{
             fontSize: 18,
             fontWeight: "600",
-            color: "#2F855A",
+            color: "#00B251",
             textAlign: "center",
             marginTop: 16,
           }}
@@ -321,7 +321,7 @@ function BusinessInformationScreen({ navigation, route }) {
             style={{
               fontSize: 18,
               fontWeight: "600",
-              color: "#2F855A",
+              color: "#00B251",
               marginBottom: 8,
             }}
           >
@@ -345,14 +345,14 @@ function BusinessInformationScreen({ navigation, route }) {
                   borderWidth: 2,
                   borderColor:
                     selectedBusinessInformation === option.value
-                      ? "#2F855A"
+                      ? "#00B251"
                       : "#ccc",
                   justifyContent: "center",
                   alignItems: "center",
                 }}
               >
                 {selectedBusinessInformation === option.value && (
-                  <FontAwesome name="check-circle" size={20} color="#2F855A" />
+                  <FontAwesome name="check-circle" size={20} color="#00B251" />
                 )}
               </View>
               <Text style={{ marginLeft: 8, color: "black" }}>
@@ -378,7 +378,7 @@ function BusinessInformationScreen({ navigation, route }) {
             style={{
               fontSize: 18,
               fontWeight: "600",
-              color: "#2F855A",
+              color: "#00B251",
               marginBottom: 8,
             }}
           >
@@ -401,13 +401,13 @@ function BusinessInformationScreen({ navigation, route }) {
                   borderRadius: 12,
                   borderWidth: 2,
                   borderColor:
-                    selectedSellerType === option.value ? "#2F855A" : "#ccc",
+                    selectedSellerType === option.value ? "#00B251" : "#ccc",
                   justifyContent: "center",
                   alignItems: "center",
                 }}
               >
                 {selectedSellerType === option.value && (
-                  <FontAwesome name="check-circle" size={20} color="#2F855A" />
+                  <FontAwesome name="check-circle" size={20} color="#00B251" />
                 )}
               </View>
               <Text style={{ marginLeft: 8, color: "black" }}>
@@ -427,7 +427,7 @@ function BusinessInformationScreen({ navigation, route }) {
             style={{
               fontSize: 18,
               fontWeight: "600",
-              color: "#2F855A",
+              color: "#00B251",
               marginBottom: 8,
             }}
           >
@@ -461,7 +461,7 @@ function BusinessInformationScreen({ navigation, route }) {
             style={{
               fontSize: 18,
               fontWeight: "600",
-              color: "#2F855A",
+              color: "#00B251",
               marginBottom: 1,
             }}
           >
@@ -472,11 +472,11 @@ function BusinessInformationScreen({ navigation, route }) {
           onPress={() => navigation.navigate("Address", {userData})}
         >
           {/* <Text className='text-base text-black'>Registered Address: {userData.address}</Text> */}
-          <Icon name="chevron-right" type="font-awesome" size={24} color="#2F855A" />
+          <Icon name="chevron-right" type="font-awesome" size={24} color="#00B251" />
         </TouchableOpacity>
         </View>
 
-        <Text style={{ fontSize: 18, fontWeight: "600", color: "#2F855A" }}>
+        <Text style={{ fontSize: 18, fontWeight: "600", color: "#00B251" }}>
           Taxpayer Identification Number (TIN)
         </Text>
         <TextInput
@@ -504,7 +504,7 @@ function BusinessInformationScreen({ navigation, route }) {
           style={{
             fontSize: 18,
             fontWeight: "600",
-            color: "#2F855A",
+            color: "#00B251",
             marginBottom: 8,
           }}
         >
@@ -527,13 +527,13 @@ function BusinessInformationScreen({ navigation, route }) {
                   height: 24,
                   borderRadius: 12,
                   borderWidth: 2,
-                  borderColor: vatStatus === option.value ? "#2F855A" : "#ccc",
+                  borderColor: vatStatus === option.value ? "#00B251" : "#ccc",
                   justifyContent: "center",
                   alignItems: "center",
                 }}
               >
                 {vatStatus === option.value && (
-                  <FontAwesome name="check-circle" size={20} color="#2F855A" />
+                  <FontAwesome name="check-circle" size={20} color="#00B251" />
                 )}
               </View>
               <Text style={{ marginLeft: 8, color: "black" }}>
@@ -548,13 +548,13 @@ function BusinessInformationScreen({ navigation, route }) {
           ) : null}
         </View>
 
-        <Text style={{ fontSize: 18, fontWeight: "600", color: "#2F855A" }}>
+        <Text style={{ fontSize: 18, fontWeight: "600", color: "#00B251" }}>
           BIR Certificate of Registration
         </Text>
         <TouchableOpacity
           style={{
             borderWidth: 1,
-            borderColor: "#2F855A",
+            borderColor: "#00B251",
             borderRadius: 4,
             padding: 16,
             marginVertical: 16,
@@ -565,7 +565,7 @@ function BusinessInformationScreen({ navigation, route }) {
           }}
           onPress={() => setModalVisible(true)}
         >
-          <Text style={{ color: "#2F855A" }}>+ Upload (0/1)</Text>
+          <Text style={{ color: "#00B251" }}>+ Upload (0/1)</Text>
         </TouchableOpacity>
 
         {birCertificate && (
@@ -591,7 +591,7 @@ function BusinessInformationScreen({ navigation, route }) {
           style={{
             fontSize: 18,
             fontWeight: "600",
-            color: "#2F855A",
+            color: "#00B251",
             marginBottom: 8,
           }}
         >
@@ -615,13 +615,13 @@ function BusinessInformationScreen({ navigation, route }) {
                   borderRadius: 12,
                   borderWidth: 2,
                   borderColor:
-                    swornDeclaration === option.value ? "#2F855A" : "#ccc",
+                    swornDeclaration === option.value ? "#00B251" : "#ccc",
                   justifyContent: "center",
                   alignItems: "center",
                 }}
               >
                 {swornDeclaration === option.value && (
-                  <FontAwesome name="check-circle" size={20} color="#2F855A" />
+                  <FontAwesome name="check-circle" size={20} color="#00B251" />
                 )}
               </View>
               <Text style={{ marginLeft: 8, color: "black" }}>
@@ -646,7 +646,7 @@ function BusinessInformationScreen({ navigation, route }) {
             style={{
               fontSize: 18,
               fontWeight: "600",
-              color: "#2F855A",
+              color: "#00B251",
               marginBottom: 8,
             }}
           >
@@ -662,13 +662,13 @@ function BusinessInformationScreen({ navigation, route }) {
                 height: 24,
                 borderRadius: 12,
                 borderWidth: 2,
-                borderColor: isTermsAccepted ? "#2F855A" : "#ccc",
+                borderColor: isTermsAccepted ? "#00B251" : "#ccc",
                 justifyContent: "center",
                 alignItems: "center",
               }}
             >
               {isTermsAccepted && (
-                <FontAwesome name="check-circle" size={20} color="#2F855A" />
+                <FontAwesome name="check-circle" size={20} color="#00B251" />
               )}
             </View>
             <View className="flex-row flex-wrap items-center m-2">
@@ -728,7 +728,7 @@ function BusinessInformationScreen({ navigation, route }) {
             </Text>
             <TouchableOpacity
               style={{
-                backgroundColor: "#2F855A",
+                backgroundColor: "#00B251",
                 padding: 16,
                 borderRadius: 8,
                 marginBottom: 16,
@@ -741,7 +741,7 @@ function BusinessInformationScreen({ navigation, route }) {
             </TouchableOpacity>
             <TouchableOpacity
               style={{
-                backgroundColor: "#2F855A",
+                backgroundColor: "#00B251",
                 padding: 16,
                 borderRadius: 8,
                 marginBottom: 16,
