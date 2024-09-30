@@ -34,6 +34,7 @@ function initializeSocket(server) {
                         sender_id: msg.sender_id,
                         receiver_id: msg.receiver_id,
                         receiver_type: msg.receiver_type,
+                        sender_type: msg.sender_type,
                         chat_message: msg.chat_message,
                         chat_image_url: msg.chat_image_url || null,
                         is_read: false,

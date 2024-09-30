@@ -68,7 +68,7 @@ function ChatModal({ isOpen, onClose, userId, onMessagesRead }) {
     }, [userId]);
 
     const handleUserClick = (id) => {
-        navigate(`/admin/chat/${id}`);
+        navigate(`/admin/chat/${id}/User`);
         onMessagesRead(); // Reset unread count when navigating to chat
         onClose(); // Close modal on user click
     };

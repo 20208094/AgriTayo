@@ -19,12 +19,13 @@ function ChatPage() {
   const [userId, setUserId] = useState(null);
   const [error, setError] = useState("");
   const [fullImageView, setFullImageView] = useState(null);
-  const { receiverId } = useParams();
   const navigate = useNavigate();
   const messagesEndRef = useRef(null);
   const [activeUsers, setActiveUsers] = useState([]);
 
+  const { receiverId, receiverType } = useParams();
   const receiverIdNum = Number(receiverId);
+  const senderType = 'User'
 
   useEffect(() => {
     socket = io();
@@ -36,8 +37,8 @@ function ChatPage() {
 
     socket.on("chat message", (msg) => {
       const isMessageForThisChat =
-        (msg.sender_id === userId && msg.receiver_id === receiverIdNum) ||
-        (msg.receiver_id === userId && msg.sender_id === receiverIdNum);
+        (msg.sender_id === userId && msg.receiver_id === receiverIdNum && msg.receiver_type === receiverType && msg.sender_type === senderType) ||
+        (msg.receiver_id === userId && msg.sender_id === receiverIdNum && msg.receiver_type === senderType && msg.sender_type === receiverType);
 
       // Check if the incoming message is unread
       const unreadCount = !msg.is_read && msg.receiver_id === userId;
@@ -133,7 +134,7 @@ function ChatPage() {
       if (userId && receiverId) {
         console.log('u:', userId, receiverId)
         try {
-          const response = await fetch(`/api/chatsId/${userId}/${receiverId}`, {
+          const response = await fetch(`/api/chatsId/${userId}/${receiverId}/${receiverType}/${senderType}`, {
             headers: { "x-api-key": API_KEY },
           });
 
@@ -281,7 +282,7 @@ function ChatPage() {
             <li
               key={user.user_id}
               className="flex items-center p-3 hover:bg-green-200 cursor-pointer text-green-600"
-              onClick={() => navigate(`/admin/chat/${user.user_id}`)}
+              onClick={() => navigate(`/admin/chat/${user.user_id}/User`)}
             >
               <img
                 src={user.user_image_url || "default-avatar.png"}

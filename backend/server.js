@@ -343,7 +343,7 @@ app.delete('/api/review_images/:id', deleteReviewImage);
 
 // API routes for chat messages
 app.get('/api/chats', getChats);
-app.get('/api/chatsId/:userId/:receiverId', getChatsId);
+app.get('/api/chatsId/:userId/:receiverId/:receiverType/:senderType', getChatsId);
 app.post('/api/chats', (req, res) => {
     addChat(req, res, getIo());
 });

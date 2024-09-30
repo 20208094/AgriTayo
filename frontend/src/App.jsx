@@ -244,7 +244,7 @@ function Layout({ userType, userId, refreshProfile, setRefreshProfile }) {
             <Route path='individualCropPriceChangesAnalytics' element={<IndividualCropPriceChangesPage />} />
             <Route path='profitAnalytics' element={<ProfitAnalyticsPage />} />
             <Route path="chatlist" element={<ChatListPage />} />
-            <Route path="chat/:receiverId" element={<ChatPage />} />
+            <Route path="chat/:receiverId/:receiverType" element={<ChatPage />} />
             <Route path="about" element={<LandingPage />} />
           </Route>
           {/* SELLER ROUTES */}

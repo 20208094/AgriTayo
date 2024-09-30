@@ -27,7 +27,7 @@ async function getChats(req, res) {
 
 async function getChatsId(req, res) { 
     try {
-        const { userId, receiverId } = req.params;
+        const { userId, receiverId, receiverType, senderType } = req.params;
         const receiverIdNum = parseInt(receiverId, 10);
         const userIdNum = parseInt(userId, 10);
 
@@ -38,13 +38,17 @@ async function getChatsId(req, res) {
             .from('chats')
             .select('*')
             .eq('sender_id', userIdNum)
-            .eq('receiver_id', receiverIdNum);
+            .eq('receiver_id', receiverIdNum)
+            .eq('sender_type', senderType)
+            .eq('receiver_type', receiverType);
 
         const { data: messagesReceiverToUser, error: errorReceiverToUser } = await supabase
             .from('chats')
             .select('*')
             .eq('sender_id', receiverIdNum)
-            .eq('receiver_id', userIdNum);
+            .eq('receiver_id', userIdNum)
+            .eq('sender_type', receiverType)
+            .eq('receiver_type', senderType);
 
         if (errorUserToReceiver || errorReceiverToUser) {
             console.error('Supabase query failed:', errorUserToReceiver?.message || errorReceiverToUser?.message);
@@ -77,6 +81,7 @@ async function addChat(req, res, io) {
             const sender_id = fields.sender_id[0];
             const receiver_id = fields.receiver_id[0];
             const receiver_type = fields.receiver_type[0];
+            const sender_type = fields.sender_type[0];
             const chat_message = fields.chat_message[0];
             const image = files.image ? files.image[0] : null;
 
@@ -94,7 +99,7 @@ async function addChat(req, res, io) {
             try {
                 const { data, error } = await supabase
                     .from('chats')
-                    .insert([{ sender_id, receiver_id, receiver_type, chat_message, chat_image_url, is_read: false }])
+                    .insert([{ sender_id, receiver_id, receiver_type, sender_type, chat_message, chat_image_url, is_read: false }])
                     .select();
 
                 if (error) {
@@ -110,6 +115,7 @@ async function addChat(req, res, io) {
                         sender_id: savedMessage.sender_id,
                         receiver_id: savedMessage.receiver_id,
                         receiver_type: savedMessage.receiver_type,
+                        sender_type: savedMessage.sender_type,
                         chat_message: savedMessage.chat_message,
                         chat_image_url: savedMessage.chat_image_url,
                         sent_at: new Date().toISOString(),
