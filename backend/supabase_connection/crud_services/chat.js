@@ -31,7 +31,7 @@ async function getChatsId(req, res) {
         const receiverIdNum = parseInt(receiverId, 10);
         const userIdNum = parseInt(userId, 10);
 
-        console.log('getchatsid called', userId, receiverId);
+        console.log('getChatsId called', userId, receiverId, receiverType, senderType);
 
         // Supabase query to fetch messages based on sender and receiver
         const { data: messagesUserToReceiver, error: errorUserToReceiver } = await supabase
@@ -60,6 +60,154 @@ async function getChatsId(req, res) {
 
         // Return the filtered messages
         res.json(filteredMessages);
+    } catch (err) {
+        console.error('Error executing Supabase query:', err.message);
+        res.status(500).json({ error: 'Internal server error', details: err.message });
+    }
+}
+
+async function getChatList(req, res) { 
+    try {
+        const { userId, receiverType, senderType } = req.params;
+        const userIdNum = parseInt(userId, 10);
+
+        // Step 1: Fetch all users except the logged-in user (userId)
+        const { data: allUsers, error: errorUsers } = await supabase
+            .from('users')
+            .select('*')
+            .neq('user_id', userIdNum); // Exclude the logged-in user
+
+        if (errorUsers) {
+            console.error('Supabase query failed for users:', errorUsers.message);
+            return res.status(500).json({ error: 'Internal server error', details: errorUsers.message });
+        }
+
+        // Step 2: Fetch chats where the logged-in user is the sender
+        const { data: messagesUserToReceiver, error: errorUserToReceiver } = await supabase
+            .from('chats')
+            .select('*')
+            .eq('sender_id', userIdNum)
+            .eq('sender_type', senderType)
+            .eq('receiver_type', receiverType);
+
+        // Step 3: Fetch chats where the logged-in user is the receiver
+        const { data: messagesReceiverToUser, error: errorReceiverToUser } = await supabase
+            .from('chats')
+            .select('*')
+            .eq('sender_id', userIdNum)
+            .eq('sender_type', receiverType)
+            .eq('receiver_type', senderType);
+
+        if (errorUserToReceiver || errorReceiverToUser) {
+            console.error('Supabase query failed:', errorUserToReceiver?.message || errorReceiverToUser?.message);
+            return res.status(500).json({ error: 'Internal server error', details: errorUserToReceiver?.message || errorReceiverToUser?.message });
+        }
+
+        // Step 4: Combine both chat results
+        const allChats = [...(messagesUserToReceiver || []), ...(messagesReceiverToUser || [])];
+
+        // Step 5: Map each user with their latest chat time
+        const userChatMap = allUsers.map(user => {
+            // Filter chats involving this user
+            const userChats = allChats.filter(chat => 
+                chat.sender_id === user.user_id || chat.receiver_id === user.user_id
+            );
+
+            // Get the latest chat time
+            const latestChat = userChats.reduce((latest, chat) => {
+                return (!latest || new Date(chat.sent_at) > new Date(latest.sent_at)) ? chat : latest;
+            }, null);
+
+            return {
+                user_id: user.user_id,
+                firstname: user.firstname,
+                user_image_url: user.user_image_url,
+                latest_chat_time: latestChat ? latestChat.sent_at : null,
+            };
+        });
+
+        // Step 6: Sort users by latest chat time, placing users with no chats at the bottom
+        userChatMap.sort((a, b) => {
+            if (a.latest_chat_time === null) return 1;
+            if (b.latest_chat_time === null) return -1;
+            return new Date(b.latest_chat_time) - new Date(a.latest_chat_time);
+        });
+
+        // Return the sorted chat list
+        res.json(userChatMap);
+    } catch (err) {
+        console.error('Error executing Supabase query:', err.message);
+        res.status(500).json({ error: 'Internal server error', details: err.message });
+    }
+}
+
+
+async function getChatShopList(req, res) { 
+    try {
+        const { userId, receiverType, senderType } = req.params;
+        const userIdNum = parseInt(userId, 10);
+
+        // Step 1: Fetch all shops
+        const { data: allShops, error: errorShops } = await supabase
+            .from('shop')
+            .select('*');
+
+        if (errorShops) {
+            console.error('Supabase query failed for shops:', errorShops.message);
+            return res.status(500).json({ error: 'Internal server error', details: errorShops.message });
+        }
+
+        // Step 2: Fetch chats where the logged-in user is the sender
+        const { data: messagesUserToShop, error: errorUserToShop } = await supabase
+            .from('chats')
+            .select('*')
+            .eq('sender_id', userIdNum)
+            .eq('sender_type', senderType)
+            .eq('receiver_type', receiverType);
+
+        // Step 3: Fetch chats where the logged-in user is the receiver
+        const { data: messagesShopToUser, error: errorShopToUser } = await supabase
+            .from('chats')
+            .select('*')
+            .eq('sender_id', userIdNum)
+            .eq('sender_type', receiverType)
+            .eq('receiver_type', senderType);
+
+        if (errorUserToShop || errorShopToUser) {
+            console.error('Supabase query failed:', errorUserToShop?.message || errorShopToUser?.message);
+            return res.status(500).json({ error: 'Internal server error', details: errorUserToShop?.message || errorShopToUser?.message });
+        }
+
+        // Step 4: Combine results from steps 2 and 3
+        const combinedMessages = [
+            ...(messagesUserToShop || []),
+            ...(messagesShopToUser || [])
+        ];
+        
+        // Step 5: Create a map to store the latest chat time for each shop
+        const latestChatMap = {};
+
+        // Iterate through the combined messages to find the latest chat time for each shop
+        combinedMessages.forEach(chat => {
+            const shopId = chat.receiver_id; // Assuming receiver_id corresponds to shop_id
+            const chatTime = chat.sent_at;
+
+            // Update the latest chat time if it's more recent
+            if (!latestChatMap[shopId] || new Date(chatTime) > new Date(latestChatMap[shopId])) {
+                latestChatMap[shopId] = chatTime;
+            }
+        });
+
+        // Step 6: Map shops to include the latest chat time
+        const result = allShops.map(shop => ({
+            shop_id: shop.shop_id,
+            shop_name: shop.shop_name,
+            shop_image_url: shop.shop_image_url,
+            latest_chat_time: latestChatMap[shop.shop_id] || null,
+        }));
+        console.log('result :', result);
+
+        res.json(result); // Send the result as JSON
     } catch (err) {
         console.error('Error executing Supabase query:', err.message);
         res.status(500).json({ error: 'Internal server error', details: err.message });
@@ -224,6 +372,8 @@ async function deleteChat(req, res) {
 module.exports = {
     getChats,
     getChatsId,
+    getChatList,
+    getChatShopList,
     addChat,
     updateChatReadStatus,
     deleteChat,

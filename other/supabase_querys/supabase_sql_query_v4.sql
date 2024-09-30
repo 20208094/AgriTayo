@@ -262,6 +262,7 @@ CREATE TABLE chats (
     sender_id INT NOT NULL,
     receiver_id INT NOT NULL,
     receiver_type VARCHAR(10) CHECK (receiver_type IN ('User', 'Shop')),
+    sender_type VARCHAR(10) CHECK (sender_type IN ('User', 'Shop')),
     chat_message TEXT,
     chat_image_url VARCHAR(255),
     is_read BOOLEAN DEFAULT FALSE,

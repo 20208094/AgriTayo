@@ -148,6 +148,8 @@ const {
 const {
     getChats,
     getChatsId,
+    getChatList,
+    getChatShopList,
     addChat,
     updateChatReadStatus,
     deleteChat
@@ -344,6 +346,8 @@ app.delete('/api/review_images/:id', deleteReviewImage);
 // API routes for chat messages
 app.get('/api/chats', getChats);
 app.get('/api/chatsId/:userId/:receiverId/:receiverType/:senderType', getChatsId);
+app.get('/api/chatList/:userId/:receiverType/:senderType', getChatList);
+app.get('/api/chatShopList/:userId/:receiverType/:senderType', getChatShopList);
 app.post('/api/chats', (req, res) => {
     addChat(req, res, getIo());
 });

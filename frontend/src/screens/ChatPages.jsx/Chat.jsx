@@ -14,9 +14,13 @@ let socket;
 function ChatPage() {
   const [messages, setMessages] = useState([]);
   const [users, setUsers] = useState([]);
-  const [filteredUsers, setFilteredUsers] = useState([]); // For filtering users
+  const [shops, setShops] = useState([]);
+  const [filteredUsers, setFilteredUsers] = useState([]);
+  const [filteredShops, setFilteredShops] = useState([]);
   const [newMessageUsers, setNewMessageUsers] = useState(new Set());
   const [senderData, setSenderData] = useState(null);
+  const [userReceiverData, setUserReceiverData] = useState(null);
+  const [shopReceiverData, setShopReceiverData] = useState(null);
   const [receiverData, setReceiverData] = useState(null);
   const [newMessage, setNewMessage] = useState("");
   const [newImage, setNewImage] = useState(null);
@@ -28,10 +32,11 @@ function ChatPage() {
   const [activeUsers, setActiveUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState(""); // State for search term
   const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Sidebar dropdown toggle for mobile
-
   const { receiverId, receiverType } = useParams();
   const receiverIdNum = Number(receiverId);
   const senderType = 'User'
+
+  const [selectedType, setSelectedType] = useState(receiverType);
 
   useEffect(() => {
     socket = io();
@@ -58,7 +63,10 @@ function ChatPage() {
 
       // If the message belongs to the current chat, add it to the list
       if (isMessageForThisChat) {
+      console.log('isMessageForThisChat :', isMessageForThisChat);
         setMessages((prevMessages) => [...prevMessages, msg]);
+        fetchUsersWithChats();
+        fetchShopsWithChats();
       }
     });
 
@@ -91,7 +99,10 @@ function ChatPage() {
         setError("Failed to fetch user session. Please try again.");
       }
     };
+    fetchUserSession();
+  }, [navigate, userId]);
 
+  useEffect(() => {
     const fetchUsers = async () => {
       try {
         const response = await fetch("/api/users", {
@@ -102,39 +113,141 @@ function ChatPage() {
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
-        const usersData = await response.json();
-        setUsers(usersData);
-        setFilteredUsers(usersData); // Initialize filteredUsers with all users
+        const allUsersData = await response.json();
 
-        const sender = usersData.find((user) => user.user_id === userId);
-        const receiver = usersData.find((user) => user.user_id === receiverIdNum);
+        const sender = allUsersData.find((user) => user.user_id === userId);
+        const receiver = allUsersData.find((user) => user.user_id === receiverIdNum);
 
         setSenderData(sender);
-        setReceiverData(receiver);
-
-        // Check for unread messages
-        const chatResponse = await fetch(`/api/chats`, {
-          headers: { "x-api-key": API_KEY },
-        });
-
-        if (chatResponse.ok) {
-          const chats = await chatResponse.json();
-          const unreadMessages = chats.filter(
-            (chat) => chat.receiver_id === userId && !chat.is_read
-          );
-          const usersWithNewMessages = new Set(
-            unreadMessages.map((chat) => chat.sender_id)
-          );
-          setNewMessageUsers(usersWithNewMessages);
+        setUserReceiverData(receiver);
+        if (receiverType === 'User') {
+          setReceiverData(receiver);
         }
       } catch (error) {
         console.error("Error fetching users:", error);
       }
     };
 
-    fetchUserSession();
     fetchUsers();
-  }, [navigate, userId, receiverIdNum]);
+  }, [userId, receiverIdNum]);
+
+  useEffect(() => {
+    const fetchShops = async () => {
+      try {
+        const response = await fetch("/api/shops", { // Make sure your API for shops is set up
+          headers: {
+            "x-api-key": API_KEY,
+          },
+        });
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        const allShopsData = await response.json();
+        const receiver = allShopsData.find((shop) => shop.shop_id === receiverIdNum);
+
+        setShopReceiverData(receiver);
+        if (receiverType === 'Shop') {
+          setReceiverData(receiver);
+        }
+      } catch (error) {
+        console.error("Error fetching shops:", error);
+      }
+    };
+    fetchShops();
+  }, [receiverIdNum]);
+
+  const fetchUsersWithChats = async () => {
+    console.log('fetchUsersWithChats called:',userId);
+
+      try {
+        // Fetch chats for the logged-in user
+        const chatsResponse = await fetch(`/api/chatList/${userId}/User/User`, {
+          headers: {
+            "x-api-key": API_KEY,
+          },
+        });
+  
+        if (!chatsResponse.ok) {
+          throw new Error("Failed to fetch chats");
+        }
+  
+        const chatsData = await chatsResponse.json();
+        console.log('chatsData before sorting:', chatsData);
+  
+        // Sort users: Non-null latest_chat_time first, then null values
+        const sortedUsers = chatsData.sort((a, b) => {
+          if (a.latest_chat_time === null && b.latest_chat_time !== null) {
+            return 1; // `a` should come after `b`
+          }
+          if (a.latest_chat_time !== null && b.latest_chat_time === null) {
+            return -1; // `a` should come before `b`
+          }
+          // For non-null values, sort by latest_chat_time descending
+          return new Date(b.latest_chat_time) - new Date(a.latest_chat_time);
+        });
+  
+        // Update the state with the sorted users
+        setUsers(sortedUsers);
+        console.log('Sorted users:', sortedUsers);
+  
+      } catch (error) {
+        console.error("Error fetching users with chats:", error);
+      }
+    };
+
+  useEffect(() => {
+    
+  
+    if (userId) {
+      fetchUsersWithChats();
+    }
+  }, [userId]);
+  
+  const fetchShopsWithChats = async () => {
+    try {
+      // Fetch chats for the logged-in user
+      const chatsResponse = await fetch(`/api/chatShopList/${userId}/User/Shop`, {
+        headers: {
+          "x-api-key": API_KEY,
+        },
+      });
+
+      if (!chatsResponse.ok) {
+        throw new Error("Failed to fetch chats");
+      }
+
+      const chatsData = await chatsResponse.json();
+      console.log('chatsData before sorting:', chatsData);
+
+      // Sort shops: Non-null latest_chat_time first, then null values
+      const sortedShops = chatsData.sort((a, b) => {
+        if (a.latest_chat_time === null && b.latest_chat_time !== null) {
+          return 1; // `a` should come after `b`
+        }
+        if (a.latest_chat_time !== null && b.latest_chat_time === null) {
+          return -1; // `a` should come before `b`
+        }
+        // For non-null values, sort by latest_chat_time descending
+        return new Date(b.latest_chat_time) - new Date(a.latest_chat_time);
+      });
+
+      // Update the state with the sorted shops
+      setShops(sortedShops);
+      console.log('Sorted shops:', sortedShops);
+
+    } catch (error) {
+      console.error("Error fetching users with chats:", error);
+    }
+  };
+  
+  useEffect(() => {
+    
+  
+    if (userId) {
+      fetchShopsWithChats();
+    }
+  }, [userId]);
+  
 
   useEffect(() => {
     const fetchMessages = async () => {
@@ -150,15 +263,11 @@ function ChatPage() {
             const sortedMessages = allMessages.sort(
               (a, b) => a.chat_id - b.chat_id
             );
-
             setMessages(sortedMessages);
 
             const unreadCount = sortedMessages.filter(
               (message) => !message.is_read && message.receiver_id === userId
             ).length;
-            console.log("unread:", unreadCount);
-            console.log("Unread messages count:", unreadCount);
-            console.log("messages 2:", allMessages);
             if (unreadCount !== 0) {
               console.log("Executing mark as read");
               markMessagesAsRead();
@@ -212,7 +321,8 @@ function ChatPage() {
       formData.append("sender_id", userId);
       formData.append("receiver_id", receiverId);
       formData.append("chat_message", newMessage);
-      formData.append("receiver_type", "User");
+      formData.append("receiver_type", receiverType);
+      formData.append("sender_type", "User");
       formData.append("sent_at", new Date());
       if (newImage) {
         formData.append("image", newImage);
@@ -256,7 +366,7 @@ function ChatPage() {
     setNewImage(null);
   };
 
-  
+
   useEffect(() => {
     const checkActiveUsers = () => {
       if (activeUsers.length === 0) {
@@ -264,7 +374,7 @@ function ChatPage() {
         socket.emit("requestActiveUsers"); // Assuming you have this event set up in the server
         socket.on('activeUsers', (users) => {
           setActiveUsers(users); // Update the active users state
-      });
+        });
       }
     };
 
@@ -274,27 +384,38 @@ function ChatPage() {
   }, [activeUsers]);
 
   const isOnline = (userid) => {
-    console.log("Active Users:", activeUsers, "Type:", typeof activeUsers, "Is Array:", Array.isArray(activeUsers));  // Logs contents, data type, and whether activeUsers is an array
-  
-    // Convert userid to a string before checking if it's included in activeUsers
     return activeUsers.includes(String(userid)) ? "Online" : "Offline";
   };
 
-  // Filter users based on search term
+  const handleTypeChange = (type) => {
+    setSelectedType(type);
+    setSearchTerm(""); // Clear search term when type changes
+  };
+
   useEffect(() => {
-    const results = users.filter((user) =>
-      user.firstname.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-    setFilteredUsers(results);
-  }, [searchTerm, users]);
+    const lowercasedSearchTerm = searchTerm.toLowerCase();
+    let filtered;
+
+    if (selectedType === "User") {
+      filtered = users.filter(user =>
+        user.firstname && user.firstname.toLowerCase().includes(lowercasedSearchTerm) // Check if firstname exists
+      );
+      setFilteredUsers(filtered);
+    } else if (selectedType === "Shop") {
+      filtered = shops.filter(shop =>
+        shop.shop_name && shop.shop_name.toLowerCase().includes(lowercasedSearchTerm) // Check if shop_name exists
+      );
+      setFilteredShops(filtered);
+    }
+  }, [searchTerm, users, shops, selectedType]);
+
 
   return (
     <div className="flex flex-col md:flex-row h-full min-h-3.5 bg-gray-100">
       {/* Left Sidebar: User List */}
       <div
-        className={`w-full md:w-1/3 lg:w-1/4 bg-white p-4 shadow-md mt-4 transition-transform duration-300 ease-in-out fixed md:relative ${
-          isSidebarOpen ? "top-0" : "top-[-100vh]"
-        } md:top-auto z-10`}
+        className={`w-full md:w-1/3 lg:w-1/4 bg-white p-4 shadow-md mt-4 transition-transform duration-300 ease-in-out fixed md:relative ${isSidebarOpen ? "top-0" : "top-[-100vh]"
+          } md:top-auto z-10`}
       >
 
         <div className="flex items-center justify-between">
@@ -308,6 +429,20 @@ function ChatPage() {
         </div>
 
         <div className="mb-4">
+          <div className="flex space-x-4 mb-4">
+            <button
+              onClick={() => handleTypeChange("User")}
+              className={`flex-1 py-2 rounded-md text-center font-medium transition-colors ${selectedType === "User" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-700"}`}
+            >
+              Users Chats
+            </button>
+            <button
+              onClick={() => handleTypeChange("Shop")}
+              className={`flex-1 py-2 rounded-md text-center font-medium transition-colors ${selectedType === "Shop" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-700"}`}
+            >
+              Shops Chats
+            </button>
+          </div>
           <div className="relative">
             <input
               type="text"
@@ -320,29 +455,29 @@ function ChatPage() {
           </div>
         </div>
 
-        {/* Scrollable User List */}
+        {/* Scrollable List Based on Selected Type */}
         <ul className="divide-y divide-gray-300 overflow-y-auto max-h-[calc(100vh-200px)]">
-          {filteredUsers.map((user) => (
+          {(selectedType === "User" ? filteredUsers : filteredShops).map((item) => (
             <li
-              key={user.user_id}
+              key={item.user_id || item.shop_id} // Use appropriate id based on type
               className="flex items-center p-3 hover:bg-green-200 cursor-pointer text-green-600"
               onClick={() => {
                 setIsSidebarOpen(false);
-                navigate(`/admin/chat/${user.user_id}/User`);
+                navigate(`/admin/chat/${item.user_id || item.shop_id}/${selectedType === "User" ? "User" : "Shop"}`);
               }}
             >
               <img
-                src={user.user_image_url || "default-avatar.png"}
-                alt={`${user.firstname}'s avatar`}
+                src={item.user_image_url || item.shop_image_url}
+                alt={item.firstname ? `${item.firstname}'s avatar` : `${item.shop_name}'s image`}
                 className="w-10 h-10 rounded-full mr-4"
               />
               <div className="flex-1">
-                <p className="font-medium">{user.firstname}</p>
+                <p className="font-medium">{item.firstname || item.shop_name}</p> {/* Adjusted for shop name */}
                 <div className="flex justify-between items-center">
                   <p className="text-sm text-gray-500">
-                    {newMessageUsers.has(user.user_id) ? "New message" : ""}
+                    {newMessageUsers.has(item.user_id) ? "New message" : ""}
                   </p>
-                  <p className="text-sm text-gray-500">{isOnline(user.user_id)}</p>
+                  <p className="text-sm text-gray-500">{isOnline(item.user_id || item.shop_id)}</p>
                 </div>
               </div>
             </li>
@@ -356,13 +491,13 @@ function ChatPage() {
         {receiverData && (
           <div className="flex items-center bg-white p-4 shadow-sm">
             <img
-              src={receiverData.user_image_url || "default-avatar.png"}
+              src={receiverData.user_image_url || receiverData.shop_image_url || "default-avatar.png"}
               alt="Receiver Avatar"
               className="w-12 h-12 rounded-full mr-4"
             />
             <div>
               <h3 className="font-semibold text-lg text-green-600">
-                {receiverData.firstname}
+                {receiverData.firstname || receiverData.shop_name}
               </h3>
               <p className="text-sm text-gray-500">
                 {/* Show online/offline status */}
@@ -380,14 +515,13 @@ function ChatPage() {
               return (
                 <div
                   key={index}
-                  className={`flex mb-4 ${
-                    isSentByUser ? "justify-end" : "justify-start"
-                  }`}
+                  className={`flex mb-4 ${isSentByUser ? "justify-end" : "justify-start"
+                    }`}
                 >
                   {!isSentByUser && (
                     <img
                       src={
-                        receiverData?.user_image_url || "default-avatar.png"
+                        receiverData?.user_image_url || receiverData.shop_image_url || "default-avatar.png"
                       }
                       alt="Avatar"
                       className="w-8 h-8 rounded-full mr-2"
@@ -395,11 +529,10 @@ function ChatPage() {
                   )}
                   <div className="flex flex-col items-end">
                     <div
-                      className={`rounded-lg p-4 max-w-xs ${
-                        isSentByUser
-                          ? "bg-green-600 text-white"
-                          : "bg-gray-200 text-gray-800"
-                      } break-words relative`}
+                      className={`rounded-lg p-4 max-w-xs ${isSentByUser
+                        ? "bg-green-600 text-white"
+                        : "bg-gray-200 text-gray-800"
+                        } break-words relative`}
                     >
                       <p>{msg.chat_message}</p>
                       {msg.chat_image_url && (
