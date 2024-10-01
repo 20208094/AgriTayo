@@ -9,12 +9,34 @@ import {
 import { FontAwesome5 } from '@expo/vector-icons';
 import michael from "../../../assets/ehh.png";
 
+const dummyNegotiation = [
+    {
+        id: 1,
+        productName: 'Patatas',
+        productDescription: 'Patatas masarap',
+        productPrice: 10.00,
+    },
+    {
+        id: 2,
+        productName: 'Tomato',
+        productDescription: 'Tomato masarap',
+        productPrice: 5.00,
+    }
+];
+
 function ShopScreen({ navigation }) {
   const information = {
     id: 1,
     name: "Michael",
     followers: 0,
     verify: "Verified",
+  };
+
+  // Sample negotiation data (this should come from somewhere like state or props)
+  const negotiationData = {
+      price: '10.00',
+      amount: '1',
+      total: '10.00'
   };
 
   return (
@@ -70,6 +92,7 @@ function ShopScreen({ navigation }) {
       <View className="mt-6 px-6 flex-wrap flex-row justify-between">
         {[
           { label: "My Products", icon: "box", screen: "My Products" },
+          { label: "Negotiation", icon: "hands-helping", screen: "Seller Negotiation List" },
           { label: "Shop Performance", icon: "chart-line", screen: "Shop Performance" },
           { label: "Bidding", icon: "file-contract", screen: "Bidding" },
           { label: "Learn and Help", icon: "info-circle", screen: "Learn and Help" },
@@ -77,7 +100,14 @@ function ShopScreen({ navigation }) {
           <TouchableOpacity
             key={label}
             className="w-[30%] items-center my-2"
-            onPress={() => navigation.navigate(screen, { information })}
+            onPress={() => {
+              if (label === "Negotiation") {
+                // Pass the dummyNegotiation and negotiationData only for the Negotiation screen
+                navigation.navigate(screen, { dummyNegotiation, negotiationData });
+              } else {
+                navigation.navigate(screen, { information });
+              }
+            }}
           >
             <View className="h-12 w-12 justify-center items-center bg-gray-200 rounded-full mb-2">
               <FontAwesome5 name={icon} size={24} color="#00B251" />

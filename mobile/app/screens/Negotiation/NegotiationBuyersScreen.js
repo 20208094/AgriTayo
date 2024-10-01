@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react'
-import { SafeAreaView, View, Text, TouchableOpacity, TextInput} from 'react-native'
+import { Alert, SafeAreaView, View, Text, TouchableOpacity, TextInput} from 'react-native'
 
 const dummyNegotiation = [
     {
@@ -7,13 +7,19 @@ const dummyNegotiation = [
         productName: 'Patatas',
         productDescription: 'Patatas masarap',
         productPrice: 10.00,
+    },
+    {
+        id: 2,
+        productName: 'Tomato',
+        productDescription: 'Tomato masarap',
+        productPrice: 5.00,
     }
 ]
 
 function NegotiationBuyerScreen({navigation}){
     const [price, setPrice] = useState('')
     const [amount, setAmount] = useState('')
-    const [total, setTotal] = useState('')
+    const [total, setTotal] = useState(0)
 
     useEffect (() =>{
         const priceNum = parseFloat(price) || 0
@@ -28,7 +34,15 @@ function NegotiationBuyerScreen({navigation}){
             total
         }
 
-        navigation.navigate('Seller Negotiation', {dummyNegotiation, negotiationData})
+        Alert.alert(
+            'Negotiate Successfully',
+            [
+            {
+                text: 'okay'
+            }
+        ])
+
+        navigation.navigate('Seller Negotiation List', {dummyNegotiation, negotiationData})
     }
 
     return(

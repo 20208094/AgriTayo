@@ -2,14 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { SafeAreaView, View, Text, TouchableOpacity, TextInput } from 'react-native'; 
 import CustomModal from '../../components/CustomModal';
 
-function NegotiationSellerScreen({ route }) {
+function NegotiationSellerScreen({ route, navigation }) {
     const { dummyNegotiation, negotiationData } = route.params;
 
     const [price, setPrice] = useState('');
     const [amount, setAmount] = useState('');
-    const [total, setTotal] = useState('');
+    const [total, setTotal] = useState(0);
     const [modalVisible, setModalVisible] = useState(false);
     const [negotiationSubmitted, setNegotiationSubmitted] = useState(false);
+    const [negotiationAccepted, setNegotiationAccepted] = useState(false);
 
     useEffect(() => {
         const priceNum = parseFloat(price) || 0;
@@ -23,75 +24,87 @@ function NegotiationSellerScreen({ route }) {
 
     const handleNegotiate = () => {
         setNegotiationSubmitted(true);
-        toggleModal();
+        toggleModal(); 
     };
 
     const handleDecline = () => {
         
     };
 
+    const handleAccept = () => {
+        setNegotiationAccepted(true); 
+    };
+
+    const handleAcceptNegotiation = () => {
+        
+    }
+
     return (
-        <SafeAreaView className=''>
-            <View className=''>
-                <Text className=''>Product Name: {dummyNegotiation[0].productName}</Text>
-                <Text className=''>Description: {dummyNegotiation[0].productDescription}</Text>
-                <Text className=''>Price: {dummyNegotiation[0].productPrice}</Text>
-            </View>
-            <View className=''>
-                <Text className=''>Offered Price: {negotiationData.price}</Text>
-                <Text className=''>Amount: {negotiationData.amount}</Text>
-                <Text className=''>Total: {negotiationData.total}</Text>
-            </View>
-            
-            <View className=''>
-                <TouchableOpacity className='' onPress={() => setNegotiationSubmitted(false)}>
-                    <Text className=''>Accept</Text>
-                </TouchableOpacity>
-                <TouchableOpacity  className='' onPress={handleDecline}>
-                    <Text className=''>Decline</Text>
-                </TouchableOpacity>
+        <SafeAreaView>
+            <View>
+                <Text>Product Name: {dummyNegotiation.productName}</Text>
+                <Text>Description: {dummyNegotiation.productDescription}</Text>
+                <Text>Price: {dummyNegotiation.productPrice}</Text>
             </View>
 
-            {negotiationSubmitted && (
-                <View className=''>
-                    <TouchableOpacity  className='' onPress={toggleModal}>
-                        <Text className=''>Negotiate</Text>
+            <View>
+                <Text>Offered Price: {negotiationData.price}</Text>
+                <Text>Amount: {negotiationData.amount}</Text>
+                <Text>Total: {negotiationData.total}</Text>
+            </View>
+            
+            {!negotiationAccepted && (
+                <View>
+                    <TouchableOpacity onPress={handleAccept}>
+                        <Text>Accept</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={handleDecline}>
+                        <Text>Decline</Text>
+                    </TouchableOpacity>
+                </View>
+            )}
+
+            {negotiationAccepted && !negotiationSubmitted && (
+                <View>
+                    <TouchableOpacity onPress={toggleModal}>
+                        <Text>Negotiate</Text>
                     </TouchableOpacity>
                 </View>
             )}
 
             <CustomModal isVisible={modalVisible} onClose={toggleModal}>
-                <Text className=''>Negotiate with Buyer</Text>
-                <Text className=''>Add the price and amount</Text>
+                <Text>Negotiate with Buyer</Text>
+                <Text>Add the price and amount</Text>
                 <TextInput
-                 className=''
                     keyboardType='numeric'
                     placeholder='Enter the Price'
                     value={price}
                     onChangeText={setPrice}
                 />
                 <TextInput
-                 className=''
                     keyboardType='numeric'
                     placeholder='Enter the Amount'
                     value={amount}
                     onChangeText={setAmount}
                 />
-                <Text className=''>Total: {total}</Text>
-                <TouchableOpacity  className='' onPress={toggleModal}>
-                    <Text className=''>Cancel</Text>
+                <Text>Total: {total}</Text>
+                <TouchableOpacity onPress={toggleModal}>
+                    <Text>Cancel</Text>
                 </TouchableOpacity>
-                <TouchableOpacity  className='' onPress={handleNegotiate}>
-                    <Text  className=''>Add for Negotiation</Text>
+                <TouchableOpacity onPress={handleNegotiate}>
+                    <Text>Add for Negotiation</Text>
                 </TouchableOpacity>
             </CustomModal>
 
             {negotiationSubmitted && (
-                <View className=''>
-                    <Text  className=''>Your Negotiation</Text>
-                    <Text className=''>Price: {price}</Text>
-                    <Text  className=''>Amount: {amount}</Text>
-                    <Text className=''>Total: {total}</Text>
+                <View>
+                    <Text>Your Negotiation</Text>
+                    <Text>Price: {price}</Text>
+                    <Text>Amount: {amount}</Text>
+                    <Text>Total: {total}</Text>
+                    <TouchableOpacity onPress={() => navigation.navigate('Buyer Negotiation')}>
+                        <Text>Add for negotiation</Text>
+                    </TouchableOpacity>
                 </View>
             )}
         </SafeAreaView>
