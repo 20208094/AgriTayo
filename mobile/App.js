@@ -116,10 +116,12 @@ function App() {
       if (response.ok) {
         const data = await response.json();
         setUserSession(data);
-        await fetchUsers(data); // Fetch users after setting the session
-        // navigationRef.current?.navigate('HomePageScreen');
+        await fetchUsers(data);
+        if (data.user_type_id = 2 || 1) {
+          await fetchShops(data);
+        }
       } else {
-        // console.warn('Session fetch failed:', response.status);
+        // if theres no logged in user, go to login screen
         setUserSession(null);
         navigationRef.current?.navigate('Login');
       }
@@ -130,7 +132,7 @@ function App() {
       setIsLoading(false); // Set loading to false regardless of outcome
     }
   };
-
+  // fetch all users
   const fetchUsers = async (sessionData) => {
     try {
       const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/users`, {
@@ -139,29 +141,51 @@ function App() {
         },
       });
 
-      if (!response.ok) {
-        // throw new Error('Failed to fetch users');
-      }
-
       const users = await response.json();
+      // get user data of the logged in user
       const filteredUsers = users.filter(user => user.user_id === sessionData.user_id);
-      // console.log("Filtered Users:", filteredUsers);
-
+      // save user data to assync storage userData
       try {
         await AsyncStorage.setItem('userData', JSON.stringify(filteredUsers));
-        // console.log("userData saved successfully");
       } catch (error) {
         console.error('Error saving userData:', error);
       }
-      
+      // save user data to assync storage userSession
       try {
         await AsyncStorage.setItem('userSession', JSON.stringify(filteredUsers));
-        // console.log("userSession saved successfully");
       } catch (error) {
         console.error('Error saving userSession:', error);
       }
     } catch (error) {
       console.error('Error fetching users:', error);
+    }
+  };
+  // fetch all shops
+  const fetchShops = async (sessionData) => {
+    try {
+      const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/shops`, {
+        headers: {
+          'x-api-key': REACT_NATIVE_API_KEY,
+        },
+      });
+
+      const shops = await response.json();
+      // get user data of the logged in user
+      const filteredShops = shops.filter(shop => shop.user_id === sessionData.user_id);
+      // save user data to assync storage userData
+      try {
+        await AsyncStorage.setItem('shopData', JSON.stringify(filteredShops));
+      } catch (error) {
+        console.error('Error saving shopData:', error);
+      }
+      // save user data to assync storage userSession
+      try {
+        await AsyncStorage.setItem('shopSession', JSON.stringify(filteredShops));
+      } catch (error) {
+        console.error('Error saving shopSession:', error);
+      }
+    } catch (error) {
+      console.error('Error fetching shops:', error);
     }
   };
 

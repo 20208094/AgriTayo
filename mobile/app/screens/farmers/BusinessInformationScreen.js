@@ -14,6 +14,7 @@ import { FontAwesome } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { Ionicons } from "@expo/vector-icons";
 import { Icon } from "react-native-elements";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from '@env';
 
 function BusinessInformationScreen({ navigation, route }) {
@@ -109,7 +110,7 @@ function BusinessInformationScreen({ navigation, route }) {
         "Business Information option is required.";
       isValid = false;
     } else if (selectedBusinessInformation === 'later') {
-      navigation.navigate('My Shop')
+      // navigation.navigate('My Shop')
     } else {
       newErrors.businessInformation = "";
     }
@@ -226,13 +227,17 @@ function BusinessInformationScreen({ navigation, route }) {
   
       console.log("API response status:", response.status);
       const data = await response.json();
-      console.log("API response data:", data);
+      console.log("API response data:", formData);
   
       if (response.ok) {
         // Shop creation successful
         Alert.alert("Success", "Shop created successfully!");
-        navigation.navigate("My Shop", { shopData: data });
-        console.log("Shop created successfully:", data);
+        try {
+          await AsyncStorage.setItem('shopData', JSON.stringify(formData));
+        } catch (error) {
+          console.error('Error saving shopData:', error);
+        }
+        navigation.navigate("My Shop");
       } else {
         // Handle any errors returned from the server
         Alert.alert("Error", data.message || "Failed to create shop");

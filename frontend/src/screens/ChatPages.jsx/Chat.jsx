@@ -14,7 +14,9 @@ let socket;
 function ChatPage() {
   const [messages, setMessages] = useState([]);
   const [users, setUsers] = useState([]);
+  const [allUsers, setAllUsers] = useState([]);
   const [shops, setShops] = useState([]);
+  const [allShops, setAllShops] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [filteredShops, setFilteredShops] = useState([]);
   const [newMessageUsers, setNewMessageUsers] = useState(new Set());
@@ -63,7 +65,7 @@ function ChatPage() {
 
       // If the message belongs to the current chat, add it to the list
       if (isMessageForThisChat) {
-      console.log('isMessageForThisChat :', isMessageForThisChat);
+        console.log('isMessageForThisChat :', isMessageForThisChat);
         setMessages((prevMessages) => [...prevMessages, msg]);
         fetchUsersWithChats();
         fetchShopsWithChats();
@@ -157,52 +159,49 @@ function ChatPage() {
   }, [receiverIdNum]);
 
   const fetchUsersWithChats = async () => {
-    console.log('fetchUsersWithChats called:',userId);
+    console.log('fetchUsersWithChats called:', userId);
 
-      try {
-        // Fetch chats for the logged-in user
-        const chatsResponse = await fetch(`/api/chatList/${userId}/User/User`, {
-          headers: {
-            "x-api-key": API_KEY,
-          },
-        });
-  
-        if (!chatsResponse.ok) {
-          throw new Error("Failed to fetch chats");
-        }
-  
-        const chatsData = await chatsResponse.json();
-        console.log('chatsData before sorting:', chatsData);
-  
-        // Sort users: Non-null latest_chat_time first, then null values
-        const sortedUsers = chatsData.sort((a, b) => {
-          if (a.latest_chat_time === null && b.latest_chat_time !== null) {
-            return 1; // `a` should come after `b`
-          }
-          if (a.latest_chat_time !== null && b.latest_chat_time === null) {
-            return -1; // `a` should come before `b`
-          }
-          // For non-null values, sort by latest_chat_time descending
-          return new Date(b.latest_chat_time) - new Date(a.latest_chat_time);
-        });
-  
-        // Update the state with the sorted users
-        setUsers(sortedUsers);
-        console.log('Sorted users:', sortedUsers);
-  
-      } catch (error) {
-        console.error("Error fetching users with chats:", error);
+    try {
+      // Fetch chats for the logged-in user
+      const chatsResponse = await fetch(`/api/chatList/${userId}/User/User`, {
+        headers: {
+          "x-api-key": API_KEY,
+        },
+      });
+
+      if (!chatsResponse.ok) {
+        throw new Error("Failed to fetch chats");
       }
-    };
+
+      const chatsData = await chatsResponse.json();
+      console.log('chatsData before sorting:', chatsData);
+
+      setAllUsers(chatsData);
+
+      // Sort users: Non-null latest_chat_time first, then null values
+      const sortedUsers = chatsData
+        // Filter out null chats first
+        .filter(user => user.latest_chat_time !== null)
+        // Sort by latest_chat_time in descending order
+        .sort((a, b) => new Date(b.latest_chat_time) - new Date(a.latest_chat_time));
+        
+      // Update the state with the sorted users
+      setUsers(sortedUsers);
+      console.log('Sorted users:', sortedUsers);
+
+    } catch (error) {
+      console.error("Error fetching users with chats:", error);
+    }
+  };
 
   useEffect(() => {
-    
-  
+
+
     if (userId) {
       fetchUsersWithChats();
     }
   }, [userId]);
-  
+
   const fetchShopsWithChats = async () => {
     try {
       // Fetch chats for the logged-in user
@@ -219,18 +218,18 @@ function ChatPage() {
       const chatsData = await chatsResponse.json();
       console.log('chatsData before sorting:', chatsData);
 
+      setAllShops(chatsData);
       // Sort shops: Non-null latest_chat_time first, then null values
-      const sortedShops = chatsData.sort((a, b) => {
-        if (a.latest_chat_time === null && b.latest_chat_time !== null) {
-          return 1; // `a` should come after `b`
-        }
-        if (a.latest_chat_time !== null && b.latest_chat_time === null) {
-          return -1; // `a` should come before `b`
-        }
-        // For non-null values, sort by latest_chat_time descending
-        return new Date(b.latest_chat_time) - new Date(a.latest_chat_time);
-      });
+      // Sort shops: Non-null latest_chat_time first, then null values
+      const sortedShops = chatsData
+        // Filter out null chats first
+        .filter(shop => shop.latest_chat_time !== null)
+        // Sort by latest_chat_time in descending order
+        .sort((a, b) => new Date(b.latest_chat_time) - new Date(a.latest_chat_time));
 
+
+
+      console.log('sortedShops :', sortedShops);
       // Update the state with the sorted shops
       setShops(sortedShops);
       console.log('Sorted shops:', sortedShops);
@@ -239,15 +238,15 @@ function ChatPage() {
       console.error("Error fetching users with chats:", error);
     }
   };
-  
+
   useEffect(() => {
-    
-  
+
+
     if (userId) {
       fetchShopsWithChats();
     }
   }, [userId]);
-  
+
 
   useEffect(() => {
     const fetchMessages = async () => {
@@ -394,20 +393,30 @@ function ChatPage() {
 
   useEffect(() => {
     const lowercasedSearchTerm = searchTerm.toLowerCase();
-    let filtered;
 
-    if (selectedType === "User") {
-      filtered = users.filter(user =>
-        user.firstname && user.firstname.toLowerCase().includes(lowercasedSearchTerm) // Check if firstname exists
-      );
-      setFilteredUsers(filtered);
-    } else if (selectedType === "Shop") {
-      filtered = shops.filter(shop =>
-        shop.shop_name && shop.shop_name.toLowerCase().includes(lowercasedSearchTerm) // Check if shop_name exists
-      );
-      setFilteredShops(filtered);
+    if (searchTerm.trim() === "") {
+      // When no search is active, use the sorted users from `users` or `shops`
+      if (selectedType === "User") {
+        setFilteredUsers(users);
+      } else if (selectedType === "Shop") {
+        setFilteredShops(shops);
+      }
+    } else {
+      // When search is active, filter based on `allUsers` or `shops`
+      if (selectedType === "User") {
+        const filtered = allUsers.filter(user =>
+          user.firstname && user.firstname.toLowerCase().includes(lowercasedSearchTerm) // Search within `allUsers`
+        );
+        setFilteredUsers(filtered);
+      } else if (selectedType === "Shop") {
+        const filtered = allShops.filter(shop =>
+          shop.shop_name && shop.shop_name.toLowerCase().includes(lowercasedSearchTerm) // Search within `shops`
+        );
+        setFilteredShops(filtered);
+      }
     }
-  }, [searchTerm, users, shops, selectedType]);
+  }, [searchTerm, users, allUsers, shops, selectedType]);
+
 
 
   return (
@@ -447,7 +456,7 @@ function ChatPage() {
             <input
               type="text"
               className="w-full border border-gray-300 rounded-full px-4 py-2 pl-10 text-sm text-gray-600"
-              placeholder="Search users..."
+              placeholder={`${selectedType === "User" ? "Search users or past chats..." : "Search shops or past chats..."}`}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />

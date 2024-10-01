@@ -6,7 +6,7 @@ import * as FileSystem from 'expo-file-system';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { styled } from 'nativewind';
 import ImageViewing from 'react-native-image-viewing';
-import { REACT_NATIVE_API_KEY } from '@env';
+import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from '@env';
 import moment from 'moment'; // Make sure moment is installed
 
 const SOCKET_URL = 'https://agritayo.azurewebsites.net';

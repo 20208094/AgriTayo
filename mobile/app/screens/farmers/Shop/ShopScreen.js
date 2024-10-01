@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   SafeAreaView,
@@ -8,8 +8,40 @@ import {
 } from "react-native";
 import { FontAwesome5 } from '@expo/vector-icons';
 import michael from "../../../assets/ehh.png";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation, useFocusEffect  } from "@react-navigation/native";
 
 function ShopScreen({ navigation }) {
+  const [shopData, setShopData] = useState(null);  // Correct placement of useState
+  const [loading, setLoading] = useState(true); // Added loading state
+
+  const getAsyncShopData = async () => {
+    try {
+      const storedData = await AsyncStorage.getItem('shopData');
+      
+      if (storedData) {
+        const parsedData = JSON.parse(storedData); // Parse storedData
+        
+        if (Array.isArray(parsedData)) {
+          const shop = parsedData[0];  // Assuming shop data is the first element of the array
+          setShopData(shop); // Set shopData state to the shop object
+        } else {
+          setShopData(parsedData); // If it's not an array, directly set parsed data
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load shop data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useFocusEffect(
+    React.useCallback(() => {
+      getAsyncShopData();
+    }, [])
+  );
+
   const information = {
     id: 1,
     name: "Michael",
@@ -17,15 +49,22 @@ function ShopScreen({ navigation }) {
     verify: "Verified",
   };
 
+  if (loading) {
+    return (
+      <SafeAreaView className="bg-white flex-1 justify-center items-center">
+        <Text>Loading...</Text>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView className="bg-white flex-1">
       {/* Header Section */}
       <View className="flex-row items-center justify-between p-4">
         <View className="flex-row items-center">
-          <Image source={michael} className="w-12 h-12 rounded-full" />
+          <Image source={{uri: shopData.shop_image_url}} className="w-12 h-12 rounded-full" />
           <View className="ml-3">
-            <Text className="text-lg font-semibold">{information.name}</Text>
-            <Text className="text-gray-500 text-sm">AgriTayo/{information.name.toLowerCase()}</Text>
+            <Text className="text-lg font-semibold">{shopData.shop_name}</Text>
           </View>
         </View>
         <TouchableOpacity
@@ -52,10 +91,25 @@ function ShopScreen({ navigation }) {
       </View>
 
       <View className="flex-row justify-around mt-4 px-6">
-        {["To Ship", "Cancelled", "Return", "Review"].map((status) => (
+        {["To Confirm", "To Ship", "Complete"].map((status) => (
           <TouchableOpacity
             key={status}
-            className="items-center"
+            className="items-center w-1/3"
+            onPress={() =>
+              navigation.navigate("Sales History", { screen: status })
+            }
+          >
+            <Text className="text-lg font-bold">0</Text>
+            <Text className="text-gray-500">{status}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      <View className="flex-row justify-around mt-4 px-6 text-center">
+        {["Review", "Cancelled", "Return"].map((status) => (
+          <TouchableOpacity
+            key={status}
+            className="items-center w-1/3"
             onPress={() =>
               navigation.navigate("Sales History", { screen: status })
             }
@@ -76,13 +130,17 @@ function ShopScreen({ navigation }) {
         ].map(({ label, icon, screen }) => (
           <TouchableOpacity
             key={label}
-            className="w-[30%] items-center my-2"
+            className="w-[100%] my-2"
             onPress={() => navigation.navigate(screen, { information })}
           >
-            <View className="h-12 w-12 justify-center items-center bg-gray-200 rounded-full mb-2">
-              <FontAwesome5 name={icon} size={24} color="#00B251" />
+            <View className="flex-row h-16 w-content items-center pl-10 bg-gray-200 rounded-full mb-2">
+              <View className="w-10" >
+
+              <FontAwesome5 name={icon} size={30} color="#00B251" />
+              </View>
+              
+            <Text className="pl-5 text-base text-black">{label}</Text>
             </View>
-            <Text className="text-center text-sm text-gray-600">{label}</Text>
           </TouchableOpacity>
         ))}
       </View>

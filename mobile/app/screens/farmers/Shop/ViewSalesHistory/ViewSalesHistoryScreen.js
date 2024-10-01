@@ -7,6 +7,7 @@ import CancelledScreen from './CancelledScreen';
 import ReturnScreen from './ReturnScreen';
 import ReviewScreen from './ReviewScreen';
 import { View, Text } from "react-native";
+import { FontAwesome5 } from '@expo/vector-icons';
 
 const Tab = createMaterialTopTabNavigator();
 

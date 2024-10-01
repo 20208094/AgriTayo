@@ -14,10 +14,11 @@ function ProfileScreen({ fetchUserSession }) {
   const [isModalVisible, setModalVisible] = useState(false);
   const [loading, setLoading] = useState(true); // Loading state is initially true
   const [userData, setUserData] = useState(null);
+  const [shopData, setShopData] = useState(null);
 
   useEffect(() => {
     if (userData) {
-      console.log('Updated userData:', userData.user_id);
+      // console.log('Updated userData:', userData.user_id);
     }
   }, [userData]);
 
@@ -42,10 +43,32 @@ function ProfileScreen({ fetchUserSession }) {
     }
   };
 
+  const getAsyncShopData = async () => {
+    try {
+      const storedData = await AsyncStorage.getItem('shopData');
+      
+      if (storedData) {
+        const parsedData = JSON.parse(storedData); // Parse storedData
+        
+        if (Array.isArray(parsedData)) {
+          const shop = parsedData[0];  // Assuming shop data is the first element of the array
+          setShopData(shop); // Set shopData state to the shop object
+        } else {
+          setShopData(parsedData); // If it's not an array, directly set parsed data
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load shop data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Use useFocusEffect to re-fetch data when the screen is focused (navigated back)
   useFocusEffect(
     React.useCallback(() => {
       getAsyncUserData();
+      getAsyncShopData();
     }, [])
   );
 
@@ -127,20 +150,23 @@ function ProfileScreen({ fetchUserSession }) {
             </View>
             <Icon name="chevron-right" type="font-awesome" size={20} color="gray" />
           </TouchableOpacity>
-          <TouchableOpacity className="flex-row items-center justify-between" onPress={() => navigation.navigate("Welcome To Agritayo!", { userData })}>
-            <View className="flex-row items-center">
-              <Icon name="plus" type="font-awesome" size={20} color="green" />
-              <Text className="text-gray-800 font-semibold ml-4">Start Selling</Text>
-            </View>
-            <Icon name="chevron-right" type="font-awesome" size={20} color="gray" />
-          </TouchableOpacity>
-          <TouchableOpacity className="flex-row items-center justify-between" onPress={() => navigation.navigate("My Shop")}>
-            <View className="flex-row items-center">
-              <Icon name="store" type="material" size={20} color="green" />
-              <Text className="text-gray-800 font-semibold ml-4">Shop</Text>
-            </View>
-            <Icon name="chevron-right" type="font-awesome" size={20} color="gray" />
-          </TouchableOpacity>
+          {!shopData ? (
+            <TouchableOpacity className="flex-row items-center justify-between" onPress={() => navigation.navigate("Welcome To Agritayo!", { userData })}>
+              <View className="flex-row items-center">
+                <Icon name="plus" type="font-awesome" size={20} color="green" />
+                <Text className="text-gray-800 font-semibold ml-4">Start Selling</Text>
+              </View>
+              <Icon name="chevron-right" type="font-awesome" size={20} color="gray" />
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity className="flex-row items-center justify-between" onPress={() => navigation.navigate("My Shop")}>
+              <View className="flex-row items-center">
+                <Icon name="store" type="material" size={20} color="green" />
+                <Text className="text-gray-800 font-semibold ml-4">Shop</Text>
+              </View>
+              <Icon name="chevron-right" type="font-awesome" size={20} color="gray" />
+            </TouchableOpacity>
+          )}
           <TouchableOpacity className="flex-row items-center justify-between" onPress={() => setModalVisible(true)}>
             <View className="flex-row items-center">
               <Icon name="log-out" type="ionicon" size={20} color="green" />
