@@ -11,6 +11,37 @@ import michael from "../../../assets/ehh.png";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation, useFocusEffect  } from "@react-navigation/native";
 
+const dummyNegotiation = [
+    {
+        id: 1,
+        productName: 'Patatas',
+        productDescription: 'Patatas masarap',
+        productPrice: 10.00,
+        status: 'Negotiating',
+    },
+    {
+        id: 2,
+        productName: 'Tomato',
+        productDescription: 'Tomato masarap',
+        productPrice: 5.00,
+        status: 'Approved',
+    },
+    {
+      id: 3,
+      productName: 'Banana',
+      productDescription: 'Banana masarap',
+      productPrice: 5.00,
+      status: 'Declined',
+    },
+    {
+      id: 4,
+      productName: 'Saging',
+      productDescription: 'Saging masarap',
+      productPrice: 5.00,
+      status: 'Completed',
+    }
+];
+
 function ShopScreen({ navigation }) {
   const [shopData, setShopData] = useState(null);  // Correct placement of useState
   const [loading, setLoading] = useState(true); // Added loading state
@@ -47,6 +78,14 @@ function ShopScreen({ navigation }) {
     name: "Michael",
     followers: 0,
     verify: "Verified",
+  };
+
+  // Sample negotiation data (this should come from somewhere like state or props)
+  const negotiationData = {
+      price: '10.00',
+      amount: '1',
+      total: '10.00',
+      
   };
 
   if (loading) {
@@ -124,6 +163,7 @@ function ShopScreen({ navigation }) {
       <View className="mt-6 px-6 flex-wrap flex-row justify-between">
         {[
           { label: "My Products", icon: "box", screen: "My Products" },
+          { label: "Negotiation", icon: "hands-helping", screen: "Seller Negotiation List" },
           { label: "Shop Performance", icon: "chart-line", screen: "Shop Performance" },
           { label: "Bidding", icon: "file-contract", screen: "Bidding" },
           { label: "Learn and Help", icon: "info-circle", screen: "Learn and Help" },
@@ -131,7 +171,14 @@ function ShopScreen({ navigation }) {
           <TouchableOpacity
             key={label}
             className="w-[100%] my-2"
-            onPress={() => navigation.navigate(screen, { information })}
+            onPress={() => {
+              if (label === "Negotiation") {
+                // Pass the dummyNegotiation and negotiationData only for the Negotiation screen
+                navigation.navigate(screen, { dummyNegotiation, negotiationData });
+              } else {
+                navigation.navigate(screen, { information });
+              }
+            }}
           >
             <View className="flex-row h-16 w-content items-center pl-10 bg-gray-200 rounded-full mb-2">
               <View className="w-10" >
