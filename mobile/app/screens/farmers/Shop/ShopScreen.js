@@ -15,12 +15,28 @@ const dummyNegotiation = [
         productName: 'Patatas',
         productDescription: 'Patatas masarap',
         productPrice: 10.00,
+        status: 'Negotiating',
     },
     {
         id: 2,
         productName: 'Tomato',
         productDescription: 'Tomato masarap',
         productPrice: 5.00,
+        status: 'Approved',
+    },
+    {
+      id: 3,
+      productName: 'Banana',
+      productDescription: 'Banana masarap',
+      productPrice: 5.00,
+      status: 'Declined',
+    },
+    {
+      id: 4,
+      productName: 'Saging',
+      productDescription: 'Saging masarap',
+      productPrice: 5.00,
+      status: 'Completed',
     }
 ];
 
@@ -36,7 +52,8 @@ function ShopScreen({ navigation }) {
   const negotiationData = {
       price: '10.00',
       amount: '1',
-      total: '10.00'
+      total: '10.00',
+      
   };
 
   return (
