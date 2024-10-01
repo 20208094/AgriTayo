@@ -441,13 +441,13 @@ function ChatPage() {
           <div className="flex space-x-4 mb-4">
             <button
               onClick={() => handleTypeChange("User")}
-              className={`flex-1 py-2 rounded-md text-center font-medium transition-colors ${selectedType === "User" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-700"}`}
+              className={`flex-1 py-2 rounded-md text-center font-medium transition-colors ${selectedType === "User" ? "bg-[#00B251] text-white" : "bg-gray-200 text-gray-700"}`}
             >
               Users Chats
             </button>
             <button
               onClick={() => handleTypeChange("Shop")}
-              className={`flex-1 py-2 rounded-md text-center font-medium transition-colors ${selectedType === "Shop" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-700"}`}
+              className={`flex-1 py-2 rounded-md text-center font-medium transition-colors ${selectedType === "Shop" ? "bg-[#00B251] text-white" : "bg-gray-200 text-gray-700"}`}
             >
               Shops Chats
             </button>
@@ -465,7 +465,7 @@ function ChatPage() {
         </div>
 
         {/* Scrollable List Based on Selected Type */}
-        <ul className="divide-y divide-gray-300 overflow-y-auto max-h-[calc(100vh-200px)]">
+        <ul className="divide-y divide-gray-300 overflow-y-auto max-h-[calc(100vh-250px)]">
           {(selectedType === "User" ? filteredUsers : filteredShops).map((item) => (
             <li
               key={item.user_id || item.shop_id} // Use appropriate id based on type
