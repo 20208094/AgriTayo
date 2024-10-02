@@ -9,18 +9,21 @@ import {
 import { FontAwesome5 } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
+import logo from "../../../assets/logo.png";
 
 const dummyNegotiation = [
   {
     id: 1,
+    productImage: logo,
     productName: "Patatas",
-    productDescription: "Patatas masarap",
+    productDescription: "Patatas masarap asd Patatas masarap asdPatatas masarap asdPatatas masarap asdPatatas masarap asdPatatas masarap asdPatatas masarap asdPatatas masarap asdPatatas masarap asdPatatas masarap asdPatatas masarap asdPatatas masarap asdPatatas masarap asdPatatas masarap asdPatatas masarap asdPatatas masarap asdPatatas masarap asdPatatas masarap asdPatatas masarap asd",
     productPrice: 10.0,
     status: "Negotiating",
     openOrCloseNegotiation: 'open'
   },
   {
     id: 2,
+    productImage: logo,
     productName: "Tomato",
     productDescription: "Tomato masarap",
     productPrice: 5.0,
@@ -29,6 +32,7 @@ const dummyNegotiation = [
   },
   {
     id: 3,
+    productImage: logo,
     productName: "Banana",
     productDescription: "Banana masarap",
     productPrice: 5.0,
@@ -37,6 +41,7 @@ const dummyNegotiation = [
   },
   {
     id: 4,
+    productImage: logo,
     productName: "Saging",
     productDescription: "Saging masarap",
     productPrice: 5.0,

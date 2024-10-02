@@ -481,7 +481,7 @@ function App() {
             options={screenOptions}
             />
             <Stack.Screen
-            name='Seller Edit Negotiation'
+            name='Buyer Edit Negotiation'
             component={NegotiationBuyerEditScreen}
             options={screenOptions}
             />
