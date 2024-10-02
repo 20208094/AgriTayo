@@ -1,8 +1,24 @@
 import React, { useState, useEffect } from 'react'; 
 import { SafeAreaView, View, Text, TouchableOpacity, TextInput } from 'react-native'; 
 
-function NegotiationSellerScreen({ route }) {
-    const { dummyNegotiation, negotiationData } = route.params;
+const dummyNegotiation = [
+    {
+        id: 1,
+        productName: "Patatas",
+        productDescription: "Patatas masarap",
+        productPrice: 10.0,
+        status: "Negotiating",
+        openOrCloseNegotiation: 'open'
+      }
+]
+
+const negotiationData = {
+    price: "10.00",
+    amount: "1",
+    total: "10.00",
+  }
+
+function NegotiationBuyerEditScreen() {
 
     const [price, setPrice] = useState('');
     const [amount, setAmount] = useState('');
@@ -17,18 +33,18 @@ function NegotiationSellerScreen({ route }) {
     return (
         <SafeAreaView>
             <View>
-                <Text>{dummyNegotiation.productName}</Text>
-                <Text>{dummyNegotiation.productDescription}</Text>
-                <Text>{dummyNegotiation.productPrice}</Text>
+                <Text>{dummyNegotiation[0].productName}</Text>
+                <Text>{dummyNegotiation[0].productDescription}</Text>
+                <Text>{dummyNegotiation[0].productPrice}</Text>
             </View>
-            {dummyNegotiation.openOrCloseNegotiation === 'open' && (
+            {dummyNegotiation[0].openOrCloseNegotiation === 'open' && (
                 <>
             <View>
                 <Text>Buyer</Text>
                 <Text>{negotiationData.price}</Text>
                 <Text>{negotiationData.amount}</Text>
                 <Text>{negotiationData.total}</Text>
-                <Text>{dummyNegotiation.openCloseNegotiation}</Text>
+                <Text>{dummyNegotiation[0].openOrCloseNegotiation}</Text>
             </View>
             <View>
                 <Text>You</Text>
@@ -59,7 +75,7 @@ function NegotiationSellerScreen({ route }) {
             </View>
             </>
              )}
-            {dummyNegotiation.openOrCloseNegotiation === 'close' && (
+            {dummyNegotiation[0].openOrCloseNegotiation === 'close' && (
                 <>
                     <View>
                         <Text>The buyer did not want to negotiate.</Text>
@@ -67,7 +83,7 @@ function NegotiationSellerScreen({ route }) {
                         <Text>{negotiationData.price}</Text>
                         <Text>{negotiationData.amount}</Text>
                         <Text>{negotiationData.total}</Text>
-                        <Text>{dummyNegotiation.openCloseNegotiation}</Text>
+                        <Text>{dummyNegotiation[0].openOrCloseNegotiation}</Text>
                     </View>
                     <View>
                         <TouchableOpacity onPress={() => {}}>
@@ -83,4 +99,4 @@ function NegotiationSellerScreen({ route }) {
     );
 }
 
-export default NegotiationSellerScreen;
+export default NegotiationBuyerEditScreen;

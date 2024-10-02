@@ -51,6 +51,7 @@ import Navigator from "./app/components/Navigator";
 import NegotiationSellerScreen from "./app/screens/Negotiation/NegotiationSellerScreen";
 import NegotiationBuyerScreen from "./app/screens/Negotiation/NegotiationBuyersScreen";
 import NegotiationSellerListScreen from "./app/screens/Negotiation/NegotiationSellerListScreen";
+import NegotiationBuyerEditScreen from "./app/screens/Negotiation/NegotiationBuyerEditScreen";
 // for farmers
 import ShopScreen from "./app/screens/farmers/Shop/ShopScreen";
 import ViewShopScreen from "./app/screens/farmers/Shop/ViewShopScreen";
@@ -477,6 +478,11 @@ function App() {
             <Stack.Screen
             name='Seller Negotiation List'
             component={NegotiationSellerListScreen}
+            options={screenOptions}
+            />
+            <Stack.Screen
+            name='Seller Edit Negotiation'
+            component={NegotiationBuyerEditScreen}
             options={screenOptions}
             />
             <Stack.Screen
