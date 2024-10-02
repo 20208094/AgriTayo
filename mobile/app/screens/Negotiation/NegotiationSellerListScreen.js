@@ -1,5 +1,5 @@
 import React from 'react';
-import { SafeAreaView, View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { SafeAreaView, View, Text, TouchableOpacity, ScrollView, Image } from 'react-native';
 import { styled } from 'nativewind';
 
 const StyledSafeAreaView = styled(SafeAreaView);
@@ -13,25 +13,53 @@ function NegotiationSellerListScreen({ route, navigation }) {
 
     return (
         <StyledSafeAreaView className="flex-1 bg-white">
-            {/* Ensure ScrollView takes up the full available height */}
-            <StyledScrollView contentContainerStyle={{ paddingVertical: 1 }} className="flex-1 p-10">
-                <StyledView className="space-y-4 mb-20">
+            {/* ScrollView for list items */}
+            <StyledScrollView contentContainerStyle={{ paddingVertical: 20 }} className="flex-1 p-5">
+                <StyledView className="space-y-6 mb-10">
                     {dummyNegotiation.map((data) => (
                         <StyledTouchableOpacity 
                             key={data.id} 
-                            className="bg-white border border-[#00B251] rounded-lg shadow-sm p-4"
-                            onPress={() => navigation.navigate('Seller Negotiation', { dummyNegotiation: data, negotiationData })}>
+                            className="bg-white border border-gray-300 rounded-lg shadow-lg p-5"
+                            onPress={() => navigation.navigate('Seller Negotiation', { dummyNegotiation: data, negotiationData })}
+                            style={{
+                                shadowColor: "#000",
+                                shadowOffset: { width: 0, height: 2 },
+                                shadowOpacity: 0.25,
+                                shadowRadius: 3.84,
+                                elevation: 5,
+                            }}>
                             
-                            <StyledView className="space-y-2">
-                                <StyledText className="text-lg font-semibold text-[#00B251]">{data.productName}</StyledText>
-                                <StyledText className="text-sm text-gray-600">₱{data.productPrice}</StyledText>
-                                <StyledText className="text-sm font-bold text-black">Negotiation:</StyledText>
-                                <StyledText className="text-sm text-gray-500">{data.status || 'Pending'}</StyledText>
+                            <StyledView className="space-y-3">
+                                <Image 
+                                    source={data.productImage}
+                                    className="w-full h-48 object-cover rounded-lg mb-3" // Larger product image with better styling
+                                    resizeMode="cover"
+                                />
+                                <StyledText className="text-lg font-semibold text-[#00B251] text-center">
+                                    {data.productName}
+                                </StyledText>
+                                <StyledText className="text-sm font-medium text-gray-500 text-center">
+                                    ₱{data.productPrice.toFixed(2)}
+                                </StyledText>
+                                
+                                <StyledView className="border-t border-gray-300 mt-2 pt-2 space-y-1 ">
+                                    <StyledText className="text-sm font-bold text-gray-800 text-center">Negotiation Status:</StyledText>
+                                    <StyledText className={`text-sm ${data.status === 'Pending' ? 'text-gray-500' : 'text-[#00B251]'} text-center`}>
+                                        {data.status || 'Pending'}
+                                    </StyledText>
+                                </StyledView>
 
-                                <StyledView className="mt-2 space-y-1">
-                                    <StyledText className="text-sm text-gray-500">Offered Price: ₱{negotiationData.price}</StyledText>
-                                    <StyledText className="text-sm text-gray-500">Amount: {negotiationData.amount}</StyledText>
-                                    <StyledText className="text-sm text-gray-500">Total: ₱{negotiationData.total}</StyledText>
+                                {/* Offer Details */}
+                                <StyledView className="border-t border-gray-300 mt-2 pt-2 space-y-2">
+                                    <StyledText className="text-sm text-gray-700 text-center">Offered Price: 
+                                        <Text className="font-semibold text-gray-800"> ₱{negotiationData.price}</Text>
+                                    </StyledText>
+                                    <StyledText className="text-sm text-gray-700 text-center">Amount: 
+                                        <Text className="font-semibold text-gray-800"> {negotiationData.amount}</Text>
+                                    </StyledText>
+                                    <StyledText className="text-sm text-gray-700 text-center">Total: 
+                                        <Text className="font-semibold text-gray-800"> ₱{negotiationData.total}</Text>
+                                    </StyledText>
                                 </StyledView>
                             </StyledView>
                         </StyledTouchableOpacity>

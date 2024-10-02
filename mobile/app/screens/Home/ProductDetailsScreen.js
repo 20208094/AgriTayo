@@ -163,39 +163,39 @@ function ProductDetailsScreen({ navigation, route }) {
         </View>
       </ScrollView>
 
-      {/* Sticky Bottom Bar */}
-      <View className="absolute bottom-0 left-0 right-0 bg-[#00B251] flex-row" style={{ height: 50 }}>
+      {/* Enhanced Sticky Bottom Bar */}
+      <View className="absolute bottom-0 left-0 right-0 bg-white flex-row" style={{ height: 60 }}>
         <TouchableOpacity
-          className="flex-1 flex-row items-center justify-center"
+          className="flex-1 flex-row items-center justify-center border border-green-600 "
           onPress={handleMessagePress}
-          style={{ paddingVertical: 5 }}
+          style={{ paddingVertical: 10, minWidth: 50 }}
         >
-          <FontAwesome name="envelope" size={25} color="white" />
-          <Text className="text-white font-bold text-lg ml-3">Message</Text>
+          <FontAwesome name="envelope" size={24} color="#00B251" />
+          <Text className="text-[#00B251] font-bold text-lg ml-1.5">Message</Text>
         </TouchableOpacity>
 
         {/* Separator */}
-        <View className="w-px bg-white" />
+        <View className="w-0.5 bg-white" />
 
         <TouchableOpacity
-          className="flex-1 flex-row items-center justify-center"
+          className="flex-1 flex-row items-center justify-center border border-green-600"
           onPress={handleNegotiatePress}
-          style={{ paddingVertical: 5 }}
+          style={{ paddingVertical: 10, minWidth: 50 }}
         >
-          <FontAwesome name="balance-scale" size={25} color="white" />
-          <Text className="text-white font-bold text-lg ml-3">Negotiate</Text>
+          <FontAwesome name="balance-scale" size={24} color="#00B251" />
+          <Text className="text-[#00B251] font-bold text-lg ml-1.5">Negotiate</Text>
         </TouchableOpacity>
 
         {/* Separator */}
-        <View className="w-px bg-white" />
+        <View className="w-0.5 bg-white" />
 
         <TouchableOpacity
-          className="flex-1 flex-row items-center justify-center"
+          className="flex-1 flex-row items-center justify-center border border-green-600 bg-green-600"
           onPress={handleAddToCart}
-          style={{ paddingVertical: 5 }}
+          style={{ paddingVertical: 10, minWidth: 200 }}
         >
-          <FontAwesome name="shopping-cart" size={25} color="white" />
-          <Text className="text-white font-bold text-lg ml-3">Add to Cart</Text>
+          <FontAwesome name="shopping-cart" size={24} color="white" />
+          <Text className="text-white font-bold text-lg ml-2.5">Add to Cart</Text>
         </TouchableOpacity>
       </View>
     </View>
