@@ -119,8 +119,6 @@ function ViewProfileScreen({ route, navigation }) {
     }
   };
   
-
-
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
       <ScrollView className="flex-1 px-4">

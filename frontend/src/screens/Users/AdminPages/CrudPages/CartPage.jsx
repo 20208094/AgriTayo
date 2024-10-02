@@ -9,8 +9,9 @@ function CartPage() {
     const [metricSystems, setMetricSystems] = useState([]);
     const [formData, setFormData] = useState({
         cart_total_price: '',
-        cart_total_weight: '',
+        cart_total_quantity: '', // Adjust to include total quantity instead of weight
         cart_user_id: '',
+        cart_crop_id: '', // Adding cart_crop_id if needed
         cart_metric_system_id: ''
     });
     const [isEdit, setIsEdit] = useState(false);
@@ -97,8 +98,9 @@ function CartPage() {
             fetchCarts();
             setFormData({
                 cart_total_price: '',
-                cart_total_weight: '',
+                cart_total_quantity: '', // Adjust the reset field
                 cart_user_id: '',
+                cart_crop_id: '', // Reset cart_crop_id if needed
                 cart_metric_system_id: ''
             });
             setIsEdit(false);
@@ -147,10 +149,10 @@ function CartPage() {
                 <input
                     type="number"
                     step="0.0001"
-                    name="cart_total_weight"
-                    value={formData.cart_total_weight}
+                    name="cart_total_quantity" // Changed to reflect the total quantity field
+                    value={formData.cart_total_quantity}
                     onChange={handleInputChange}
-                    placeholder="Total Weight"
+                    placeholder="Total Quantity"
                     style={{ marginRight: '10px', marginBottom: '10px', padding: '5px' }}
                 />
                 <select
@@ -183,7 +185,7 @@ function CartPage() {
                     <tr>
                         <th style={{ border: '1px solid black', padding: '8px' }}>ID</th>
                         <th style={{ border: '1px solid black', padding: '8px' }}>Total Price</th>
-                        <th style={{ border: '1px solid black', padding: '8px' }}>Total Weight</th>
+                        <th style={{ border: '1px solid black', padding: '8px' }}>Total Quantity</th> {/* Change to reflect total quantity */}
                         <th style={{ border: '1px solid black', padding: '8px' }}>User ID</th>
                         <th style={{ border: '1px solid black', padding: '8px' }}>Metric System</th>
                         <th style={{ border: '1px solid black', padding: '8px' }}>Actions</th>
@@ -194,7 +196,7 @@ function CartPage() {
                         <tr key={cart.cart_id}>
                             <td style={{ border: '1px solid black', padding: '8px' }}>{cart.cart_id}</td>
                             <td style={{ border: '1px solid black', padding: '8px' }}>{cart.cart_total_price}</td>
-                            <td style={{ border: '1px solid black', padding: '8px' }}>{cart.cart_total_weight}</td>
+                            <td style={{ border: '1px solid black', padding: '8px' }}>{cart.cart_total_quantity}</td> {/* Display total quantity */}
                             <td style={{ border: '1px solid black', padding: '8px' }}>
                                 {users.find(user => user.user_id === cart.cart_user_id)?.username || 'N/A'}
                             </td>

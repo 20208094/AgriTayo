@@ -38,19 +38,19 @@ const PaymentOptionText = styled(Text, "text-center text-lg font-bold text-white
 function CheckOutScreen() {
   const navigation = useNavigation();
   const route = useRoute();
-  const { checkedOutItems } = route.params || { checkedOutItems: [] };
+  const { items: checkedOutItems } = route.params || { items: [] }; // Changed from checkedOutItems to items
   const [modalVisible, setModalVisible] = useState(false);
 
   const renderItem = ({ item }) => (
     <ItemContainer>
-      <ItemTitle>{item.title}</ItemTitle>
-      <ItemDetails>Price: ₱ {item.price.toFixed(2)}</ItemDetails>
-      <ItemDetails>Quantity: {item.quantity}</ItemDetails>
+      <ItemTitle>{item.crop_name}</ItemTitle>
+      <ItemDetails>Price: ₱ {item.crop_price.toFixed(2)}</ItemDetails>
+      <ItemDetails>Quantity: {item.cart_total_quantity}</ItemDetails>
     </ItemContainer>
   );
 
   const totalPrice = checkedOutItems.reduce(
-    (total, item) => total + item.price * item.quantity,
+    (total, item) => total + item.crop_price * item.cart_total_quantity,
     0
   );
 
@@ -72,7 +72,7 @@ function CheckOutScreen() {
           <FlatList
             data={checkedOutItems}
             renderItem={renderItem}
-            keyExtractor={(item) => item.id.toString()}
+            keyExtractor={(item) => item.cart_id.toString()} // Use cart_id as key
             contentContainerStyle={{ flexGrow: 1, marginBottom: 16 }}
           />
         ) : (

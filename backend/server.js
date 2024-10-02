@@ -90,6 +90,7 @@ const {
 
 const {
     getCarts,
+    getCartsId,
     addCart,
     updateCart,
     deleteCart
@@ -296,6 +297,7 @@ app.delete('/api/order_products/:id', deleteOrderProduct);
 
 // API routes for carts
 app.get('/api/carts', getCarts);
+app.get('/api/cartsId/:userId', getCartsId);
 app.post('/api/carts', addCart);
 app.put('/api/carts/:id', updateCart);
 app.delete('/api/carts/:id', deleteCart);

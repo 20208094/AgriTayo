@@ -159,39 +159,22 @@ CREATE INDEX idx_order_products_crop_id ON order_products(order_prod_crop_id);
 CREATE INDEX idx_order_products_user_id ON order_products(order_prod_user_id);
 CREATE INDEX idx_order_products_metric_system_id ON order_products(order_prod_metric_system_id);
 
--- Create cart table
+-- Create Cart Table
 CREATE TABLE cart (
     cart_id SERIAL PRIMARY KEY,
-    cart_total_price DECIMAL(10, 2) NOT NULL,
-    cart_total_weight DECIMAL(10, 4),
-    cart_user_id INT,
+    cart_total_price DECIMAL(10, 2) NOT NULL,    
+    cart_total_quantity DECIMAL(10, 4),           
+    cart_user_id INT,                             
+    cart_crop_id INT,         
     cart_metric_system_id INT,
     FOREIGN KEY (cart_user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (cart_crop_id) REFERENCES crops(crop_id) ON DELETE SET NULL,
     FOREIGN KEY (cart_metric_system_id) REFERENCES metric_system(metric_system_id) ON DELETE SET NULL
 );
 
 CREATE INDEX idx_cart_user_id ON cart(cart_user_id);
 CREATE INDEX idx_cart_metric_system_id ON cart(cart_metric_system_id);
-
--- Create cart_products table
-CREATE TABLE cart_products (
-    cart_prod_id SERIAL PRIMARY KEY,
-    cart_id INT,
-    cart_prod_crop_id INT,
-    cart_prod_total_weight INT,
-    cart_prod_total_price DECIMAL(10, 2) NOT NULL,
-    cart_prod_user_id INT,
-    cart_prod_metric_system_id INT,
-    FOREIGN KEY (cart_id) REFERENCES cart(cart_id) ON DELETE CASCADE,
-    FOREIGN KEY (cart_prod_crop_id) REFERENCES crops(crop_id) ON DELETE SET NULL,
-    FOREIGN KEY (cart_prod_user_id) REFERENCES users(user_id) ON DELETE SET NULL,
-    FOREIGN KEY (cart_prod_metric_system_id) REFERENCES metric_system(metric_system_id) ON DELETE SET NULL
-);
-
-CREATE INDEX idx_cart_products_cart_id ON cart_products(cart_id);
-CREATE INDEX idx_cart_products_crop_id ON cart_products(cart_prod_crop_id);
-CREATE INDEX idx_cart_products_user_id ON cart_products(cart_prod_user_id);
-CREATE INDEX idx_cart_products_metric_system_id ON cart_products(cart_prod_metric_system_id);
+CREATE INDEX idx_cart_crop_id ON cart(cart_crop_id);
 
 -- Create reviews table
 CREATE TABLE reviews (
@@ -296,3 +279,4 @@ CREATE TABLE negotiations (
 
 CREATE INDEX idx_negotiations_user_id ON negotiations(user_id);
 CREATE INDEX idx_negotiations_shop_id ON negotiations(shop_id);
+
