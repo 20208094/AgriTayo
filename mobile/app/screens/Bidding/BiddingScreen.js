@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   SafeAreaView,
   Text,
   View,
   TouchableOpacity,
   Image,
+  Animated,
   FlatList,
   Dimensions,
 } from "react-native";
@@ -13,7 +14,6 @@ import ehh from "../../assets/ehh.png";
 import saging from "../../assets/saging.jpg";
 import potato from "../../assets/potato.jpg";
 import { useNavigation } from "@react-navigation/native";
-import SearchBarC from "../../components/SearchBarC";
 
 // Get screen dimensions for responsive design
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
@@ -79,17 +79,15 @@ const dummyData = [
     michael: ehh,
     shopName: "Michael Shop",
   },
-  
 ];
 
-const BiddingCard = ({ data }) => {
+const BiddingCard = ({ data, scale, opacity }) => {
   const navigation = useNavigation();
   const initialTimeInSeconds =
     data.day * 86400 + data.hour * 3600 + data.minutes * 60 + data.seconds;
 
   const [remainingTime, setRemainingTime] = useState(initialTimeInSeconds);
 
-  // useEffect to handle countdown
   useEffect(() => {
     const interval = setInterval(() => {
       setRemainingTime((prevTime) => {
@@ -104,7 +102,6 @@ const BiddingCard = ({ data }) => {
     return () => clearInterval(interval);
   }, []);
 
-  // Function to format remaining time in d:h:m:s format
   const formatTime = (totalSeconds) => {
     const days = Math.floor(totalSeconds / 86400);
     const hours = Math.floor((totalSeconds % 86400) / 3600);
@@ -115,93 +112,115 @@ const BiddingCard = ({ data }) => {
   };
 
   return (
-    <TouchableOpacity
-      onPress={() => navigation.navigate("Bidding Details", { data })}
-      className="w-[85vw] mx-[7.5vw] bg-white rounded-[30px] border-[3px] my-5 border-[#737373] shadow-2xl shadow-black mb-8"
+    <Animated.View
       style={{
-        maxWidth: screenWidth * 0.9, // Ensuring it doesn't exceed screen width
-        overflow: "hidden", // Ensuring nothing spills out
+        transform: [{ scale }],
+        opacity,
+        marginHorizontal: 10,
+        width: screenWidth * 0.6,
+        height: screenHeight * 0.5,
       }}
     >
-      {/* Card Header (Image) */}
-      <View className="rounded-t-[15px] overflow-hidden">
-        <Image
-          source={data.pic}
-          className="w-full"
-          style={{ 
-            height: screenHeight * 0.5, 
-            maxWidth: screenWidth * 0.85, // Cap width to make sure it is responsive
-          }}
-          resizeMode="cover" // This ensures the image scales while maintaining its aspect ratio
-        />
-      </View>
-
-      {/* Card Body */}
-      <View className="p-4">
-        {/* Title */}
-        <Text className="text-[22px] font-bold text-gray-800 mb-2 text-center">
-          {data.name}
-        </Text>
-
-        {/* Shop name */}
-        <Text className="text-sm text-gray-500 mb-3 text-center">
-          Sold by: {data.shopName}
-        </Text>
-
-        {/* Highest Bid */}
-        <Text className="text-lg text-green-600 mb-1 text-center">
-          Current Highest Bid: ₱{data.currentHighestBid}
-        </Text>
-
-        {/* Countdown */}
-        <Text className="text-base text-gray-600 text-center">
-          {formatTime(remainingTime)}
-        </Text>
-      </View>
-    </TouchableOpacity>
+      <TouchableOpacity
+        onPress={() => navigation.navigate("Bidding Details", { data })}
+        className="mt-6 mx-auto bg-white rounded-[20px] border-[3px] border-[#737373] shadow-2xl shadow-black"
+      >
+        <View className="rounded-t-[15px] overflow-hidden">
+          <Image
+            source={data.pic}
+            className="w-full"
+            style={{
+              height: screenHeight * 0.3, // Image height adjusted
+            }}
+            resizeMode="cover"
+          />
+        </View>
+        <View className="p-4">
+          <Text className="text-[20px] font-bold text-gray-800 mb-2 text-center">
+            {data.name}
+          </Text>
+          <Text className="text-sm text-gray-500 mb-3 text-center">
+            Sold by: {data.shopName}
+          </Text>
+          <Text className="text-lg text-green-600 mb-1 text-center">
+            Current Highest Bid: ₱{data.currentHighestBid}
+          </Text>
+          <Text className="text-base text-gray-600 text-center">
+            {formatTime(remainingTime)}
+          </Text>
+        </View>
+      </TouchableOpacity>
+    </Animated.View>
   );
 };
 
 function BiddingScreen() {
-  const [searchQuery, setSearchQuery] = useState(""); // Track search query
-  const [filteredData, setFilteredData] = useState(dummyData); // Track filtered data
+  const [filteredData, setFilteredData] = useState(dummyData);
+  const scrollX = useRef(new Animated.Value(0)).current;
+  const flatListRef = useRef(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Function to handle search filtering
-  const handleSearch = (query) => {
-    setSearchQuery(query); // Update the search query
 
-    if (query.trim() === "") {
-      setFilteredData(dummyData); // Show all data when search is cleared
-    } else {
-      const filtered = dummyData.filter((item) =>
-        item.name.toLowerCase().includes(query.toLowerCase()) || 
-        item.shopName.toLowerCase().includes(query.toLowerCase())
-      );
-      setFilteredData(filtered); // Update the filtered data
-    }
+  // Circular pattern logic
+  const handleScrollEnd = (event) => {
+    const index = Math.round(event.nativeEvent.contentOffset.x / (screenWidth * 0.6));
+    setCurrentIndex(index % filteredData.length); // Set the current index
   };
+
+  // Handle snapping to the center
+  useEffect(() => {
+    if (flatListRef.current) {
+      flatListRef.current.scrollToIndex({
+        index: currentIndex,
+        animated: true,
+        viewPosition: 0.5, // Center the item
+      });
+    }
+  }, [currentIndex]);
 
   return (
     <SafeAreaView className="flex-1 bg-[#d1d5db]">
-      {/* Search Bar */}
-      <View className="flex bg-white shadow-md">
-        {/* Pass search function and query to SearchBarC */}
-        <SearchBarC value={searchQuery} onChangeText={handleSearch} />
-      </View>
 
-      {/* Bidding List */}
-      <FlatList
-        data={filteredData} // Use filteredData instead of dummyData
-        renderItem={({ item }) => <BiddingCard data={item} />}
+      <Animated.FlatList
+        ref={flatListRef}
+        data={filteredData}
         keyExtractor={(item) => item.id.toString()}
         horizontal
         showsHorizontalScrollIndicator={false}
-        pagingEnabled // Lock cards in the middle
-        snapToAlignment="center"
+        contentContainerStyle={{
+          paddingHorizontal: screenWidth * 0.2, // Padding to center the carousel
+        }}
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { x: scrollX } } }],
+          { useNativeDriver: true }
+        )}
+        onMomentumScrollEnd={handleScrollEnd} // Ensure cards lock in place
+        scrollEventThrottle={16}
+        renderItem={({ item, index }) => {
+          const inputRange = [
+            (index - 1) * screenWidth * 0.6,
+            index * screenWidth * 0.6,
+            (index + 1) * screenWidth * 0.6,
+          ];
+
+          const scale = scrollX.interpolate({
+            inputRange,
+            outputRange: [0.8, 1, 0.8],
+            extrapolate: "clamp",
+          });
+
+          const opacity = scrollX.interpolate({
+            inputRange,
+            outputRange: [0.6, 1, 0.6],
+            extrapolate: "clamp",
+          });
+
+          return <BiddingCard data={item} scale={scale} opacity={opacity} />;
+        }}
+        snapToInterval={screenWidth * 0.6} // Set snapping to the width of the card
         decelerationRate="fast"
-        snapToInterval={screenWidth * 0.85 + screenWidth * 0.075 * 2} // Width of card plus both margins
-        contentContainerStyle={{ paddingHorizontal: screenWidth * 0.002 }}
       />
+
     </SafeAreaView>
   );
 }
