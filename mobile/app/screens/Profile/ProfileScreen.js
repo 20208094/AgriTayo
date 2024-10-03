@@ -12,7 +12,7 @@ import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from '@env';
 function ProfileScreen({ fetchUserSession }) {
   const navigation = useNavigation();
   const [isModalVisible, setModalVisible] = useState(false);
-  const [loading, setLoading] = useState(true); // Loading state is initially true
+  const [loading, setLoading] = useState(true);
   const [userData, setUserData] = useState(null);
   const [shopData, setShopData] = useState(null);
 

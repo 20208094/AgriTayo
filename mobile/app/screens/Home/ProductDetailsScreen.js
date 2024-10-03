@@ -2,13 +2,49 @@ import React, { useState } from "react";
 import { View, Image, Text, ScrollView, TouchableOpacity, Modal, Pressable } from "react-native";
 import { FontAwesome } from '@expo/vector-icons'; // Import FontAwesome icons
 import { styled } from "nativewind";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import placeholderimg from '../../assets/placeholder.png'; // Import the placeholder image
 import { NotificationIcon, MessagesIcon, MarketIcon } from "../../components/SearchBarC"; // Import your custom icons
+import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 
 function ProductDetailsScreen({ navigation, route }) {
   const { product } = route.params; // Receive the product data
   const [quantity, setQuantity] = useState(1);
-  const [isModalVisible, setIsModalVisible] = useState(false); // For image full-view modal
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [userData, setUserData] = useState([]);
+  const [userId, setUserId] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const getAsyncUserData = async () => {
+    setLoading(true); // Set loading to true before starting data fetching
+    try {
+      const storedData = await AsyncStorage.getItem('userData');
+
+      if (storedData) {
+        const parsedData = JSON.parse(storedData); // Parse storedData
+
+        if (Array.isArray(parsedData)) {
+          const user = parsedData[0];  // Assuming user data is the first element of the array
+          setUserData(user); // Set userData state to the user object
+          setUserId(user.user_id); // Set userId
+        } else {
+          setUserData(parsedData); // If it's not an array, directly set parsed data
+          setUserId(parsedData.user_id); // Ensure userId is set if available
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load user data:', error);
+    } finally {
+      setLoading(false); // Set loading to false when done
+    }
+  };
+
+  useFocusEffect(
+    React.useCallback(() => {
+      getAsyncUserData();
+    }, [])
+  );
 
   const shopInfo = product.seller || {
     shopName: 'Unknown Shop',
@@ -46,9 +82,42 @@ function ProductDetailsScreen({ navigation, route }) {
     navigation.navigate('Message Seller', { product });
   };
 
-  const handleAddToCart = () => {
-    navigation.navigate("Cart", { product });
+  const handleAddToCart = async () => {
+    const cart_total_price = quantity * product.crop_price;
+    const cart_total_quantity = quantity;
+    const cart_user_id = userId;
+    const cart_crop_id = product.crop_id;
+    const cart_metric_system_id = product.metric_system_id;
+  
+    const formData = {
+      cart_total_price,
+      cart_total_quantity,
+      cart_user_id,
+      cart_crop_id,
+      cart_metric_system_id,
+    };
+  
+    try {
+      const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/carts`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': REACT_NATIVE_API_KEY, 
+        },
+        body: JSON.stringify(formData),
+      });
+  
+      if (!response.ok) {
+        throw new Error('Failed to add item to cart');
+      }
+  
+      navigation.navigate('CartScreen');
+  
+    } catch (error) {
+      console.error('Error adding item to cart:', error);
+    }
   };
+  
 
   // Toggle Modal visibility
   const toggleModal = () => {

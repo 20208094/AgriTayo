@@ -84,6 +84,7 @@ CREATE INDEX idx_crop_sub_category_crop_category_id ON crop_sub_category(crop_ca
 CREATE TABLE metric_system (
     metric_system_id SERIAL PRIMARY KEY,
     metric_system_name VARCHAR(100) NOT NULL,
+    metric_system_symbol VARCHAR(100) NOT NULL,
     metric_val_kilogram DECIMAL(10, 4) NOT NULL,
     metric_val_gram DECIMAL(10, 4) NOT NULL,
     metric_val_pounds DECIMAL(10, 4) NOT NULL

@@ -15,7 +15,6 @@ import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from '@env';
 const SOCKET_URL = 'https://agritayo.azurewebsites.net';
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
-const editButton = require("../../assets/edit.png");
 
 function ViewProfileScreen({ route, navigation }) {
   const { userData } = route.params;

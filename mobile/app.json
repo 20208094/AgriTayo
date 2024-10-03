@@ -1,7 +1,8 @@
 {
   "expo": {
-    "name": "mobile",
-    "slug": "mobile",
+    "name": "AgriTayo",
+    "slug": "AgriTayo",
+    "icon": "./app/assets/logo1.png",
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
@@ -10,6 +11,7 @@
     },
     "android": {
       "adaptiveIcon": {
+        "foregroundImage": "./app/assets/logo1.png",
         "backgroundColor": "#ffffff"
       },
       "package": "agritayo.id"

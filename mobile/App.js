@@ -117,7 +117,6 @@ function App() {
 
       if (response.ok) {
         const data = await response.json();
-        console.log('data :', data);
         setUserSession(data);
         await fetchUsers(data);
         if (data.user_type_id = 2 || 1) {
