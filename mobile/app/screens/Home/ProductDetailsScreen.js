@@ -166,12 +166,12 @@ function ProductDetailsScreen({ navigation, route }) {
       {/* Enhanced Sticky Bottom Bar */}
       <View className="absolute bottom-0 left-0 right-0 bg-white flex-row" style={{ height: 60 }}>
         <TouchableOpacity
-          className="flex-1 flex-row items-center justify-center border border-green-600 "
+          className="flex-1 flex-row items-center justify-center border border-green-600"
           onPress={handleMessagePress}
-          style={{ paddingVertical: 10, minWidth: 50 }}
+          style={{ paddingVertical: 10, minWidth: 30}}
         >
           <FontAwesome name="envelope" size={24} color="#00B251" />
-          <Text className="text-[#00B251] font-bold text-lg ml-1.5">Message</Text>
+          <Text className="text-[#00B251] font-bold text-lg ml-2">Message</Text>
         </TouchableOpacity>
 
         {/* Separator */}
@@ -180,10 +180,10 @@ function ProductDetailsScreen({ navigation, route }) {
         <TouchableOpacity
           className="flex-1 flex-row items-center justify-center border border-green-600"
           onPress={handleNegotiatePress}
-          style={{ paddingVertical: 10, minWidth: 50 }}
+          style={{ paddingVertical: 10, minWidth: 30}}
         >
           <FontAwesome name="balance-scale" size={24} color="#00B251" />
-          <Text className="text-[#00B251] font-bold text-lg ml-1.5">Negotiate</Text>
+          <Text className="text-[#00B251] font-bold text-lg ml-2">Negotiate</Text>
         </TouchableOpacity>
 
         {/* Separator */}
@@ -192,14 +192,15 @@ function ProductDetailsScreen({ navigation, route }) {
         <TouchableOpacity
           className="flex-1 flex-row items-center justify-center border border-green-600 bg-green-600"
           onPress={handleAddToCart}
-          style={{ paddingVertical: 10, minWidth: 200 }}
+          style={{ paddingVertical: 10, minWidth: 100 }}
         >
           <FontAwesome name="shopping-cart" size={24} color="white" />
-          <Text className="text-white font-bold text-lg ml-2.5">Add to Cart</Text>
+          <Text className="text-white font-bold text-lg ml-2">Add to Cart</Text>
         </TouchableOpacity>
       </View>
     </View>
   );
 }
+
 
 export default styled(ProductDetailsScreen);
