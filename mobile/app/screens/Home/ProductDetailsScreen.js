@@ -164,7 +164,7 @@ function ProductDetailsScreen({ navigation, route }) {
       </ScrollView>
 
       {/* Enhanced Sticky Bottom Bar */}
-      <View className="absolute bottom-0 left-0 right-0 bg-white flex-row" style={{ height: 60 }}>
+      <View className="absolute bottom-0 left-0 right-0 bg-white flex-row mb-1" style={{ height: 45 }}>
         <TouchableOpacity
           className="flex-1 flex-row items-center justify-center border border-green-600"
           onPress={handleMessagePress}
