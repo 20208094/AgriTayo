@@ -11,7 +11,7 @@ const dummyNegotiation = [
         productDescription: "Patatas masarap",
         productPrice: 10.0,
         status: "Negotiating",
-        openOrCloseNegotiation: 'CLOSE'
+        openOrCloseNegotiation: 'close'
     }
 ]
 
@@ -94,6 +94,12 @@ const NegotiationBuyerEditScreen = () => {
                                             onChangeText={setAmount}
                                         />
                                         <Text className="text-lg md:text-xl font-bold text-gray-800">Total: ₱{total}</Text>
+                                        <TouchableOpacity
+                                            className="border border-[#00B251] py-3 rounded-md flex-1"
+                                            onPress={() => { }}
+                                        >
+                                            <Text className="text-[#00B251] text-center font-semibold">Negotiate</Text>
+                                        </TouchableOpacity>
                                     </View>
                                 </View>
                             </View>
@@ -107,16 +113,10 @@ const NegotiationBuyerEditScreen = () => {
                                     <Text className="text-white text-center font-semibold">Accept</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity
-                                    className="bg-gray-400 py-3 rounded-md flex-1"
+                                    className="bg-red-500 py-3 rounded-md flex-1"
                                     onPress={() => { }}
                                 >
                                     <Text className="text-white text-center font-semibold">Decline</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                    className="border border-[#00B251] py-3 rounded-md flex-1"
-                                    onPress={() => { }}
-                                >
-                                    <Text className="text-[#00B251] text-center font-semibold">Negotiate</Text>
                                 </TouchableOpacity>
                             </View>
                         </>
@@ -139,7 +139,7 @@ const NegotiationBuyerEditScreen = () => {
                                     <Text className="text-white text-center font-semibold">Accept</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity
-                                    className="bg-gray-400 py-3 rounded-md flex-1"
+                                    className="bg-red-500 py-3 rounded-md flex-1"
                                     onPress={() => { }}
                                 >
                                     <Text className="text-white text-center font-semibold">Decline</Text>

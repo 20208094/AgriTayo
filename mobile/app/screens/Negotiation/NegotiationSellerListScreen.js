@@ -29,37 +29,44 @@ function NegotiationSellerListScreen({ route, navigation }) {
                                 elevation: 5,
                             }}>
                             
-                            <StyledView className="space-y-3">
-                                <Image 
-                                    source={data.productImage}
-                                    className="w-full h-48 object-cover rounded-lg mb-3" // Larger product image with better styling
-                                    resizeMode="cover"
-                                />
-                                <StyledText className="text-lg font-semibold text-[#00B251] text-center">
-                                    {data.productName}
-                                </StyledText>
-                                <StyledText className="text-sm font-medium text-gray-500 text-center">
-                                    ₱{data.productPrice.toFixed(2)}
-                                </StyledText>
-                                
-                                <StyledView className="border-t border-gray-300 mt-2 pt-2 space-y-1 ">
-                                    <StyledText className="text-sm font-bold text-gray-800 text-center">Negotiation Status:</StyledText>
-                                    <StyledText className={`text-sm ${data.status === 'Pending' ? 'text-gray-500' : 'text-[#00B251]'} text-center`}>
-                                        {data.status || 'Pending'}
-                                    </StyledText>
+                            <StyledView className="flex-row">
+                                {/* Left Column: Full Image */}
+                                <StyledView className="w-1/2 pr-3">
+                                    <Image 
+                                        source={data.productImage}
+                                        className="w-full h-48 object-cover rounded-lg mb-3"
+                                        resizeMode="cover"
+                                    />
                                 </StyledView>
 
-                                {/* Offer Details */}
-                                <StyledView className="border-t border-gray-300 mt-2 pt-2 space-y-2">
-                                    <StyledText className="text-sm text-gray-700 text-center">Offered Price: 
-                                        <Text className="font-semibold text-gray-800"> ₱{negotiationData.price}</Text>
+                                {/* Right Column: Product Information */}
+                                <StyledView className="w-1/2 space-y-3">
+                                    <StyledText className="text-lg font-semibold text-[#00B251] text-center">
+                                        {data.productName}
                                     </StyledText>
-                                    <StyledText className="text-sm text-gray-700 text-center">Amount: 
-                                        <Text className="font-semibold text-gray-800"> {negotiationData.amount}</Text>
+                                    <StyledText className="text-sm font-medium text-gray-500 text-center">
+                                        ₱{data.productPrice.toFixed(2)}
                                     </StyledText>
-                                    <StyledText className="text-sm text-gray-700 text-center">Total: 
-                                        <Text className="font-semibold text-gray-800"> ₱{negotiationData.total}</Text>
-                                    </StyledText>
+                                    
+                                    <StyledView className="border-t border-gray-300 mt-2 pt-2 space-y-1">
+                                        <StyledText className="text-sm font-bold text-gray-800 text-center">Negotiation Status:</StyledText>
+                                        <StyledText className={`text-sm ${data.status === 'Pending' ? 'text-gray-500' : 'text-[#00B251]'} text-center`}>
+                                            {data.status || 'Pending'}
+                                        </StyledText>
+                                    </StyledView>
+
+                                    {/* Offer Details */}
+                                    <StyledView className="border-t border-gray-300 mt-2 pt-2 space-y-2">
+                                        <StyledText className="text-sm text-gray-700 text-center">Offered Price: 
+                                            <Text className="font-semibold text-gray-800"> ₱{negotiationData.price}</Text>
+                                        </StyledText>
+                                        <StyledText className="text-sm text-gray-700 text-center">Amount: 
+                                            <Text className="font-semibold text-gray-800"> {negotiationData.amount}</Text>
+                                        </StyledText>
+                                        <StyledText className="text-sm text-gray-700 text-center">Total: 
+                                            <Text className="font-semibold text-gray-800"> ₱{negotiationData.total}</Text>
+                                        </StyledText>
+                                    </StyledView>
                                 </StyledView>
                             </StyledView>
                         </StyledTouchableOpacity>

@@ -42,6 +42,7 @@ import MarketAnalyticScreen from "./app/screens/Analytics/MarketAnalyticScreen";
 import MessageSellerScreen from "./app/screens/Message/MessageSellerScreen";
 import NegotiateToSellerScreen from "./app/screens/Message/NegotiateToSellerScreen";
 import BiddingDetailsScreen from "./app/screens/Bidding/BiddingDetailsScreen";
+import BiddingViewAllScreen from "./app/screens/Bidding/BiddingViewAllScreen";
 import OrderDetailsScreen from "./app/screens/Orders/OrderDetailsScreen";
 import SellerFaq from "./app/screens/farmers/Shop/LearnAndHelp/SellerFaqScreen";
 import ChatSupportScreen from "./app/screens/farmers/Shop/LearnAndHelp/ChatSupportScreen";
@@ -441,6 +442,11 @@ function App() {
               options={screenOptions}
             />
             <Stack.Screen
+              name='Bidding View All'
+              component={BiddingViewAllScreen}
+              options={screenOptions}
+            />
+            <Stack.Screen
               name='Shop Bidding Details'
               component={BiddingDetailsFarmersScreen}
               options={screenOptions}
@@ -466,24 +472,24 @@ function App() {
               options={screenOptions}
             />
             <Stack.Screen
-            name='Buyer Negotiation'
-            component={NegotiationBuyerScreen}
-            options={screenOptions}
+              name='Buyer Negotiation'
+              component={NegotiationBuyerScreen}
+              options={screenOptions}
             />
             <Stack.Screen
-            name='Seller Negotiation'
-            component={NegotiationSellerScreen}
-            options={screenOptions}
+              name='Seller Negotiation'
+              component={NegotiationSellerScreen}
+              options={screenOptions}
             />
             <Stack.Screen
-            name='Seller Negotiation List'
-            component={NegotiationSellerListScreen}
-            options={screenOptions}
+              name='Seller Negotiation List'
+              component={NegotiationSellerListScreen}
+              options={screenOptions}
             />
             <Stack.Screen
-            name='Buyer Edit Negotiation'
-            component={NegotiationBuyerEditScreen}
-            options={screenOptions}
+              name='Buyer Edit Negotiation'
+              component={NegotiationBuyerEditScreen}
+              options={screenOptions}
             />
             <Stack.Screen
               name="Navigator"

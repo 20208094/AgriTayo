@@ -63,6 +63,7 @@ function ProfileScreen({ fetchUserSession }) {
       setLoading(false);
     }
   };
+  
 
   // Use useFocusEffect to re-fetch data when the screen is focused (navigated back)
   useFocusEffect(
@@ -108,25 +109,25 @@ function ProfileScreen({ fetchUserSession }) {
           <View className="flex-row justify-around mt-2">
             <TouchableOpacity onPress={() => navigation.navigate("Orders", { screen: "To Pay" })}>
               <View className="items-center">
-                <Icon name="credit-card" type="font-awesome" size={24} color="green" />
+                <Icon name="credit-card" type="font-awesome" size={24} color="#00B251" />
                 <Text className="text-gray-800 mt-1">To Pay</Text>
               </View>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => navigation.navigate("Orders", { screen: "To Ship" })}>
               <View className="items-center">
-                <Icon name="truck" type="font-awesome" size={24} color="green" />
+                <Icon name="truck" type="font-awesome" size={24} color="#00B251" />
                 <Text className="text-gray-800 mt-1">To Ship</Text>
               </View>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => navigation.navigate("Orders", { screen: "To Receive" })}>
               <View className="items-center">
-                <Icon name="gift" type="font-awesome" size={24} color="green" />
+                <Icon name="gift" type="font-awesome" size={24} color="#00B251" />
                 <Text className="text-gray-800 mt-1">To Receive</Text>
               </View>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => navigation.navigate("Orders", { screen: "To Rate" })}>
               <View className="items-center">
-                <Icon name="star" type="font-awesome" size={24} color="green" />
+                <Icon name="star" type="font-awesome" size={24} color="#00B251" />
                 <Text className="text-gray-800 mt-1">To Rate</Text>
               </View>
             </TouchableOpacity>
@@ -138,14 +139,14 @@ function ProfileScreen({ fetchUserSession }) {
         <View className="bg-white rounded-lg shadow p-4 space-y-4">
           <TouchableOpacity className="flex-row items-center justify-between" onPress={() => navigation.navigate("View Profile", { userData })}>
             <View className="flex-row items-center">
-              <Icon name="user" type="font-awesome" size={20} color="green" />
+              <Icon name="user" type="font-awesome" size={20} color="#00B251" />
               <Text className="text-gray-800 font-semibold ml-4">View Profile</Text>
             </View>
             <Icon name="chevron-right" type="font-awesome" size={20} color="gray" />
           </TouchableOpacity>
           <TouchableOpacity className="flex-row items-center justify-between" onPress={() => navigation.navigate("Address", { userData })}>
             <View className="flex-row items-center">
-              <Icon name="address-book" type="font-awesome" size={20} color="green" />
+              <Icon name="address-book" type="font-awesome" size={20} color="#00B251" />
               <Text className="text-gray-800 font-semibold ml-4">Address</Text>
             </View>
             <Icon name="chevron-right" type="font-awesome" size={20} color="gray" />
@@ -153,7 +154,7 @@ function ProfileScreen({ fetchUserSession }) {
           {!shopData ? (
             <TouchableOpacity className="flex-row items-center justify-between" onPress={() => navigation.navigate("Welcome To Agritayo!", { userData })}>
               <View className="flex-row items-center">
-                <Icon name="plus" type="font-awesome" size={20} color="green" />
+                <Icon name="plus" type="font-awesome" size={20} color="#00B251" />
                 <Text className="text-gray-800 font-semibold ml-4">Start Selling</Text>
               </View>
               <Icon name="chevron-right" type="font-awesome" size={20} color="gray" />
@@ -161,7 +162,7 @@ function ProfileScreen({ fetchUserSession }) {
           ) : (
             <TouchableOpacity className="flex-row items-center justify-between" onPress={() => navigation.navigate("My Shop")}>
               <View className="flex-row items-center">
-                <Icon name="store" type="material" size={20} color="green" />
+                <Icon name="store" type="material" size={20} color="#00B251" />
                 <Text className="text-gray-800 font-semibold ml-4">Shop</Text>
               </View>
               <Icon name="chevron-right" type="font-awesome" size={20} color="gray" />
@@ -169,7 +170,7 @@ function ProfileScreen({ fetchUserSession }) {
           )}
           <TouchableOpacity className="flex-row items-center justify-between" onPress={() => setModalVisible(true)}>
             <View className="flex-row items-center">
-              <Icon name="log-out" type="ionicon" size={20} color="green" />
+              <Icon name="log-out" type="ionicon" size={20} color="#00B251" />
               <Text className="text-gray-800 font-semibold ml-4">Log out</Text>
             </View>
             <Icon name="chevron-right" type="font-awesome" size={20} color="gray" />
