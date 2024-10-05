@@ -214,7 +214,7 @@ function ProductDetailsScreen({ navigation, route }) {
                 className="bg-white border border-green-600 px-3 py-1 rounded-md items-center flex-row"
                 onPress={handleNegotiatePress}
               >
-                <FontAwesome name="dollar" size={16} color="#00B251" />
+                <FontAwesome name="balance-scale" size={16} color="#00B251" />
                 <Text className="text-green-600 ml-2 text-xs">Negotiate</Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -249,7 +249,7 @@ function ProductDetailsScreen({ navigation, route }) {
           onPress={handleMessagePress}
           style={{ paddingVertical: 10, minWidth: 20}}
         >
-          <FontAwesome name="envelope" size={20} color="#00B251" />
+          <FontAwesome name="comment" size={20} color="#00B251" />
           <Text className="text-[#00B251] font-bold text-mg ml-2">Message</Text>
         </TouchableOpacity>
 
