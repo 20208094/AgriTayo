@@ -242,14 +242,43 @@ function ProductDetailsScreen({ navigation, route }) {
         </View>
       </ScrollView>
 
-      {/* Add to Cart button */}
-      <TouchableOpacity
-        className="absolute bottom-1 left-10 right-10 bg-[#00B251] p-2 rounded-lg items-center"
-        onPress={handleAddToCart}
-      >
-        <Text className="text-white text-lg font-bold">Add to Cart</Text>
-      </TouchableOpacity>
+{/* Enhanced Sticky Bottom Bar */}
+<View className="absolute bottom-0 left-0 right-0 bg-white flex-row mb-1" style={{ height: 45 }}>
+        <TouchableOpacity
+          className="flex-1 flex-row items-center justify-center border border-green-600"
+          onPress={handleMessagePress}
+          style={{ paddingVertical: 10, minWidth: 20}}
+        >
+          <FontAwesome name="envelope" size={20} color="#00B251" />
+          <Text className="text-[#00B251] font-bold text-mg ml-2">Message</Text>
+        </TouchableOpacity>
+
+        {/* Separator */}
+        <View className="w-0.5 bg-white" />
+
+        <TouchableOpacity
+          className="flex-1 flex-row items-center justify-center border border-green-600"
+          onPress={handleNegotiatePress}
+          style={{ paddingVertical: 10, minWidth: 20}}
+        >
+          <FontAwesome name="balance-scale" size={20} color="#00B251" />
+          <Text className="text-[#00B251] font-bold text-mg ml-2">Negotiate</Text>
+        </TouchableOpacity>
+
+        {/* Separator */}
+        <View className="w-0.5 bg-white" />
+
+        <TouchableOpacity
+          className="flex-1 flex-row items-center justify-center border border-green-600 bg-green-600"
+          onPress={handleAddToCart}
+          style={{ paddingVertical: 10, minWidth: 100 }}
+        >
+          <FontAwesome name="shopping-cart" size={20} color="white" />
+          <Text className="text-white font-bold text-mg ml-2">Add to Cart</Text>
+        </TouchableOpacity>
+      </View>
     </View>
+
   );
 }
 
