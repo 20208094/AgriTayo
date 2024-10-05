@@ -1,20 +1,13 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  FlatList,
-} from "react-native";
+import { View, Text, TouchableOpacity, FlatList } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as Location from "expo-location";
 import { useNavigation } from "@react-navigation/native";
 import { Icon } from "react-native-elements";
 import { styled } from "nativewind";
 import { FontAwesome } from "@expo/vector-icons";
-import { NotificationIcon, MessagesIcon } from "../../components/SearchBarC";
 
-function PickUpAddressScreen({ route }) {
-  const { profile } = route.params;
+function PickUpAddressScreen() {
   const navigation = useNavigation();
   const [currentLocation, setCurrentLocation] = useState(null);
   const [checkedAddresses, setCheckedAddresses] = useState({});
@@ -97,7 +90,6 @@ function PickUpAddressScreen({ route }) {
         <View className="ml-4 flex-1">
           <Text className="text-lg font-semibold text-black">{item.label}</Text>
           <Text className="text-gray-600">{item.address}</Text>
-          <Text className="text-gray-600">Note to rider: {item.note}</Text>
         </View>
       </View>
       <TouchableOpacity
@@ -125,22 +117,6 @@ function PickUpAddressScreen({ route }) {
 
   return (
     <SafeAreaView className="flex-1 bg-gray-100 pt-0">
-      <View className="px-4 mt-0 flex-row justify-between items-center">
-        <View className="flex-1"></View>
-        <View className="flex-row space-x-4">
-          <NotificationIcon
-            onPress={() => navigation.navigate("Notifications")}
-          />
-          <MessagesIcon onPress={() => navigation.navigate("ChatListScreen")} />
-        </View>
-      </View>
-
-      <View className="mt-1 bg-gray-100 pt-4 pb-6 rounded-b-lg">
-        <View className="px-4">
-          <Text className="text-2xl font-bold text-black">Addresses</Text>
-        </View>
-      </View>
-
       <FlatList
         data={addresses}
         renderItem={renderItem}
@@ -151,9 +127,7 @@ function PickUpAddressScreen({ route }) {
       <View className="px-4 py-4">
         <TouchableOpacity
           className="bg-green-600 rounded-full py-4 items-center"
-          onPress={() =>
-            navigation.navigate("Shop Information", {profile})
-          }
+          onPress={() => navigation.navigate("Shop Information")}
         >
           <Text className="text-white text-lg font-semibold">
             Add Pickup Address
