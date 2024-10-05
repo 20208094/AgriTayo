@@ -55,6 +55,14 @@ CREATE TABLE shop (
     shop_description TEXT,
     user_id INT,
     shop_image_url VARCHAR(255),
+    delivery BOOLEAN DEFAULT FALSE,
+    pickup BOOLEAN DEFAULT FALSE,
+    delivery_price INT,
+    delivery_address INT,
+    pickup_price INT,
+    gcash BOOLEAN DEFAULT FALSE,
+    cod BOOLEAN DEFAULT FALSE,
+    bank BOOLEAN DEFAULT FALSE,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE SET NULL
 );
 
@@ -129,10 +137,19 @@ CREATE TABLE orders (
     total_weight DECIMAL(10, 4),
     status_id INT,
     user_id INT,
+    shop_id INT,
+    buyer_is_received BOOLEAN DEFAULT FALSE,
+    seller_is_received BOOLEAN DEFAULT FALSE,
+    order_type VARCHAR(50),
+    shipping_method VARCHAR(50),
+    reject_reason VARCHAR(50),
+    reject_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    order_received_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     order_metric_system_id INT,
     FOREIGN KEY (status_id) REFERENCES order_status(order_status_id) ON DELETE SET NULL,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE SET NULL,
+    FOREIGN KEY (shop_id) REFERENCES shop(shop_id) ON DELETE SET NULL,
     FOREIGN KEY (order_metric_system_id) REFERENCES metric_system(metric_system_id) ON DELETE SET NULL
 );
 
@@ -149,6 +166,11 @@ CREATE TABLE order_products (
     order_prod_total_price DECIMAL(10, 2) NOT NULL,
     order_prod_user_id INT,
     order_prod_metric_system_id INT,
+    orig_prod_price TEXT,
+    orig_prod_metric_symbol TEXT,
+    orig_prod_metric_system TEXT,
+    orig_prod_shop_id TEXT,
+    orig_prod_shop_name TEXT,
     FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE,
     FOREIGN KEY (order_prod_crop_id) REFERENCES crops(crop_id) ON DELETE SET NULL,
     FOREIGN KEY (order_prod_user_id) REFERENCES users(user_id) ON DELETE SET NULL,

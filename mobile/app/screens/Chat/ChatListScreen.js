@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, FlatList, TouchableOpacity, Image, TextInput } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import { REACT_NATIVE_API_KEY } from '@env';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { styled } from 'nativewind';
+import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from '@env';
 
-const API_URL_CHATS = 'https://agritayo.azurewebsites.net/api/chats';
-const API_URL_USERS = 'https://agritayo.azurewebsites.net/api/users';
-const API_URL_SHOPS = 'https://agritayo.azurewebsites.net/api/shops';
+const API_URL_CHATS = `${REACT_NATIVE_API_BASE_URL}/api/chats`;
+const API_URL_USERS = `${REACT_NATIVE_API_BASE_URL}/api/users`;
+const API_URL_SHOPS = `${REACT_NATIVE_API_BASE_URL}/api/shops`;
 
 const Container = styled(View, 'flex-1 p-4 bg-white');
 const Header = styled(View, 'flex-row items-center justify-between mb-4');
@@ -33,12 +34,44 @@ const ChatListScreen = () => {
   const [selectedType, setSelectedType] = useState('User');
   const [error, setError] = useState('');
   const navigation = useNavigation();
-  const userId = 1;
   const [allUsers, setAllUsers] = useState([]);
   const [allShops, setAllShops] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [userData, setUserData] = useState(null);
+  const [userId, setUserId] = useState(null);
+
+  const getAsyncUserData = async () => {
+    try {
+      const storedData = await AsyncStorage.getItem('userData');
+
+      if (storedData) {
+        const parsedData = JSON.parse(storedData); // Parse storedData
+
+        if (Array.isArray(parsedData)) {
+          const user = parsedData[0];
+          setUserData(user);
+          setUserId(user.user_id);
+        } else {
+          setUserData(parsedData);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load user data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      getAsyncUserData();
+    }, [])
+  );
 
   const fetchChats = async () => {
     try {
+      if (!userId) return;
+
       const chatResponse = await fetch(API_URL_CHATS, {
         headers: { 'x-api-key': REACT_NATIVE_API_KEY },
       });
@@ -66,8 +99,8 @@ const ChatListScreen = () => {
           const chatUsers = uniqueUserIds.map(id => {
             const user = usersData.find(user => user.user_id === id);
             const lastChat = chats.find(chat =>
-              (chat.sender_id === userId && chat.receiver_id === id) ||
-              (chat.receiver_id === userId && chat.sender_id === id)
+              (chat.sender_id === userId && chat.receiver_id === id && chat.receiver_type === 'User') ||
+              (chat.receiver_id === userId && chat.sender_id === id && chat.receiver_type === 'User')
             );
             return {
               ...user,
@@ -83,8 +116,8 @@ const ChatListScreen = () => {
           const chatShops = uniqueShopIds.map(id => {
             const shop = shopsData.find(shop => shop.shop_id === id);
             const lastChat = chats.find(chat =>
-              (chat.sender_id === userId && chat.receiver_id === id) ||
-              (chat.receiver_id === userId && chat.sender_id === id)
+              (chat.sender_id === userId && chat.receiver_id === id && chat.receiver_type === 'Shop') ||
+              (chat.receiver_id === userId && chat.sender_id === id && chat.receiver_type === 'Shop')
             );
             return {
               ...shop,
@@ -112,8 +145,10 @@ const ChatListScreen = () => {
 
   useFocusEffect(
     useCallback(() => {
-      fetchChats();
-    }, [])
+      if (userId) {
+        fetchChats();
+      }
+    }, [userId])
   );
 
   const handleSearch = (query) => {
@@ -134,9 +169,17 @@ const ChatListScreen = () => {
     }
   };
 
-  const handleUserClick = (id, name) => {
-    navigation.navigate('ChatScreen', { receiverId: id, receiverName: name, type: selectedType });
+  const handleUserClick = (receiver_id, name, receiver_image) => {
+  console.log('receiver_id :', receiver_id);
+    navigation.navigate('ChatScreen', {
+      senderId: userId,
+      receiverId: receiver_id,
+      receiverName: name,
+      receiverType: selectedType, 
+      receiverImage: receiver_image,
+    });
   };
+  
 
   const handleTypeChange = (type) => {
     setSelectedType(type);
@@ -176,7 +219,7 @@ const ChatListScreen = () => {
       <FlatList
         data={selectedType === 'User' ? filteredUsers : filteredShops}
         renderItem={({ item }) => (
-          <UserItem onPress={() => handleUserClick(item.user_id || item.shop_id, item.firstname || item.shop_name)}>
+          <UserItem onPress={() => handleUserClick(item.shop_id || item.user_id, item.firstname || item.shop_name, item.user_image_url || item.shop_image_url)}>
             <Avatar source={{ uri: item.user_image_url || item.shop_image_url || 'https://example.com/default-avatar.png' }} />
             <View style={{ flex: 1 }}>
               <UserName>{item.firstname || item.shop_name}</UserName>

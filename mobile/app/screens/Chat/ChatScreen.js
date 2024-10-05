@@ -1,5 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TextInput, FlatList, KeyboardAvoidingView, Platform, Image, TouchableOpacity, Alert, ActivityIndicator, Keyboard } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  FlatList,
+  KeyboardAvoidingView,
+  Platform,
+  Image,
+  TouchableOpacity,
+  Alert,
+  ActivityIndicator,
+  Keyboard,
+} from 'react-native';
 import io from 'socket.io-client';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
@@ -7,14 +19,14 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { styled } from 'nativewind';
 import ImageViewing from 'react-native-image-viewing';
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from '@env';
-import moment from 'moment'; // Make sure moment is installed
-
-const SOCKET_URL = 'https://agritayo.azurewebsites.net';
+import moment from 'moment';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Styled components with NativeWind
 const Container = styled(View, 'flex-1 bg-white p-4');
 const ChatContainer = styled(View, 'flex-1');
-const MessageInputContainer = styled(View, 'border-t border-gray-200 p-2 flex-row items-center');  // Adjusted flex-row to align icons properly
+const MessageInputContainer = styled(View, 'border-t border-gray-200 p-2 flex-row items-center');
 const InputWrapper = styled(View, 'flex-row flex-1 items-center border border-gray-300 rounded-lg p-1 bg-white text-black');
 const Input = styled(TextInput, 'flex-1 bg-white text-black p-2');
 const SendButton = styled(TouchableOpacity, 'p-2 rounded-full bg-[#00B251] ml-2');
@@ -27,7 +39,7 @@ const NameText = styled(Text, 'font-bold text-xs text-gray-600 mb-1');
 const HeaderText = styled(Text, 'text-lg font-bold text-center text-gray-800 py-2 bg-gray-100');
 const ImagePreview = styled(Image, 'w-16 h-16 rounded-lg mr-2');
 
-const ChatScreen = ({ route }) => {
+function ChatScreen({ route }) {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [newImage, setNewImage] = useState(null);
@@ -35,57 +47,99 @@ const ChatScreen = ({ route }) => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [loading, setLoading] = useState(false);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const [userData, setUserData] = useState(null);
+  const [senderType, setSenderType] = useState('User');
 
   const socket = useRef(null);
-  const { receiverId, receiverName } = route.params;
-  const userId = 1;
-
-  // Ref for FlatList
+  const { receiverId, receiverName, senderId, receiverType, receiverImage } = route.params;
+  const userId = senderId;
   const flatListRef = useRef(null);
 
-  useEffect(() => {
-    // Initialize socket connection
-    socket.current = io(SOCKET_URL, {
-      transports: ['websocket'],
-      reconnectionAttempts: 5,
-      reconnectionDelay: 1000,
-    });
-
-    socket.current.on('chat message', (msg) => {
-      setMessages((prevMessages) => [msg, ...prevMessages]);
-    });
-
-    const fetchMessages = async () => {
-      if (userId && receiverId) {
-        try {
-          setLoading(true);
-          const response = await fetch(`https://agritayo.azurewebsites.net/api/chats`, {
-            headers: {
-              'x-api-key': REACT_NATIVE_API_KEY,
-            },
-          });
-
-          if (response.ok) {
-            const allMessages = await response.json();
-            setMessages(allMessages.reverse());
-          } else {
-            console.error('Failed to fetch messages:', response.statusText);
-          }
-        } catch (error) {
-          console.error('Error fetching messages:', error);
-        } finally {
-          setLoading(false);
-        }
+  // Fetch user data from AsyncStorage
+  const getAsyncUserData = async () => {
+    try {
+      setLoading(true);
+      const storedData = await AsyncStorage.getItem('userData');
+      if (storedData) {
+        const parsedData = JSON.parse(storedData);
+        setUserData(parsedData);
+      } else {
+        console.log('No user data found.');
       }
-    };
+    } catch (error) {
+      console.error('Failed to load user data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchMessages();
+  // Fetch messages from the server
+  const fetchMessages = async () => {
+    if (userId && receiverId) {
+        console.log("User IDs:", userId, receiverId, receiverType, senderType);
+        try {
+            const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/chatsId/${userId}/${receiverId}/${receiverType}/${senderType}`, {
+                headers: { "x-api-key": REACT_NATIVE_API_KEY },
+            });
+
+            if (response.ok) {
+                // Parse the JSON response
+                const allMessages = await response.json();
+
+                // Sort messages based on chat_id in ascending order
+                const sortedMessages = allMessages.sort((a, b) => {
+                    return b.chat_id - a.chat_id; // Ascending order
+                });
+
+                // Update state with sorted messages
+                setMessages(sortedMessages);
+            } else {
+                console.error("Failed to fetch messages:", response.statusText);
+            }
+        } catch (error) {
+            console.error("Error fetching messages:", error);
+        }
+    }
+};
+
+
+  useFocusEffect(
+    React.useCallback(() => {
+      getAsyncUserData();
+    }, [])
+  );
+
+  useEffect(() => {
+    console.log('useEffect :', useEffect);
+    if (userId) {
+      console.log('userId :', userId);
+      fetchMessages();
+    }
+  }, [userId, receiverId, receiverType, senderType]);
+
+  useEffect(() => {
+    const socket = io(REACT_NATIVE_API_BASE_URL, { transports: ['websocket'] });
+    const receiverIdNum = Number(receiverId);
+    socket.on("chat message", (msg) => {
+      const isMessageForThisChat =
+        (msg.sender_id === userId && msg.receiver_id === receiverIdNum && msg.receiver_type === receiverType && msg.sender_type === senderType) ||
+        (msg.receiver_id === userId && msg.sender_id === receiverIdNum && msg.receiver_type === senderType && msg.sender_type === receiverType);
+
+      // If the message belongs to the current chat, add it to the list
+      if (isMessageForThisChat) {
+        console.log('isMessageForThisChat :', isMessageForThisChat);
+        setMessages((prevMessages) => [...prevMessages, msg]);
+        fetchMessages();
+      }
+    });
 
     return () => {
-      socket.current.disconnect();
+      socket.off("chat message");
+      socket.disconnect();
     };
-  }, [receiverId, userId]);
+  }, [userId, receiverId]);
 
+  // Keyboard event listeners
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => setKeyboardVisible(true));
     const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => setKeyboardVisible(false));
@@ -96,51 +150,42 @@ const ChatScreen = ({ route }) => {
     };
   }, []);
 
+  // Send message handler
   const handleSendMessage = async () => {
     if (newMessage.trim() || newImage) {
+      console.log('receiverId :', receiverId);
       const formData = new FormData();
-      formData.append('sender_id', userId.toString());
+      formData.append('sender_id', userId);
       formData.append('receiver_id', receiverId.toString());
       formData.append('chat_message', newMessage);
-      formData.append('receiver_type', 'User');
+      formData.append('receiver_type', receiverType);
+      formData.append('sender_type', senderType);
+      formData.append('sent_at', new Date().toISOString());
 
       if (newImage) {
         const { uri } = newImage;
         const name = uri.split('/').pop();
-        const type = 'image/jpeg';
+        const type = 'image/jpeg'; // Make sure to adjust the type based on your image
 
-        try {
-          const file = await FileSystem.readAsStringAsync(uri, { encoding: FileSystem.EncodingType.Base64 });
-          formData.append('image', {
-            uri: `data:${type};base64,${file}`,
-            type,
-            name,
-          });
-        } catch (error) {
-          console.error('Error reading image file:', error);
-          Alert.alert('Error', 'Failed to upload image. Please try again.');
-          return;
-        }
+        formData.append('image', {
+          uri,   // No Base64 encoding here
+          type,
+          name,
+        });
       }
 
       try {
-        const response = await fetch('https://agritayo.azurewebsites.net/api/chats', {
+        const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/chats`, {
           method: 'POST',
-          headers: {
-            Accept: 'application/json',
-            'x-api-key': REACT_NATIVE_API_KEY,
-          },
+          headers: { "x-api-key": REACT_NATIVE_API_KEY },  // No explicit Content-Type for FormData
           body: formData,
         });
 
         if (response.ok) {
-          const savedMessage = await response.json();
-          setNewMessage('');
+          setNewMessage("");
           setNewImage(null);
-          setMessages((prevMessages) => [savedMessage, ...prevMessages]);
         } else {
-          console.error('Failed to send message:', response.statusText);
-          Alert.alert('Error', 'Failed to send message. Please try again.');
+          console.error("Failed to send message:", response.statusText);
         }
       } catch (error) {
         console.error('Error sending message:', error);
@@ -151,6 +196,8 @@ const ChatScreen = ({ route }) => {
     }
   };
 
+
+  // Image selection handlers
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -158,8 +205,7 @@ const ChatScreen = ({ route }) => {
     });
 
     if (!result.canceled && result.assets && result.assets.length > 0) {
-      const selectedImage = result.assets[0];
-      setNewImage(selectedImage);
+      setNewImage(result.assets[0]);
     }
   };
 
@@ -170,8 +216,7 @@ const ChatScreen = ({ route }) => {
     });
 
     if (!result.canceled && result.assets && result.assets.length > 0) {
-      const selectedImage = result.assets[0];
-      setNewImage(selectedImage);
+      setNewImage(result.assets[0]);
     }
   };
 
@@ -216,14 +261,13 @@ const ChatScreen = ({ route }) => {
               return (
                 <View style={{ flexDirection: isSender ? 'row-reverse' : 'row', alignItems: 'center', marginVertical: 5 }}>
                   {!isSender && (
-                    <ProfileImage source={{ uri: item.sender_profile_image_url || 'https://example.com/default-profile.png' }} />
+                    <ProfileImage source={{ uri: receiverImage || 'https://example.com/default-profile.png' }} />
                   )}
                   <View style={{ alignItems: isSender ? 'flex-end' : 'flex-start', flex: 1 }}>
                     {!isSender && <NameText>{senderName}</NameText>}
                     {item.chat_message && (
                       <ChatBubble style={{ backgroundColor: isSender ? '#00B251' : '#E5E5EA', maxWidth: '100%', marginHorizontal: 10 }}>
                         <ChatBubbleText style={{ color: isSender ? 'white' : 'black' }}>{item.chat_message}</ChatBubbleText>
-                        {/* Adding the timestamp below the message */}
                         <Text style={{ color: isSender ? 'white' : 'gray', fontSize: 10, marginTop: 5 }}>
                           {moment(item.sent_at).format('h:mm A')}
                         </Text>
@@ -232,7 +276,6 @@ const ChatScreen = ({ route }) => {
                     {item.chat_image_url && (
                       <TouchableOpacity onPress={() => viewImage(item.chat_image_url)}>
                         <ChatImage source={{ uri: item.chat_image_url }} />
-                        {/* Adding the timestamp for image messages as well */}
                         <Text style={{ color: isSender ? 'white' : 'gray', fontSize: 10, marginTop: 5 }}>
                           {moment(item.sent_at).format('h:mm A')}
                         </Text>
@@ -251,7 +294,6 @@ const ChatScreen = ({ route }) => {
         </ChatContainer>
 
         <MessageInputContainer>
-          {/* Icon buttons for camera and image */}
           <View style={{ flexDirection: 'row', marginTop: 5 }}>
             <IconButton onPress={openCamera}>
               <Icon name="camera-alt" size={24} color="#00B251" />
@@ -274,9 +316,8 @@ const ChatScreen = ({ route }) => {
               value={newMessage}
               onChangeText={setNewMessage}
               placeholder="Type a message..."
-              accessible
-              accessibilityLabel="Message input field"
               multiline
+              accessibilityLabel="Message input field"
             />
 
             <SendButton onPress={handleSendMessage}>
@@ -296,6 +337,6 @@ const ChatScreen = ({ route }) => {
       </Container>
     </KeyboardAvoidingView>
   );
-};
+}
 
 export default ChatScreen;

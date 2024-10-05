@@ -23,8 +23,6 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 const StyledView = styled(View);
 const StyledText = styled(Text);
 
-const { width } = Dimensions.get("window");
-
 function CartScreen() {
   const navigation = useNavigation();
   const [shops, setShops] = useState([]);

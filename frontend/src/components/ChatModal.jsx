@@ -104,7 +104,7 @@ function ChatModal({ isOpen, onClose, userId, onMessagesRead }) {
 
     const handleTypeChange = (type) => {
         setSelectedType(type);
-        setSearchTerm(''); // Reset search on type change
+        setSearchTerm('');
     };
 
     // Search filter logic
@@ -164,13 +164,13 @@ function ChatModal({ isOpen, onClose, userId, onMessagesRead }) {
                         onClick={() => handleTypeChange("User")}
                         className={`flex-1 py-2 rounded-md text-center font-medium transition-colors ${selectedType === "User" ? "bg-[#00B251] text-white" : "bg-gray-200 text-gray-700"}`}
                     >
-                        Users Chats
+                        User Chats
                     </button>
                     <button
                         onClick={() => handleTypeChange("Shop")}
                         className={`flex-1 py-2 rounded-md text-center font-medium transition-colors ${selectedType === "Shop" ? "bg-[#00B251] text-white" : "bg-gray-200 text-gray-700"}`}
                     >
-                        Shops Chats
+                        Shop Chats
                     </button>
                 </div>
 

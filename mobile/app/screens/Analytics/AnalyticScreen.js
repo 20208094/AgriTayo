@@ -1,87 +1,45 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   SafeAreaView,
   View,
   Text,
   TouchableOpacity,
   ScrollView,
+  Alert,
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome5"; 
-import { useNavigation } from "@react-navigation/native";
+import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 
-const categoryData = {
-  Vegetables: [
-    { id: 1, name: "Potato" },
-    { id: 2, name: "Carrot" },
-    { id: 3, name: "Tomato" },
-    { id: 4, name: "Lettuce" },
-    { id: 5, name: "Spinach" },
-    { id: 6, name: "Broccoli" },
-    { id: 7, name: "Onion" },
-    { id: 8, name: "Cucumber" },
-    { id: 9, name: "Bell Pepper" },
-    { id: 10, name: "Zucchini" },
-  ],
-  Fruits: [
-    { id: 1, name: "Apple" },
-    { id: 2, name: "Banana" },
-    { id: 3, name: "Orange" },
-    { id: 4, name: "Strawberry" },
-    { id: 5, name: "Grape" },
-    { id: 6, name: "Mango" },
-    { id: 7, name: "BlueBerry" },
-    { id: 8, name: "Pineapple" },
-    { id: 9, name: "Watermelon" },
-    { id: 10, name: "Peach" },
-  ],
-  Spices: [
-    { id: 1, name: "Turmeric" },
-    { id: 2, name: "Cumin" },
-    { id: 3, name: "Pepper" },
-    { id: 4, name: "Cinnamon" },
-    { id: 5, name: "Coriander" },
-    { id: 6, name: "Ginger" },
-    { id: 7, name: "Clove" },
-    { id: 8, name: "Cardamom" },
-    { id: 9, name: "Fennel" },
-    { id: 10, name: "Mustard Seed" },
-  ],
-  Seedlings: [
-    { id: 1, name: "Tomato Seedlings" },
-    { id: 2, name: "Basil Seedlings" },
-    { id: 3, name: "Sunflower Seedlings" },
-    { id: 4, name: "Lettuce Seedlings" },
-    { id: 5, name: "Cucumber Seedlings" },
-    { id: 6, name: "Paper Seedlings" },
-    { id: 7, name: "Marigold Seedlings" },
-    { id: 8, name: "Mint Seedlings" },
-    { id: 9, name: "Cilantaro Seedlings" },
-    { id: 10, name: "Parsely Seedlings" },
-  ],
-  Plants: [
-    { id: 1, name: "Spider Plant" },
-    { id: 2, name: "Aloe Vera" },
-    { id: 3, name: "Rose" },
-    { id: 4, name: "Lavender" },
-    { id: 5, name: "Snake Plant" },
-    { id: 6, name: "Peace Lily" },
-    { id: 7, name: "Pothos" },
-    { id: 8, name: "Jade Plant" },
-    { id: 9, name: "Hibiscus" },
-    { id: 10, name: "Bamboo Plant" },
-  ],
-  Flowers: [
-    { id: 1, name: "Rose" },
-    { id: 2, name: "Tulip" },
-    { id: 3, name: "Marigold" },
-    { id: 4, name: "Sunflower" },
-    { id: 5, name: "Daisy" },
-    { id: 6, name: "Lily" },
-    { id: 7, name: "Orchid" },
-    { id: 8, name: "Daffodil" },
-    { id: 9, name: "Chrysanthemum" },
-    { id: 10, name: "Peony" },
-  ],
+const fetchCategories = async () => {
+  try {
+    const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_categories`, {
+      headers: {
+        "x-api-key": REACT_NATIVE_API_KEY,
+      },
+    });
+    const allCategories = await response.json();
+    return allCategories;
+  } catch (error) {
+    console.error("Error fetching categories:", error);
+    Alert.alert("Error", "Could not fetch categories, please try again later.");
+    return [];
+  }
+};
+
+const fetchSubCategories = async () => {
+  try {
+    const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_sub_categories`, {
+      headers: {
+        "x-api-key": REACT_NATIVE_API_KEY,
+      },
+    });
+    const allSubCategories = await response.json();
+    return allSubCategories;
+  } catch (error) {
+    console.error("Error fetching subcategories:", error);
+    Alert.alert("Error", "Could not fetch subcategories, please try again later.");
+    return [];
+  }
 };
 
 const categoryIcons = {
@@ -94,7 +52,30 @@ const categoryIcons = {
 };
 
 function AnalyticScreen({ navigation }) {
+  const [categoryData, setCategoryData] = useState({});
   const [expandedCategory, setExpandedCategory] = useState(null);
+
+  useEffect(() => {
+    const loadData = async () => {
+      const categories = await fetchCategories();
+      const subCategories = await fetchSubCategories();
+
+      // Transform data into categoryData format
+      const formattedData = categories.reduce((acc, category) => {
+        acc[category.crop_category_name] = subCategories
+          .filter(subCat => subCat.crop_category_id === category.crop_category_id)
+          .map(subCat => ({
+            id: subCat.crop_sub_category_id,
+            name: subCat.crop_sub_category_name
+          }));
+        return acc;
+      }, {});
+
+      setCategoryData(formattedData);
+    };
+
+    loadData();
+  }, []);
 
   const toggleExpand = (category) => {
     if (expandedCategory === category) {
@@ -122,10 +103,10 @@ function AnalyticScreen({ navigation }) {
             >
               <View style={{ flexDirection: "row", alignItems: "center" }}>
                 <Icon
-                  name={categoryIcons[categoryKey]}
+                  name={categoryIcons[categoryKey] || "question-circle"}
                   size={20}
-                  color="#00B251" 
-                  style={{ marginRight: 10 }} 
+                  color="#00B251"
+                  style={{ marginRight: 10 }}
                 />
                 <Text style={{ fontSize: 18, fontWeight: "600", color: "#000" }}>
                   {categoryKey}
@@ -145,9 +126,8 @@ function AnalyticScreen({ navigation }) {
                     marginLeft: 32,
                     marginTop: 8,
                     padding: 12,
-                    backgroundColor: "#FFFFFF", 
+                    backgroundColor: "#FFFFFF",
                     borderRadius: 12,
-                    
                   }}
                   onPress={() =>
                     navigation.navigate("Market Analytics", {

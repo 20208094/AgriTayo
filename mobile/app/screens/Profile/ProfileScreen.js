@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { View, Image, Text, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useNavigation, useFocusEffect  } from "@react-navigation/native";
 import { Icon } from "react-native-elements";
 import michael from "../../assets/ehh.png";
 import { styled } from "nativewind";
 import LogoutModal from "../Authentication/LogoutModal";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from '@env';
 
@@ -15,6 +15,8 @@ function ProfileScreen({ fetchUserSession }) {
   const [loading, setLoading] = useState(true);
   const [userData, setUserData] = useState(null);
   const [shopData, setShopData] = useState(null);
+  const [orderStatuses, setOrderStatuses] = useState([]);
+  const [orders, setOrders] = useState([]);
 
   useEffect(() => {
     if (userData) {
@@ -25,31 +27,31 @@ function ProfileScreen({ fetchUserSession }) {
   const getAsyncUserData = async () => {
     try {
       const storedData = await AsyncStorage.getItem('userData');
-      
+
       if (storedData) {
         const parsedData = JSON.parse(storedData); // Parse storedData
-        
+
         if (Array.isArray(parsedData)) {
-          const user = parsedData[0];  // Assuming user data is the first element of the array
-          setUserData(user); // Set userData state to the user object
+          const user = parsedData[0];
+          setUserData(user);
         } else {
-          setUserData(parsedData); // If it's not an array, directly set parsed data
+          setUserData(parsedData);
         }
       }
     } catch (error) {
       console.error('Failed to load user data:', error);
     } finally {
-      setLoading(false); // Set loading to false when done
+      setLoading(false);
     }
   };
 
   const getAsyncShopData = async () => {
     try {
       const storedData = await AsyncStorage.getItem('shopData');
-      
+
       if (storedData) {
         const parsedData = JSON.parse(storedData); // Parse storedData
-        
+
         if (Array.isArray(parsedData)) {
           const shop = parsedData[0];  // Assuming shop data is the first element of the array
           setShopData(shop); // Set shopData state to the shop object
@@ -64,16 +66,73 @@ function ProfileScreen({ fetchUserSession }) {
     }
   };
 
-  // Use useFocusEffect to re-fetch data when the screen is focused (navigated back)
+  const fetchOrders = async () => {
+    try {
+      const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/orders`, {
+        headers: {
+          'x-api-key': REACT_NATIVE_API_KEY,
+        },
+      });
+      if (response.ok) {
+        const allOrds = await response.json();
+        setOrders(allOrds);
+      } else {
+        console.error('Failed to fetch orders:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+    }
+  };
+
+  const fetchOrderStatus = async () => {
+    try {
+      const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/order_statuses`, {
+        headers: {
+          'x-api-key': REACT_NATIVE_API_KEY,
+        },
+      });
+      if (response.ok) {
+        const allOrdStat = await response.json();
+        const updatedStatuses = allOrdStat.map(status => {
+          const totalOrders = orders.filter(order => order.status_id === status.order_status_id && order.user_id === userData.user_id).length;
+          return { ...status, totalOrders };
+        });
+        setOrderStatuses(updatedStatuses);
+      } else {
+        console.error('Failed to fetch order statuses:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error fetching order statuses:', error);
+    }
+  };
+  
   useFocusEffect(
     React.useCallback(() => {
-      getAsyncUserData();
-      getAsyncShopData();
+      const fetchData = async () => {
+        setLoading(true);
+        try {
+          await getAsyncUserData();
+          await getAsyncShopData();
+          await fetchOrders();
+        } catch (error) {
+          console.error('Error fetching data:', error);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchData();
     }, [])
   );
 
+  useEffect(() => {
+    if (orders.length > 0) {
+      fetchOrderStatus();
+    }
+  }, [orders, userData]);
+
   if (loading) {
-    return <Text>Loading...</Text>; // or your loading spinner
+    return <Text>Loading...</Text>;
   }
 
   return (
@@ -81,7 +140,7 @@ function ProfileScreen({ fetchUserSession }) {
       <View className="mt-1 bg-green-200 pt-0 pb-6 rounded-b-lg">
         <View className="flex-row items-center px-4">
           <View className="relative mr-4">
-            <Image source={{uri: userData.user_image_url}} className="mt-5 w-24 h-24 rounded-full" />
+            <Image source={{ uri: userData.user_image_url }} className="mt-5 w-24 h-24 rounded-full" />
             <View className="absolute bottom-0 right-0 bg-green-600 p-1 rounded-full">
               <Icon name="camera" type="font-awesome" size={16} color="white" />
             </View>
@@ -97,44 +156,43 @@ function ProfileScreen({ fetchUserSession }) {
       </View>
 
       {/* Other content */}
-      <View className="mt-4 px-4">
-        <View className="bg-white rounded-lg shadow p-4 space-y-6">
-          <View className="flex-row items-center justify-between">
+      <View className="mt-4 px-4 ">
+        <View className="bg-white rounded-lg shadow p-4 space-y-6 ">
+          <View className="flex-row items-center justify-between ">
             <Text className="text-lg font-semibold text-gray-800">My Purchases</Text>
             <TouchableOpacity onPress={() => navigation.navigate("Orders", { screen: "Completed" })}>
               <Text className="text-green-600">View Purchase History</Text>
             </TouchableOpacity>
           </View>
-          <View className="flex-row justify-around mt-2">
-            <TouchableOpacity onPress={() => navigation.navigate("Orders", { screen: "To Pay" })}>
-              <View className="items-center">
-                <Icon name="credit-card" type="font-awesome" size={24} color="green" />
-                <Text className="text-gray-800 mt-1">To Pay</Text>
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => navigation.navigate("Orders", { screen: "To Ship" })}>
-              <View className="items-center">
-                <Icon name="truck" type="font-awesome" size={24} color="green" />
-                <Text className="text-gray-800 mt-1">To Ship</Text>
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => navigation.navigate("Orders", { screen: "To Receive" })}>
-              <View className="items-center">
-                <Icon name="gift" type="font-awesome" size={24} color="green" />
-                <Text className="text-gray-800 mt-1">To Receive</Text>
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => navigation.navigate("Orders", { screen: "To Rate" })}>
-              <View className="items-center">
-                <Icon name="star" type="font-awesome" size={24} color="green" />
-                <Text className="text-gray-800 mt-1">To Rate</Text>
-              </View>
-            </TouchableOpacity>
+
+          {/* Render in rows of 3 items */}
+          <View>
+            {orderStatuses.map((status, index) => {
+              // If it's the start of a new row (every 3rd item), we create a new View for the row
+              if (index % 3 === 0) {
+                return (
+                  <View key={index} className="flex-row justify-around mb-3">
+                    {/* Render up to 3 items within the row */}
+                    {orderStatuses.slice(index, index + 3).map((status) => (
+                      <TouchableOpacity
+                        key={status.order_status_id}
+                        className="items-center w-1/3"
+                        onPress={() => navigation.navigate("Orders", { screen: status.order_status_name })}
+                      >
+                        <Text className="text-lg font-bold">{status.totalOrders}</Text>
+                        <Text className="text-gray-500">{status.order_status_name}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                );
+              }
+              return null; // Return null for other items to avoid rendering them outside the row
+            })}
           </View>
         </View>
       </View>
 
-      <View className="mt-4 px-4">
+      <View className="px-4">
         <View className="bg-white rounded-lg shadow p-4 space-y-4">
           <TouchableOpacity className="flex-row items-center justify-between" onPress={() => navigation.navigate("View Profile", { userData })}>
             <View className="flex-row items-center">
@@ -181,7 +239,7 @@ function ProfileScreen({ fetchUserSession }) {
       <LogoutModal
         isVisible={isModalVisible}
         onCancel={() => setModalVisible(false)}
-        fetchUserSession={fetchUserSession} 
+        fetchUserSession={fetchUserSession}
         navigation={navigation}
       />
     </SafeAreaView>
