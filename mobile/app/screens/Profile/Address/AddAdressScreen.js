@@ -17,7 +17,7 @@ import { NotificationIcon, MessagesIcon, MarketIcon } from "../../../components/
 function AddAddressScreen({
   navigation,
   route,
-  onLocationSelect: handleLocationSelect = () => {},
+  onLocationSelect = () => {},  // Use directly as props
 }) {
   const { profile, currentLocation } = route.params;
 
@@ -104,6 +104,18 @@ function AddAddressScreen({
 
   const handleLabelSelect = (selectedLabel) => {
     setLabel(selectedLabel);
+  };
+
+  // Handle location select and set the address input
+  const handleLocationSelect = async (selectedLocation) => {
+    setAddressInput(""); // Reset the address while fetching the new one
+
+    // Reverse geocoding to get address from coordinates
+    const location = await Location.reverseGeocodeAsync(selectedLocation);
+    if (location.length > 0) {
+      const formattedAddress = `${location[0].name || ''} ${location[0].street || ''} ${location[0].city || ''}`;
+      setAddressInput(formattedAddress);  // Automatically update the address input
+    }
   };
 
   return (
