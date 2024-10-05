@@ -23,7 +23,7 @@ const NegotiationSellerScreen = ({ route, navigation }) => {
                 <View className="px-4 py-6">
                     {/* Product Details */}
                     <View className="border-b border-gray-300 pb-4 mb-4">
-                        <Image 
+                        <Image
                             source={dummyNegotiation.productImage}
                             className="w-full h-64 md:h-80 lg:h-96 object-cover rounded-lg mb-4"
                             resizeMode="cover"
@@ -73,6 +73,12 @@ const NegotiationSellerScreen = ({ route, navigation }) => {
                                             onChangeText={setAmount}
                                         />
                                         <Text className="text-lg md:text-xl font-bold text-gray-800">Total: ₱{total}</Text>
+                                        <TouchableOpacity
+                                            className="border border-[#00B251] py-3 rounded-md flex-1"
+                                            onPress={() => { }}
+                                        >
+                                            <Text className="text-[#00B251] text-center font-semibold">Negotiate</Text>
+                                        </TouchableOpacity>
                                     </View>
                                 </View>
                             </View>
@@ -86,16 +92,10 @@ const NegotiationSellerScreen = ({ route, navigation }) => {
                                     <Text className="text-white text-center font-semibold">Accept</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity
-                                    className="bg-gray-400 py-3 rounded-md flex-1"
+                                    className="bg-red-500 py-3 rounded-md flex-1"
                                     onPress={() => { }}
                                 >
                                     <Text className="text-white text-center font-semibold">Decline</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                    className="border border-[#00B251] py-3 rounded-md flex-1"
-                                    onPress={() => { }}
-                                >
-                                    <Text className="text-[#00B251] text-center font-semibold">Negotiate</Text>
                                 </TouchableOpacity>
                             </View>
                         </>
@@ -104,6 +104,7 @@ const NegotiationSellerScreen = ({ route, navigation }) => {
                             {/* Closed Negotiation State */}
                             <View className="border-b border-gray-300 pb-4 mb-4">
                                 <Text className="text-lg md:text-xl font-semibold text-red-600 mb-2">The buyer did not want to negotiate.</Text>
+                                <Text className="text-lg md:text-xl font-semibold text-gray-800 mb-2">Buyer Offer: </Text>
                                 <Text className="text-sm md:text-base text-gray-600">Price: ₱{negotiationData.price}</Text>
                                 <Text className="text-sm md:text-base text-gray-600">Amount: {negotiationData.amount}</Text>
                                 <Text className="text-sm md:text-base text-gray-600">Total: ₱{negotiationData.total}</Text>
@@ -118,7 +119,7 @@ const NegotiationSellerScreen = ({ route, navigation }) => {
                                     <Text className="text-white text-center font-semibold">Accept</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity
-                                    className="bg-gray-400 py-3 rounded-md flex-1"
+                                    className="bg-red-500 py-3 rounded-md flex-1"
                                     onPress={() => { }}
                                 >
                                     <Text className="text-white text-center font-semibold">Decline</Text>
