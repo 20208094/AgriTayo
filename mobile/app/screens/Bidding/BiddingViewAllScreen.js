@@ -12,7 +12,7 @@ const BiddingViewAllScreen = () => {
   const renderCard = ({ item }) => (
     <TouchableOpacity
       onPress={() => navigation.navigate("Bidding Details", { data: item })}
-      className="bg-white rounded-lg overflow-hidden shadow-lg border-[#00B251] border ml-2 mr-2 mb-4 "
+      className="bg-white rounded-lg overflow-hidden shadow-lg border-[#00B251] border ml-1 mr-2 mb-4 "
       style={{
         width: (screenWidth * 0.45), 
         height: screenHeight * 0.3,  
@@ -40,7 +40,7 @@ const BiddingViewAllScreen = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
-      <View className="mt-6 mb-4">
+      <View className="mt-6 mb-4 ">
         <Text className="text-3xl font-bold text-[#00B251] italic text-center">
           {category.categoryName}
         </Text>
