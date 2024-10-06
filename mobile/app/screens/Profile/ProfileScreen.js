@@ -8,6 +8,7 @@ import LogoutModal from "../Authentication/LogoutModal";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from '@env';
+import { ScrollView } from "react-native-gesture-handler";
 
 function ProfileScreen({ fetchUserSession }) {
   const navigation = useNavigation();
@@ -137,6 +138,7 @@ function ProfileScreen({ fetchUserSession }) {
 
   return (
     <SafeAreaView className="flex-1 bg-gray-100 pt-0">
+      <ScrollView>
       <View className="mt-1 bg-green-200 pt-0 pb-6 rounded-b-lg">
         <View className="flex-row items-center px-4">
           <View className="relative mr-4">
@@ -242,6 +244,7 @@ function ProfileScreen({ fetchUserSession }) {
         fetchUserSession={fetchUserSession}
         navigation={navigation}
       />
+      </ScrollView>
     </SafeAreaView>
   );
 }

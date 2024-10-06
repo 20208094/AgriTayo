@@ -5,12 +5,13 @@ import * as Location from "expo-location";
 import { useNavigation } from "@react-navigation/native";
 import { Icon } from "react-native-elements";
 import { styled } from "nativewind";
-import { FontAwesome } from "@expo/vector-icons";
+import Ionicons from "react-native-vector-icons/Ionicons";
 
-function PickUpAddressScreen() {
+const AddLocation = () => {
   const navigation = useNavigation();
   const [currentLocation, setCurrentLocation] = useState(null);
-  const [checkedAddresses, setCheckedAddresses] = useState({});
+  const [checkedAddressId, setCheckedAddressId] = useState(null); // Single checked address
+  const [locationError, setLocationError] = useState(null); // Error handling for location
 
   const addresses = [
     {
@@ -62,26 +63,46 @@ function PickUpAddressScreen() {
 
   useEffect(() => {
     (async () => {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {
-        console.log("Permission to access location was denied");
-        return;
-      }
+      try {
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== "granted") {
+          setLocationError("Permission to access location was denied");
+          return;
+        }
 
-      let { coords } = await Location.getCurrentPositionAsync({});
-      setCurrentLocation({
-        latitude: coords.latitude,
-        longitude: coords.longitude,
-      });
+        let { coords } = await Location.getCurrentPositionAsync({});
+        setCurrentLocation({
+          latitude: coords.latitude,
+          longitude: coords.longitude,
+        });
+      } catch (error) {
+        setLocationError("Error getting current location");
+        console.log(error);
+      }
     })();
   }, []);
 
   const handleCheck = (id) => {
-    setCheckedAddresses((prev) => ({
-      ...prev,
-      [id]: !prev[id],
-    }));
+    setCheckedAddressId((prevId) => (prevId === id ? null : id)); // Toggle the selection
   };
+
+  // Custom checkbox component
+  const CustomCheckbox = ({ checked }) => (
+    <View
+      style={{
+        width: 24,
+        height: 24,
+        borderRadius: 4,
+        borderWidth: 2,
+        borderColor: checked ? "#00b251" : "#ccc",
+        backgroundColor: checked ? "#00b251" : "transparent",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      {checked && <Ionicons name="checkmark" size={16} color="white" />}
+    </View>
+  );
 
   const renderItem = ({ item }) => (
     <View className="flex-row justify-between items-center bg-white rounded-lg shadow p-4 mb-4">
@@ -96,27 +117,19 @@ function PickUpAddressScreen() {
         onPress={() => handleCheck(item.id)}
         style={{ flexDirection: "row", alignItems: "center" }}
       >
-        <View
-          style={{
-            width: 24,
-            height: 24,
-            borderRadius: 12,
-            borderWidth: 2,
-            borderColor: checkedAddresses[item.id] ? "#2F855A" : "#ccc",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          {checkedAddresses[item.id] && (
-            <FontAwesome name="check-circle" size={20} color="#2F855A" />
-          )}
-        </View>
+        {/* Use the CustomCheckbox component */}
+        <CustomCheckbox checked={checkedAddressId === item.id} />
       </TouchableOpacity>
     </View>
   );
 
   return (
     <SafeAreaView className="flex-1 bg-gray-100 pt-0">
+      {/* Display location error if any */}
+      {locationError && (
+        <Text className="text-center text-red-600 mb-2">{locationError}</Text>
+      )}
+      
       <FlatList
         data={addresses}
         renderItem={renderItem}
@@ -130,12 +143,12 @@ function PickUpAddressScreen() {
           onPress={() => navigation.navigate("Shop Information")}
         >
           <Text className="text-white text-lg font-semibold">
-            Add Pickup Address
+            Add Location
           </Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
-}
+};
 
-export default styled(PickUpAddressScreen);
+export default styled(AddLocation);

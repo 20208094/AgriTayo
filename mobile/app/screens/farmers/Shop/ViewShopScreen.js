@@ -27,6 +27,7 @@ function ViewShopScreen({ navigation }) {
   const [modalVisible, setModalVisible] = useState(false);
   const [shopDeliveryFee, setShopDeliveryFee] = useState("");
   const [pickupAreaFee, setPickUpAreaFee] = useState("");
+  const [pickupAddress, setPickUpAddress] = useState("")
 
   const [isCheckedDelivery, setIsCheckedDelivery] = useState(false);
 
@@ -104,6 +105,7 @@ function ViewShopScreen({ navigation }) {
                 setIsCheckedCod(shop.cod)
                 setIsCheckedGcash(shop.gcash)
                 setIsCheckedBankTransfer(shop.bank)
+                setPickUpAddress(shop.shop_address)
             } else {
                 setShopData(parsedData);
                 setShopName(parsedData.shop_name);
@@ -117,6 +119,7 @@ function ViewShopScreen({ navigation }) {
                 setIsCheckedCod(parsedData.cod)
                 setIsCheckedGcash(parsedData.gcash)
                 setIsCheckedBankTransfer(parsedData.bank)
+                setPickUpAddress(parsedData.shop_address)
             }
         }
     } catch (error) {
@@ -202,7 +205,7 @@ function ViewShopScreen({ navigation }) {
           <Text className="text-base text-gray-600">Shop Location</Text>
             <TouchableOpacity
               className="flex-row justify-between items-center p-3 border border-gray-300 rounded-lg"
-              onPress={() => navigation.navigate("")}
+              onPress={() => navigation.navigate("Add Location")}
             >
               <Text className="text-base text-gray-600">Select Location</Text>
               <Ionicons name="chevron-forward-outline" size={20} color="gray" />
@@ -248,19 +251,11 @@ function ViewShopScreen({ navigation }) {
             {isCheckedPickup && (
               <>
                 <Text className="text-base text-gray-600">Pickup Address:</Text>
-                <TouchableOpacity
-                  className="flex-row justify-between items-center p-3 border border-gray-300 rounded-lg"
-                  onPress={() => navigation.navigate("")}
-                >
-                  <Text className="text-base text-gray-600">
-                    Select Location
-                  </Text>
-                  <Ionicons
-                    name="chevron-forward-outline"
-                    size={20}
-                    color="gray"
-                  />
-                </TouchableOpacity>
+                <TextInput
+                className='mt-1 text-lg text-gray-900 border border-gray-300 rounded-lg p-2'
+                value={pickupAddress}
+                onChangeText={setPickUpAddress}
+                />
                 <Text className="text-base text-gray-600">
                   Pickup Area Fee:
                 </Text>
