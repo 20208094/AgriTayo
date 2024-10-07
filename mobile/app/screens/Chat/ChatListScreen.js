@@ -32,6 +32,7 @@ const ChatListScreen = () => {
   const [filteredShops, setFilteredShops] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedType, setSelectedType] = useState('User');
+  const [selectedRole, setSelectedRole] = useState(null); // Added for role-based filtering (Seller/Buyer)
   const [error, setError] = useState('');
   const navigation = useNavigation();
   const [allUsers, setAllUsers] = useState([]);
@@ -43,7 +44,6 @@ const ChatListScreen = () => {
   const getAsyncUserData = async () => {
     try {
       const storedData = await AsyncStorage.getItem('userData');
-
       if (storedData) {
         const parsedData = JSON.parse(storedData); // Parse storedData
 
@@ -156,21 +156,17 @@ const ChatListScreen = () => {
 
     if (query) {
       const lowerCaseQuery = query.toLowerCase();
-      if (selectedType === 'User') {
-        const filtered = allUsers.filter(user => user?.firstname?.toLowerCase().includes(lowerCaseQuery));
-        setFilteredUsers(filtered);
-      } else {
-        const filtered = allShops.filter(shop => shop?.shop_name?.toLowerCase().includes(lowerCaseQuery));
-        setFilteredShops(filtered);
-      }
+      const filtered = allUsers.filter(user => 
+        user?.firstname?.toLowerCase().includes(lowerCaseQuery) && 
+        (!selectedRole || user.user_type_id === selectedRole)
+      );
+      setFilteredUsers(filtered);
     } else {
       setFilteredUsers(users);
-      setFilteredShops(shops);
     }
   };
 
   const handleUserClick = (receiver_id, name, receiver_image) => {
-  console.log('receiver_id :', receiver_id);
     navigation.navigate('ChatScreen', {
       senderId: userId,
       receiverId: receiver_id,
@@ -179,7 +175,6 @@ const ChatListScreen = () => {
       receiverImage: receiver_image,
     });
   };
-  
 
   const handleTypeChange = (type) => {
     setSelectedType(type);
@@ -188,10 +183,37 @@ const ChatListScreen = () => {
     setFilteredShops(shops);
   };
 
+  // New function to handle role change between seller and buyer
+  const handleRoleChange = (roleId) => {
+    setSelectedRole(roleId); // 2 = Seller, 3 = Buyer
+    const filtered = allUsers.filter(user => user.user_type_id === roleId);
+    setFilteredUsers(filtered);
+  };
+
   return (
     <Container>
+            {/* New Seller/Buyer buttons */}
+            <View style={{ flexDirection: 'row', marginBottom: 10, justifyContent: 'space-around' }}>
+        {userData && (
+          <>
+            <Button
+              onPress={() => handleRoleChange(2)} // Seller
+              style={selectedRole === 2 ? 'bg-gradient-to-r from-green-400 to-green-500' : 'bg-gray-200'}
+            >
+              <ButtonText>{`Chat as Seller`}</ButtonText>
+            </Button>
+            <Button
+              onPress={() => handleRoleChange(3)} // Buyer
+              style={selectedRole === 3 ? 'bg-gradient-to-r from-green-400 to-green-500' : 'bg-gray-200'}
+            >
+              <ButtonText>{`Chat as Buyer`}</ButtonText>
+            </Button>
+          </>
+        )}
+      </View>
+
       <Header>
-        <Title>{selectedType === 'User' ? 'User Chats' : 'Shop Chats'}</Title>
+        <Title>{selectedType === 'User' ? 'User Chats' : 'Shop Chats' }</Title>
         <SearchInput
           placeholder={`Search ${selectedType === 'User' ? 'users' : 'shops'} by name`}
           value={searchQuery}
@@ -201,42 +223,38 @@ const ChatListScreen = () => {
 
       {error && <ErrorText>{error}</ErrorText>}
 
+
+
+      {/* Existing Buttons for User Chats and Shop Chats */}
       <View style={{ flexDirection: 'row', marginBottom: 10, justifyContent: 'space-around' }}>
         <Button
           onPress={() => handleTypeChange('User')}
-          style={selectedType === 'User' ? 'bg-gradient-to-r from-green-400 to-green-600' : 'bg-gray-200'}
+          style={selectedType === 'User' ? 'bg-gradient-to-r from-green-400 to-green-500' : 'bg-gray-200'}
         >
-          <ButtonText style={selectedType === 'User' ? 'text-white' : 'text-gray-700'}>{'Users Chats'}</ButtonText>
+          <ButtonText>User Chats</ButtonText>
         </Button>
         <Button
           onPress={() => handleTypeChange('Shop')}
-          style={selectedType === 'Shop' ? 'bg-gradient-to-r from-green-400 to-green-600' : 'bg-gray-200'}
+          style={selectedType === 'Shop' ? 'bg-gradient-to-r from-green-400 to-green-500' : 'bg-gray-200'}
         >
-          <ButtonText style={selectedType === 'Shop' ? 'text-white' : 'text-gray-700'}>{'Shops Chats'}</ButtonText>
+          <ButtonText>Shop Chats</ButtonText>
         </Button>
       </View>
 
+      {/* Chat List */}
       <FlatList
         data={selectedType === 'User' ? filteredUsers : filteredShops}
+        keyExtractor={item => item.user_id?.toString() || item.shop_id?.toString()}
         renderItem={({ item }) => (
-          <UserItem onPress={() => handleUserClick(item.shop_id || item.user_id, item.firstname || item.shop_name, item.user_image_url || item.shop_image_url)}>
-            <Avatar source={{ uri: item.user_image_url || item.shop_image_url || 'https://example.com/default-avatar.png' }} />
-            <View style={{ flex: 1 }}>
+          <UserItem onPress={() => handleUserClick(item.user_id || item.shop_id, item.firstname || item.shop_name, item.user_image_url || item.shop_image_url)}>
+            <Avatar source={{ uri: item.user_image_url || item.shop_image_url }} />
+            <View>
               <UserName>{item.firstname || item.shop_name}</UserName>
-              <LastMessage>{item.lastMessage || 'No recent messages'}</LastMessage>
+              <LastMessage>{item.lastMessage}</LastMessage>
             </View>
-            <TimeText>{item.time || 'Unknown time'}</TimeText>
+            <TimeText>{item.time}</TimeText>
           </UserItem>
         )}
-        keyExtractor={(item, index) => {
-          if (item.user_id) {
-            return `user-${item.user_id}`;
-          } else if (item.shop_id) {
-            return `shop-${item.shop_id}`;
-          } else {
-            return `item-${index}`;
-          }
-        }}
       />
     </Container>
   );
