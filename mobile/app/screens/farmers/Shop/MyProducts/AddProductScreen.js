@@ -1,34 +1,50 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import {
   SafeAreaView,
-  TextInput,
   View,
-  TouchableOpacity,
   Text,
-  Image,
+  TextInput,
+  TouchableOpacity,
   Modal,
   ScrollView,
+  Image,
 } from "react-native";
+import { REACT_NATIVE_API_KEY } from "@env";
+import { useFocusEffect } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "react-native-vector-icons/Ionicons";
 
-// Replace these with your API URL and Key
-import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
+function AddProductScreen() {
+  // for fetching
+  const [categories, setCategories] = useState([]);
+  const [metricSystem, setMetricSystem] = useState([]);
+  const API_KEY = REACT_NATIVE_API_KEY;
 
-function AddProductScreen({ navigation }) {
-  const [formData, setFormData] = useState({
-    crop_name: "",
-    crop_description: "",
-    crop_price: "",
-    crop_image: null,
-    category_id: "",
-    shop_id: "",
-    crop_rating: "",
-    crop_quantity: "",
-    crop_weight: "",
-    metric_system_id: "",
-  });
+  // for user inputs
+  const [cropName, setCropName] = useState("");
+  const [cropDescription, setCropDescription] = useState("");
+  const [cropPrice, setCropPrice] = useState("");
+  const [cropQuantity, setCropQuantity] = useState("");
+  const [cropWeight, setCropWeight] = useState("");
+
+  // for clicked or checked
+  const [isClickedCategory, setIsClickedCategory] = useState(false);
+  const [isClickedMetricSystem, setIsClickedMetricSystem] = useState(false);
+  const [selectedMetricSystem, setSelectedMetricSystem] = useState("Metric");
+  const [selectedCategory, setSelectedCategory] = useState("Category");
   const [modalVisible, setModalVisible] = useState(false);
+
+  const [formData, setFormData] = useState({});
+
+  const handleMetricSelect = (metric) => {
+    setSelectedMetricSystem(metric.metric_system_name);
+    setIsClickedMetricSystem(false);
+  };
+
+  const handleCategorySelect = (category) => {
+    setSelectedCategory(category.crop_category_name);
+    setIsClickedCategory(false);
+  };
 
   // Function to handle image selection from gallery
   const selectImageFromGallery = async () => {
@@ -55,241 +71,248 @@ function AddProductScreen({ navigation }) {
     setFormData({ ...formData, crop_image: null });
   };
 
-  // Function to handle product submission
-  const handleAddProduct = async () => {
-    // Validate required fields
-    if (!formData.crop_name || !formData.crop_price || !formData.category_id || !formData.shop_id) {
-      alert("Please fill all required fields.");
-      return;
-    }
-  
-    const formBody = new FormData();
-    formBody.append("crop_name", formData.crop_name);
-    formBody.append("crop_description", formData.crop_description);
-    formBody.append("crop_price", formData.crop_price);
-    formBody.append("category_id", formData.category_id);
-    formBody.append("shop_id", formData.shop_id);
-    formBody.append("crop_rating", formData.crop_rating);
-    formBody.append("crop_quantity", formData.crop_quantity);
-    formBody.append("crop_weight", formData.crop_weight);
-    formBody.append("metric_system_id", formData.metric_system_id);
-  
-    // Log form data before appending image
-    console.log("Form data before image append:", {
-      crop_name: formData.crop_name,
-      crop_description: formData.crop_description,
-      crop_price: formData.crop_price,
-      category_id: formData.category_id,
-      shop_id: formData.shop_id,
-      crop_rating: formData.crop_rating,
-      crop_quantity: formData.crop_quantity,
-      crop_weight: formData.crop_weight,
-      metric_system_id: formData.metric_system_id,
-    });
-  
-    // Append image if available
-    if (formData.crop_image) {
-      console.log("Appending crop image:", {
-        uri: formData.crop_image,
-        name: "crop_image.jpg",
-        type: "image/jpeg",
-      });
-      formBody.append("image", {
-        uri: formData.crop_image,
-        name: "crop_image.jpg",
-        type: "image/jpeg",
-      });
-    } else {
-      console.log("No crop image to append.");
-    }
-  
+  // fetching categories
+  const fetchCategories = async () => {
     try {
-      const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crops`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "multipart/form-data",
-          "x-api-key": REACT_NATIVE_API_KEY,
-        },
-        body: formBody,
-      });
-
-      console.log("Response status:", response.status);
-      
-      if (response.ok) {
-        alert("Product added successfully!");
-        navigation.goBack();
-      } else {
-        const errorData = await response.json();
-        console.error("Error response data:", errorData);
-        alert("Failed to add product: " + errorData.message);
+      const response = await fetch(
+        "https://agritayo.azurewebsites.net/api/crop_categories",
+        {
+          headers: {
+            "x-api-key": API_KEY,
+          },
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
       }
+      const data = await response.json();
+      setCategories(data);
     } catch (error) {
-      console.error("Failed to add product:", error);
-      alert("Failed to add product: " + error.message);
+      console.error("Error fetching crop categories:", error);
     }
   };
-  
+
+  // fetch Metric System
+  const fetchMetricSystem = async () => {
+    try {
+      const response = await fetch(
+        "https://agritayo.azurewebsites.net/api/metric_systems",
+        {
+          headers: {
+            "x-api-key": API_KEY,
+          },
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const data = await response.json();
+      setMetricSystem(data);
+    } catch (error) {
+      console.error("Error fetching metric systems:", error);
+    }
+  };
+
+  // Fetch categories when screen is focused
+  useFocusEffect(
+    useCallback(() => {
+      fetchCategories();
+      fetchMetricSystem();
+    }, [])
+  );
+
+  const handleAddProduct = () => {
+    // logic for handleAddProduct
+  };
+
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#f0f0f0', padding: 16 }}>
-      <ScrollView>
-        <View style={{ backgroundColor: 'white', padding: 16, borderRadius: 8, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 4 }}>
-          {/* Crop Name Input */}
-          <View style={{ marginBottom: 16 }}>
-            <Text style={{ fontSize: 16, color: '#666' }}>Crop Name</Text>
+    <SafeAreaView className="flex-1 bg-gray-100">
+      <ScrollView className="flex-1 p-4">
+        <View className="bg-white p-4 rounded-lg shadow-md">
+          {/* Crop Name */}
+          <View className="mb-4">
+            <Text className="text-base text-gray-700">Crop Name</Text>
             <TextInput
-              value={formData.crop_name}
-              onChangeText={(text) => setFormData({ ...formData, crop_name: text })}
-              style={{ marginTop: 8, fontSize: 18, color: '#333', borderColor: '#ccc', borderWidth: 1, borderRadius: 4, padding: 8 }}
-              placeholder="Enter crop name"
+              className="border border-gray-300 rounded-lg p-2 mt-1"
+              placeholder="e.g. Potato, Carrots, Cabbage, etc."
+              value={cropName}
+              onChangeText={setCropName}
             />
           </View>
 
-          {/* Crop Description Input */}
-          <View style={{ marginBottom: 16 }}>
-            <Text style={{ fontSize: 16, color: '#666' }}>Crop Description</Text>
+          {/* Crop Description */}
+          <View className="mb-4">
+            <Text className="text-base text-gray-700">Crop Description</Text>
             <TextInput
-              value={formData.crop_description}
-              onChangeText={(text) => setFormData({ ...formData, crop_description: text })}
-              style={{ marginTop: 8, fontSize: 18, color: '#333', borderColor: '#ccc', borderWidth: 1, borderRadius: 4, padding: 8 }}
-              placeholder="Enter crop description"
-              multiline
+              className="border border-gray-300 rounded-lg p-2 mt-1"
+              placeholder="Describe the crop you want to sell."
+              value={cropDescription}
+              onChangeText={setCropDescription}
             />
           </View>
 
-          {/* Crop Price Input */}
-          <View style={{ marginBottom: 16 }}>
-            <Text style={{ fontSize: 16, color: '#666' }}>Crop Price</Text>
+          {/* Crop Price */}
+          <View className="mb-4">
+            <Text className="text-base text-gray-700">Crop Price</Text>
             <TextInput
-              value={formData.crop_price}
-              onChangeText={(text) => setFormData({ ...formData, crop_price: text })}
-              style={{ marginTop: 8, fontSize: 18, color: '#333', borderColor: '#ccc', borderWidth: 1, borderRadius: 4, padding: 8 }}
-              placeholder="Enter crop price"
+              className="border border-gray-300 rounded-lg p-2 mt-1"
               keyboardType="numeric"
+              placeholder="₱ 0.00"
+              value={cropPrice}
+              onChangeText={setCropPrice}
             />
           </View>
 
-          {/* Category ID Input */}
-          <View style={{ marginBottom: 16 }}>
-            <Text style={{ fontSize: 16, color: '#666' }}>Select Category ID</Text>
-            <TextInput
-              value={formData.category_id}
-              onChangeText={(text) => setFormData({ ...formData, category_id: text })}
-              style={{ marginTop: 8, fontSize: 18, color: '#333', borderColor: '#ccc', borderWidth: 1, borderRadius: 4, padding: 8 }}
-              placeholder="Enter category ID"
-            />
-          </View>
-
-          {/* Shop ID Input */}
-          <View style={{ marginBottom: 16 }}>
-            <Text style={{ fontSize: 16, color: '#666' }}>Select Shop ID</Text>
-            <TextInput
-              value={formData.shop_id}
-              onChangeText={(text) => setFormData({ ...formData, shop_id: text })}
-              style={{ marginTop: 8, fontSize: 18, color: '#333', borderColor: '#ccc', borderWidth: 1, borderRadius: 4, padding: 8 }}
-              placeholder="Enter shop ID"
-            />
-          </View>
-
-          {/* Additional Fields */}
-          <View style={{ marginBottom: 16 }}>
-            <Text style={{ fontSize: 16, color: '#666' }}>Crop Rating</Text>
-            <TextInput
-              value={formData.crop_rating}
-              onChangeText={(text) => setFormData({ ...formData, crop_rating: text })}
-              style={{ marginTop: 8, fontSize: 18, color: '#333', borderColor: '#ccc', borderWidth: 1, borderRadius: 4, padding: 8 }}
-              placeholder="Enter crop rating"
-              keyboardType="numeric"
-            />
-          </View>
-
-          <View style={{ marginBottom: 16 }}>
-            <Text style={{ fontSize: 16, color: '#666' }}>Crop Quantity</Text>
-            <TextInput
-              value={formData.crop_quantity}
-              onChangeText={(text) => setFormData({ ...formData, crop_quantity: text })}
-              style={{ marginTop: 8, fontSize: 18, color: '#333', borderColor: '#ccc', borderWidth: 1, borderRadius: 4, padding: 8 }}
-              placeholder="Enter crop quantity"
-              keyboardType="numeric"
-            />
-          </View>
-
-          <View style={{ marginBottom: 16 }}>
-            <Text style={{ fontSize: 16, color: '#666' }}>Crop Weight</Text>
-            <TextInput
-              value={formData.crop_weight}
-              onChangeText={(text) => setFormData({ ...formData, crop_weight: text })}
-              style={{ marginTop: 8, fontSize: 18, color: '#333', borderColor: '#ccc', borderWidth: 1, borderRadius: 4, padding: 8 }}
-              placeholder="Enter crop weight"
-              keyboardType="numeric"
-            />
-          </View>
-
-          <View style={{ marginBottom: 16 }}>
-            <Text style={{ fontSize: 16, color: '#666' }}>Metric System ID</Text>
-            <TextInput
-              value={formData.metric_system_id}
-              onChangeText={(text) => setFormData({ ...formData, metric_system_id: text })}
-              style={{ marginTop: 8, fontSize: 18, color: '#333', borderColor: '#ccc', borderWidth: 1, borderRadius: 4, padding: 8 }}
-              placeholder="Enter metric system ID"
-            />
-          </View>
-
-          {/* Image Picker and Display */}
-          <View style={{ alignItems: 'center', marginBottom: 16 }}>
-            {formData.crop_image ? (
-              <View style={{ width: 160, height: 160, borderRadius: 8, borderColor: '#ccc', borderWidth: 2 }}>
-                <Image source={{ uri: formData.crop_image }} style={{ width: '100%', height: '100%', borderRadius: 8 }} />
-                <TouchableOpacity
-                  style={{ position: 'absolute', top: 0, right: 0, backgroundColor: 'red', borderRadius: 50, padding: 8 }}
-                  onPress={removeImage}
-                >
-                  <Ionicons name="close" size={24} color="white" />
-                </TouchableOpacity>
+          {/* Category Selector */}
+          <View className="mb-4">
+            <Text className="text-base text-gray-700">
+              Select Crop Category
+            </Text>
+            <TouchableOpacity
+              className="flex-row items-center border border-gray-300 p-2 rounded-lg"
+              onPress={() => setIsClickedCategory(!isClickedCategory)}
+            >
+              <Text className="text-base text-gray-700 flex-1">
+                {selectedCategory}
+              </Text>
+              <Ionicons
+                name="chevron-down"
+                size={20}
+                color="gray"
+                className="ml-2"
+              />
+            </TouchableOpacity>
+            {isClickedCategory && (
+              <View className="border border-gray-300 rounded-lg p-2 mt-1">
+                {categories.map((category) => (
+                  <TouchableOpacity
+                    key={category.crop_category_id}
+                    className="p-2"
+                    onPress={() => handleCategorySelect(category)}
+                  >
+                    <Text className="text-base">
+                      {category.crop_category_name}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
               </View>
-            ) : (
-              <TouchableOpacity
-                style={{ backgroundColor: 'green', padding: 16, borderRadius: 8, flexDirection: 'row', alignItems: 'center' }}
-                onPress={() => setModalVisible(true)}
-              >
-                <Ionicons name="image-outline" size={24} color="white" />
-                <Text style={{ color: 'white', fontSize: 18, marginLeft: 8 }}>Select Image</Text>
-              </TouchableOpacity>
             )}
           </View>
 
-          {/* Submit Button */}
+          {/* Crop Quantity */}
+          <View className="mb-4">
+            <Text className="text-base text-gray-700">Crop Quantity</Text>
+            <TextInput
+              className="border border-gray-300 rounded-lg p-2 mt-1"
+              keyboardType="numeric"
+              placeholder="Enter the quantity of the crop."
+              value={cropQuantity}
+              onChangeText={setCropQuantity}
+            />
+          </View>
+
+          {/* Crop Weight */}
+          <View className="mb-4">
+            <Text className="text-base text-gray-700">Crop Weight</Text>
+            <TextInput
+              className="border border-gray-300 rounded-lg p-2 mt-1"
+              keyboardType="numeric"
+              placeholder="Enter the weight of the crop."
+              value={cropWeight}
+              onChangeText={setCropWeight}
+            />
+          </View>
+
+          {/* Metric System Selector */}
+          <View className="mb-4">
+            <Text className="text-base text-gray-700">Select Crop Metric</Text>
+            <TouchableOpacity
+              className="flex-row items-center border border-gray-300 p-2 rounded-lg"
+              onPress={() => setIsClickedMetricSystem(!isClickedMetricSystem)}
+            >
+              <Text className="text-base text-gray-700 flex-1">
+                {selectedMetricSystem}
+              </Text>
+              <Ionicons
+                name="chevron-down"
+                size={20}
+                color="gray"
+                className="ml-2"
+              />
+            </TouchableOpacity>
+            {isClickedMetricSystem && (
+              <View className="border border-gray-300 rounded-lg p-2 mt-1">
+                {metricSystem.map((metric) => (
+                  <TouchableOpacity
+                    key={metric.metric_system_id}
+                    className="p-2"
+                    onPress={() => handleMetricSelect(metric)}
+                  >
+                    <Text className="text-base">
+                      {metric.metric_system_name}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
+          </View>
+
+          {/* Image Upload */}
+          <View className="mb-4">
+            <Text className="text-base text-gray-700 mb-2">
+              Upload Crop Image
+            </Text>
+            <TouchableOpacity
+              className="border border-gray-300 rounded-lg p-2"
+              onPress={() => setModalVisible(true)}
+            >
+              <Ionicons name="camera" size={24} color="#00b251" />
+            </TouchableOpacity>
+
+            {formData.crop_image && (
+              <View className="mt-4">
+                <Image
+                  source={{ uri: formData.crop_image }}
+                  className="w-full h-64 rounded-lg"
+                />
+                <TouchableOpacity
+                  className="mt-2 bg-red-500 p-2 rounded-lg"
+                  onPress={removeImage}
+                >
+                  <Text className="text-white text-center">Remove Image</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
+
+          {/* Add Product Button */}
           <TouchableOpacity
-            style={{ backgroundColor: 'green', paddingVertical: 12, borderRadius: 8, alignItems: 'center' }}
+            className="bg-green-600 p-4 rounded-lg"
             onPress={handleAddProduct}
           >
-            <Text style={{ fontSize: 18, color: 'white' }}>Add Product</Text>
+            <Text className="text-white text-center">Add Product</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
 
-      {/* Modal for selecting image */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-          <View style={{ backgroundColor: 'white', padding: 24, borderRadius: 8, width: '80%' }}>
-            <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#333' }}>Select Product Image</Text>
+      {/* Modal for Image Selection */}
+      <Modal visible={modalVisible} transparent={true} animationType="slide">
+        <View className="flex-1 justify-center items-center bg-black bg-opacity-50">
+          <View className="bg-white p-6 rounded-lg">
+            <Text className="text-lg font-semibold mb-4">
+              Select Image Source
+            </Text>
             <TouchableOpacity
-              style={{ marginTop: 16, padding: 16, backgroundColor: 'green', borderRadius: 8, flexDirection: 'row', alignItems: 'center' }}
+              className="mb-4 p-4 bg-gray-100 rounded-lg"
               onPress={selectImageFromGallery}
             >
-              <Ionicons name="image-outline" size={24} color="white" />
-              <Text style={{ color: 'white', fontSize: 18, marginLeft: 8 }}>Select from Gallery</Text>
+              <Text className="text-base">Choose from Gallery</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={{ marginTop: 16, padding: 16, backgroundColor: 'red', borderRadius: 8, flexDirection: 'row', alignItems: 'center' }}
+              className="p-4 bg-red-500 rounded-lg"
               onPress={() => setModalVisible(false)}
             >
-              <Ionicons name="close-outline" size={24} color="white" />
-              <Text style={{ color: 'white', fontSize: 18, marginLeft: 8 }}>Cancel</Text>
+              <Text className="text-white text-center">Cancel</Text>
             </TouchableOpacity>
           </View>
         </View>

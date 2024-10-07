@@ -35,7 +35,6 @@ import BusinessInformationScreen from "./app/screens/farmers/BusinessInformation
 import CheckOutScreen from "./app/screens/Cart/CheckOutScreen";
 import PhoneAuthenticationScreen from "./app/screens/farmers/PhoneAuthenticationScreen";
 import EmailAuthenticationScreen from "./app/screens/farmers/EmailAuthenticationScreen";
-import PickUpAddressScreen from "./app/screens/farmers/PickUpAddressScreen";
 import MarketCategoryListScreen from "./app/screens/Market/MarketCategory/MarketCategoryListScreen";
 import MarketCategoryScreen from "./app/screens/Market/MarketCategory/MarketCategoryScreen";
 import MarketAnalyticScreen from "./app/screens/Analytics/MarketAnalyticScreen";
@@ -53,6 +52,7 @@ import NegotiationSellerScreen from "./app/screens/Negotiation/NegotiationSeller
 import NegotiationBuyerScreen from "./app/screens/Negotiation/NegotiationBuyersScreen";
 import NegotiationSellerListScreen from "./app/screens/Negotiation/NegotiationSellerListScreen";
 import NegotiationBuyerEditScreen from "./app/screens/Negotiation/NegotiationBuyerEditScreen";
+import AddLocation from "./app/components/AddLocation";
 // for farmers
 import ShopScreen from "./app/screens/farmers/Shop/ShopScreen";
 import ViewShopScreen from "./app/screens/farmers/Shop/ViewShopScreen";
@@ -357,11 +357,6 @@ function App() {
               options={{ ...screenOptions, headerShown: false }}
             />
             <Stack.Screen
-              name="Pickup Address"
-              component={PickUpAddressScreen}
-              options={screenOptions}
-            />
-            <Stack.Screen
               name="Market Subcategory"
               component={MarketCategoryListScreen}
               options={screenOptions}
@@ -490,6 +485,11 @@ function App() {
               name='Buyer Edit Negotiation'
               component={NegotiationBuyerEditScreen}
               options={screenOptions}
+            />
+            <Stack.Screen
+            name='Add Location'
+            component={AddLocation}
+            options={screenOptions}
             />
             <Stack.Screen
               name="Navigator"
