@@ -16,10 +16,11 @@ const dummyNegotiation = [
     id: 1,
     productImage: logo,
     productName: "Patatas",
-    productDescription: "Patatas masarap asd Patatas masarap asdPatatas masarap asdPatatas masarap asdPatatas masarap asdPatatas masarap asdPatatas masarap asdPatatas masarap asdPatatas masarap asdPatatas masarap asdPatatas masarap asdPatatas masarap asdPatatas masarap asdPatatas masarap asdPatatas masarap asdPatatas masarap asdPatatas masarap asdPatatas masarap asdPatatas masarap asd",
+    productDescription:
+      "Patatas masarap asd Patatas masarap asdPatatas masarap asdPatatas masarap asdPatatas masarap asdPatatas masarap asdPatatas masarap asdPatatas masarap asdPatatas masarap asdPatatas masarap asdPatatas masarap asdPatatas masarap asdPatatas masarap asdPatatas masarap asdPatatas masarap asdPatatas masarap asdPatatas masarap asd",
     productPrice: 10.0,
     status: "Negotiating",
-    openOrCloseNegotiation: 'open'
+    openOrCloseNegotiation: "open",
   },
   {
     id: 2,
@@ -28,7 +29,7 @@ const dummyNegotiation = [
     productDescription: "Tomato masarap",
     productPrice: 5.0,
     status: "Approved",
-    openOrCloseNegotiation: 'close'
+    openOrCloseNegotiation: "close",
   },
   {
     id: 3,
@@ -37,7 +38,7 @@ const dummyNegotiation = [
     productDescription: "Banana masarap",
     productPrice: 5.0,
     status: "Declined",
-    openOrCloseNegotiation: 'open'
+    openOrCloseNegotiation: "open",
   },
   {
     id: 4,
@@ -46,7 +47,7 @@ const dummyNegotiation = [
     productDescription: "Saging masarap",
     productPrice: 5.0,
     status: "Completed",
-    openOrCloseNegotiation: 'close'
+    openOrCloseNegotiation: "close",
   },
 ];
 
@@ -169,51 +170,57 @@ function ShopScreen({ navigation }) {
         ))}
       </View>
 
-      {/* Grid Section */}
-      <View className="mt-6 px-6 flex-wrap flex-row justify-between">
-        {[
-          { label: "My Products", icon: "box", screen: "My Products" },
-          {
-            label: "Negotiation",
-            icon: "hands-helping",
-            screen: "Seller Negotiation List",
-          },
-          {
-            label: "Shop Performance",
-            icon: "chart-line",
-            screen: "Shop Performance",
-          },
-          { label: "Bidding", icon: "file-contract", screen: "Bidding" },
-          {
-            label: "Learn and Help",
-            icon: "info-circle",
-            screen: "Learn and Help",
-          },
-        ].map(({ label, icon, screen }) => (
-          <TouchableOpacity
-            key={label}
-            className="w-[100%] my-2"
-            onPress={() => {
-              if (label === "Negotiation") {
-                // Pass the dummyNegotiation and negotiationData only for the Negotiation screen
-                navigation.navigate(screen, {
-                  dummyNegotiation,
-                  negotiationData,
-                });
-              } else {
-                navigation.navigate(screen, { information });
-              }
-            }}
-          >
-            <View className="flex-row h-16 w-content items-center pl-10 bg-gray-200 rounded-full mb-2">
-              <View className="w-10">
-                <FontAwesome5 name={icon} size={30} color="#00B251" />
+      {/* Modified Grid Section */}
+      <View className="px-4 mt-4">
+        <View className="bg-white rounded-lg shadow p-4 space-y-4">
+          {[
+            { label: "My Products", icon: "box", screen: "My Products" },
+            {
+              label: "Negotiation",
+              icon: "hands-helping",
+              screen: "Seller Negotiation List",
+            },
+            {
+              label: "Shop Performance",
+              icon: "chart-line",
+              screen: "Shop Performance",
+            },
+            { label: "Bidding", icon: "file-contract", screen: "Bidding" },
+            {
+              label: "Learn and Help",
+              icon: "info-circle",
+              screen: "Learn and Help",
+            },
+          ].map(({ label, icon, screen }) => (
+            <TouchableOpacity
+              key={label}
+              className="flex-row items-center justify-between"
+              onPress={() => {
+                if (label === "Negotiation") {
+                  // Pass the dummyNegotiation and negotiationData only for the Negotiation screen
+                  navigation.navigate(screen, {
+                    dummyNegotiation,
+                    negotiationData,
+                  });
+                } else {
+                  navigation.navigate(screen, { information });
+                }
+              }}
+            >
+              <View className="flex-row items-center">
+                <FontAwesome5 name={icon} size={20} color="#00B251" />
+                <Text className="text-gray-800 font-semibold ml-4">
+                  {label}
+                </Text>
               </View>
-
-              <Text className="pl-5 text-base text-black">{label}</Text>
-            </View>
-          </TouchableOpacity>
-        ))}
+              <FontAwesome5
+                name="chevron-right"
+                size={20}
+                color="gray"
+              />
+            </TouchableOpacity>
+          ))}
+        </View>
       </View>
     </SafeAreaView>
   );

@@ -1,56 +1,56 @@
 import React, { useState, useEffect } from "react";
 import { View, Image, Text, ScrollView, TouchableOpacity, Modal, Pressable } from "react-native";
-import { FontAwesome } from '@expo/vector-icons'; 
+import { FontAwesome } from '@expo/vector-icons';
 import { styled } from "nativewind";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import placeholderimg from '../../assets/placeholder.png'; 
+import placeholderimg from '../../assets/placeholder.png';
 import { NotificationIcon, MessagesIcon, MarketIcon } from "../../components/SearchBarC";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 
 function ProductDetailsScreen({ navigation, route }) {
-  const { product } = route.params; 
+  const { product } = route.params;
   const [quantity, setQuantity] = useState(1);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [userData, setUserData] = useState([]);
   const [userId, setUserId] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [relatedProducts, setRelatedProducts] = useState([]); 
+  const [relatedProducts, setRelatedProducts] = useState([]);
 
   const getAsyncUserData = async () => {
-    setLoading(true); 
+    setLoading(true);
     try {
       const storedData = await AsyncStorage.getItem('userData');
 
       if (storedData) {
-        const parsedData = JSON.parse(storedData); 
+        const parsedData = JSON.parse(storedData);
 
         if (Array.isArray(parsedData)) {
-          const user = parsedData[0];  
-          setUserData(user); 
-          setUserId(user.user_id); 
+          const user = parsedData[0];
+          setUserData(user);
+          setUserId(user.user_id);
         } else {
-          setUserData(parsedData); 
-          setUserId(parsedData.user_id); 
+          setUserData(parsedData);
+          setUserId(parsedData.user_id);
         }
       }
     } catch (error) {
       console.error('Failed to load user data:', error);
     } finally {
-      setLoading(false); 
+      setLoading(false);
     }
   };
 
   useFocusEffect(
     React.useCallback(() => {
       getAsyncUserData();
-      fetchRelatedProducts(); 
-    }, [product.sub_category_id]) 
+      fetchRelatedProducts();
+    }, [product.sub_category_id])
   );
 
   const shopInfo = product.seller || {
     shopName: 'Unknown Shop',
-    shop_image_url: null, 
+    shop_image_url: null,
   };
 
   React.useLayoutEffect(() => {
@@ -104,7 +104,7 @@ function ProductDetailsScreen({ navigation, route }) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': REACT_NATIVE_API_KEY, 
+          'x-api-key': REACT_NATIVE_API_KEY,
         },
         body: JSON.stringify(formData),
       });
@@ -123,7 +123,7 @@ function ProductDetailsScreen({ navigation, route }) {
   const fetchRelatedProducts = async () => {
     try {
       const response = await fetch(
-        `${REACT_NATIVE_API_BASE_URL}/api/crops?sub_category_id=${product.sub_category_id}`, 
+        `${REACT_NATIVE_API_BASE_URL}/api/crops?sub_category_id=${product.sub_category_id}`,
         {
           headers: {
             "x-api-key": REACT_NATIVE_API_KEY,
@@ -136,7 +136,7 @@ function ProductDetailsScreen({ navigation, route }) {
         (relatedProduct) => relatedProduct.sub_category_id === product.sub_category_id
       );
 
-      setRelatedProducts(filteredProducts); 
+      setRelatedProducts(filteredProducts);
     } catch (error) {
       console.error("Error fetching related products:", error);
     }
@@ -194,7 +194,7 @@ function ProductDetailsScreen({ navigation, route }) {
           <Text className="text-base text-gray-700 mb-5">{product.crop_description}</Text>
 
           <View className="border border-green-600 flex-row items-center justify-between border p-3 rounded-lg mb-5">
-            <View className="flex-row items-center">
+            <View className="flex-row items-center ">
               <TouchableOpacity onPress={handleShopPress}>
                 <Image
                   source={shopInfo.shop_image_url ? { uri: shopInfo.shop_image_url } : placeholderimg}
@@ -202,7 +202,7 @@ function ProductDetailsScreen({ navigation, route }) {
                   resizeMode="cover"
                 />
               </TouchableOpacity>
-              <View className="ml-3">
+              <View className="ml-1">
                 <TouchableOpacity onPress={handleShopPress}>
                   <Text className="text-lg font-bold">{shopInfo.shopName}</Text>
                 </TouchableOpacity>
@@ -228,26 +228,40 @@ function ProductDetailsScreen({ navigation, route }) {
           </View>
 
           {/* Display Related Products */}
+          {/* Display Related Products */}
           <Text className="text-lg font-bold mb-2.5">Related Products</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-5">
+          <ScrollView horizontal={true} className="mb-2.5">
             {relatedProducts.map((relatedProduct) => (
-              <TouchableOpacity key={relatedProduct.crop_id} onPress={() => navigation.navigate('Product Details', { product: relatedProduct })}>
-                <Image
-                  source={relatedProduct.crop_image_url ? { uri: relatedProduct.crop_image_url } : placeholderimg}
-                  className="w-24 h-24 rounded-lg mx-2.5"
-                />
-              </TouchableOpacity>
+              <View key={relatedProduct.crop_id} className="mr-5">
+                <TouchableOpacity
+                  onPress={() => navigation.navigate("ProductDetailsScreen", { product: relatedProduct })}
+                  className="w-40 bg-white border border-gray-200 rounded-lg"
+                >
+                  <Image
+                    source={relatedProduct.crop_image_url ? { uri: relatedProduct.crop_image_url } : placeholderimg}
+                    className="w-full h-28 rounded-t-lg"
+                    resizeMode="cover"
+                  />
+                  <View className="p-2.5">
+                    <Text className="text-sm font-bold" numberOfLines={1}>{relatedProduct.crop_name}</Text>
+                    <Text className="text-sm text-[#00B251] font-bold">₱ {(relatedProduct.crop_price).toFixed(2)} / kg</Text>
+                    <Text className="text-xs">⭐ {relatedProduct.crop_rating || 0}</Text>
+                    <Text className="text-xs" numberOfLines={1}>Sold by: {relatedProduct.shop_id}</Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
             ))}
           </ScrollView>
+
         </View>
       </ScrollView>
 
-{/* Enhanced Sticky Bottom Bar */}
-<View className="absolute bottom-0 left-0 right-0 bg-white flex-row mb-1" style={{ height: 45 }}>
+      {/* Enhanced Sticky Bottom Bar */}
+      <View className="absolute bottom-0 left-0 right-0 bg-white flex-row mb-1" style={{ height: 45 }}>
         <TouchableOpacity
           className="flex-1 flex-row items-center justify-center border border-green-600"
           onPress={handleMessagePress}
-          style={{ paddingVertical: 10, minWidth: 20}}
+          style={{ paddingVertical: 10, minWidth: 20 }}
         >
           <FontAwesome name="comment" size={20} color="#00B251" />
           <Text className="text-[#00B251] font-bold text-mg ml-2">Message</Text>
@@ -259,7 +273,7 @@ function ProductDetailsScreen({ navigation, route }) {
         <TouchableOpacity
           className="flex-1 flex-row items-center justify-center border border-green-600"
           onPress={handleNegotiatePress}
-          style={{ paddingVertical: 10, minWidth: 20}}
+          style={{ paddingVertical: 10, minWidth: 20 }}
         >
           <FontAwesome name="balance-scale" size={20} color="#00B251" />
           <Text className="text-[#00B251] font-bold text-mg ml-2">Negotiate</Text>

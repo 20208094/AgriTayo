@@ -192,7 +192,7 @@ function ProfileScreen({ fetchUserSession }) {
         </View>
       </View>
 
-      <View className="px-4">
+      <View className="px-4 mt-4">
         <View className="bg-white rounded-lg shadow p-4 space-y-4">
           <TouchableOpacity className="flex-row items-center justify-between" onPress={() => navigation.navigate("View Profile", { userData })}>
             <View className="flex-row items-center">
