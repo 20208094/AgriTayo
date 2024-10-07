@@ -38,7 +38,7 @@ const LogoutModal = ({ isVisible, onCancel, fetchUserSession, navigation }) => {
 
   return (
     <Modal transparent={true} visible={isVisible} animationType="slide">
-      <View className="flex-1 justify-center items-center bg-black bg-opacity-40">
+      <View className="flex-1 justify-center items-center bg-black/50 ">
         <View className="bg-white rounded-lg p-6 w-11/12 max-w-md">
           {loading ? (
             <View className="flex items-center justify-center">
