@@ -7,13 +7,13 @@ import {
   TouchableOpacity,
   Text,
   Modal,
-  Pressable,
   ScrollView,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as ImagePicker from "expo-image-picker";
 import { useFocusEffect } from "@react-navigation/native";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import { REACT_NATIVE_API_KEY } from "@env";
 
 function ViewShopScreen({ navigation }) {
   const [userData, setUserData] = useState(null);
@@ -21,23 +21,20 @@ function ViewShopScreen({ navigation }) {
 
   const [shopName, setShopName] = useState("");
   const [shopAddress, setShopAddress] = useState("");
-  const [shopLocation, setShopLocation] = useState("");
+  const [shopLocation, setShopLocation] = useState('');
   const [shopDescription, setShopDescription] = useState("");
   const [shopImage, setShopImage] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [shopDeliveryFee, setShopDeliveryFee] = useState("");
   const [pickupAreaFee, setPickUpAreaFee] = useState("");
-  const [pickupAddress, setPickUpAddress] = useState("")
+  const [pickupAddress, setPickUpAddress] = useState("");
+  const [userId, setUserId] = useState('')
 
   const [isCheckedDelivery, setIsCheckedDelivery] = useState(false);
-
   const [isCheckedPickup, setIsCheckedPickup] = useState(false);
-
   const [isCheckedCod, setIsCheckedCod] = useState(false);
   const [isCheckedGcash, setIsCheckedGcash] = useState(false);
   const [isCheckedBankTransfer, setIsCheckedBankTransfer] = useState(false);
-
-  const formData = new FormData();
 
   const selectImageFromGallery = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -57,77 +54,50 @@ function ViewShopScreen({ navigation }) {
       setModalVisible(false);
     }
   };
-  if (shopImage) {
-    formData.append("image", {
-      uri: shopImage,
-      name: "profile.jpg",
-      type: "image/jpeg",
-    });
-    console.log("Image added to FormData:", shopImage);
-  } else {
-    console.log("No image selected to upload.");
-  }
 
   const getAsyncUserData = async () => {
     try {
-      const storedData = await AsyncStorage.getItem("userData");
-      if (storedData) {
-        const parsedData = JSON.parse(storedData);
-        if (Array.isArray(parsedData)) {
-          const user = parsedData[0];
-          setUserData(user);
-        } else {
-          setUserData(parsedData);
-        }
-      }
-    } catch (error) {
-      console.error("Failed to load user data:", error);
-    }
-  };
-
-  const getAsyncShopData = async () => {
-    try {
-        const storedData = await AsyncStorage.getItem("shopData");
+        const storedData = await AsyncStorage.getItem("userData");
         if (storedData) {
             const parsedData = JSON.parse(storedData);
-            console.log('Parsed Data:', parsedData);  // Debugging log
-            if (Array.isArray(parsedData)) {
-                const shop = parsedData[0];
-                setShopData(shop);
-                setShopName(shop.shop_name);
-                setShopAddress(shop.shop_address);
-                setShopDescription(shop.shop_description);
-                setShopImage(shop.shop_image_url);
-                setShopDeliveryFee(String(shop.delivery_price));
-                setPickUpAreaFee(String(shop.pickup_price));
-                setIsCheckedPickup(shop.pickup)
-                setIsCheckedDelivery(shop.delivery)
-                setIsCheckedCod(shop.cod)
-                setIsCheckedGcash(shop.gcash)
-                setIsCheckedBankTransfer(shop.bank)
-                setPickUpAddress(shop.shop_address)
-            } else {
-                setShopData(parsedData);
-                setShopName(parsedData.shop_name);
-                setShopAddress(parsedData.shop_address);
-                setShopDescription(parsedData.shop_description);
-                setShopImage(parsedData.shop_image_url);
-                setShopDeliveryFee(String(parsedData.delivery_price));
-                setPickUpAreaFee(String(parsedData.pickup_price));
-                setIsCheckedPickup(parsedData.pickup)
-                setIsCheckedDelivery(parsedData.delivery)
-                setIsCheckedCod(parsedData.cod)
-                setIsCheckedGcash(parsedData.gcash)
-                setIsCheckedBankTransfer(parsedData.bank)
-                setPickUpAddress(parsedData.shop_address)
-            }
+            setUserData(Array.isArray(parsedData) ? parsedData[0] : parsedData);
+            
+            // Here, adjust the property names according to your user data structure
+            const userId = parsedData.user_id || parsedData.id; // Make sure to adjust according to your actual user object
+            setUserId(userId); // Set userId here
         }
     } catch (error) {
-        console.error("Failed to load shop data:", error);
+        console.error("Failed to load user data:", error);
     }
 };
 
-  // Use useFocusEffect to re-fetch data when the screen is focused (navigated back)
+  const getAsyncShopData = async () => {
+    try {
+      const storedData = await AsyncStorage.getItem("shopData");
+      if (storedData) {
+        const parsedData = JSON.parse(storedData);
+        const shop = Array.isArray(parsedData) ? parsedData[0] : parsedData;
+        setShopData(shop);
+        setShopName(shop.shop_name);
+        setShopAddress(shop.shop_address);
+        setShopLocation(shop.shop_location)
+        setShopDescription(shop.shop_description);
+        setShopImage(shop.shop_image_url);
+        setShopDeliveryFee(String(shop.delivery_price));
+        setPickUpAreaFee(String(shop.pickup_price));
+        setIsCheckedPickup(shop.pickup);
+        setIsCheckedDelivery(shop.delivery);
+        setIsCheckedCod(shop.cod);
+        setIsCheckedGcash(shop.gcash);
+        setIsCheckedBankTransfer(shop.bank);
+        setPickUpAddress(shop.shop_address);
+        setUserId(shop.user_id);
+      }
+    } catch (error) {
+      console.error("Failed to load shop data:", error);
+    }
+  };
+
   useFocusEffect(
     React.useCallback(() => {
       getAsyncUserData();
@@ -159,7 +129,69 @@ function ViewShopScreen({ navigation }) {
     </TouchableOpacity>
   );
 
-  const handleSubmit = async () => {};
+  const handleSubmit = async () => {
+    const formData = new FormData();
+    formData.append("shop_name", shopName);
+    formData.append("shop_address", shopAddress);
+    formData.append("shop_location", shopLocation);
+    formData.append("shop_description", shopDescription);
+    if (shopImage) {
+      formData.append("shop_image_url", {
+        uri: shopImage,
+        name: "shop.jpg",
+        type: "image/jpeg",
+      });
+    }
+    formData.append("delivery", isCheckedDelivery);
+    formData.append("pickup", isCheckedPickup);
+    formData.append("delivery_price", shopDeliveryFee);
+    formData.append("pickup_price", pickupAreaFee);
+    formData.append("gcash", isCheckedGcash);
+    formData.append("cod", isCheckedCod);
+    formData.append("bank", isCheckedBankTransfer);
+    formData.append('userId', userId);
+  
+    // Debugging logs
+    console.log("Submitting shop data:", {
+      shop_name: shopName,
+      shop_address: shopAddress,
+      shop_location: shopLocation,
+      shop_description: shopDescription,
+      shop_image: shopImage,
+      delivery: isCheckedDelivery,
+      pickup: isCheckedPickup,
+      delivery_price: shopDeliveryFee,
+      pickup_price: pickupAreaFee,
+      gcash: isCheckedGcash,
+      cod: isCheckedCod,
+      bank: isCheckedBankTransfer,
+      user_id: userId,
+    });
+  
+    try {
+      const response = await fetch("https://agritayo.azurewebsites.net/api/shops/:id", {
+        method: "PUT",
+        headers: {
+          "x-api-key": REACT_NATIVE_API_KEY,
+        },
+        body: formData,
+      });
+  
+      console.log("Response status:", response.status);
+      console.log("Response body:", await response.text()); // Log response body for more info
+  
+      if (!response.ok) {
+        throw new Error("Failed to Edit Shop");
+      }
+  
+      const result = await response.json();
+      alert("Shop Updated Successfully!");
+    } catch (error) {
+      console.error("Error updating shop", error);
+      alert("There was an error editing the shop.");
+    }
+  };  
+
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
       <ScrollView className="flex-1 px-4">
@@ -202,7 +234,7 @@ function ViewShopScreen({ navigation }) {
 
           {/* Shop Location */}
           <View className="mb-4">
-          <Text className="text-base text-gray-600">Shop Location</Text>
+            <Text className="text-base text-gray-600">Shop Location</Text>
             <TouchableOpacity
               className="flex-row justify-between items-center p-3 border border-gray-300 rounded-lg"
               onPress={() => navigation.navigate("Add Location")}
@@ -235,11 +267,11 @@ function ViewShopScreen({ navigation }) {
               <>
                 <Text className="text-base text-gray-600">Delivery Fee:</Text>
                 <TextInput
-                keyboardType="numeric"
+                  keyboardType="numeric"
                   value={shopDeliveryFee}
                   onChangeText={setShopDeliveryFee}
                   className="mt-1 text-lg text-gray-900 border border-gray-300 rounded-lg p-2"
-                /> 
+                />
               </>
             )}
 
@@ -252,9 +284,9 @@ function ViewShopScreen({ navigation }) {
               <>
                 <Text className="text-base text-gray-600">Pickup Address:</Text>
                 <TextInput
-                className='mt-1 text-lg text-gray-900 border border-gray-300 rounded-lg p-2'
-                value={pickupAddress}
-                onChangeText={setPickUpAddress}
+                  className="mt-1 text-lg text-gray-900 border border-gray-300 rounded-lg p-2"
+                  value={pickupAddress}
+                  onChangeText={setPickUpAddress}
                 />
                 <Text className="text-base text-gray-600">
                   Pickup Area Fee:
