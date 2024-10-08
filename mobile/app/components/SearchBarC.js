@@ -22,13 +22,6 @@ const SearchBarC = ({ showSearchBar = true }) => {
             inputContainerStyle={styles.inputContainer}
             inputStyle={styles.input}
           />
-          <Icon
-            name="filter-outline"
-            type="ionicon"
-            size={30}
-            color="#2E7D32"
-            containerStyle={styles.filterIconContainer}
-          />
         </View>
       )}
     </View>

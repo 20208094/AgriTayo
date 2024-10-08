@@ -11,6 +11,7 @@ import LoginScreen from "./app/screens/Authentication/LoginScreen";
 import LogoutModal from "./app/screens/Authentication/LogoutModal";
 import RegisterScreenBuyers from "./app/screens/Register/RegisterScreenBuyers";
 import HomePageScreen from "./app/screens/Home/HomePageScreen";
+import FeaturedProductScreen from "./app/screens/Home/FeaturedProductScreen";
 import NavigationBar from "./app/components/NavigationBar";
 import CartScreen from "./app/screens/Cart/CartScreen";
 import MessageScreen from "./app/screens/Message/MessageScreen";
@@ -244,6 +245,11 @@ function App() {
             <Stack.Screen
               name="HomePageScreen"
               component={HomePageScreen}
+              options={screenOptions}
+            />
+            <Stack.Screen
+              name="Featured Product"
+              component={FeaturedProductScreen}
               options={screenOptions}
             />
             <Stack.Screen
@@ -487,9 +493,9 @@ function App() {
               options={screenOptions}
             />
             <Stack.Screen
-            name='Add Location'
-            component={AddLocation}
-            options={screenOptions}
+              name='Add Location'
+              component={AddLocation}
+              options={screenOptions}
             />
             <Stack.Screen
               name="Navigator"

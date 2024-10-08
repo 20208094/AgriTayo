@@ -292,7 +292,7 @@ function HomePageScreen() {
           <View className="flex-row justify-between items-center mb-2">
             <Text className="text-2xl font-bold">Featured Products</Text>
             <TouchableOpacity
-              onPress={() => navigation.navigate("Product List")}
+              onPress={() => navigation.navigate("Featured Product")}
             >
               <Text className="text-green-600">See All</Text>
             </TouchableOpacity>

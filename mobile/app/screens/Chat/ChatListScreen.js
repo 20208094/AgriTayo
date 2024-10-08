@@ -20,8 +20,9 @@ const Avatar = styled(Image, 'w-12 h-12 rounded-full bg-gray-200 mr-4');
 const TimeText = styled(Text, 'text-xs text-gray-400 ml-auto');
 const SearchInput = styled(TextInput, 'bg-gray-100 ml-5 rounded-full p-2 flex-1 text-gray-700 text-sm');
 
-// New Button design with shadow, gradient, and enhanced aesthetics
-const Button = styled(TouchableOpacity, 'flex-1 py-3 rounded-full mx-2 shadow-md');
+// Button component for switching between chat views
+const Button1 = styled(TouchableOpacity, 'flex-1 py-3 rounded-full mx-2');
+const Button = styled(TouchableOpacity, 'flex-1 py-3 rounded-full mx-2 shadow-sm');
 const ButtonText = styled(Text, 'text-center font-semibold text-base text-[#00B251]');
 
 // Main Component
@@ -45,7 +46,7 @@ const ChatListScreen = () => {
       const storedData = await AsyncStorage.getItem('userData');
 
       if (storedData) {
-        const parsedData = JSON.parse(storedData); // Parse storedData
+        const parsedData = JSON.parse(storedData);
 
         if (Array.isArray(parsedData)) {
           const user = parsedData[0];
@@ -159,9 +160,15 @@ const ChatListScreen = () => {
       if (selectedType === 'User') {
         const filtered = allUsers.filter(user => user?.firstname?.toLowerCase().includes(lowerCaseQuery));
         setFilteredUsers(filtered);
-      } else {
+      } else if (selectedType === 'Shop') {
         const filtered = allShops.filter(shop => shop?.shop_name?.toLowerCase().includes(lowerCaseQuery));
         setFilteredShops(filtered);
+      } else if (selectedType === 'Seller') {
+        const filtered = allUsers.filter(user => user.user_type_id === 2 && user?.firstname?.toLowerCase().includes(lowerCaseQuery));
+        setFilteredUsers(filtered);
+      } else if (selectedType === 'Buyer') {
+        const filtered = allUsers.filter(user => user.user_type_id === 3 && user?.firstname?.toLowerCase().includes(lowerCaseQuery));
+        setFilteredUsers(filtered);
       }
     } else {
       setFilteredUsers(users);
@@ -170,30 +177,64 @@ const ChatListScreen = () => {
   };
 
   const handleUserClick = (receiver_id, name, receiver_image) => {
-  console.log('receiver_id :', receiver_id);
     navigation.navigate('ChatScreen', {
       senderId: userId,
       receiverId: receiver_id,
       receiverName: name,
-      receiverType: selectedType, 
+      receiverType: selectedType,
       receiverImage: receiver_image,
     });
   };
-  
 
   const handleTypeChange = (type) => {
     setSelectedType(type);
     setSearchQuery('');
-    setFilteredUsers(users);
-    setFilteredShops(shops);
+
+    if (type === 'User') {
+      setFilteredUsers(users);
+    } else if (type === 'Shop') {
+      setFilteredShops(shops);
+    } else if (type === 'Seller') {
+      const filteredSellers = allUsers.filter(user => user.user_type_id === 2);
+      setFilteredUsers(filteredSellers);
+    } else if (type === 'Buyer') {
+      const filteredBuyers = allUsers.filter(user => user.user_type_id === 3);
+      setFilteredUsers(filteredBuyers);
+    }
   };
 
   return (
     <Container>
+      <View style={{ flexDirection: 'row', marginBottom: 10, justifyContent: 'space-around'}}>
+        <Button1
+          onPress={() => handleTypeChange('Seller')}
+          style={selectedType === 'Seller' ? 'bg-gradient-to-r from-green-400 to-green-600' : 'bg-gray-200'}
+        >
+          <ButtonText style={selectedType === 'Seller' ? 'text-white' : 'text-gray-700'}>{'Sellers Chats'}</ButtonText>
+        </Button1>
+
+        <Text style={{ marginHorizontal: 10, fontSize: 30, color: '#00B251' }}>|</Text>
+
+        <Button1
+          onPress={() => handleTypeChange('Buyer')}
+          style={selectedType === 'Buyer' ? 'bg-gradient-to-r from-green-400 to-green-600' : 'bg-gray-200'}
+        >
+          <ButtonText style={selectedType === 'Buyer' ? 'text-white' : 'text-gray-700'}>{'Buyers Chats'}</ButtonText>
+        </Button1>
+
+      </View>
       <Header>
-        <Title>{selectedType === 'User' ? 'User Chats' : 'Shop Chats'}</Title>
+        <Title>
+          {selectedType === 'User'
+            ? 'User Chats'
+            : selectedType === 'Shop'
+              ? 'Shop Chats'
+              : selectedType === 'Seller'
+                ? 'Seller Chats'
+                : 'Buyer Chats'}
+        </Title>
         <SearchInput
-          placeholder={`Search ${selectedType === 'User' ? 'users' : 'shops'} by name`}
+          placeholder={`Search ${selectedType === 'User' ? 'users' : selectedType === 'Shop' ? 'shops' : selectedType === 'Seller' ? 'sellers' : 'buyers'} by name`}
           value={searchQuery}
           onChangeText={handleSearch}
         />
@@ -214,12 +255,17 @@ const ChatListScreen = () => {
         >
           <ButtonText style={selectedType === 'Shop' ? 'text-white' : 'text-gray-700'}>{'Shops Chats'}</ButtonText>
         </Button>
+
       </View>
 
       <FlatList
-        data={selectedType === 'User' ? filteredUsers : filteredShops}
+        data={selectedType === 'User' || selectedType === 'Seller' || selectedType === 'Buyer' ? filteredUsers : filteredShops}
         renderItem={({ item }) => (
-          <UserItem onPress={() => handleUserClick(item.shop_id || item.user_id, item.firstname || item.shop_name, item.user_image_url || item.shop_image_url)}>
+          <UserItem
+            onPress={() =>
+              handleUserClick(item.shop_id || item.user_id, item.firstname || item.shop_name, item.user_image_url || item.shop_image_url)
+            }
+          >
             <Avatar source={{ uri: item.user_image_url || item.shop_image_url || 'https://example.com/default-avatar.png' }} />
             <View style={{ flex: 1 }}>
               <UserName>{item.firstname || item.shop_name}</UserName>
@@ -243,3 +289,4 @@ const ChatListScreen = () => {
 };
 
 export default ChatListScreen;
+

@@ -53,7 +53,7 @@ function ChatModal({ isOpen, onClose, userId, onMessagesRead }) {
                         const shopsData = await shopResponse.json();
 
                         const chatUsers = uniqueUsers.map(id => usersData.find(user => user.user_id === id));
-                        const chatShops = uniqueShops.map(id => shopsData.find(shop => shop.shop_id === id));
+                        const chatShops = uniqueShops.map(id => shopsData.find(shop => shop?.shop_id === id));
 
                         setUsers(chatUsers);
                         setAllUsers(usersData); // Set all users from the API
@@ -179,39 +179,43 @@ function ChatModal({ isOpen, onClose, userId, onMessagesRead }) {
                     <ul className="space-y-3">
                         {selectedType === 'User' && filteredUsers.length > 0 ? (
                             filteredUsers.map(user => (
-                                <li
-                                    key={user.user_id}
-                                    className={`flex items-center justify-between p-3 border rounded-lg ${newMessageUsers.has(user.user_id) ? 'bg-green-100' : 'bg-gray-100'}`}
-                                    onClick={() => handleUserClick(user.user_id)}
-                                >
-                                    <div className="flex items-center space-x-3">
-                                        <img
-                                            className="w-10 h-10 rounded-full"
-                                            src={user.user_image_url || 'default-avatar.png'}
-                                            alt={`${user.firstname}'s avatar`}
-                                        />
-                                        <p>{user.firstname}</p>
-                                    </div>
-                                    {newMessageUsers.has(user.user_id) && <p className="text-green-600">New message</p>}
-                                </li>
+                                user && user.user_id && (
+                                    <li
+                                        key={user.user_id}
+                                        className={`flex items-center justify-between p-3 border rounded-lg ${newMessageUsers.has(user.user_id) ? 'bg-green-100' : 'bg-gray-100'}`}
+                                        onClick={() => handleUserClick(user.user_id)}
+                                    >
+                                        <div className="flex items-center space-x-3">
+                                            <img
+                                                className="w-10 h-10 rounded-full"
+                                                src={user.user_image_url || 'default-avatar.png'}
+                                                alt={`${user.firstname}'s avatar`}
+                                            />
+                                            <p>{user.firstname || 'Unnamed User'}</p>
+                                        </div>
+                                        {newMessageUsers.has(user.user_id) && <p className="text-green-600">New message</p>}
+                                    </li>
+                                )
                             ))
                         ) : selectedType === 'Shop' && filteredShops.length > 0 ? (
                             filteredShops.map(shop => (
-                                <li
-                                    key={shop.shop_id}
-                                    className={`flex items-center justify-between p-3 border rounded-lg ${newMessageUsers.has(shop.shop_id) ? 'bg-green-100' : 'bg-gray-100'}`}
-                                    onClick={() => handleShopClick(shop.shop_id)}
-                                >
-                                    <div className="flex items-center space-x-3">
-                                        <img
-                                            className="w-10 h-10 rounded-full"
-                                            src={shop.shop_image_url || 'default-avatar.png'}
-                                            alt={`${shop.shop_name}'s avatar`}
-                                        />
-                                        <p>{shop.shop_name}</p>
-                                    </div>
-                                    {newMessageUsers.has(shop.shop_id) && <p className="text-green-600">New message</p>}
-                                </li>
+                                shop && shop.shop_id && (
+                                    <li
+                                        key={shop.shop_id}
+                                        className={`flex items-center justify-between p-3 border rounded-lg ${newMessageUsers.has(shop.shop_id) ? 'bg-green-100' : 'bg-gray-100'}`}
+                                        onClick={() => handleShopClick(shop.shop_id)}
+                                    >
+                                        <div className="flex items-center space-x-3">
+                                            <img
+                                                className="w-10 h-10 rounded-full"
+                                                src={shop.shop_image_url || 'default-avatar.png'}
+                                                alt={`${shop.shop_name || 'Unnamed Shop'}'s avatar`}
+                                            />
+                                            <p>{shop.shop_name || 'Unnamed Shop'}</p>
+                                        </div>
+                                        {newMessageUsers.has(shop.shop_id) && <p className="text-green-600">New message</p>}
+                                    </li>
+                                )
                             ))
                         ) : (
                             <p className="text-gray-500">No {selectedType === 'User' ? 'users' : 'shops'} found.</p>
