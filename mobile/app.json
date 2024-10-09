@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "AgriTayo",
-    "slug": "AgriTayo",
+    "slug": "mobile",
     "icon": "./app/assets/logo1.png",
     "version": "1.0.0",
     "orientation": "portrait",
