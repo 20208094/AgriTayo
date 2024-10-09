@@ -270,6 +270,7 @@ const BiddingCard = ({ data, scale, opacity }) => {
             className="w-full"
             style={{
               height: screenHeight * 0.3,
+              width: screenWidth * 0.6
             }}
             resizeMode="cover"
           />

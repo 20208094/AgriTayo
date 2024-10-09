@@ -96,6 +96,14 @@ function ShopScreen({ navigation }) {
     total: "10.00",
   };
 
+  // Chat Support logic from LearnAndHelpScreen.js
+  const handleChatSupportClick = () => {
+    const adminId = 1;
+    const adminName = "Admin"; // Assuming the admin's name is 'Admin', modify if needed
+    navigation.navigate("ChatScreen", { receiverId: adminId, receiverName: adminName });
+  };
+
+
   if (loading) {
     return (
       <SafeAreaView className="bg-white flex-1 justify-center items-center">
@@ -103,6 +111,7 @@ function ShopScreen({ navigation }) {
       </SafeAreaView>
     );
   }
+
 
   return (
     <SafeAreaView className="bg-white flex-1">
@@ -174,34 +183,22 @@ function ShopScreen({ navigation }) {
       <View className="px-4 mt-4">
         <View className="bg-white rounded-lg shadow p-4 space-y-4">
           {[
-            { label: "My Products", icon: "box", screen: "My Products" },
-            {
-              label: "Negotiation",
-              icon: "hands-helping",
-              screen: "Seller Negotiation List",
-            },
-            {
-              label: "Shop Performance",
-              icon: "chart-line",
-              screen: "Shop Performance",
-            },
-            { label: "Bidding", icon: "file-contract", screen: "Bidding" },
-            {
-              label: "Learn and Help",
-              icon: "info-circle",
-              screen: "Learn and Help",
-            },
-          ].map(({ label, icon, screen }) => (
+            { label: "  My Products", icon: "box", screen: "My Products" },
+            { label: " Negotiation", icon: "hands-helping", screen: "Seller Negotiation List" },
+            { label: "  Shop Performance", icon: "chart-line", screen: "Shop Performance" },
+            { label: "    Bidding", icon: "file-contract", screen: "Bidding" },
+            { label: "  Seller FAQ", icon: "question-circle", screen: "Seller FAQ" }, // Added Seller FAQ
+            { label: " Chat Support", icon: "comments", action: handleChatSupportClick }, // Added Chat Support
+          ].map(({ label, icon, screen, action }) => (
             <TouchableOpacity
               key={label}
               className="flex-row items-center justify-between"
               onPress={() => {
                 if (label === "Negotiation") {
                   // Pass the dummyNegotiation and negotiationData only for the Negotiation screen
-                  navigation.navigate(screen, {
-                    dummyNegotiation,
-                    negotiationData,
-                  });
+                  navigation.navigate(screen, { dummyNegotiation, negotiationData });
+                } else if (action) {
+                  action(); // Call the specific action for Chat Support
                 } else {
                   navigation.navigate(screen, { information });
                 }
@@ -209,15 +206,9 @@ function ShopScreen({ navigation }) {
             >
               <View className="flex-row items-center">
                 <FontAwesome5 name={icon} size={20} color="#00B251" />
-                <Text className="text-gray-800 font-semibold ml-4">
-                  {label}
-                </Text>
+                <Text className="text-gray-800 font-semibold ml-4">{label}</Text>
               </View>
-              <FontAwesome5
-                name="chevron-right"
-                size={20}
-                color="gray"
-              />
+              <FontAwesome5 name="chevron-right" size={20} color="gray" />
             </TouchableOpacity>
           ))}
         </View>

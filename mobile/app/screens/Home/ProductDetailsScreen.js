@@ -16,6 +16,8 @@ function ProductDetailsScreen({ navigation, route }) {
   const [userId, setUserId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [relatedProducts, setRelatedProducts] = useState([]);
+  const [shopData, setShopData] = useState([null]);
+  const [shopProducts, setShopProducts] = useState([null]);
 
   const getAsyncUserData = async () => {
     setLoading(true);
@@ -44,9 +46,16 @@ function ProductDetailsScreen({ navigation, route }) {
   useFocusEffect(
     React.useCallback(() => {
       getAsyncUserData();
-      fetchRelatedProducts();
-    }, [product.sub_category_id])
+      fetchShopData();
+    }, [product])
   );
+
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchRelatedProducts();
+    }, [product.sub_category_id, shopData])
+  );
+
 
   const shopInfo = product.seller || {
     shopName: 'Unknown Shop',
@@ -122,6 +131,7 @@ function ProductDetailsScreen({ navigation, route }) {
 
   const fetchRelatedProducts = async () => {
     try {
+      // Fetch related products based on sub_category_id
       const response = await fetch(
         `${REACT_NATIVE_API_BASE_URL}/api/crops?sub_category_id=${product.sub_category_id}`,
         {
@@ -131,16 +141,83 @@ function ProductDetailsScreen({ navigation, route }) {
         }
       );
       const data = await response.json();
-
-      const filteredProducts = data.filter(
-        (relatedProduct) => relatedProduct.sub_category_id === product.sub_category_id
-      );
-
-      setRelatedProducts(filteredProducts);
+      
+      // Check if shopData exists and is an array
+      if (shopData && Array.isArray(shopData)) {
+        const filteredProducts = data.filter(
+          (relatedProduct) => relatedProduct.sub_category_id === product.sub_category_id
+        );
+  
+        // Map through the related products and add the shop_name where shop_id matches
+        const updatedRelatedProducts = filteredProducts.map((relatedProduct) => {
+          const shop = shopData.find((s) => s && s.shop_id === relatedProduct.shop_id);
+          return {
+            ...relatedProduct,
+            shop_name: shop ? shop.shop_name : 'Unknown Shop', // Add shop_name or 'Unknown Shop' if no match
+          };
+        });
+  
+        setRelatedProducts(updatedRelatedProducts); // Set updated related products
+      }
     } catch (error) {
       console.error("Error fetching related products:", error);
     }
   };
+  
+  
+
+  const fetchShopData = async () => {
+    if (!product) return;  // Ensure that the product exists
+  
+    try {
+      // Fetch shop data first
+      const shopResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/shops`, {
+        headers: {
+          "x-api-key": REACT_NATIVE_API_KEY,
+        },
+      });
+      const shopData = await shopResponse.json();
+      setShopData(shopData);
+  
+      // Fetch related products based on the current product's sub_category_id
+      const relatedProductsResponse = await fetch(
+        `${REACT_NATIVE_API_BASE_URL}/api/crops?sub_category_id=${product.sub_category_id}`,
+        {
+          headers: {
+            "x-api-key": REACT_NATIVE_API_KEY,
+          },
+        }
+      );
+      const relatedProductsData = await relatedProductsResponse.json();
+  
+      // Check if shopData exists and is an array
+      if (shopData && Array.isArray(shopData)) {
+        // Update each related product with shop information based on shop_id
+        const updatedProducts = relatedProductsData.map((relatedProduct) => {
+          const shop = shopData.find((s) => s && s.shop_id === relatedProduct.shop_id);
+          return {
+            ...relatedProduct,
+            shop_name: shop ? shop.shop_name : 'Unknown Shop',  // Add shop_name or 'Unknown Shop' if no match
+          };
+        });
+  
+        // Set the updated related products in the state
+        setShopProducts(updatedProducts);
+      }
+    } catch (error) {
+      console.error("Error fetching shop or related products:", error);
+    }
+  };
+  
+
+  // Now use the fetchShopData inside useFocusEffect
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchShopData();  // No need to pass product; it is accessed inside fetchShopData
+    }, [product])
+  );
+
+
 
   const toggleModal = () => {
     setIsModalVisible(!isModalVisible);
@@ -228,13 +305,12 @@ function ProductDetailsScreen({ navigation, route }) {
           </View>
 
           {/* Display Related Products */}
-          {/* Display Related Products */}
           <Text className="text-lg font-bold mb-2.5">Related Products</Text>
           <ScrollView horizontal={true} className="mb-2.5">
             {relatedProducts.map((relatedProduct) => (
               <View key={relatedProduct.crop_id} className="mr-5">
                 <TouchableOpacity
-                  onPress={() => navigation.navigate("ProductDetailsScreen", { product: relatedProduct })}
+                  onPress={() => navigation.navigate("Product Details", { product: relatedProduct })}
                   className="w-40 bg-white border border-gray-200 rounded-lg"
                 >
                   <Image
@@ -246,7 +322,7 @@ function ProductDetailsScreen({ navigation, route }) {
                     <Text className="text-sm font-bold" numberOfLines={1}>{relatedProduct.crop_name}</Text>
                     <Text className="text-sm text-[#00B251] font-bold">₱ {(relatedProduct.crop_price).toFixed(2)} / kg</Text>
                     <Text className="text-xs">⭐ {relatedProduct.crop_rating || 0}</Text>
-                    <Text className="text-xs" numberOfLines={1}>Sold by: {relatedProduct.shop_id}</Text>
+                    <Text className="text-xs" numberOfLines={1}>Sold by: {relatedProduct.shop_name}</Text>
                   </View>
                 </TouchableOpacity>
               </View>

@@ -4,7 +4,6 @@ import { useNavigation } from "@react-navigation/native";
 import placeholderimg from '../../../assets/placeholder.png';
 import { REACT_NATIVE_API_KEY } from '@env';
 
-// Define a component for displaying each item in the list
 const CategoryItemCard = ({ item }) => {
   const navigation = useNavigation();
 
@@ -40,7 +39,7 @@ function MarketCategoryScreen({ route }) {
   const [activeSubCategories, setActiveSubCategories] = useState({});
   const [openDropdown, setOpenDropdown] = useState({});
   const [selectedSubCategories, setSelectedSubCategories] = useState([]);
-  const [searchQuery, setSearchQuery] = useState(""); // State for search query
+  const [searchQuery, setSearchQuery] = useState("");
   const API_KEY = REACT_NATIVE_API_KEY;
 
   const fetchCategories = async () => {
@@ -91,7 +90,7 @@ function MarketCategoryScreen({ route }) {
         const filteredCrops = data.filter(crop => selectedSubCategories.includes(crop.sub_category_id));
         setCrops(filteredCrops);
       } else {
-        setCrops(data);
+        setCrops([]); 
       }
     } catch (error) {
       setError(error);
@@ -125,15 +124,31 @@ function MarketCategoryScreen({ route }) {
   };
 
   const toggleCategorySelection = (categoryId) => {
-    setSelectedCategories(prevSelectedCategories =>
-      prevSelectedCategories.includes(categoryId)
-        ? prevSelectedCategories.filter(id => id !== categoryId)
-        : [...prevSelectedCategories, categoryId]
-    );
+    const isSelected = selectedCategories.includes(categoryId);
+
+    const updatedSelectedCategories = isSelected
+      ? selectedCategories.filter(id => id !== categoryId) 
+      : [...selectedCategories, categoryId];
+
+    setSelectedCategories(updatedSelectedCategories);
+
+    const subCategoriesForSelectedCategory = subCategories
+      .filter(subCategory => subCategory.crop_category_id === categoryId)
+      .map(subCategory => subCategory.crop_sub_category_id);
+
+    setSelectedSubCategories(prevSelectedSubCategories => {
+      if (isSelected) {
+        return prevSelectedSubCategories.filter(id => !subCategoriesForSelectedCategory.includes(id));
+      } else {
+        return [...new Set([...prevSelectedSubCategories, ...subCategoriesForSelectedCategory])];
+      }
+    });
+
     setActiveSubCategories(prevActiveSubCategories => ({
       ...prevActiveSubCategories,
-      [categoryId]: !prevActiveSubCategories[categoryId]
+      [categoryId]: !prevActiveSubCategories[categoryId],
     }));
+
   };
 
   const toggleDropdown = (categoryId) => {
@@ -143,12 +158,67 @@ function MarketCategoryScreen({ route }) {
     }));
   };
 
-  const toggleSubCategorySelection = (subCategoryId) => {
-    setSelectedSubCategories(prevSelectedSubCategories =>
-      prevSelectedSubCategories.includes(subCategoryId)
-        ? prevSelectedSubCategories.filter(id => id !== subCategoryId)
-        : [...prevSelectedSubCategories, subCategoryId]
+
+  const toggleSubCategorySelection = (subCategoryId, categoryId) => {
+    const subCategoriesForSelectedCategory = subCategories
+      .filter(subCategory => subCategory.crop_category_id === categoryId)
+      .map(subCategory => subCategory.crop_sub_category_id);
+
+    setSelectedSubCategories(prevSelectedSubCategories => {
+      const isSelected = prevSelectedSubCategories.includes(subCategoryId);
+
+      let updatedSelectedSubCategories;
+      if (isSelected) {
+        updatedSelectedSubCategories = prevSelectedSubCategories.filter(id => id !== subCategoryId);
+      } else {
+        updatedSelectedSubCategories = [...prevSelectedSubCategories, subCategoryId];
+      }
+
+      const allSelected = subCategoriesForSelectedCategory.every(id =>
+        updatedSelectedSubCategories.includes(id)
+      );
+
+      if (allSelected) {
+        setOpenDropdown(prevState => ({
+          ...prevState,
+          [categoryId]: false, 
+        }));
+      }
+
+      return updatedSelectedSubCategories;
+    });
+  };
+
+  const toggleAllSubCategories = (categoryId) => {
+    const subCategoriesForSelectedCategory = subCategories
+      .filter(subCategory => subCategory.crop_category_id === categoryId)
+      .map(subCategory => subCategory.crop_sub_category_id);
+
+    const allSelectedForCategory = subCategoriesForSelectedCategory.every(subCategoryId =>
+      selectedSubCategories.includes(subCategoryId)
     );
+
+    setSelectedSubCategories(prevSelectedSubCategories => {
+      if (allSelectedForCategory) {
+        return prevSelectedSubCategories.filter(id => !subCategoriesForSelectedCategory.includes(id));
+      } else {
+        return [...new Set([...prevSelectedSubCategories, ...subCategoriesForSelectedCategory])];
+      }
+    });
+
+    setActiveSubCategories(prevActiveSubCategories => ({
+      ...prevActiveSubCategories,
+      [categoryId]: !allSelectedForCategory, 
+    }));
+  };
+
+  const closeModalAndUpdateCrops = (categoryId) => {
+    setOpenDropdown(prevState => ({
+      ...prevState,
+      [categoryId]: false,
+    }));
+
+    fetchCropsFiltering();
   };
 
   useEffect(() => {
@@ -168,7 +238,6 @@ function MarketCategoryScreen({ route }) {
     setSearchQuery(text);
   };
 
-  // Filter crops based on search query
   const filteredCrops = crops.filter(crop =>
     crop.crop_name.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -191,7 +260,6 @@ function MarketCategoryScreen({ route }) {
 
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
-      {/* Search Bar */}
       <View className="p-4">
         <TextInput
           placeholder="Search crops..."
@@ -201,7 +269,6 @@ function MarketCategoryScreen({ route }) {
         />
       </View>
 
-      {/* Categories button and selected categories */}
       <View className="flex-row items-center p-4">
         <TouchableOpacity
           className="bg-green-500 rounded-full px-4 py-2"
@@ -227,55 +294,88 @@ function MarketCategoryScreen({ route }) {
 
                   <TouchableOpacity
                     className="ml-2"
-                    onPress={() => setSelectedCategories(prevSelectedCategories =>
-                      prevSelectedCategories.filter(id => id !== categoryId)
-                    )}
+                    onPress={() => {
+                      setSelectedCategories(prevSelectedCategories =>
+                        prevSelectedCategories.filter(id => id !== categoryId)
+                      );
+
+                      const subCategoriesForSelectedCategory = subCategories
+                        .filter(subCategory => subCategory.crop_category_id === categoryId)
+                        .map(subCategory => subCategory.crop_sub_category_id);
+
+                      setSelectedSubCategories(prevSelectedSubCategories =>
+                        prevSelectedSubCategories.filter(id => !subCategoriesForSelectedCategory.includes(id))
+                      );
+
+                      fetchCropsFiltering();
+                    }}
                   >
                     <Text className="text-gray-500 font-bold">❌</Text>
                   </TouchableOpacity>
                 </TouchableOpacity>
 
+
                 <Modal
                   visible={openDropdown[categoryId] === true}
                   transparent={true}
                   animationType="slide"
-                  onRequestClose={() => toggleDropdown(categoryId)}
+                  onRequestClose={() => closeModalAndUpdateCrops(categoryId)}
                 >
                   <TouchableOpacity
                     activeOpacity={1}
                     className="flex-1 justify-end bg-black/50"
-                    onPress={() => toggleDropdown(categoryId)}
+                    onPress={() => closeModalAndUpdateCrops(categoryId)}
                   >
                     <TouchableOpacity
                       activeOpacity={1}
                       className="bg-white bg-opacity-50 p-4 rounded-t-lg shadow-lg"
                       onPress={() => { }}
                     >
-                      <Text className="text-lg font-bold mb-4">
-                        {category.crop_category_name}
-                      </Text>
+                      <Text className="text-lg font-bold mb-4">{category.crop_category_name}</Text>
 
                       <ScrollView>
-                        {filteredSubCategories.map(subCategory => (
-                          <TouchableOpacity
-                            key={subCategory.crop_sub_category_id}
-                            className="flex-row items-center p-2"
-                            onPress={() => toggleSubCategorySelection(subCategory.crop_sub_category_id)}
-                          >
-                            <Text className="flex-1">{subCategory.crop_sub_category_name}</Text>
-                            {selectedSubCategories.includes(subCategory.crop_sub_category_id) && (
+                        <TouchableOpacity
+                          className={`flex-row items-center p-2 ${subCategories
+                            .filter(subCategory => subCategory.crop_category_id === categoryId)
+                            .every(subCategory => selectedSubCategories.includes(subCategory.crop_sub_category_id))
+                            ? 'bg-green-100' : ''
+                            }`}
+                          onPress={() => toggleAllSubCategories(categoryId)}
+                        >
+                          <Text className="flex-1 font-bold">All</Text>
+                          {subCategories
+                            .filter(subCategory => subCategory.crop_category_id === categoryId)
+                            .every(subCategory => selectedSubCategories.includes(subCategory.crop_sub_category_id)) && (
                               <Text className="text-green-500">❌</Text>
                             )}
-                          </TouchableOpacity>
-                        ))}
+                        </TouchableOpacity>
+
+
+
+                        {subCategories
+                          .filter(subCategory => subCategory.crop_category_id === categoryId)
+                          .map(subCategory => (
+                            <TouchableOpacity
+                              key={subCategory.crop_sub_category_id}
+                              className={`flex-row items-center p-2 ${selectedSubCategories.includes(subCategory.crop_sub_category_id) ? 'bg-green-100' : ''
+                                }`}
+                              onPress={() => toggleSubCategorySelection(subCategory.crop_sub_category_id, categoryId)}
+                            >
+                              <Text className="flex-1">{subCategory.crop_sub_category_name}</Text>
+                              {selectedSubCategories.includes(subCategory.crop_sub_category_id) && (
+                                <Text className="text-green-500">❌</Text>
+                              )}
+                            </TouchableOpacity>
+                          ))}
                       </ScrollView>
 
                       <TouchableOpacity
                         className="bg-green-500 rounded-full px-4 py-2 mt-4"
-                        onPress={() => toggleDropdown(categoryId)}
+                        onPress={() => closeModalAndUpdateCrops(categoryId)} 
                       >
                         <Text className="text-white text-center">Close</Text>
                       </TouchableOpacity>
+
                     </TouchableOpacity>
                   </TouchableOpacity>
                 </Modal>
@@ -306,7 +406,8 @@ function MarketCategoryScreen({ route }) {
               {categories.map(category => (
                 <TouchableOpacity
                   key={category.crop_category_id}
-                  className="flex-row items-center p-2"
+                  className={`flex-row items-center p-2 ${selectedCategories.includes(category.crop_category_id) ? 'bg-green-100' : ''
+                    }`}
                   onPress={() => toggleCategorySelection(category.crop_category_id)}
                 >
                   <Text className="flex-1">{category.crop_category_name}</Text>
