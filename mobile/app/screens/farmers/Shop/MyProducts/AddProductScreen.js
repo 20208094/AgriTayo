@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import {
   SafeAreaView,
   View,
@@ -17,6 +17,7 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 function AddProductScreen() {
   // for fetching
   const [categories, setCategories] = useState([]);
+  const [subCategories, setSubCategories] = useState([]);
   const [metricSystem, setMetricSystem] = useState([]);
   const API_KEY = REACT_NATIVE_API_KEY;
 
@@ -26,14 +27,21 @@ function AddProductScreen() {
   const [cropPrice, setCropPrice] = useState("");
   const [cropQuantity, setCropQuantity] = useState("");
   const [cropWeight, setCropWeight] = useState("");
+  const [stocks, setStocks] = useState("0");
+  const [availability, setAvailability] = useState('Live')
 
   // for clicked or checked
   const [isClickedCategory, setIsClickedCategory] = useState(false);
   const [isClickedMetricSystem, setIsClickedMetricSystem] = useState(false);
+  const [isClickedSubCategory, setIsclickedSubCategory] = useState(false);
+
   const [selectedMetricSystem, setSelectedMetricSystem] = useState("Metric");
   const [selectedCategory, setSelectedCategory] = useState("Category");
-  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedSubCategory, setSelectedSubCategory] =
+    useState("Sub Category");
+  const [selectedCategoryId, setSelectedCategoryId] = useState(null); // State for selected category ID
 
+  const [modalVisible, setModalVisible] = useState(false);
   const [formData, setFormData] = useState({});
 
   const handleMetricSelect = (metric) => {
@@ -43,7 +51,14 @@ function AddProductScreen() {
 
   const handleCategorySelect = (category) => {
     setSelectedCategory(category.crop_category_name);
+    setSelectedCategoryId(category.crop_category_id); // Set selected category ID
     setIsClickedCategory(false);
+    fetchSubCategories(category.crop_category_id); // Fetch subcategories for the selected category
+  };
+
+  const handleSubCategorySelect = (subCategory) => {
+    setSelectedSubCategory(subCategory.crop_sub_category_name);
+    setIsclickedSubCategory(false);
   };
 
   // Function to handle image selection from gallery
@@ -66,7 +81,6 @@ function AddProductScreen() {
     }
   };
 
-  // Function to handle image removal
   const removeImage = () => {
     setFormData({ ...formData, crop_image: null });
   };
@@ -89,6 +103,31 @@ function AddProductScreen() {
       setCategories(data);
     } catch (error) {
       console.error("Error fetching crop categories:", error);
+    }
+  };
+
+  // fetching sub categories
+  const fetchSubCategories = async (categoryId) => {
+    try {
+      const response = await fetch(
+        "https://agritayo.azurewebsites.net/api/crop_sub_categories",
+        {
+          headers: {
+            "x-api-key": API_KEY,
+          },
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const data = await response.json();
+
+      const filteredData = data.filter(
+        (subCategory) => subCategory.crop_category_id === categoryId
+      );
+      setSubCategories(filteredData);
+    } catch (error) {
+      console.error("Error fetching crop sub categories:", error);
     }
   };
 
@@ -121,8 +160,8 @@ function AddProductScreen() {
     }, [])
   );
 
-  const handleAddProduct = () => {
-    // logic for handleAddProduct
+  const handleAddProduct = async () => {
+    // Implementation for adding a product goes here
   };
 
   return (
@@ -199,6 +238,40 @@ function AddProductScreen() {
             )}
           </View>
 
+          {/* Sub-Category Selector */}
+          <View className="mb-4">
+            <Text className="text-base text-gray-700">Select Sub-Category</Text>
+            <TouchableOpacity
+              className="flex-row items-center border border-gray-300 p-2 rounded-lg"
+              onPress={() => setIsclickedSubCategory(!isClickedSubCategory)}
+            >
+              <Text className="text-base text-gray-700 flex-1">
+                {selectedSubCategory}
+              </Text>
+              <Ionicons
+                name="chevron-down"
+                size={20}
+                color="gray"
+                className="ml-2"
+              />
+            </TouchableOpacity>
+            {isClickedSubCategory && (
+              <View className="border border-gray-300 rounded-lg p-2 mt-1">
+                {subCategories.map((subCategory) => (
+                  <TouchableOpacity
+                    key={subCategory.crop_sub_category_id}
+                    className="p-2"
+                    onPress={() => handleSubCategorySelect(subCategory)}
+                  >
+                    <Text className="text-base">
+                      {subCategory.crop_sub_category_name}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
+          </View>
+
           {/* Crop Quantity */}
           <View className="mb-4">
             <Text className="text-base text-gray-700">Crop Quantity</Text>
@@ -255,6 +328,27 @@ function AddProductScreen() {
                 ))}
               </View>
             )}
+          </View>
+
+          {/* Stocks Text Input */}
+          <View className="mb-4">
+            <Text className="text-base text-gray-700">Stock/s</Text>
+            <TextInput
+              className="border border-gray-300 rounded-lg p-2 mt-1"
+              keyboardType="numeric"
+              value={stocks}
+              onChangeText={setStocks}
+            />
+          </View>
+          {/* Availability Text Input */}
+          <View className="mb-4">
+            <Text className="text-base text-gray-700">Availability</Text>
+            <TextInput
+              className="border border-gray-300 rounded-lg p-2 mt-1"
+              editable={false}
+              value={availability}
+              onChangeText={setAvailability}
+            />
           </View>
 
           {/* Image Upload */}
