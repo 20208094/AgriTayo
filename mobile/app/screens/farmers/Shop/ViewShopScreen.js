@@ -13,7 +13,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as ImagePicker from "expo-image-picker";
 import { useFocusEffect } from "@react-navigation/native";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import { REACT_NATIVE_API_KEY } from "@env";
+import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 
 function ViewShopScreen({ navigation }) {
   const [userData, setUserData] = useState(null);
@@ -21,14 +21,15 @@ function ViewShopScreen({ navigation }) {
 
   const [shopName, setShopName] = useState("");
   const [shopAddress, setShopAddress] = useState("");
-  const [shopLocation, setShopLocation] = useState('');
+  const [shopLocation, setShopLocation] = useState("");
   const [shopDescription, setShopDescription] = useState("");
   const [shopImage, setShopImage] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [shopDeliveryFee, setShopDeliveryFee] = useState("");
   const [pickupAreaFee, setPickUpAreaFee] = useState("");
   const [pickupAddress, setPickUpAddress] = useState("");
-  const [userId, setUserId] = useState('')
+  const [userId, setUserId] = useState("");
+  const [shopId, setShopId] = useState("");
 
   const [isCheckedDelivery, setIsCheckedDelivery] = useState(false);
   const [isCheckedPickup, setIsCheckedPickup] = useState(false);
@@ -57,19 +58,19 @@ function ViewShopScreen({ navigation }) {
 
   const getAsyncUserData = async () => {
     try {
-        const storedData = await AsyncStorage.getItem("userData");
-        if (storedData) {
-            const parsedData = JSON.parse(storedData);
-            setUserData(Array.isArray(parsedData) ? parsedData[0] : parsedData);
-            
-            // Here, adjust the property names according to your user data structure
-            const userId = parsedData.user_id || parsedData.id; // Make sure to adjust according to your actual user object
-            setUserId(userId); // Set userId here
-        }
+      const storedData = await AsyncStorage.getItem("userData");
+      if (storedData) {
+        const parsedData = JSON.parse(storedData);
+        setUserData(Array.isArray(parsedData) ? parsedData[0] : parsedData);
+
+        // Here, adjust the property names according to your user data structure
+        const userId = parsedData.user_id || parsedData.id; // Make sure to adjust according to your actual user object
+        setUserId(userId); // Set userId here
+      }
     } catch (error) {
-        console.error("Failed to load user data:", error);
+      console.error("Failed to load user data:", error);
     }
-};
+  };
 
   const getAsyncShopData = async () => {
     try {
@@ -78,9 +79,10 @@ function ViewShopScreen({ navigation }) {
         const parsedData = JSON.parse(storedData);
         const shop = Array.isArray(parsedData) ? parsedData[0] : parsedData;
         setShopData(shop);
+        setShopId(shop.shop_id);
         setShopName(shop.shop_name);
         setShopAddress(shop.shop_address);
-        setShopLocation(shop.shop_location)
+        setShopLocation(shop.shop_location);
         setShopDescription(shop.shop_description);
         setShopImage(shop.shop_image_url);
         setShopDeliveryFee(String(shop.delivery_price));
@@ -131,9 +133,9 @@ function ViewShopScreen({ navigation }) {
 
   const handleSubmit = async () => {
     const formData = new FormData();
+    formData.append("shop_id", shopId);
     formData.append("shop_name", shopName);
     formData.append("shop_address", shopAddress);
-    formData.append("shop_location", shopLocation);
     formData.append("shop_description", shopDescription);
     if (shopImage) {
       formData.append("shop_image_url", {
@@ -145,52 +147,83 @@ function ViewShopScreen({ navigation }) {
     formData.append("delivery", isCheckedDelivery);
     formData.append("pickup", isCheckedPickup);
     formData.append("delivery_price", shopDeliveryFee);
+    formData.append("delivery_address", pickupAddress);
     formData.append("pickup_price", pickupAreaFee);
     formData.append("gcash", isCheckedGcash);
     formData.append("cod", isCheckedCod);
     formData.append("bank", isCheckedBankTransfer);
-    formData.append('userId', userId);
-  
+    formData.append("user_id", userId);
+    formData.append("longitude", 1.0);
+    formData.append("latitude", 1.0);
+
     // Debugging logs
     console.log("Submitting shop data:", {
       shop_name: shopName,
       shop_address: shopAddress,
       shop_location: shopLocation,
       shop_description: shopDescription,
-      shop_image: shopImage,
+      shop_image_url: shopImage,
       delivery: isCheckedDelivery,
       pickup: isCheckedPickup,
       delivery_price: shopDeliveryFee,
+      delivery_address: pickupAddress,
       pickup_price: pickupAreaFee,
       gcash: isCheckedGcash,
       cod: isCheckedCod,
       bank: isCheckedBankTransfer,
       user_id: userId,
+      longtitude: 1.0,
+      latitude: 1.0,
+      shop_id: shopId,
     });
-  
+
     try {
-      const response = await fetch("https://agritayo.azurewebsites.net/api/shops/:id", {
-        method: "PUT",
-        headers: {
-          "x-api-key": REACT_NATIVE_API_KEY,
-        },
-        body: formData,
-      });
-  
+      const response = await fetch(
+        `${REACT_NATIVE_API_BASE_URL}/api/shops/${shopId}`,
+        {
+          method: "PUT",
+          headers: {
+            "x-api-key": REACT_NATIVE_API_KEY,
+          },
+          body: formData,
+        }
+      );
+
       console.log("Response status:", response.status);
       console.log("Response body:", await response.text()); // Log response body for more info
-  
+
+      const updatedShopData = {
+        shop_name: shopName,
+        shop_address: shopAddress,
+        shop_location: shopLocation,
+        shop_description: shopDescription,
+        shop_image_url: shopImage,
+        delivery: isCheckedDelivery,
+        pickup: isCheckedPickup,
+        delivery_price: shopDeliveryFee,
+        delivery_address: pickupAddress,
+        pickup_price: pickupAreaFee,
+        gcash: isCheckedGcash,
+        cod: isCheckedCod,
+        bank: isCheckedBankTransfer,
+        user_id: userId,
+        longtitude: 1.0,
+        latitude: 1.0,
+        shop_id: shopId,
+      };
+
       if (!response.ok) {
         throw new Error("Failed to Edit Shop");
       }
-  
-      const result = await response.json();
+
+      console.log("form data:", JSON.stringify(updatedShopData));
+      AsyncStorage.setItem("shopData", JSON.stringify(updatedShopData));
+      getAsyncShopData();
       alert("Shop Updated Successfully!");
     } catch (error) {
-      console.error("Error updating shop", error);
       alert("There was an error editing the shop.");
     }
-  };  
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
