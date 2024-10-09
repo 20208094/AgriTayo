@@ -21,7 +21,7 @@ const TimeText = styled(Text, 'text-xs text-gray-400 ml-auto');
 const SearchInput = styled(TextInput, 'bg-gray-100 ml-5 rounded-full p-2 flex-1 text-gray-700 text-sm');
 
 // Button component for switching between chat views
-const Button1 = styled(TouchableOpacity, 'flex-1 py-3 rounded-full mx-2');
+const Button1 = styled(TouchableOpacity, 'flex-1 py-3 rounded-lg');
 const Button = styled(TouchableOpacity, 'flex-1 py-3 rounded-full mx-2 shadow-sm');
 const ButtonText = styled(Text, 'text-center font-semibold text-base text-[#00B251]');
 
@@ -33,6 +33,7 @@ const ChatListScreen = () => {
   const [filteredShops, setFilteredShops] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedType, setSelectedType] = useState('User');
+  const [selectedSenderType, setSelectedSenderType] = useState('User');
   const [error, setError] = useState('');
   const navigation = useNavigation();
   const [allUsers, setAllUsers] = useState([]);
@@ -40,6 +41,10 @@ const ChatListScreen = () => {
   const [loading, setLoading] = useState(true);
   const [userData, setUserData] = useState(null);
   const [userId, setUserId] = useState(null);
+  const [shopData, setShopData] = useState(null);
+  const [shopId, setShopId] = useState(null);
+  const [senderId, setSenderId] = useState(null);
+  const [senderType, setSenderType] = useState('User');
 
   const getAsyncUserData = async () => {
     try {
@@ -52,6 +57,29 @@ const ChatListScreen = () => {
           const user = parsedData[0];
           setUserData(user);
           setUserId(user.user_id);
+          setSenderId(user.user_id);
+        } else {
+          setUserData(parsedData);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load user data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getAsyncShopData = async () => {
+    try {
+      const storedData = await AsyncStorage.getItem('shopData');
+
+      if (storedData) {
+        const parsedData = JSON.parse(storedData);
+
+        if (Array.isArray(parsedData)) {
+          const shop = parsedData[0];
+          setShopData(shop);
+          setShopId(shop.shop_id);
         } else {
           setUserData(parsedData);
         }
@@ -66,12 +94,53 @@ const ChatListScreen = () => {
   useFocusEffect(
     useCallback(() => {
       getAsyncUserData();
+      getAsyncShopData();
     }, [])
   );
 
+  // Update the senderId and senderType based on user selection
+  const handleSenderTypeChange = (type) => {
+    setUsers(null);
+    setAllUsers(null);
+    setFilteredUsers(null);
+    setShops(null);
+    setAllShops(null);
+    setFilteredShops(null);
+    if (type === 'User') {
+      setAllUsers(null);
+      setFilteredUsers(null);
+      setShops(null);
+      setAllShops(null);
+      setFilteredShops(null);
+      setSenderId(userId);
+      setSenderType('User');
+      fetchChats();
+    } else if (type === 'Shop') {
+      setAllUsers(null);
+      setFilteredUsers(null);
+      setShops(null);
+      setAllShops(null);
+      setFilteredShops(null);
+      setSenderId(shopId);
+      setSenderType('Shop');
+      fetchChats();
+    } else {
+      setSenderId(userId);
+      setSenderType('User');
+      fetchChats();
+    }
+  };
+
+  // Fetch chat data whenever senderId or senderType changes
+  useEffect(() => {
+    if (senderId && senderType) {
+      fetchChats();
+    }
+  }, [senderId, senderType]);
+
   const fetchChats = async () => {
     try {
-      if (!userId) return;
+      if (!senderId) return;
 
       const chatResponse = await fetch(API_URL_CHATS, {
         headers: { 'x-api-key': REACT_NATIVE_API_KEY },
@@ -94,36 +163,36 @@ const ChatListScreen = () => {
           const shopsData = await shopResponse.json();
 
           const uniqueUserIds = Array.from(new Set(
-            chats.filter(chat => chat.sender_type === 'User' || chat.receiver_type === 'User')
-              .map(chat => chat.sender_id === userId ? chat.receiver_id : chat.sender_id)
+            chats.filter(chat => chat.sender_type === senderType)
+              .map(chat => chat.sender_id === senderId && chat.sender_type === senderType && chat.receiver_type === 'User' ? chat.receiver_id : chat.sender_id)
           ));
           const chatUsers = uniqueUserIds.map(id => {
             const user = usersData.find(user => user.user_id === id);
             const lastChat = chats.find(chat =>
-              (chat.sender_id === userId && chat.receiver_id === id && chat.receiver_type === 'User') ||
-              (chat.receiver_id === userId && chat.sender_id === id && chat.receiver_type === 'User')
+              (chat.sender_id === senderId && chat.sender_type === senderType && chat.receiver_id === id && chat.receiver_type === 'User') ||
+              (chat.receiver_id === senderId && chat.receiver_type === senderType && chat.sender_id === id && chat.sender_type === 'User')
             );
             return {
               ...user,
               lastMessage: lastChat?.chat_message || 'No recent messages',
-              time: lastChat ? new Date(lastChat.sent_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Unknown Time'
+              time: lastChat ? new Date(lastChat.sent_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : null
             };
           });
 
           const uniqueShopIds = Array.from(new Set(
-            chats.filter(chat => chat.sender_type === 'Shop' || chat.receiver_type === 'Shop')
-              .map(chat => chat.sender_id === userId ? chat.receiver_id : chat.sender_id)
+            chats.filter(chat => chat.sender_type === senderType)
+              .map(chat => chat.sender_id === senderId && chat.sender_type === senderType && chat.receiver_type === 'Shop' ? chat.receiver_id : chat.sender_id)
           ));
           const chatShops = uniqueShopIds.map(id => {
             const shop = shopsData.find(shop => shop.shop_id === id);
             const lastChat = chats.find(chat =>
-              (chat.sender_id === userId && chat.receiver_id === id && chat.receiver_type === 'Shop') ||
-              (chat.receiver_id === userId && chat.sender_id === id && chat.receiver_type === 'Shop')
+              (chat.sender_id === senderId && chat.sender_type === senderType && chat.receiver_id === id && chat.receiver_type === 'Shop') ||
+              (chat.receiver_id === senderId && chat.receiver_type === senderType && chat.sender_id === id && chat.sender_type === 'Shop')
             );
             return {
               ...shop,
               lastMessage: lastChat?.chat_message || 'No recent messages',
-              time: lastChat ? new Date(lastChat.sent_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Unknown Time'
+              time: lastChat ? new Date(lastChat.sent_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : null
             };
           });
 
@@ -144,14 +213,6 @@ const ChatListScreen = () => {
     }
   };
 
-  useFocusEffect(
-    useCallback(() => {
-      if (userId) {
-        fetchChats();
-      }
-    }, [userId])
-  );
-
   const handleSearch = (query) => {
     setSearchQuery(query);
 
@@ -163,12 +224,6 @@ const ChatListScreen = () => {
       } else if (selectedType === 'Shop') {
         const filtered = allShops.filter(shop => shop?.shop_name?.toLowerCase().includes(lowerCaseQuery));
         setFilteredShops(filtered);
-      } else if (selectedType === 'Seller') {
-        const filtered = allUsers.filter(user => user.user_type_id === 2 && user?.firstname?.toLowerCase().includes(lowerCaseQuery));
-        setFilteredUsers(filtered);
-      } else if (selectedType === 'Buyer') {
-        const filtered = allUsers.filter(user => user.user_type_id === 3 && user?.firstname?.toLowerCase().includes(lowerCaseQuery));
-        setFilteredUsers(filtered);
       }
     } else {
       setFilteredUsers(users);
@@ -178,10 +233,11 @@ const ChatListScreen = () => {
 
   const handleUserClick = (receiver_id, name, receiver_image) => {
     navigation.navigate('ChatScreen', {
-      senderId: userId,
+      senderId: senderId,
       receiverId: receiver_id,
       receiverName: name,
       receiverType: selectedType,
+      senderType: senderType,
       receiverImage: receiver_image,
     });
   };
@@ -190,101 +246,95 @@ const ChatListScreen = () => {
     setSelectedType(type);
     setSearchQuery('');
 
+    // Set senderId based on the type of chat
     if (type === 'User') {
       setFilteredUsers(users);
     } else if (type === 'Shop') {
       setFilteredShops(shops);
-    } else if (type === 'Seller') {
-      const filteredSellers = allUsers.filter(user => user.user_type_id === 2);
-      setFilteredUsers(filteredSellers);
-    } else if (type === 'Buyer') {
-      const filteredBuyers = allUsers.filter(user => user.user_type_id === 3);
-      setFilteredUsers(filteredBuyers);
     }
   };
 
+
   return (
-    <Container>
-      <View style={{ flexDirection: 'row', marginBottom: 10, justifyContent: 'space-around'}}>
+    <>
+      <View style={{ flexDirection: 'row' }}>
         <Button1
-          onPress={() => handleTypeChange('Seller')}
-          style={selectedType === 'Seller' ? 'bg-gradient-to-r from-green-400 to-green-600' : 'bg-gray-200'}
+          onPress={() => handleSenderTypeChange('User')}
+          className={senderType === 'User' ? 'bg-[#00B251]' : 'bg-gray-200'}
         >
-          <ButtonText style={selectedType === 'Seller' ? 'text-white' : 'text-gray-700'}>{'Sellers Chats'}</ButtonText>
+          <ButtonText className={senderType === 'User' ? 'text-white' : 'text-[#00B251]'}>{'Chat as Buyer'}</ButtonText>
         </Button1>
 
-        <Text style={{ marginHorizontal: 10, fontSize: 30, color: '#00B251' }}>|</Text>
-
         <Button1
-          onPress={() => handleTypeChange('Buyer')}
-          style={selectedType === 'Buyer' ? 'bg-gradient-to-r from-green-400 to-green-600' : 'bg-gray-200'}
+          onPress={() => handleSenderTypeChange('Shop')}
+          className={senderType === 'Shop' ? 'bg-[#00B251]' : 'bg-gray-200'}
         >
-          <ButtonText style={selectedType === 'Buyer' ? 'text-white' : 'text-gray-700'}>{'Buyers Chats'}</ButtonText>
+          <ButtonText className={senderType === 'Shop' ? 'text-white' : 'text-[#00B251]'}>{'Chat as Seller'}</ButtonText>
         </Button1>
-
-      </View>
-      <Header>
-        <Title>
-          {selectedType === 'User'
-            ? 'User Chats'
-            : selectedType === 'Shop'
-              ? 'Shop Chats'
-              : selectedType === 'Seller'
-                ? 'Seller Chats'
-                : 'Buyer Chats'}
-        </Title>
-        <SearchInput
-          placeholder={`Search ${selectedType === 'User' ? 'users' : selectedType === 'Shop' ? 'shops' : selectedType === 'Seller' ? 'sellers' : 'buyers'} by name`}
-          value={searchQuery}
-          onChangeText={handleSearch}
-        />
-      </Header>
-
-      {error && <ErrorText>{error}</ErrorText>}
-
-      <View style={{ flexDirection: 'row', marginBottom: 10, justifyContent: 'space-around' }}>
-        <Button
-          onPress={() => handleTypeChange('User')}
-          style={selectedType === 'User' ? 'bg-gradient-to-r from-green-400 to-green-600' : 'bg-gray-200'}
-        >
-          <ButtonText style={selectedType === 'User' ? 'text-white' : 'text-gray-700'}>{'Users Chats'}</ButtonText>
-        </Button>
-        <Button
-          onPress={() => handleTypeChange('Shop')}
-          style={selectedType === 'Shop' ? 'bg-gradient-to-r from-green-400 to-green-600' : 'bg-gray-200'}
-        >
-          <ButtonText style={selectedType === 'Shop' ? 'text-white' : 'text-gray-700'}>{'Shops Chats'}</ButtonText>
-        </Button>
-
       </View>
 
-      <FlatList
-        data={selectedType === 'User' || selectedType === 'Seller' || selectedType === 'Buyer' ? filteredUsers : filteredShops}
-        renderItem={({ item }) => (
-          <UserItem
-            onPress={() =>
-              handleUserClick(item.shop_id || item.user_id, item.firstname || item.shop_name, item.user_image_url || item.shop_image_url)
+      <Container>
+
+        <Header>
+          <Title>
+            {selectedType === 'User'
+              ? 'User Chats'
+              : selectedType === 'Shop'
+                ? 'Shop Chats'
+                : null
             }
+          </Title>
+          <SearchInput
+            placeholder={`Search ${selectedType === 'User' ? 'users' : selectedType === 'Shop' ? 'shops' : selectedType === 'Seller' ? 'sellers' : 'buyers'} by name`}
+            value={searchQuery}
+            onChangeText={handleSearch}
+          />
+        </Header>
+
+        {error && <ErrorText>{error}</ErrorText>}
+
+        <View style={{ flexDirection: 'row', marginBottom: 10, justifyContent: 'space-around' }}>
+          <Button
+            onPress={() => handleTypeChange('User')}
+            className={selectedType === 'User' ? 'bg-[#00B251]' : 'bg-gray-200'}
           >
-            <Avatar source={{ uri: item.user_image_url || item.shop_image_url || 'https://example.com/default-avatar.png' }} />
-            <View style={{ flex: 1 }}>
-              <UserName>{item.firstname || item.shop_name}</UserName>
-              <LastMessage>{item.lastMessage || 'No recent messages'}</LastMessage>
-            </View>
-            <TimeText>{item.time || 'Unknown time'}</TimeText>
-          </UserItem>
-        )}
-        keyExtractor={(item, index) => {
-          if (item.user_id) {
-            return `user-${item.user_id}`;
-          } else if (item.shop_id) {
-            return `shop-${item.shop_id}`;
-          } else {
-            return `item-${index}`;
-          }
-        }}
-      />
-    </Container>
+            <ButtonText className={selectedType === 'User' ? 'text-white' : 'text-[#00B251]'}>{'User Chats'}</ButtonText>
+          </Button>
+          <Button
+            onPress={() => handleTypeChange('Shop')}
+            className={selectedType === 'Shop' ? 'bg-[#00B251]' : 'bg-gray-200'}
+          >
+            <ButtonText className={selectedType === 'Shop' ? 'text-white' : 'text-[#00B251]'}>{'Shop Chats'}</ButtonText>
+          </Button>
+
+        </View>
+
+        <FlatList
+          data={selectedType === 'User' ? filteredUsers : filteredShops}
+          renderItem={({ item }) => (
+            <UserItem
+              onPress={() =>
+                handleUserClick(item.shop_id || item.user_id, item.firstname || item.shop_name, item.user_image_url || item.shop_image_url)
+              }
+            >
+              <Avatar source={{ uri: item.user_image_url || item.shop_image_url || 'https://example.com/default-avatar.png' }} />
+              <View style={{ flex: 1 }}>
+                <UserName>{item.firstname || item.shop_name}</UserName>
+                <LastMessage>{item.lastMessage || 'No recent messages'}</LastMessage>
+              </View>
+              <TimeText>{item.time || 'Unknown time'}</TimeText>
+            </UserItem>
+          )}
+          keyExtractor={(item, index) => {
+            if (item.user_id) {
+              return `user-${item.user_id}-${item.firstname}-${index}`;
+            } else if (item.shop_id) {
+              return `shop-${item.shop_id}-${item.shop_name}-${index}`;
+            }
+          }}
+        />
+      </Container>
+    </>
   );
 };
 

@@ -361,7 +361,7 @@ function BiddingScreen() {
   }, [currentIndex]);
 
   return (
-    <SafeAreaView className="flex-1 bg-[#d1d5db]">
+    <SafeAreaView className="flex-1 bg-gray-100">
       <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
         <View style={{ height: screenHeight * 0.60 }}>
           {/* Added fixed height for the carousel to prevent overlap */}

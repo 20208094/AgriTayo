@@ -1,10 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import Icon from "react-native-vector-icons/Ionicons";
-import ToPayScreen from "./ToPayScreen";
-import ToShipScreen from "./ToShipScreen";
-import CompletedScreen from "./CompletedScreen";
-import RejectedScreen from "./RejectedScreen";
+
+import CompletedScreen from "./OrderCategories/CompletedScreen";
+import ForReturnScreen from "./OrderCategories/ForReturnScreen";
+import PickupScreen from "./OrderCategories/PickupScreen";
+import PreparingScreen from "./OrderCategories/PreparingScreen";
+import RejectedScreen from "./OrderCategories/RejectedScreen";
+import ReturnedScreen from "./OrderCategories/ReturnedScreen";
+import ShippingScreen from "./OrderCategories/ShippingScreen";
+import ToConfirmScreen from "./OrderCategories/ToConfirmScreen";
+import ToRateScreen from "./OrderCategories/ToRateScreen";
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from '@env';
 import { View, Text } from "react-native";
@@ -172,25 +179,25 @@ function OrdersScreen({ route }) {
       })}
     >
       <Tab.Screen name="To Confirm" options={{ tabBarLabel: "To Confirm" }}>
-        {() => <ToPayScreen orders={orders} orderProducts={orderProducts} />}
+        {() => <ToConfirmScreen orders={orders} orderProducts={orderProducts} />}
       </Tab.Screen>
       <Tab.Screen name="Preparing" options={{ tabBarLabel: "Preparing" }}>
-        {() => <ToPayScreen orders={orders} orderProducts={orderProducts} />}
+        {() => <PreparingScreen orders={orders} orderProducts={orderProducts} />}
       </Tab.Screen>
       <Tab.Screen name="Shipping" options={{ tabBarLabel: "Shipping" }}>
-        {() => <ToShipScreen orders={orders} orderProducts={orderProducts} />}
+        {() => <ShippingScreen orders={orders} orderProducts={orderProducts} />}
       </Tab.Screen>
       <Tab.Screen name="Pickup" options={{ tabBarLabel: "Pickup" }}>
-        {() => <ToPayScreen orders={orders} orderProducts={orderProducts} />}
+        {() => <PickupScreen orders={orders} orderProducts={orderProducts} />}
       </Tab.Screen>
       <Tab.Screen name="For Return" options={{ tabBarLabel: "For Return" }}>
-        {() => <ToPayScreen orders={orders} orderProducts={orderProducts} />}
+        {() => <ForReturnScreen orders={orders} orderProducts={orderProducts} />}
       </Tab.Screen>
       <Tab.Screen name="Returned" options={{ tabBarLabel: "Returned" }}>
-        {() => <ToPayScreen orders={orders} orderProducts={orderProducts} />}
+        {() => <ReturnedScreen orders={orders} orderProducts={orderProducts} />}
       </Tab.Screen>
       <Tab.Screen name="To Rate" options={{ tabBarLabel: "To Rate" }}>
-        {() => <ToPayScreen orders={orders} orderProducts={orderProducts} />}
+        {() => <ToRateScreen orders={orders} orderProducts={orderProducts} />}
       </Tab.Screen>
       <Tab.Screen name="Completed" options={{ tabBarLabel: "Completed" }}>
         {() => <CompletedScreen orders={orders} orderProducts={orderProducts} />}

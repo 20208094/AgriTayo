@@ -48,10 +48,9 @@ function ChatScreen({ route }) {
   const [loading, setLoading] = useState(false);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const [userData, setUserData] = useState(null);
-  const [senderType, setSenderType] = useState('User');
 
   const socket = useRef(null);
-  const { receiverId, receiverName, senderId, receiverType, receiverImage } = route.params;
+  const { receiverId, receiverName, senderId, receiverType, senderType, receiverImage } = route.params;
   const userId = senderId;
   const flatListRef = useRef(null);
 
@@ -76,7 +75,7 @@ function ChatScreen({ route }) {
   // Fetch messages from the server
   const fetchMessages = async () => {
     if (userId && receiverId) {
-        console.log("User IDs:", userId, receiverId, receiverType, senderType);
+        console.log("User IDs:", userId, receiverId, senderType, receiverType);
         try {
             const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/chatsId/${userId}/${receiverId}/${receiverType}/${senderType}`, {
                 headers: { "x-api-key": REACT_NATIVE_API_KEY },
