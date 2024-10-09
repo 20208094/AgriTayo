@@ -9,7 +9,7 @@ import {
   ScrollView,
   Image,
 } from "react-native";
-import { REACT_NATIVE_API_KEY } from "@env";
+import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL} from "@env";
 import { useFocusEffect } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
 import Ionicons from "react-native-vector-icons/Ionicons";
@@ -27,8 +27,13 @@ function AddProductScreen() {
   const [cropPrice, setCropPrice] = useState("");
   const [cropQuantity, setCropQuantity] = useState("");
   const [cropWeight, setCropWeight] = useState("");
-  const [stocks, setStocks] = useState("0");
-  const [availability, setAvailability] = useState('Live')
+  const [stocks, setStocks] = useState("");
+  const [availability, setAvailability] = useState('live')
+  const [availablityMessage, setAvailabilityMessage] = useState(null)
+  const [cropId, setCropId] = useState('')
+  const [shopId, setShopId] = useState('')
+  const [cropRating, setCropRating] = useState('')
+
 
   // for clicked or checked
   const [isClickedCategory, setIsClickedCategory] = useState(false);
@@ -89,7 +94,7 @@ function AddProductScreen() {
   const fetchCategories = async () => {
     try {
       const response = await fetch(
-        "https://agritayo.azurewebsites.net/api/crop_categories",
+        `${REACT_NATIVE_API_BASE_URL}/api/crop_categories`,
         {
           headers: {
             "x-api-key": API_KEY,
@@ -110,7 +115,7 @@ function AddProductScreen() {
   const fetchSubCategories = async (categoryId) => {
     try {
       const response = await fetch(
-        "https://agritayo.azurewebsites.net/api/crop_sub_categories",
+        `${REACT_NATIVE_API_BASE_URL}/api/crop_sub_categories`,
         {
           headers: {
             "x-api-key": API_KEY,
@@ -161,7 +166,22 @@ function AddProductScreen() {
   );
 
   const handleAddProduct = async () => {
-    // Implementation for adding a product goes here
+    const productData = {
+      crop_id: cropId,
+      crop_name: cropName,
+      crop_description: cropDescription, 
+      sub_category_id: selectedSubCategory,
+      shop_id: shopId,
+      crop_image_url: cropImage,
+      crop_rating: cropRating,
+      crop_price: cropPrice,
+      crop_quantity: cropQuantity,
+      crop_weight: cropWeight,
+      metric_system_id: metricSystem,
+      stocks: stocks,
+      availability: availability,
+      availability_message: availablityMessage
+    }
   };
 
   return (
@@ -334,6 +354,7 @@ function AddProductScreen() {
           <View className="mb-4">
             <Text className="text-base text-gray-700">Stock/s</Text>
             <TextInput
+              placeholder='0'
               className="border border-gray-300 rounded-lg p-2 mt-1"
               keyboardType="numeric"
               value={stocks}
