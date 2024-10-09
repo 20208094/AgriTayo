@@ -199,7 +199,7 @@ function ProfileScreen({ fetchUserSession }) {
           <TouchableOpacity className="flex-row items-center justify-between" onPress={() => navigation.navigate("View Profile", { userData })}>
             <View className="flex-row items-center">
               <Icon name="user" type="font-awesome" size={20} color="#00B251" />
-              <Text className="text-gray-800 font-semibold ml-4">View Profile</Text>
+              <Text className="text-gray-800 font-semibold ml-4"> View Profile</Text>
             </View>
             <Icon name="chevron-right" type="font-awesome" size={20} color="gray" />
           </TouchableOpacity>
