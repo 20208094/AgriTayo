@@ -42,10 +42,10 @@ const EditMap = ({ initialPosition, onPositionChange, selectedAddress }) => {
   };
 
   return (
-    <>
+    <View className="relative h-60 w-full">
       <MapView
         ref={mapRef}
-        className="h-50 w-full"
+        className="h-full w-full"
         provider={PROVIDER_GOOGLE}
         initialRegion={{
           latitude: position?.latitude || 37.78825,
@@ -60,10 +60,14 @@ const EditMap = ({ initialPosition, onPositionChange, selectedAddress }) => {
       >
         {position && <Marker coordinate={position} />}
       </MapView>
-      <TouchableOpacity onPress={recenterMap}>
-        <Icon name="my-location" type="material" color="pink" />
+      {/* Centered recenter button */}
+      <TouchableOpacity
+        onPress={recenterMap}
+        className="absolute bottom-4 right-2 transform -translate-x-1/2 bg-white rounded-full p-2 shadow-lg"
+      >
+        <Icon name="my-location" type="material" color="green" size={24} />
       </TouchableOpacity>
-    </>
+    </View>
   );
 };
 

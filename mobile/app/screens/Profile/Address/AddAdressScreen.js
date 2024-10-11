@@ -14,26 +14,124 @@ import Map from "../../../components/Map";
 import * as Location from "expo-location";
 import { NotificationIcon, MessagesIcon, MarketIcon } from "../../../components/SearchBarC";
 
+const LabelButton = ({ label, icon, selectedLabel, onPress }) => {
+  const isSelected = selectedLabel === label;
+  return (
+    <View className="flex-1 items-center justify-center">
+      <TouchableOpacity
+        className={`flex-row items-center justify-center border w-[85%] ${isSelected ? "bg-green-600" : "border-green-600"} rounded-lg py-2 m-1`}
+        onPress={onPress}
+      >
+        <Icon name={icon} type="font-awesome" size={25} color={isSelected ? "white" : "#00B251"} />
+        <Text className={`ml-2 ${isSelected ? "text-white" : "text-green-600"}`}>{label}</Text>
+      </TouchableOpacity>
+    </View>
+  );
+};
+
+
 function AddAddressScreen({
   navigation,
   route,
-  onLocationSelect = () => {},  // Use directly as props
+  onLocationSelect = () => { },  // Use directly as props
 }) {
   const { profile, currentLocation } = route.params;
 
-  const [addressInput, setAddressInput] = useState("");
-  const [secondAddressInput, setSecondAddressInput] = useState("");
+  // Inputs for the address form
+  const [houseNumber, setHouseNumber] = useState("");
+  const [streetName, setStreetName] = useState("");
+  const [building, setBuilding] = useState("");
+  const [region, setRegion] = useState('');
+  const [barangay, setBarangay] = useState("");
+  const [city, setCity] = useState("");
+  const [province, setProvince] = useState("");
   const [note, setNote] = useState("");
   const [label, setLabel] = useState("Partner");
+  const [postal_code, setPostalCode] = useState('');
 
-  const addressInput_regex = /^.{5,}$/;
-  const secondAddressInput_regex = /^.{5,}$/;
-
+  // Error states
   const [errors, setErrors] = useState({
-    addressInputError: "",
-    secondAddressInputError: "",
+    houseNumberError: "",
+    streetNameError: "",
+    buildingError: "",
+    regionError: '',
+    barangayError: "",
+    cityError: "",
+    provinceError: "",
+    postalCodeError: '',
   });
 
+  const validateAddressForm = () => {
+    let isValid = true;
+    const newErrors = { ...errors };
+
+    // Validate house number
+    if (!houseNumber) {
+      newErrors.houseNumberError = "Enter your house number";
+      isValid = false;
+    } else {
+      newErrors.houseNumberError = "";
+    }
+
+    // Validate street name
+    if (!streetName) {
+      newErrors.streetNameError = "Enter your street name";
+      isValid = false;
+    } else {
+      newErrors.streetNameError = "";
+    }
+
+    // Validate building name
+    if (!building) {
+      newErrors.buildingError = "Enter your building name";
+      isValid = false;
+    } else {
+      newErrors.buildingError = "";
+    }
+
+    // Validate barangay
+    if (!barangay) {
+      newErrors.barangayError = "Enter your barangay";
+      isValid = false;
+    } else {
+      newErrors.barangayError = "";
+    }
+
+    // Validate city
+    if (!city) {
+      newErrors.cityError = "Enter your city";
+      isValid = false;
+    } else {
+      newErrors.cityError = "";
+    }
+
+    // Validate province
+    if (!province) {
+      newErrors.provinceError = "Enter your province";
+      isValid = false;
+    } else {
+      newErrors.provinceError = "";
+    }
+
+    if (!region) {
+      newErrors.regionError = "Enter your region";
+      isValid = false;
+    } else {
+      newErrors.regionError = "";
+    }
+
+    if (!postal_code) {
+      newErrors.postalCodeError = "Enter your postal code";
+      isValid = false;
+    } else {
+      newErrors.postalCodeError = "";
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  };
+
+  // UseEffect for location permission and getting current location
   useEffect(() => {
     if (!currentLocation) {
       (async () => {
@@ -55,6 +153,7 @@ function AddAddressScreen({
     }
   }, [currentLocation]);
 
+  // Custom header icons
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (
@@ -67,197 +166,213 @@ function AddAddressScreen({
     });
   }, [navigation]);
 
-  const validateAddressForm = () => {
-    let isValid = true;
-    const newErrors = { ...errors };
+  // Handle location select and autofill the form based on selected location
+  const handleLocationSelect = async (selectedLocation) => {
+    try {
+      // Reverse geocoding to get address from coordinates
+      const location = await Location.reverseGeocodeAsync(selectedLocation);
+      if (location.length > 0) {
+        const place = location[0];
 
-    if (!addressInput) {
-      newErrors.addressInputError = "Enter your Address";
-      isValid = false;
-    } else if (!addressInput_regex.test(addressInput)) {
-      newErrors.addressInputError = "Invalid Address, Please Try Again.";
-      isValid = false;
-    } else {
-      newErrors.addressInputError = "";
+        // Autofill the form fields
+        setHouseNumber(place.streetNumber || ""); // House number
+        setStreetName(place.street || "");        // Street name
+        setBarangay(place.subLocality || "");     // Barangay
+        setCity(place.city || "");                // City
+        setProvince(place.region || "");          // Province
+      }
+    } catch (error) {
+      Alert.alert("Error", "Unable to fetch address from the selected location.");
     }
-
-    if (!secondAddressInput) {
-      newErrors.secondAddressInputError = "Enter your Floor/Unit/Room";
-      isValid = false;
-    } else if (!secondAddressInput_regex.test(secondAddressInput)) {
-      newErrors.secondAddressInputError =
-        "Invalid Floor/Unit/Room, Please Try Again";
-      isValid = false;
-    } else {
-      newErrors.secondAddressInputError = "";
-    }
-
-    setErrors(newErrors);
-    return isValid;
   };
 
+  // Submit handler
   const handleSubmit = () => {
     if (validateAddressForm()) {
       navigation.navigate("Address", { profile });
     }
   };
 
+  // Handle label selection
   const handleLabelSelect = (selectedLabel) => {
     setLabel(selectedLabel);
-  };
-
-  // Handle location select and set the address input
-  const handleLocationSelect = async (selectedLocation) => {
-    setAddressInput(""); // Reset the address while fetching the new one
-
-    // Reverse geocoding to get address from coordinates
-    const location = await Location.reverseGeocodeAsync(selectedLocation);
-    if (location.length > 0) {
-      const formattedAddress = `${location[0].name || ''} ${location[0].street || ''} ${location[0].city || ''}`;
-      setAddressInput(formattedAddress);  // Automatically update the address input
-    }
   };
 
   return (
     <KeyboardAvoidingView className="flex-1 bg-white" behavior="padding">
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+        {/* Map component for location selection */}
         <Map
           currentLocation={currentLocation}
           onLocationSelect={handleLocationSelect}
         />
+
         <View className="p-5">
           <Text className="text-2xl font-bold text-black mb-2">
             Add your address
           </Text>
-          <View className="flex-row items-center mb-2">
-            <Icon
-              name="map-marker"
-              type="font-awesome"
-              size={20}
-              color="#00B251"
-            />
-            <TextInput
-              className="flex-1 border-b border-gray-300 mx-2 py-1 text-black"
-              placeholder="St. John Inn Dominican Hill Rd"
-              value={addressInput}
-              onChangeText={setAddressInput}
-            />
-            <Icon name="edit" type="font-awesome" size={20} color="#00B251" />
-          </View>
-          {errors.addressInputError ? (
-            <Text style={{ color: "red", marginTop: 4 }}>
-              {errors.addressInputError}
-            </Text>
-          ) : null}
+
+          {/* House Number Input */}
+          <Text className="text-base font-bold text-[#00B251] mb-2">House Number:
+            <Text className="text-red-500">*</Text>
+          </Text>
           <TextInput
             className="border-b border-gray-300 py-2 mb-2 text-black"
-            placeholder="Floor/Unit/Room #"
-            value={secondAddressInput}
-            onChangeText={setSecondAddressInput}
+            placeholder="House Number"
+            value={houseNumber}
+            onChangeText={setHouseNumber}
           />
-          {errors.secondAddressInputError ? (
+          {errors.houseNumberError ? (
             <Text style={{ color: "red", marginTop: 4 }}>
-              {errors.secondAddressInputError}
+              {errors.houseNumberError}
             </Text>
           ) : null}
+
+          {/* Street Name Input */}
+          <Text className="text-base font-bold text-[#00B251] mb-2">Street Name:
+            <Text className="text-red-500">*</Text>
+          </Text>
+          <TextInput
+            className="border-b border-gray-300 py-2 mb-2 text-black"
+            placeholder="Street Name"
+            value={streetName}
+            onChangeText={setStreetName}
+          />
+          {errors.streetNameError ? (
+            <Text style={{ color: "red", marginTop: 4 }}>
+              {errors.streetNameError}
+            </Text>
+          ) : null}
+
+          {/* Building Input */}
+          <Text className="text-base font-bold text-[#00B251] mb-2">Building:</Text>
+          <TextInput
+            className="border-b border-gray-300 py-2 mb-2 text-black"
+            placeholder="Building"
+            value={building}
+            onChangeText={setBuilding}
+          />
+          {errors.buildingError ? (
+            <Text style={{ color: "red", marginTop: 4 }}>
+              {errors.buildingError}
+            </Text>
+          ) : null}
+
+          {/* Barangay Input */}
+          <Text className="text-base font-bold text-[#00B251] mb-2">Barangay:
+            <Text className="text-red-500">*</Text>
+          </Text>
+          <TextInput
+            className="border-b border-gray-300 py-2 mb-2 text-black"
+            placeholder="Barangay"
+            value={barangay}
+            onChangeText={setBarangay}
+          />
+          {errors.barangayError ? (
+            <Text style={{ color: "red", marginTop: 4 }}>
+              {errors.barangayError}
+            </Text>
+          ) : null}
+
+          {/* City Input */}
+          <Text className="text-base font-bold text-[#00B251] mb-2">City:
+            <Text className="text-red-500">*</Text>
+          </Text>
+          <TextInput
+            className="border-b border-gray-300 py-2 mb-2 text-black"
+            placeholder="City"
+            value={city}
+            onChangeText={setCity}
+          />
+          {errors.cityError ? (
+            <Text style={{ color: "red", marginTop: 4 }}>
+              {errors.cityError}
+            </Text>
+          ) : null}
+
+          {/* Province Input */}
+          <Text className="text-base font-bold text-[#00B251] mb-2">Province:
+            <Text className="text-red-500">*</Text>
+          </Text>
+          <TextInput
+            className="border-b border-gray-300 py-2 mb-2 text-black"
+            placeholder="Province"
+            value={province}
+            onChangeText={setProvince}
+          />
+          {errors.provinceError ? (
+            <Text style={{ color: "red", marginTop: 4 }}>
+              {errors.provinceError}
+            </Text>
+          ) : null}
+
+          {/* Region Input */}
+          <Text className="text-base font-bold text-[#00B251] mb-2">Region:
+            <Text className="text-red-500">*</Text>
+          </Text>
+          <TextInput
+            className="border-b border-gray-300 py-2 mb-2 text-black"
+            placeholder="Region"
+            value={region}
+            onChangeText={setRegion}
+          />
+          {errors.regionError ? (
+            <Text style={{ color: "red", marginTop: 4 }}>
+              {errors.regionError}
+            </Text>
+          ) : null}
+
+          {/* Postal Input */}
+          <Text className="text-base font-bold text-[#00B251] mb-2">Postal Code:
+            <Text className="text-red-500">*</Text>
+          </Text>
+          <TextInput
+            className="border-b border-gray-300 py-2 mb-2 text-black"
+            placeholder="Postal Code"
+            value={postal_code}
+            onChangeText={setPostalCode}
+          />
+          {errors.postalCodeError ? (
+            <Text style={{ color: "red", marginTop: 4 }}>
+              {errors.postalCodeError}
+            </Text>
+          ) : null}
+
+
+          {/* Note Input */}
           <TextInput
             className="border border-gray-300 rounded-lg p-2 mb-2 text-black"
-            placeholder="Give us more information about your address. Note to rider - e.g. landmark"
+            placeholder="Note to rider (e.g. landmark)"
             value={note}
             onChangeText={setNote}
             multiline
             numberOfLines={4}
+            maxLength={300}
           />
           <Text className="self-end text-gray-500 mb-2">{note.length}/300</Text>
+
+          {/* Label selection */}
           <Text className="text-lg font-bold text-black mb-2">Add a label</Text>
-          <View className="flex-wrap flex-row justify-between mb-5">
-            <TouchableOpacity
-              className={`flex-row items-center border ${
-                label === "Home" ? "bg-green-600" : "border-green-600"
-              } rounded-lg py-2 px-3 m-1`}
-              onPress={() => handleLabelSelect("Home")}
-            >
-              <Icon
-                name="home"
-                type="font-awesome"
-                size={20}
-                color={label === "Home" ? "white" : "#00B251"}
-              />
-              <Text
-                className={`ml-2 ${
-                  label === "Home" ? "text-white" : "text-green-600"
-                }`}
-              >
-                Home
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              className={`flex-row items-center border ${
-                label === "Work" ? "bg-green-600" : "border-green-600"
-              } rounded-lg py-2 px-3 m-1`}
-              onPress={() => handleLabelSelect("Work")}
-            >
-              <Icon
-                name="briefcase"
-                type="font-awesome"
-                size={20}
-                color={label === "Work" ? "white" : "#00B251"}
-              />
-              <Text
-                className={`ml-2 ${
-                  label === "Work" ? "text-white" : "text-green-600"
-                }`}
-              >
-                Work
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              className={`flex-row items-center border ${
-                label === "Partner" ? "bg-green-600" : "border-green-600"
-              } rounded-lg py-2 px-3 m-1`}
-              onPress={() => handleLabelSelect("Partner")}
-            >
-              <Icon
-                name="heart"
-                type="font-awesome"
-                size={20}
-                color={label === "Partner" ? "white" : "#00B251"}
-              />
-              <Text
-                className={`ml-2 ${
-                  label === "Partner" ? "text-white" : "text-green-600"
-                }`}
-              >
-                Partner
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              className={`flex-row items-center border ${
-                label === "Other" ? "bg-green-600" : "border-green-600"
-              } rounded-lg py-2 px-3 m-1`}
-              onPress={() => handleLabelSelect("Other")}
-            >
-              <Icon
-                name="plus"
-                type="font-awesome"
-                size={20}
-                color={label === "Other" ? "white" : "#00B251"}
-              />
-              <Text
-                className={`ml-2 ${
-                  label === "Other" ? "text-white" : "text-green-600"
-                }`}
-              >
-                Other
-              </Text>
-            </TouchableOpacity>
+          <View className="flex flex-col gap-1 mb-4">
+            <View className="flex flex-row">
+              <LabelButton label="Home" icon="home" selectedLabel={label} onPress={() => handleLabelSelect("Home")} />
+              <LabelButton label="Work" icon="briefcase" selectedLabel={label} onPress={() => handleLabelSelect("Work")} />
+              <LabelButton label="Office" icon="briefcase" selectedLabel={label} onPress={() => handleLabelSelect("Office")} />
+            </View>
+            <View className="flex flex-row">
+              <LabelButton label="Partner" icon="heart" selectedLabel={label} onPress={() => handleLabelSelect("Partner")} />
+              <LabelButton label="Other" icon="map-marker" selectedLabel={label} onPress={() => handleLabelSelect("Other")} />
+              <View className="flex-1 items-center justify-center"></View>
+            </View>
           </View>
+
+
           <TouchableOpacity
             className="bg-green-600 py-4 rounded-full items-center"
             onPress={handleSubmit}
           >
-            <Text className="text-white text-lg font-semibold">
-              Save and continue
+            <Text className="text-center text-white font-bold text-lg">
+              Add Address
             </Text>
           </TouchableOpacity>
         </View>
@@ -266,4 +381,4 @@ function AddAddressScreen({
   );
 }
 
-export default styled(AddAddressScreen);
+export default AddAddressScreen;

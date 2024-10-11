@@ -19,7 +19,7 @@ import SearchBarC, {
 import { Ionicons } from "@expo/vector-icons"; // Importing icons
 
 function SellerShopScreen({ route }) {
-  const { product } = route.params;
+  const { product, shop } = route.params;
   const primaryColor = "#00B251";
   const [selectedTab, setSelectedTab] = useState("Products");
   const [selectedProductTab, setSelectedProductTab] = useState("Popular");
@@ -91,16 +91,16 @@ function SellerShopScreen({ route }) {
 
         <View className="relative p-4 bg-gray-100">
           <Image
-            source={michael}
+            source={shop.shop_image_url}
             className="w-12 h-12 rounded-full absolute top-4 left-4"
           />
           <View className="ml-20">
-            <Text className="text-lg font-bold">{product.seller.shopName}</Text>
+            <Text className="text-lg font-bold">{shop.shop_name}</Text>
             <Text className="text-sm text-gray-500">Active 2 minutes ago</Text>
             <View className="flex-row items-center space-x-2 mt-1">
               <Text className="text-yellow-500">⭐ {product.rating}/5.0</Text>
               <Text className="text-gray-500">
-                | {product.seller.followers} Followers
+                | {shop.followers || 0} Followers
               </Text>
             </View>
           </View>

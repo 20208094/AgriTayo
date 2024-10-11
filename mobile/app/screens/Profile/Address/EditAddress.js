@@ -164,6 +164,7 @@ function EditAddress({ route, navigation }) {
   const handleLabelSelect = (selectedLabel) => {
     setLabelText(selectedLabel);
   };
+  
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -189,7 +190,7 @@ function EditAddress({ route, navigation }) {
           <Text className="text-2xl font-bold text-black mb-2">Edit your address</Text>
           
           {/* House Number Input */}
-          <Text className="text-base font-bold text-gray-800 mb-2">House Number:
+          <Text className="text-base font-bold text-[#00B251] mb-2">House Number:
             <Text className="text-red-500">*</Text>
           </Text>
           <TextInput
@@ -201,7 +202,7 @@ function EditAddress({ route, navigation }) {
           {errors.houseNumberError ? <Text style={{ color: "red", marginTop: 4 }}>{errors.houseNumberError}</Text> : null}
           
           {/* Street Name Input */}
-          <Text className="text-base font-bold text-gray-800 mb-2">Street Name:
+          <Text className="text-base font-bold text-[#00B251] mb-2">Street Name:
             <Text className="text-red-500">*</Text>
           </Text>
           <TextInput
@@ -213,7 +214,9 @@ function EditAddress({ route, navigation }) {
           {errors.streetNameError ? <Text style={{ color: "red", marginTop: 4 }}>{errors.streetNameError}</Text> : null}
 
           {/* Building Input */}
-          <Text className="text-base font-bold text-gray-800 mb-2">Building:</Text>
+          <Text className="text-base font-bold text-[#00B251] mb-2">Building:
+            <Text className="text-red-500">*</Text>
+          </Text>
           <TextInput
             className="border-b border-gray-300 py-2 mb-2 text-black"
             placeholder="Enter Building Name (Optional)"
@@ -223,7 +226,7 @@ function EditAddress({ route, navigation }) {
           {errors.buildingError ? <Text style={{ color: "red", marginTop: 4 }}>{errors.buildingError}</Text> : null}
 
           {/* Barangay Input */}
-          <Text className="text-base font-bold text-gray-800 mb-2">Barangay:
+          <Text className="text-base font-bold text-[#00B251] mb-2">Barangay:
             <Text className="text-red-500">*</Text>
           </Text>
           <TextInput
@@ -235,7 +238,7 @@ function EditAddress({ route, navigation }) {
           {errors.barangayError ? <Text style={{ color: "red", marginTop: 4 }}>{errors.barangayError}</Text> : null}
 
           {/* City Input */}
-          <Text className="text-base font-bold text-gray-800 mb-2">City:
+          <Text className="text-base font-bold text-[#00B251] mb-2">City:
             <Text className="text-red-500">*</Text>
           </Text>
           <TextInput
@@ -247,7 +250,7 @@ function EditAddress({ route, navigation }) {
           {errors.cityError ? <Text style={{ color: "red", marginTop: 4 }}>{errors.cityError}</Text> : null}
 
           {/* Province Input */}
-          <Text className="text-base font-bold text-gray-800 mb-2">Province:
+          <Text className="text-base font-bold text-[#00B251] mb-2">Province:
             <Text className="text-red-500">*</Text>
           </Text>
           <TextInput
@@ -259,7 +262,7 @@ function EditAddress({ route, navigation }) {
           {errors.provinceError ? <Text style={{ color: "red", marginTop: 4 }}>{errors.provinceError}</Text> : null}
 
           {/* Region Input */}
-          <Text className="text-base font-bold text-gray-800 mb-2">Region:
+          <Text className="text-base font-bold text-[#00B251] mb-2">Region:
             <Text className="text-red-500">*</Text>
           </Text>
           <TextInput
@@ -271,7 +274,7 @@ function EditAddress({ route, navigation }) {
           {errors.regionError ? <Text style={{ color: "red", marginTop: 4 }}>{errors.regionError}</Text> : null}
 
           {/* Postal Code Input */}
-          <Text className="text-base font-bold text-gray-800 mb-2">Postal Code:
+          <Text className="text-base font-bold text-[#00B251] mb-2">Postal Code:
             <Text className="text-red-500">*</Text>
           </Text>
           <TextInput
