@@ -16,7 +16,7 @@ import * as ImagePicker from "expo-image-picker";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-function AddProductScreen() {
+function AddProductScreen({navigation}) {
   const [categories, setCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
   const [metricSystem, setMetricSystem] = useState([]);
@@ -199,7 +199,6 @@ function AddProductScreen() {
     formData.append("sub_category_id", selectedSubCategoryId);
     formData.append("shop_id", shopData.shop_id);
     if (cropImage) {
-      console.log("adwadwad", cropImage)
       formData.append("image", {
         uri: cropImage,
         name: "shop.jpg",
@@ -227,15 +226,16 @@ function AddProductScreen() {
         body: formData,
       });
 
-      const responseText = await response.text(); // Read the response as text
-      console.log("Response Text: ", responseText); // Log the raw response
+      const responseText = await response.text();
+      console.log("Response Text: ", responseText);
 
       if (response.ok) {
-        const responseData = JSON.parse(responseText); // Parse the response only if it's okay
+        const responseData = JSON.parse(responseText);
         console.log("Response data: ", responseData);
         alert("Product added successfully!");
+        navigation.navigate('My Products')
       } else {
-        console.error("Error adding product: ", responseText); // Log error response
+        console.error("Error adding product: ", responseText);
         alert("Failed to add product. Please try again.");
       }
     } catch (error) {
@@ -464,7 +464,24 @@ function AddProductScreen() {
           {/* Add Product Button */}
           <TouchableOpacity
             className="bg-green-600 p-4 rounded-lg"
-            onPress={handleAddProduct}
+            onPress={() => {
+              Alert.alert(
+                "Confirm Add Product",
+                "Do you really want to add this product?",
+                [
+                  {
+                    text: "No",
+                    onPress: () => console.log("Product addition canceled"),
+                    style: "cancel",
+                  },
+                  {
+                    text: "Yes",
+                    onPress: handleAddProduct,
+                  },
+                ],
+                { cancelable: false }
+              );
+            }}
           >
             <Text className="text-white text-center">Add Product</Text>
           </TouchableOpacity>
