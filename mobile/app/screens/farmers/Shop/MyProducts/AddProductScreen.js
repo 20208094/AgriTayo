@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback } from "react";
 import {
   SafeAreaView,
   View,
@@ -8,34 +8,33 @@ import {
   Modal,
   ScrollView,
   Image,
+  Alert,
 } from "react-native";
-import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL} from "@env";
+import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 import { useFocusEffect } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 function AddProductScreen() {
-  // for fetching
   const [categories, setCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
   const [metricSystem, setMetricSystem] = useState([]);
+  const [shopData, setShopData] = useState(null);
+  const [loading, setLoading] = useState(false);
   const API_KEY = REACT_NATIVE_API_KEY;
 
-  // for user inputs
   const [cropName, setCropName] = useState("");
   const [cropDescription, setCropDescription] = useState("");
   const [cropPrice, setCropPrice] = useState("");
   const [cropQuantity, setCropQuantity] = useState("");
   const [cropWeight, setCropWeight] = useState("");
   const [stocks, setStocks] = useState("");
-  const [availability, setAvailability] = useState('live')
-  const [availablityMessage, setAvailabilityMessage] = useState(null)
-  const [cropId, setCropId] = useState('')
-  const [shopId, setShopId] = useState('')
-  const [cropRating, setCropRating] = useState('')
+  const [availability, setAvailability] = useState("live");
+  const [availabilityMessage, setAvailabilityMessage] = useState(null);
+  const [shopId, setShopId] = useState("");
+  const [cropRating, setCropRating] = useState("");
 
-
-  // for clicked or checked
   const [isClickedCategory, setIsClickedCategory] = useState(false);
   const [isClickedMetricSystem, setIsClickedMetricSystem] = useState(false);
   const [isClickedSubCategory, setIsclickedSubCategory] = useState(false);
@@ -44,29 +43,32 @@ function AddProductScreen() {
   const [selectedCategory, setSelectedCategory] = useState("Category");
   const [selectedSubCategory, setSelectedSubCategory] =
     useState("Sub Category");
-  const [selectedCategoryId, setSelectedCategoryId] = useState(null); // State for selected category ID
+  const [selectedCategoryId, setSelectedCategoryId] = useState(null);
+  const [selectedSubCategoryId, setSelectedSubCategoryId] = useState(null);
+  const [selectedMetricSystemId, setSelectedMetricSystemId] = useState(null);
 
   const [modalVisible, setModalVisible] = useState(false);
-  const [formData, setFormData] = useState({});
+  const [cropImage, setCropImage] = useState(null);
 
   const handleMetricSelect = (metric) => {
     setSelectedMetricSystem(metric.metric_system_name);
+    setSelectedMetricSystemId(metric.metric_system_id);
     setIsClickedMetricSystem(false);
   };
 
   const handleCategorySelect = (category) => {
     setSelectedCategory(category.crop_category_name);
-    setSelectedCategoryId(category.crop_category_id); // Set selected category ID
+    setSelectedCategoryId(category.crop_category_id);
     setIsClickedCategory(false);
-    fetchSubCategories(category.crop_category_id); // Fetch subcategories for the selected category
+    fetchSubCategories(category.crop_category_id);
   };
 
   const handleSubCategorySelect = (subCategory) => {
     setSelectedSubCategory(subCategory.crop_sub_category_name);
+    setSelectedSubCategoryId(subCategory.crop_sub_category_id);
     setIsclickedSubCategory(false);
   };
 
-  // Function to handle image selection from gallery
   const selectImageFromGallery = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
@@ -81,16 +83,15 @@ function AddProductScreen() {
     });
 
     if (!result.canceled) {
-      setFormData({ ...formData, crop_image: result.assets[0].uri });
+      setCropImage(result.assets[0].uri);
       setModalVisible(false);
     }
   };
 
   const removeImage = () => {
-    setFormData({ ...formData, crop_image: null });
+    setCropImage(null);
   };
 
-  // fetching categories
   const fetchCategories = async () => {
     try {
       const response = await fetch(
@@ -101,17 +102,15 @@ function AddProductScreen() {
           },
         }
       );
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
+      if (!response.ok) throw new Error("Network response was not ok");
+
       const data = await response.json();
       setCategories(data);
     } catch (error) {
-      console.error("Error fetching crop categories:", error);
+      alert(`Error fetching crop categories: ${error.message}`);
     }
   };
 
-  // fetching sub categories
   const fetchSubCategories = async (categoryId) => {
     try {
       const response = await fetch(
@@ -122,65 +121,127 @@ function AddProductScreen() {
           },
         }
       );
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-      const data = await response.json();
+      if (!response.ok) throw new Error("Network response was not ok");
 
+      const data = await response.json();
       const filteredData = data.filter(
         (subCategory) => subCategory.crop_category_id === categoryId
       );
       setSubCategories(filteredData);
     } catch (error) {
-      console.error("Error fetching crop sub categories:", error);
+      alert(`Error fetching crop subcategories: ${error.message}`);
     }
   };
 
-  // fetch Metric System
+  const getAsyncShopData = async () => {
+    try {
+      const storedData = await AsyncStorage.getItem("shopData");
+      if (storedData) {
+        const parsedData = JSON.parse(storedData);
+        const shop = Array.isArray(parsedData) ? parsedData[0] : parsedData;
+        setShopData(shop);
+      }
+    } catch (error) {
+      alert(`Failed to load shop data: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const fetchMetricSystem = async () => {
     try {
       const response = await fetch(
-        "https://agritayo.azurewebsites.net/api/metric_systems",
+        `${REACT_NATIVE_API_BASE_URL}/api/metric_systems`,
         {
           headers: {
             "x-api-key": API_KEY,
           },
         }
       );
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
+      if (!response.ok) throw new Error("Network response was not ok");
+
       const data = await response.json();
       setMetricSystem(data);
     } catch (error) {
-      console.error("Error fetching metric systems:", error);
+      alert(`Error fetching metric systems: ${error.message}`);
     }
   };
 
-  // Fetch categories when screen is focused
   useFocusEffect(
     useCallback(() => {
       fetchCategories();
       fetchMetricSystem();
+      getAsyncShopData();
     }, [])
   );
 
   const handleAddProduct = async () => {
-    const productData = {
-      crop_id: cropId,
-      crop_name: cropName,
-      crop_description: cropDescription, 
-      sub_category_id: selectedSubCategory,
-      shop_id: shopId,
-      crop_image_url: cropImage,
-      crop_rating: cropRating,
-      crop_price: cropPrice,
-      crop_quantity: cropQuantity,
-      crop_weight: cropWeight,
-      metric_system_id: metricSystem,
-      stocks: stocks,
-      availability: availability,
-      availability_message: availablityMessage
+    console.log("Crop Image URI: ", cropImage);
+    if (
+      !cropName ||
+      !cropDescription ||
+      !cropPrice ||
+      !cropQuantity ||
+      !cropWeight ||
+      !selectedCategoryId ||
+      !selectedSubCategoryId ||
+      !selectedMetricSystemId ||
+      !cropImage ||
+      !stocks
+    ) {
+      alert("Please fill in all the required fields.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("crop_name", cropName);
+    formData.append("crop_description", cropDescription);
+    formData.append("sub_category_id", selectedSubCategoryId);
+    formData.append("shop_id", shopData.shop_id);
+    if (cropImage) {
+      console.log("adwadwad", cropImage)
+      formData.append("image", {
+        uri: cropImage,
+        name: "shop.jpg",
+        type: "image/jpeg",
+      });
+    }
+    formData.append("crop_rating", cropRating || 0);
+    formData.append("crop_price", parseFloat(cropPrice));
+    formData.append("crop_quantity", parseInt(cropQuantity));
+    formData.append("crop_weight", parseFloat(cropWeight));
+    formData.append("metric_system_id", selectedMetricSystemId);
+    formData.append("stocks", parseInt(stocks));
+    formData.append("availability", availability);
+    formData.append("availability_message", availabilityMessage || "Available");
+
+    try {
+      setLoading(true);
+      console.log("Submitting product data: ", formData);
+
+      const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crops`, {
+        method: "POST",
+        headers: {
+          "x-api-key": API_KEY,
+        },
+        body: formData,
+      });
+
+      const responseText = await response.text(); // Read the response as text
+      console.log("Response Text: ", responseText); // Log the raw response
+
+      if (response.ok) {
+        const responseData = JSON.parse(responseText); // Parse the response only if it's okay
+        console.log("Response data: ", responseData);
+        alert("Product added successfully!");
+      } else {
+        console.error("Error adding product: ", responseText); // Log error response
+        alert("Failed to add product. Please try again.");
+      }
+    } catch (error) {
+      alert(`An error occurred while adding the product: ${error.message}`);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -354,7 +415,7 @@ function AddProductScreen() {
           <View className="mb-4">
             <Text className="text-base text-gray-700">Stock/s</Text>
             <TextInput
-              placeholder='0'
+              placeholder="0"
               className="border border-gray-300 rounded-lg p-2 mt-1"
               keyboardType="numeric"
               value={stocks}
@@ -384,10 +445,10 @@ function AddProductScreen() {
               <Ionicons name="camera" size={24} color="#00b251" />
             </TouchableOpacity>
 
-            {formData.crop_image && (
+            {cropImage && (
               <View className="mt-4">
                 <Image
-                  source={{ uri: formData.crop_image }}
+                  source={{ uri: cropImage }}
                   className="w-full h-64 rounded-lg"
                 />
                 <TouchableOpacity
