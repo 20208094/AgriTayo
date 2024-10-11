@@ -66,7 +66,7 @@ const Map = ({ currentLocation, onLocationSelect: handleLocationSelect }) => {
       {/* Centered recenter button */}
       <TouchableOpacity
         onPress={recenterMap}
-        className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-white rounded-full p-2 shadow-lg"
+        className="absolute bottom-4 right-2 transform -translate-x-1/2 bg-white rounded-full p-2 shadow-lg"
       >
         <Icon name="my-location" type="material" color="green" size={24} />
       </TouchableOpacity>

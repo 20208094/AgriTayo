@@ -57,10 +57,24 @@ function ProductDetailsScreen({ navigation, route }) {
   );
 
 
-  const shopInfo = product.seller || {
-    shopName: 'Unknown Shop',
-    shop_image_url: null,
-  };
+const [shopInfo, setShopInfo] = useState({
+  shop_name: 'Unknown Shop',
+  shop_image_url: null,
+});
+
+// Once shopData is populated, find the correct shop info
+useEffect(() => {
+  if (shopData && Array.isArray(shopData)) {
+    const currentShop = shopData.find(shop => shop && shop.shop_id === product.shop_id);
+
+    if (currentShop) {
+      setShopInfo({
+        shop_name: currentShop.shop_name || 'Unknown Shop',
+        shop_image_url: currentShop.shop_image_url || null,
+      });
+    }
+  }
+}, [shopData, product.shop_id]); // Dependency array to trigger when shopData changes
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -77,20 +91,48 @@ function ProductDetailsScreen({ navigation, route }) {
   const increaseQuantity = () => setQuantity(quantity + 1);
   const decreaseQuantity = () => setQuantity(quantity > 1 ? quantity - 1 : 1);
 
-  const handleShopPress = () => {
-    if (shopInfo.shopName !== 'Unknown Shop') {
-      navigation.navigate('Seller Shop', { product });
-    } else {
-      alert("No seller information available for this product.");
+  const handleShopPress = async () => {
+    if (!product) return; // Ensure that the product exists
+  
+    try {
+      // Fetch shop data first
+      const shopResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/shops`, {
+        headers: {
+          "x-api-key": REACT_NATIVE_API_KEY,
+        },
+      });
+      const shopData = await shopResponse.json();
+      setShopData(shopData);
+  
+      // Check if the shop related to the product exists
+      const shop = shopData.find((s) => s && s.shop_id === product.shop_id);
+  
+      if (shop) {
+        // Add fallback for followers if it's not available
+        const shopInfo = {
+          ...shop,
+          followers: shop.followers || 0,  // Ensure followers is set, even if missing from API
+        };
+  
+        // Navigate to the Seller Shop with the product and shop information
+        navigation.navigate('Seller Shop', { product, shop: shopInfo });
+      } else {
+        alert('No seller information available for this product.');
+      }
+    } catch (error) {
+      console.error("Error fetching shop data:", error);
+      alert('Failed to load shop information.');
     }
   };
+  
+  
 
   const handleNegotiatePress = () => {
     navigation.navigate('Buyer Negotiation');
   };
 
   const handleMessagePress = () => {
-    navigation.navigate('Message Seller', { product });
+    navigation.navigate('ChatScreen', { product });
   };
 
   const handleAddToCart = async () => {
@@ -281,7 +323,7 @@ function ProductDetailsScreen({ navigation, route }) {
               </TouchableOpacity>
               <View className="ml-1">
                 <TouchableOpacity onPress={handleShopPress}>
-                  <Text className="text-lg font-bold">{shopInfo.shopName}</Text>
+                  <Text className="text-lg font-bold">{shopInfo.shop_name}</Text>
                 </TouchableOpacity>
                 <Text className="text-gray-500 text-sm">4.7 ⭐ (512 reviews)</Text>
               </View>
