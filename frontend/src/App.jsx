@@ -193,6 +193,7 @@ function Layout({ userType, userId, refreshProfile, setRefreshProfile }) {
           {/* FREE ROUTES used for development */}
           <Route exact path="/" element={<LandingPage />} />
           <Route exact path="/download" element={<DownloadAppPage />} />
+          <Route exact path="/reports" element={<ReportsPage />} />
 
           {/* Change Password ROUTES */}
           {!userType && (

@@ -111,7 +111,7 @@ function CropsPage() {
     const url = isEdit ? `/api/crops/${formData.crop_id}` : '/api/crops';
     const method = isEdit ? 'PUT' : 'POST';
 
-    const dataToSend = new FormData(); // Use FormData for file uploads
+    const dataToSend = new FormData();
     for (const key in formData) {
       dataToSend.append(key, formData[key]);
     }
@@ -121,7 +121,6 @@ function CropsPage() {
         method: method,
         headers: {
           'x-api-key': API_KEY,
-          // Do not set Content-Type header when using FormData
         },
         body: dataToSend
       });
