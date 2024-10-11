@@ -307,3 +307,42 @@ CREATE TABLE negotiations (
 CREATE INDEX idx_negotiations_user_id ON negotiations(user_id);
 CREATE INDEX idx_negotiations_shop_id ON negotiations(shop_id);
 
+-- biddings table
+CREATE TABLE biddings (
+    bid_id SERIAL PRIMARY KEY,
+    shop_id INT NOT NULL,
+    creation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    end_date TIMESTAMP,
+    bid_image VARCHAR(255),
+    bid_description TEXT,
+    bid_name VARCHAR(100) NOT NULL,
+    bid_subcategory_id INT, 
+    bid_starting_price DECIMAL(10, 2) NOT NULL,
+    bid_minimum_increment DECIMAL(10, 2) NOT NULL,
+    bid_current_highest DECIMAL(10, 2) DEFAULT 0,
+    bid_user_id INT,
+    number_of_bids INT DEFAULT 0,
+    FOREIGN KEY (shop_id) REFERENCES shop(shop_id) ON DELETE CASCADE,
+    FOREIGN KEY (bid_subcategory_id) REFERENCES crop_sub_category(crop_sub_category_id) ON DELETE SET NULL,
+    FOREIGN KEY (bid_user_id) REFERENCES users(user_id) ON DELETE SET NULL,
+    FOREIGN KEY (bid_winner_user_id) REFERENCES users(user_id) ON DELETE SET NULL
+);
+
+CREATE INDEX idx_biddings_shop_id ON biddings(shop_id);
+CREATE INDEX idx_biddings_subcategory_id ON biddings(bid_subcategory_id);
+CREATE INDEX idx_biddings_user_id ON biddings(bid_user_id);
+CREATE INDEX idx_biddings_winner_user_id ON biddings(bid_winner_user_id);
+
+
+CREATE TABLE user_bids (
+    user_bid_id SERIAL PRIMARY KEY,
+    bid_id INT NOT NULL,
+    user_id INT NOT NULL,
+    price DECIMAL(10, 2) NOT NULL,
+    bid_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (bid_id) REFERENCES biddings(bid_id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+CREATE INDEX idx_user_bids_bid_id ON user_bids(bid_id);
+CREATE INDEX idx_user_bids_user_id ON user_bids(user_id);

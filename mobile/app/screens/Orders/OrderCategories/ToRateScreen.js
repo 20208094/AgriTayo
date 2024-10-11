@@ -154,7 +154,7 @@ const ToRateScreen = ({ orders, orderProducts }) => {
   animationType="slide"
   onRequestClose={() => setModalVisible(false)}
 >
-  <View className="flex-1 justify-center items-center bg-black bg-opacity-60">
+  <View className="flex-1 justify-center items-center bg-black/50">
     <View className="bg-white p-6 rounded-lg w-11/12 max-w-md shadow-lg">
       <Text className="text-lg font-bold mb-4 text-center text-[#00B251]">Rate Your Product</Text>
       <Text className="text-md font-semibold">Rating:</Text>

@@ -148,6 +148,20 @@ const {
 } = require('./supabase_connection/crud_services/review_images.js');
 
 const {
+    getBids,
+    addBid,
+    updateBid,
+    deleteBid
+} = require('./supabase_connection/crud_services/biddings.js');
+
+const {
+    getUserBids,
+    addUserBid,
+    updateUserBid,
+    deleteUserBid
+} = require('./supabase_connection/crud_services/biddings.js');
+
+const {
     getChats,
     getChatsId,
     getChatList,
@@ -346,6 +360,16 @@ app.get('/api/review_images', getReviewImages)
 app.post('/api/review_images', addReviewImage);
 app.put('/api/review_images/:id', updateReviewImage);
 app.delete('/api/review_images/:id', deleteReviewImage);
+
+app.get('/api/biddings', getBids)
+app.post('/api/biddings', addBid);
+app.put('/api/biddings/:id', updateBid);
+app.delete('/api/biddings/:id', deleteBid);
+
+app.get('/api/userbids', getUserBids);
+app.post('/api/userbids', addUserBid);
+app.put('/api/userbids/:id', updateUserBid);
+app.delete('/api/userbids/:id', deleteUserBid);
 
 // API routes for chat messages
 app.get('/api/chats', getChats);
