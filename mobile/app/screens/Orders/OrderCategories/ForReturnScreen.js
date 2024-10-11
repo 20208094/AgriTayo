@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, ScrollView, TouchableOpacity, SafeAreaView, Modal, Button } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, SafeAreaView, Modal, Alert } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
+import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from '@env';
 
 const ForReturnScreen = ({ orders, orderProducts }) => {
   const [forReturnOrders, setForReturnOrders] = useState([]);
   const [confirmationVisible, setConfirmationVisible] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [proceedToRateOrder, setProceedToRateOrder] = useState(null); // For tracking the order for rating confirmation
 
   const navigation = useNavigation();
 
@@ -39,9 +41,71 @@ const ForReturnScreen = ({ orders, orderProducts }) => {
     assembleForReturnOrders();
   }, [orders, orderProducts]);
 
-  const handleConfirmReturn = (order) => {
+  const handleConfirmReturn = async (order) => {
     setSelectedOrder(order);
     setConfirmationVisible(true);
+  };
+
+  const handleConfirmedReturn = async () => {
+    if (selectedOrder) {
+      let updatedOrder = { ...selectedOrder, buyer_is_received: true };
+      await handleUpdateOrder(updatedOrder, () => {
+        setConfirmationVisible(false);
+      });
+    }
+  };
+
+  const handleUpdateOrder = async (order, onSuccess) => {
+    if (order) {
+      const bodyData = {
+        status_id: order.status_id,
+        allow_return: order.allow_return,
+        buyer_is_received: order.buyer_is_received,
+      };
+  
+      try {
+        const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/orderStatus/${order.order_id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            "x-api-key": REACT_NATIVE_API_KEY,
+          },
+          body: JSON.stringify(bodyData),
+        });
+  
+        if (response.ok) {
+          if (onSuccess) {
+            onSuccess();
+          }
+        } else {
+          console.error("Failed to update order:", response.statusText);
+          Alert.alert('Error', 'Failed to update order. Please try again.');
+        }
+        
+      } catch (error) {
+        console.error('Error updating order:', error);
+        Alert.alert('Error', 'Network request failed. Please check your connection.');
+      }
+    } else {
+      Alert.alert('Error', 'Order data is required for the update.');
+    }
+  };
+
+  const handleProceedToRate = (order) => {
+    setProceedToRateOrder(order); // Set the selected order for rating
+    setConfirmationVisible(true); // Show confirmation modal
+  };
+
+  const handleConfirmedProceedToRate = async () => {
+    setConfirmationVisible(false);
+    if (proceedToRateOrder) {
+      let updatedOrder = { ...proceedToRateOrder, status_id: 7 }; // Update status_id to 7
+      await handleUpdateOrder(updatedOrder, () => {
+        navigation.navigate("Orders", { screen: "To Rate" }); // Navigate to the To Rate screen
+      });
+    } else {
+      console.error("proceedToRateOrder is undefined");
+    }
   };
 
   if (forReturnOrders.length === 0) {
@@ -63,50 +127,51 @@ const ForReturnScreen = ({ orders, orderProducts }) => {
             </View>
             <Text className="text-md text-gray-600">Order placed on: {formatDate(forReturnOrder.order_date)} at {formatTime(forReturnOrder.order_date)}</Text>
             <Text className="text-md text-gray-600 mt-1">Reason for return:  
-            <Text className="text-md text-red-600 mt-1 ml-1/4"> {forReturnOrder.return_reason}</Text>
+              <Text className="text-md text-red-600 mt-1 ml-1/4"> {forReturnOrder.return_reason}</Text>
             </Text>
+
             {/* Conditional rendering based on allow_return and buyer_return_is_received */}
             {forReturnOrder.allow_return === null && (
-                <Text className="text-sm text-green-700 mt-1">
-                  Waiting for the seller to confirm if they want to allow the return.
+              <Text className="text-sm text-green-700 mt-1">
+                Waiting for the seller to confirm if they want to allow the return.
+              </Text>
+            )}
+
+            {forReturnOrder.allow_return === false && (
+              <View className="mt-4">
+                <Text className="text-sm text-red-600">
+                  Seller did not allow the return for this product.
                 </Text>
-              )}
+                <TouchableOpacity
+                  className="bg-[#00B251] p-2 rounded-lg mt-2"
+                  onPress={() => handleProceedToRate(forReturnOrder)} // Proceed to rate order
+                >
+                  <Text className="text-white text-center">Proceed to rate the product</Text>
+                </TouchableOpacity>
+              </View>
+            )}
 
-              {forReturnOrder.allow_return === false && (
-                <View className="mt-4">
-                  <Text className="text-sm text-red-600">
-                    Seller did not allow the return for this product.
-                  </Text>
-                  <TouchableOpacity
-                    className="bg-[#00B251] p-2 rounded-lg mt-2"
-                    onPress={() => navigation.navigate('Rate Product', { order: forReturnOrder })}
-                  >
-                    <Text className="text-white text-center">Proceed to rate the product</Text>
-                  </TouchableOpacity>
-                </View>
-              )}
-
-              {forReturnOrder.allow_return === true && (
-                <View className="mt-4">
-                  {forReturnOrder.buyer_is_received === false ? (
-                    <>
-                      <Text className="text-sm text-red-600">
-                        Have you returned the item to the seller?
-                      </Text>
-                      <TouchableOpacity
-                        className="bg-[#00B251] p-2 rounded-lg mt-2"
-                        onPress={() => handleConfirmReturn(forReturnOrder)}
-                      >
-                        <Text className="text-white text-center">Yes</Text>
-                      </TouchableOpacity>
-                    </>
-                  ) : (
-                    <Text className="text-sm text-green-700 mt-2">
-                      Please wait for the seller to confirm if they already received the returned item.
+            {forReturnOrder.allow_return === true && (
+              <View className="mt-4">
+                {forReturnOrder.buyer_is_received === false ? (
+                  <>
+                    <Text className="text-sm text-red-600">
+                      Have you returned the item to the seller?
                     </Text>
-                  )}
-                </View>
-              )}
+                    <TouchableOpacity
+                      className="bg-[#00B251] p-2 rounded-lg mt-2"
+                      onPress={() => handleConfirmReturn(forReturnOrder)}
+                    >
+                      <Text className="text-white text-center">Yes</Text>
+                    </TouchableOpacity>
+                  </>
+                ) : (
+                  <Text className="text-sm text-green-700 mt-2">
+                    Please wait for the seller to confirm if they already received the returned item.
+                  </Text>
+                )}
+              </View>
+            )}
 
             <View className="mt-2 border-t border-gray-300 pt-2">
               <Text className="text-md font-semibold text-gray-800">Items:</Text>
@@ -148,18 +213,14 @@ const ForReturnScreen = ({ orders, orderProducts }) => {
       >
         <View className="flex-1 justify-center items-center bg-black bg-opacity-50">
           <View className="bg-white p-6 rounded-lg">
-            <Text className="text-lg font-semibold mb-4">Confirm Return</Text>
-            <Text>Have you returned the item to the seller?</Text>
+            <Text className="text-lg font-semibold mb-4">Confirm Action</Text>
+            <Text>Are you sure you want to proceed to rate this product?</Text>
             <View className="flex-row justify-end mt-4">
               <TouchableOpacity
                 className="bg-green-500 p-2 rounded-lg mr-2"
-                onPress={() => {
-                  // Logic for confirming the return
-                  console.log("Return confirmed for order:", selectedOrder);
-                  setConfirmationVisible(false);
-                }}
+                onPress={handleConfirmedProceedToRate} // Confirm proceeding to rate
               >
-                <Text className="text-white">Yes, I Returned</Text>
+                <Text className="text-white">Yes, Proceed</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 className="bg-gray-300 p-2 rounded-lg"
