@@ -8,6 +8,7 @@ import {
   Text,
   Modal,
   ScrollView,
+  Alert
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as ImagePicker from "expo-image-picker";
@@ -138,7 +139,7 @@ function ViewShopScreen({ navigation }) {
     formData.append("shop_address", shopAddress);
     formData.append("shop_description", shopDescription);
     if (shopImage) {
-      formData.append("shop_image_url", {
+      formData.append("image", {
         uri: shopImage,
         name: "shop.jpg",
         type: "image/jpeg",
@@ -162,7 +163,7 @@ function ViewShopScreen({ navigation }) {
       shop_address: shopAddress,
       shop_location: shopLocation,
       shop_description: shopDescription,
-      shop_image_url: shopImage,
+      image: shopImage,
       delivery: isCheckedDelivery,
       pickup: isCheckedPickup,
       delivery_price: shopDeliveryFee,
@@ -197,7 +198,7 @@ function ViewShopScreen({ navigation }) {
         shop_address: shopAddress,
         shop_location: shopLocation,
         shop_description: shopDescription,
-        shop_image_url: shopImage,
+        image: shopImage,
         delivery: isCheckedDelivery,
         pickup: isCheckedPickup,
         delivery_price: shopDeliveryFee,
@@ -220,6 +221,7 @@ function ViewShopScreen({ navigation }) {
       AsyncStorage.setItem("shopData", JSON.stringify(updatedShopData));
       getAsyncShopData();
       alert("Shop Updated Successfully!");
+      navigation.navigate('My Shop')
     } catch (error) {
       alert("There was an error editing the shop.");
     }
@@ -362,7 +364,24 @@ function ViewShopScreen({ navigation }) {
           {/* Submit Button */}
           <TouchableOpacity
             className="bg-green-500 py-3 rounded-lg flex-row justify-center items-center shadow-lg mt-4 mb-4"
-            onPress={handleSubmit}
+            onPress={() => {
+              Alert.alert(
+                "Confirm Update Profile",
+                "Do you really want to update this profile?",
+                [
+                  {
+                    text: "No",
+                    onPress: () => console.log("Shop Update Cancelled"),
+                    style: "cancel",
+                  },
+                  {
+                    text: "Yes",
+                    onPress: handleSubmit,
+                  },
+                ],
+                { cancelable: false }
+              );
+            }}
           >
             <Text className="text-lg text-white">Submit</Text>
           </TouchableOpacity>
