@@ -159,7 +159,7 @@ const {
     addUserBid,
     updateUserBid,
     deleteUserBid
-} = require('./supabase_connection/crud_services/biddings.js');
+} = require('./supabase_connection/crud_services/user_bids.js');
 
 const {
     getChats,

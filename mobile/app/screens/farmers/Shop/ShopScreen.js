@@ -10,7 +10,8 @@ import { FontAwesome5 } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import logo from "../../../assets/logo.png";
-import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from '@env';
+import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
+import { ScrollView } from "react-native-gesture-handler";
 
 const dummyNegotiation = [
   {
@@ -60,20 +61,20 @@ function ShopScreen({ navigation }) {
 
   const getAsyncShopData = async () => {
     try {
-      const storedData = await AsyncStorage.getItem('shopData');
+      const storedData = await AsyncStorage.getItem("shopData");
 
       if (storedData) {
         const parsedData = JSON.parse(storedData); // Parse storedData
 
         if (Array.isArray(parsedData)) {
-          const shop = parsedData[0];  // Assuming shop data is the first element of the array
+          const shop = parsedData[0]; // Assuming shop data is the first element of the array
           setShopData(shop); // Set shopData state to the shop object
         } else {
           setShopData(parsedData); // If it's not an array, directly set parsed data
         }
       }
     } catch (error) {
-      console.error('Failed to load shop data:', error);
+      console.error("Failed to load shop data:", error);
     } finally {
       setLoading(false);
     }
@@ -83,39 +84,46 @@ function ShopScreen({ navigation }) {
     try {
       const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/orders`, {
         headers: {
-          'x-api-key': REACT_NATIVE_API_KEY,
+          "x-api-key": REACT_NATIVE_API_KEY,
         },
       });
       if (response.ok) {
         const allOrds = await response.json();
         setOrders(allOrds);
       } else {
-        console.error('Failed to fetch orders:', response.statusText);
+        console.error("Failed to fetch orders:", response.statusText);
       }
     } catch (error) {
-      console.error('Error fetching orders:', error);
+      console.error("Error fetching orders:", error);
     }
   };
 
   const fetchOrderStatus = async () => {
     try {
-      const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/order_statuses`, {
-        headers: {
-          'x-api-key': REACT_NATIVE_API_KEY,
-        },
-      });
+      const response = await fetch(
+        `${REACT_NATIVE_API_BASE_URL}/api/order_statuses`,
+        {
+          headers: {
+            "x-api-key": REACT_NATIVE_API_KEY,
+          },
+        }
+      );
       if (response.ok) {
         const allOrdStat = await response.json();
-        const updatedStatuses = allOrdStat.map(status => {
-          const totalOrders = orders.filter(order => order.status_id === status.order_status_id && order.shop_id === shopData.shop_id).length;
+        const updatedStatuses = allOrdStat.map((status) => {
+          const totalOrders = orders.filter(
+            (order) =>
+              order.status_id === status.order_status_id &&
+              order.shop_id === shopData.shop_id
+          ).length;
           return { ...status, totalOrders };
         });
         setOrderStatuses(updatedStatuses);
       } else {
-        console.error('Failed to fetch order statuses:', response.statusText);
+        console.error("Failed to fetch order statuses:", response.statusText);
       }
     } catch (error) {
-      console.error('Error fetching order statuses:', error);
+      console.error("Error fetching order statuses:", error);
     }
   };
 
@@ -127,7 +135,7 @@ function ShopScreen({ navigation }) {
           await getAsyncShopData();
           await fetchOrders();
         } catch (error) {
-          console.error('Error fetching data:', error);
+          console.error("Error fetching data:", error);
         } finally {
           setLoading(false);
         }
@@ -154,9 +162,11 @@ function ShopScreen({ navigation }) {
   const handleChatSupportClick = () => {
     const adminId = 1;
     const adminName = "Admin"; // Assuming the admin's name is 'Admin', modify if needed
-    navigation.navigate("ChatScreen", { receiverId: adminId, receiverName: adminName });
+    navigation.navigate("ChatScreen", {
+      receiverId: adminId,
+      receiverName: adminName,
+    });
   };
-
 
   if (loading) {
     return (
@@ -166,10 +176,10 @@ function ShopScreen({ navigation }) {
     );
   }
 
-
   return (
     <SafeAreaView className="bg-white flex-1">
       {/* Header Section */}
+      <ScrollView>
       <View className="flex-row items-center justify-between p-4">
         <View className="flex-row items-center">
           <Image
@@ -194,8 +204,15 @@ function ShopScreen({ navigation }) {
       {/* Order Status Section */}
       <View className="flex-row justify-between px-6 mb-3">
         <View className="flex-row items-center">
-          <Text className="text-lg font-semibold text-gray-800 w-3/5">Shop Orders</Text>
-          <TouchableOpacity className="items-end w-2/5" onPress={() => navigation.navigate("Sales History", { screen: "Completed" })}>
+          <Text className="text-lg font-semibold text-gray-800 w-3/5">
+            Shop Orders
+          </Text>
+          <TouchableOpacity
+            className="items-end w-2/5"
+            onPress={() =>
+              navigation.navigate("Sales History", { screen: "Completed" })
+            }
+          >
             <Text className="text-green-600">View Purchase History</Text>
           </TouchableOpacity>
         </View>
@@ -212,10 +229,18 @@ function ShopScreen({ navigation }) {
                   <TouchableOpacity
                     key={status.order_status_id}
                     className="items-center w-1/3"
-                    onPress={() => navigation.navigate("Sales History", { screen: status.order_status_name })}
+                    onPress={() =>
+                      navigation.navigate("Sales History", {
+                        screen: status.order_status_name,
+                      })
+                    }
                   >
-                    <Text className="text-lg font-bold mb-1">{status.totalOrders}</Text>
-                    <Text className="text-gray-500">{status.order_status_name}</Text>
+                    <Text className="text-lg font-bold mb-1">
+                      {status.totalOrders}
+                    </Text>
+                    <Text className="text-gray-500">
+                      {status.order_status_name}
+                    </Text>
                   </TouchableOpacity>
                 ))}
               </View>
@@ -230,11 +255,27 @@ function ShopScreen({ navigation }) {
         <View className="bg-white rounded-lg shadow p-4 space-y-4">
           {[
             { label: "  My Products", icon: "box", screen: "My Products" },
-            { label: " Negotiation", icon: "hands-helping", screen: "Seller Negotiation List" },
-            { label: "  Shop Performance", icon: "chart-line", screen: "Shop Performance" },
+            {
+              label: " Negotiation",
+              icon: "hands-helping",
+              screen: "Seller Negotiation List",
+            },
+            {
+              label: "  Shop Performance",
+              icon: "chart-line",
+              screen: "Shop Performance",
+            },
             { label: "    Bidding", icon: "file-contract", screen: "Bidding" },
-            { label: "  Seller FAQ", icon: "question-circle", screen: "Seller FAQ" }, // Added Seller FAQ
-            { label: " Chat Support", icon: "comments", action: handleChatSupportClick }, // Added Chat Support
+            {
+              label: "  Seller FAQ",
+              icon: "question-circle",
+              screen: "Seller FAQ",
+            }, // Added Seller FAQ
+            {
+              label: " Chat Support",
+              icon: "comments",
+              action: handleChatSupportClick,
+            }, // Added Chat Support
           ].map(({ label, icon, screen, action }) => (
             <TouchableOpacity
               key={label}
@@ -242,23 +283,29 @@ function ShopScreen({ navigation }) {
               onPress={() => {
                 if (label === "Negotiation") {
                   // Pass the dummyNegotiation and negotiationData only for the Negotiation screen
-                  navigation.navigate(screen, { dummyNegotiation, negotiationData });
+                  navigation.navigate(screen, {
+                    dummyNegotiation,
+                    negotiationData,
+                  });
                 } else if (action) {
                   action(); // Call the specific action for Chat Support
                 } else {
-                  navigation.navigate(screen, { information });
+                  navigation.navigate(screen);
                 }
               }}
             >
               <View className="flex-row items-center">
                 <FontAwesome5 name={icon} size={20} color="#00B251" />
-                <Text className="text-gray-800 font-semibold ml-4">{label}</Text>
+                <Text className="text-gray-800 font-semibold ml-4">
+                  {label}
+                </Text>
               </View>
               <FontAwesome5 name="chevron-right" size={20} color="gray" />
             </TouchableOpacity>
           ))}
         </View>
       </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
