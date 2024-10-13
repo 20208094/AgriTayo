@@ -1,17 +1,39 @@
 import React, { useState, useEffect } from "react";
-import { SafeAreaView, TextInput, View, TouchableOpacity, Text, Image, Alert } from "react-native";
+import {
+  SafeAreaView,
+  TextInput,
+  View,
+  TouchableOpacity,
+  Text,
+  Image,
+  Alert,
+} from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import { MaterialIcons } from '@expo/vector-icons';  // Import icon
+import { MaterialIcons } from "@expo/vector-icons"; // Import icon
 
 function AddBidScreen() {
+   // for inputs
+   const [shopId, setShopId] = useState('')
+   const [creationDate, setCreationDate] = useState('')
+   const [endDate, setEndDate] = useState('')
+   const [bidDescription, setBidDescription] = useState('')
+   const [bidName, setBidName] = useState('')
+   const [category, setCategory] = useState({})
+   const [subCategory, setSubCategory] = useState({})
+   const [bidStartingPrice, setBidStartingPrice] = useState('')
+   const [bidMinimumIncrement, setBidMinimumIcrement] = useState('')
+   const [bidCurrentHighest, setBidCurrentHighest] = useState('')
+   const [bidUserId, setBidUserId] = useState('')
+   const [numberOfBids, setNumberOfBids] = useState('')
   const [imageUri, setImageUri] = useState(null);
   const [hasPermission, setHasPermission] = useState(null);
 
   useEffect(() => {
     (async () => {
       // Request media library permissions
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      setHasPermission(status === 'granted');
+      const { status } =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+      setHasPermission(status === "granted");
     })();
   }, []);
 
@@ -22,11 +44,11 @@ function AddBidScreen() {
       [
         {
           text: "Camera",
-          onPress: () => selectImage('camera'),
+          onPress: () => selectImage("camera"),
         },
         {
           text: "Gallery",
-          onPress: () => selectImage('gallery'),
+          onPress: () => selectImage("gallery"),
         },
         {
           text: "Cancel",
@@ -38,7 +60,10 @@ function AddBidScreen() {
 
   const selectImage = async (source) => {
     if (!hasPermission) {
-      Alert.alert("Permission Denied", "You need to grant access to the media library to select images.");
+      Alert.alert(
+        "Permission Denied",
+        "You need to grant access to the media library to select images."
+      );
       return;
     }
 
@@ -49,7 +74,7 @@ function AddBidScreen() {
     };
 
     let result;
-    if (source === 'camera') {
+    if (source === "camera") {
       result = await ImagePicker.launchCameraAsync(options);
     } else {
       result = await ImagePicker.launchImageLibraryAsync(options);
@@ -83,7 +108,7 @@ function AddBidScreen() {
           keyboardType="numeric"
           className="border border-gray-300 p-3 mb-4 rounded-lg"
         />
-        
+
         <TouchableOpacity
           onPress={chooseImageSource}
           className="bg-[#00B251] p-4 rounded-lg flex items-center mb-4"
@@ -116,9 +141,7 @@ function AddBidScreen() {
           className="border border-gray-300 p-3 mb-4 rounded-lg"
         />
 
-        <TouchableOpacity
-          className="bg-[#00B251] p-4 rounded-lg flex items-center mt-4"
-        >
+        <TouchableOpacity className="bg-[#00B251] p-4 rounded-lg flex items-center mt-4">
           <Text className="text-white text-base">Add Bid</Text>
         </TouchableOpacity>
       </View>

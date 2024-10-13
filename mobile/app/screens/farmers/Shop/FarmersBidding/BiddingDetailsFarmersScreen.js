@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   SafeAreaView,
   View,
@@ -8,46 +8,23 @@ import {
   ScrollView,
   FlatList,
   Modal,
-  Dimensions
 } from "react-native";
-import { useWindowDimensions } from 'react-native';
+import { useWindowDimensions } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFocusEffect } from "@react-navigation/native";
 
 function BiddingDetailsFarmersScreen({ route }) {
-  const { item } = route.params;
+  const { bidding } = route.params;
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
 
-  // Convert initial time to seconds
-  const initialTimeInSeconds = item.day * 86400 + item.hour * 3600 + item.minutes * 60;
-  const [remainingTime, setRemainingTime] = useState(initialTimeInSeconds);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [selectedImage, setSelectedImage] = useState(null);
+  const [shopData, setShopData] = useState("");
+  const [shopId, setShopId] = useState("");
+  const [timeLeft, setTimeLeft] = useState({});
+  const [activeIndex, setActiveIndex] = useState(0); // Added activeIndex state for carousel
+  const [selectedImage, setSelectedImage] = useState(null); // State to manage modal image
+  const [isModalVisible, setIsModalVisible] = useState(false); // Modal visibility state
 
-  // useEffect to handle countdown logic
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setRemainingTime((prevTime) => {
-        if (prevTime <= 0) {
-          clearInterval(interval);
-          return 0;
-        }
-        return prevTime - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(interval); // Clear the interval on component unmount
-  }, []);
-
-  const formatTime = (totalSeconds) => {
-    const days = Math.floor(totalSeconds / 86400);
-    const hours = Math.floor((totalSeconds % 86400) / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = totalSeconds % 60;
-
-    return `${days}d ${hours}h ${minutes}m ${seconds}s`;
-  };
-
-  const carouselImages = [item.pic, item.pic, item.pic]; // Replace with actual image list
+  const carouselImages = [bidding.pic, bidding.pic, bidding.pic]; // Replace with actual image list
 
   const onViewRef = React.useRef((viewableItems) => {
     if (viewableItems?.changed?.length > 0) {
@@ -61,12 +38,68 @@ function BiddingDetailsFarmersScreen({ route }) {
     setIsModalVisible(true);
   };
 
+  const getAsyncShopData = async () => {
+    try {
+      const storedData = await AsyncStorage.getItem("shopData");
+
+      if (storedData) {
+        const parsedData = JSON.parse(storedData);
+
+        if (Array.isArray(parsedData)) {
+          const shop = parsedData[0];
+          setShopData(shop);
+          setShopId(shop.shop_id);
+        } else {
+          setUserData(parsedData);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to load user data:", error);
+    }
+  };
+
+  // Function to calculate the time left until the bid expires
+  const calculateTimeLeft = (endDate) => {
+    const now = new Date();
+    const end = new Date(endDate);
+    const difference = end - now;
+
+    let timeLeft = {};
+
+    if (difference > 0) {
+      timeLeft = {
+        days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+        minutes: Math.floor((difference / 1000 / 60) % 60),
+        seconds: Math.floor((difference / 1000) % 60),
+      };
+    } else {
+      timeLeft = { expired: true };
+    }
+
+    return timeLeft;
+  };
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft(calculateTimeLeft(bidding.end_date));
+    }, 1000);
+
+    return () => clearInterval(timer); // Cleanup timer on component unmount
+  }, [bidding.end_date]);
+
+  useFocusEffect(
+    useCallback(() => {
+      getAsyncShopData();
+    }, [])
+  );
+
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
       <View className="flex-1">
         {/* Background Image */}
         <Image
-          source={item.pic}
+          source={bidding.bid_image}
           className="absolute w-full h-[100%] object-cover -z-1"
           style={{ height: screenHeight * 0.7 }} // Dynamic height based on screen size
         />
@@ -77,20 +110,24 @@ function BiddingDetailsFarmersScreen({ route }) {
           <View className="bg-white/80 p-3 rounded-lg mx-5 mt-[45%] self-center w-[90%]">
             {/* Product Name and Details */}
             <Text className="text-center text-2xl font-bold text-gray-900">
-              {item.name}
+              {bidding.bid_name}
             </Text>
             <Text className="text-center text-lg text-gray-500 mt-2">
-              Sold by: {item.shopName}
+              Sold by: {shopData.shop_name}
             </Text>
 
             {/* Current Highest Bid */}
             <Text className="text-center text-xl font-semibold text-green-600 mt-4">
-              Current Highest Bid: ₱{item.currentHighestBid}
+              Current Highest Bid: ₱{bidding.bid_current_highest}
             </Text>
 
             {/* Timer */}
             <Text className="text-center text-xl font-semibold text-gray-900 mt-4">
-              {formatTime(remainingTime)}
+              {timeLeft.expired ? (
+                "Bid Expired"
+              ) : (
+                `${timeLeft.days}d ${timeLeft.hours}h ${timeLeft.minutes}m ${timeLeft.seconds}s`
+              )}
             </Text>
 
             {/* Carousel of images */}
@@ -111,7 +148,7 @@ function BiddingDetailsFarmersScreen({ route }) {
               className="mt-4 self-center"
               onViewableItemsChanged={onViewRef.current}
               viewabilityConfig={viewConfigRef.current}
-              contentContainerStyle={{ justifyContent: 'center' }}
+              contentContainerStyle={{ justifyContent: "center" }}
             />
 
             {/* Pagination */}
@@ -120,7 +157,7 @@ function BiddingDetailsFarmersScreen({ route }) {
                 <View
                   key={index}
                   className={`h-2 w-2 rounded-full mx-1 ${
-                    index === activeIndex ? 'bg-green-600' : 'bg-gray-300'
+                    index === activeIndex ? "bg-green-600" : "bg-gray-300"
                   }`}
                 />
               ))}
@@ -133,14 +170,18 @@ function BiddingDetailsFarmersScreen({ route }) {
               Product Details
             </Text>
             <Text className="text-base text-gray-600 leading-6">
-              {item.description}
+              {bidding.bid_description}
             </Text>
           </View>
         </ScrollView>
 
         {/* Modal for Full-Screen Image */}
         {selectedImage && (
-          <Modal visible={isModalVisible} transparent={true} animationType="fade">
+          <Modal
+            visible={isModalVisible}
+            transparent={true}
+            animationType="fade"
+          >
             <TouchableOpacity
               className="flex-1 bg-black/90 justify-center items-center"
               onPress={() => setIsModalVisible(false)}
