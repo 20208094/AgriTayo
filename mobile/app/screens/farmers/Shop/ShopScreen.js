@@ -246,7 +246,7 @@ function ShopScreen({ navigation }) {
                 } else if (action) {
                   action(); // Call the specific action for Chat Support
                 } else {
-                  navigation.navigate(screen, { information });
+                  navigation.navigate(screen);
                 }
               }}
             >
