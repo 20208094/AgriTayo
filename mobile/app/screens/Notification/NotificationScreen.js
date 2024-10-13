@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { View, ScrollView, Text, TouchableOpacity, Modal, TextInput } from "react-native"; 
+import { View, ScrollView, Text, TouchableOpacity, Modal, TextInput } from "react-native";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import ReadScreen from "../Message/ReadScreen";
 import UnreadScreen from "../Message/UnreadScreen";
 import Icon from "react-native-vector-icons/FontAwesome";
-import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from '@env';  
+import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from '@env';
 import { styled } from 'nativewind';
 
 const Tab = createMaterialTopTabNavigator();
@@ -30,10 +30,14 @@ function NotificationScreen() {
           throw new Error("Network response was not ok");
         }
         const data = await response.json();
-        
-        // Split notifications into read and unread
-        const unread = data.filter((notif) => !notif.is_read);
-        const read = data.filter((notif) => notif.is_read);
+
+        const unread = data
+          .filter((notif) => !notif.is_read)
+          .sort((a, b) => b.notification_id - a.notification_id);
+
+        const read = data
+          .filter((notif) => notif.is_read)
+          .sort((a, b) => b.notification_id - a.notification_id);
 
         setUnreadNotifications(unread);
         setReadNotifications(read);
@@ -53,15 +57,15 @@ function NotificationScreen() {
       const lowerSearchText = searchText.toLowerCase();
 
       setFilteredUnreadNotifications(
-        unreadNotifications.filter((notif) => 
-          (notif.title && notif.title.toLowerCase().includes(lowerSearchText)) || 
+        unreadNotifications.filter((notif) =>
+          (notif.title && notif.title.toLowerCase().includes(lowerSearchText)) ||
           (notif.message && notif.message.toLowerCase().includes(lowerSearchText))
         )
       );
 
       setFilteredReadNotifications(
-        readNotifications.filter((notif) => 
-          (notif.title && notif.title.toLowerCase().includes(lowerSearchText)) || 
+        readNotifications.filter((notif) =>
+          (notif.title && notif.title.toLowerCase().includes(lowerSearchText)) ||
           (notif.message && notif.message.toLowerCase().includes(lowerSearchText))
         )
       );
