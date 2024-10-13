@@ -59,8 +59,11 @@ function OrdersScreen({ route }) {
 
       if (ordersResponse.ok) {
         const allOrds = await ordersResponse.json();
-        const updatedOrders = allOrds.filter(order => order.user_id === userData.user_id);
+        const updatedOrders = allOrds
+          .filter(order => order.user_id === userData.user_id)
+          .sort((a, b) => b.order_id - a.order_id);
         setOrders(updatedOrders);
+
       } else {
         console.error('Failed to fetch orders:', ordersResponse.statusText);
       }
@@ -84,7 +87,7 @@ function OrdersScreen({ route }) {
     };
 
     fetchData();
-  }, []); 
+  }, []);
 
   useEffect(() => {
     let interval;
@@ -120,34 +123,34 @@ function OrdersScreen({ route }) {
 
           switch (route.name) {
             case "To Confirm":
-              iconName = "hourglass-outline"; 
+              iconName = "hourglass-outline";
               break;
             case "Preparing":
-              iconName = "cog-outline"; 
+              iconName = "cog-outline";
               break;
             case "Shipping":
-              iconName = "car-sharp"; 
+              iconName = "car-sharp";
               break;
             case "Pickup":
-              iconName = "logo-dropbox"; 
+              iconName = "logo-dropbox";
               break;
             case "For Return":
-              iconName = "return-up-back-outline"; 
+              iconName = "return-up-back-outline";
               break;
             case "Returned":
-              iconName = "checkmark-circle-outline"; 
+              iconName = "checkmark-circle-outline";
               break;
             case "To Rate":
-              iconName = "star-outline"; 
+              iconName = "star-outline";
               break;
             case "Completed":
-              iconName = "checkmark-done-outline"; 
+              iconName = "checkmark-done-outline";
               break;
             case "Rejected":
-              iconName = "close-circle-sharp"; 
+              iconName = "close-circle-sharp";
               break;
             default:
-              iconName = "ellipse-outline"; 
+              iconName = "ellipse-outline";
               break;
           }
 

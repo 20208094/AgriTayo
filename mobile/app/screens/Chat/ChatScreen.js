@@ -176,7 +176,7 @@ function ChatScreen({ route }) {
       try {
         const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/chats`, {
           method: 'POST',
-          headers: { "x-api-key": REACT_NATIVE_API_KEY },  // No explicit Content-Type for FormData
+          headers: { "x-api-key": REACT_NATIVE_API_KEY },
           body: formData,
         });
 

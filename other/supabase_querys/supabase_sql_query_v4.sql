@@ -143,6 +143,7 @@ CREATE TABLE orders (
     allow_return BOOLEAN DEFAULT NULL,
     order_type VARCHAR(50),
     shipping_method VARCHAR(50),
+    payment_method VARCHAR(50),
     reject_reason TEXT,
     return_reason TEXT,
     reject_date TIMESTAMP DEFAULT NULL,
@@ -322,15 +323,19 @@ CREATE TABLE biddings (
     bid_current_highest DECIMAL(10, 2) DEFAULT 0,
     bid_user_id INT,
     number_of_bids INT DEFAULT 0,
+    bid_ammount INT,
+    metric_system_id INT
     FOREIGN KEY (shop_id) REFERENCES shop(shop_id) ON DELETE CASCADE,
     FOREIGN KEY (bid_subcategory_id) REFERENCES crop_sub_category(crop_sub_category_id) ON DELETE SET NULL,
     FOREIGN KEY (bid_user_id) REFERENCES users(user_id) ON DELETE SET NULL,
+    FOREIGN KEY (metric_system_id) REFERENCES metric_system(metric_system_id) ON DELETE SET NULL,
     FOREIGN KEY (bid_winner_user_id) REFERENCES users(user_id) ON DELETE SET NULL
 );
 
 CREATE INDEX idx_biddings_shop_id ON biddings(shop_id);
 CREATE INDEX idx_biddings_subcategory_id ON biddings(bid_subcategory_id);
 CREATE INDEX idx_biddings_user_id ON biddings(bid_user_id);
+CREATE INDEX idx_biddings_metric_system_id ON biddings(metric_system_id);
 CREATE INDEX idx_biddings_winner_user_id ON biddings(bid_winner_user_id);
 
 

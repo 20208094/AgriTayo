@@ -67,8 +67,10 @@ function ViewSalesHistoryScreen({ route }) {
       ]);
 
       if (ordersResponse.ok) {
-        const allOrds = await ordersResponse.json();
-        const updatedOrders = allOrds.filter(order => order.shop_id === shopData.shop_id);
+        const allOrds = await ordersResponse.json();        
+        const updatedOrders = allOrds
+          .filter(order => order.shop_id === shopData.shop_id)
+          .sort((a, b) => b.order_id - a.order_id);
         setOrders(updatedOrders);
       } else {
         console.error('Failed to fetch orders:', ordersResponse.statusText);

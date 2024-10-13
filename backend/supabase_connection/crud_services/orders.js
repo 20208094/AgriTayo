@@ -21,10 +21,12 @@ async function getOrders(req, res) {
 
 async function addOrder(req, res) {
     try {
-        const { total_price, total_weight, status_id, user_id, order_metric_system_id } = req.body;
+        const { total_price, total_weight, status_id, user_id, shop_id, order_metric_system_id, order_type, shipping_method, payment_method } = req.body;
+
         const { data, error } = await supabase
             .from('orders')
-            .insert([{ total_price, total_weight, status_id, user_id, order_metric_system_id }]);
+            .insert([{ total_price, total_weight, status_id, user_id, shop_id, order_metric_system_id, order_type, shipping_method, payment_method }])
+            .select(); 
 
         if (error) {
             console.error('Supabase query failed:', error.message);

@@ -18,9 +18,9 @@ function ProductDetailsScreen({ navigation, route }) {
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [shopData, setShopData] = useState([null]);
   const [shopProducts, setShopProducts] = useState([null]);
+  const [cropData, setCropData] = useState([]);
 
   const getAsyncUserData = async () => {
-    setLoading(true);
     try {
       const storedData = await AsyncStorage.getItem('userData');
 
@@ -38,43 +38,27 @@ function ProductDetailsScreen({ navigation, route }) {
       }
     } catch (error) {
       console.error('Failed to load user data:', error);
-    } finally {
-      setLoading(false);
     }
   };
 
-  useFocusEffect(
-    React.useCallback(() => {
-      getAsyncUserData();
-      fetchShopData();
-    }, [product])
-  );
+  const [shopInfo, setShopInfo] = useState({
+    shop_name: 'Unknown Shop',
+    shop_image_url: null,
+  });
 
-  useFocusEffect(
-    React.useCallback(() => {
-      fetchRelatedProducts();
-    }, [product.sub_category_id, shopData])
-  );
+  // Once shopData is populated, find the correct shop info
+  useEffect(() => {
+    if (shopData && Array.isArray(shopData)) {
+      const currentShop = shopData.find(shop => shop && shop.shop_id === product.shop_id);
 
-
-const [shopInfo, setShopInfo] = useState({
-  shop_name: 'Unknown Shop',
-  shop_image_url: null,
-});
-
-// Once shopData is populated, find the correct shop info
-useEffect(() => {
-  if (shopData && Array.isArray(shopData)) {
-    const currentShop = shopData.find(shop => shop && shop.shop_id === product.shop_id);
-
-    if (currentShop) {
-      setShopInfo({
-        shop_name: currentShop.shop_name || 'Unknown Shop',
-        shop_image_url: currentShop.shop_image_url || null,
-      });
+      if (currentShop) {
+        setShopInfo({
+          shop_name: currentShop.shop_name || 'Unknown Shop',
+          shop_image_url: currentShop.shop_image_url || null,
+        });
+      }
     }
-  }
-}, [shopData, product.shop_id]); // Dependency array to trigger when shopData changes
+  }, [shopData, product.shop_id]);
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -93,7 +77,7 @@ useEffect(() => {
 
   const handleShopPress = async () => {
     if (!product) return; // Ensure that the product exists
-  
+
     try {
       // Fetch shop data first
       const shopResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/shops`, {
@@ -103,17 +87,17 @@ useEffect(() => {
       });
       const shopData = await shopResponse.json();
       setShopData(shopData);
-  
+
       // Check if the shop related to the product exists
       const shop = shopData.find((s) => s && s.shop_id === product.shop_id);
-  
+
       if (shop) {
         // Add fallback for followers if it's not available
         const shopInfo = {
           ...shop,
           followers: shop.followers || 0,  // Ensure followers is set, even if missing from API
         };
-  
+
         // Navigate to the Seller Shop with the product and shop information
         navigation.navigate('Seller Shop', { product, shop: shopInfo });
       } else {
@@ -124,8 +108,6 @@ useEffect(() => {
       alert('Failed to load shop information.');
     }
   };
-  
-  
 
   const handleNegotiatePress = () => {
     navigation.navigate('Buyer Negotiation');
@@ -136,11 +118,12 @@ useEffect(() => {
   };
 
   const handleAddToCart = async () => {
-    const cart_total_price = quantity * product.crop_price;
+    setLoading(true);
+    const cart_total_price = quantity * displayedProduct.crop_price;
     const cart_total_quantity = quantity;
     const cart_user_id = userId;
-    const cart_crop_id = product.crop_id;
-    const cart_metric_system_id = product.metric_system_id;
+    const cart_crop_id = displayedProduct.crop_id;
+    const cart_metric_system_id = displayedProduct.metric_system_id;
 
     const formData = {
       cart_total_price,
@@ -149,6 +132,7 @@ useEffect(() => {
       cart_crop_id,
       cart_metric_system_id,
     };
+    console.log('formData :', formData);
 
     try {
       const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/carts`, {
@@ -162,9 +146,12 @@ useEffect(() => {
 
       if (!response.ok) {
         throw new Error('Failed to add item to cart');
+        setLoading(false);
+      } else {
+        navigation.navigate('CartScreen');
+        setQuantity(1)
+        setLoading(false);
       }
-
-      navigation.navigate('CartScreen');
 
     } catch (error) {
       console.error('Error adding item to cart:', error);
@@ -175,7 +162,7 @@ useEffect(() => {
     try {
       // Fetch related products based on sub_category_id
       const response = await fetch(
-        `${REACT_NATIVE_API_BASE_URL}/api/crops?sub_category_id=${product.sub_category_id}`,
+        `${REACT_NATIVE_API_BASE_URL}/api/crops`,
         {
           headers: {
             "x-api-key": REACT_NATIVE_API_KEY,
@@ -183,34 +170,32 @@ useEffect(() => {
         }
       );
       const data = await response.json();
-      
+
       // Check if shopData exists and is an array
-      if (shopData && Array.isArray(shopData)) {
+      if (displayedProduct && shopData && Array.isArray(shopData)) {
         const filteredProducts = data.filter(
-          (relatedProduct) => relatedProduct.sub_category_id === product.sub_category_id
+          (relatedProduct) => relatedProduct.sub_category_id === displayedProduct.sub_category_id && relatedProduct.crop_id != displayedProduct.crop_id
         );
-  
+
         // Map through the related products and add the shop_name where shop_id matches
         const updatedRelatedProducts = filteredProducts.map((relatedProduct) => {
           const shop = shopData.find((s) => s && s.shop_id === relatedProduct.shop_id);
           return {
             ...relatedProduct,
-            shop_name: shop ? shop.shop_name : 'Unknown Shop', // Add shop_name or 'Unknown Shop' if no match
+            shop_name: shop ? shop.shop_name : 'Unknown Shop',
           };
         });
-  
-        setRelatedProducts(updatedRelatedProducts); // Set updated related products
+
+        setRelatedProducts(updatedRelatedProducts);
       }
     } catch (error) {
       console.error("Error fetching related products:", error);
     }
   };
-  
-  
 
   const fetchShopData = async () => {
     if (!product) return;  // Ensure that the product exists
-  
+
     try {
       // Fetch shop data first
       const shopResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/shops`, {
@@ -220,7 +205,7 @@ useEffect(() => {
       });
       const shopData = await shopResponse.json();
       setShopData(shopData);
-  
+
       // Fetch related products based on the current product's sub_category_id
       const relatedProductsResponse = await fetch(
         `${REACT_NATIVE_API_BASE_URL}/api/crops?sub_category_id=${product.sub_category_id}`,
@@ -231,7 +216,7 @@ useEffect(() => {
         }
       );
       const relatedProductsData = await relatedProductsResponse.json();
-  
+
       // Check if shopData exists and is an array
       if (shopData && Array.isArray(shopData)) {
         // Update each related product with shop information based on shop_id
@@ -239,179 +224,217 @@ useEffect(() => {
           const shop = shopData.find((s) => s && s.shop_id === relatedProduct.shop_id);
           return {
             ...relatedProduct,
-            shop_name: shop ? shop.shop_name : 'Unknown Shop',  // Add shop_name or 'Unknown Shop' if no match
+            shop_name: shop ? shop.shop_name : 'Unknown Shop',
           };
         });
-  
-        // Set the updated related products in the state
         setShopProducts(updatedProducts);
       }
     } catch (error) {
       console.error("Error fetching shop or related products:", error);
     }
   };
-  
 
-  // Now use the fetchShopData inside useFocusEffect
+  const fetchCropData = async () => {
+    if (!product) return;
+
+    try {
+      const cropResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crops`, {
+        headers: {
+          "x-api-key": REACT_NATIVE_API_KEY,
+        },
+      });
+      const cropsData = await cropResponse.json();
+      const newCrop = cropsData.filter(crop => crop.crop_id === product.crop_id)
+      setCropData(newCrop);
+    } catch (error) {
+      console.error("Error fetching shop or related products:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (cropData && cropData.length > 0) {
+      setLoading(false);
+    }
+  }, [cropData]);
+
+  const displayedProduct = cropData ? cropData[0] : product;
+
   useFocusEffect(
     React.useCallback(() => {
-      fetchShopData();  // No need to pass product; it is accessed inside fetchShopData
+      getAsyncUserData();
+      fetchCropData();
     }, [product])
   );
 
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchShopData();
+    }, [displayedProduct])
+  );
 
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchRelatedProducts();
+    }, [displayedProduct, shopData])
+  );
 
   const toggleModal = () => {
     setIsModalVisible(!isModalVisible);
   };
 
-  return (
-    <View className="flex-1">
-      <ScrollView contentContainerStyle={{ paddingBottom: 80 }} className="bg-white p-2.5">
-        <Modal visible={isModalVisible} transparent={true} animationType="fade">
-          <Pressable className="flex-1 bg-black bg-opacity-90 justify-center items-center" onPress={toggleModal}>
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text>Loading product...</Text>
+      </View>
+    );
+  }
+
+  if (!loading) {
+    return (
+      <View className="flex-1">
+        <ScrollView contentContainerStyle={{ paddingBottom: 80 }} className="bg-white p-2.5">
+          <Modal visible={isModalVisible} transparent={true} animationType="fade">
+            <Pressable className="flex-1 bg-black bg-opacity-90 justify-center items-center" onPress={toggleModal}>
+              <Image
+                source={product.crop_image_url ? { uri: product.crop_image_url } : placeholderimg}
+                className="w-full h-full"
+                resizeMode="contain"
+              />
+            </Pressable>
+          </Modal>
+
+          <TouchableOpacity onPress={toggleModal}>
             <Image
               source={product.crop_image_url ? { uri: product.crop_image_url } : placeholderimg}
-              className="w-full h-full"
-              resizeMode="contain"
+              className="w-full h-80 rounded-lg mb-2.5"
             />
-          </Pressable>
-        </Modal>
+          </TouchableOpacity>
 
-        <TouchableOpacity onPress={toggleModal}>
-          <Image
-            source={product.crop_image_url ? { uri: product.crop_image_url } : placeholderimg}
-            className="w-full h-80 rounded-lg mb-2.5"
-          />
-        </TouchableOpacity>
-
-        <View className="px-2.5">
-          <View className="flex-row justify-between items-center mb-2.5">
-            <Text className="text-xl font-bold">{product.crop_name}</Text>
-            <Text className="text-lg text-[#00B251] font-bold">₱ {product.crop_price}</Text>
-          </View>
-          <Text className="text-base text-[#00B251] mb-2.5 font-bold">Available in stock</Text>
-          <View className="flex-row justify-between items-center mb-2.5">
-            <Text className="text-base text-gray-700">⭐ {product.crop_rating} (192)</Text>
-            <View className="flex-row items-center mb-2.5">
-              <TouchableOpacity
-                className="border border-green-600 bg-white p-2.5 rounded-lg"
-                onPress={decreaseQuantity}
-              >
-                <Text className="text-lg font-bold text-green-600">-</Text>
-              </TouchableOpacity>
-              <Text className="text-lg mx-2.5">{quantity} pcs</Text>
-              <TouchableOpacity
-                className="border border-green-600 bg-white p-2.5 rounded-lg"
-                onPress={increaseQuantity}
-              >
-                <Text className="text-lg font-bold text-green-600">+</Text>
-              </TouchableOpacity>
+          <View className="px-2.5">
+            <View className="flex-row justify-between items-center mb-2.5">
+              <Text className="text-xl font-bold">{displayedProduct.crop_name}</Text>
+              <Text className="text-lg text-[#00B251] font-bold">₱ {displayedProduct.crop_price}</Text>
             </View>
-          </View>
-          <Text className="text-lg font-bold mb-2.5">Description</Text>
-          <Text className="text-base text-gray-700 mb-5">{product.crop_description}</Text>
-
-          <View className="border border-green-600 flex-row items-center justify-between border p-3 rounded-lg mb-5">
-            <View className="flex-row items-center ">
-              <TouchableOpacity onPress={handleShopPress}>
-                <Image
-                  source={shopInfo.shop_image_url ? { uri: shopInfo.shop_image_url } : placeholderimg}
-                  className="w-20 h-20 rounded-full"
-                  resizeMode="cover"
-                />
-              </TouchableOpacity>
-              <View className="ml-1">
-                <TouchableOpacity onPress={handleShopPress}>
-                  <Text className="text-lg font-bold">{shopInfo.shop_name}</Text>
+            <Text className="text-base text-[#00B251] mb-2.5 font-bold">Available in stock</Text>
+            <View className="flex-row justify-between items-center mb-2.5">
+              <Text className="text-base text-gray-700">⭐ {displayedProduct.crop_rating} (192)</Text>
+              <View className="flex-row items-center mb-2.5">
+                <TouchableOpacity
+                  className="border border-green-600 bg-white p-2.5 rounded-lg"
+                  onPress={decreaseQuantity}
+                >
+                  <Text className="text-lg font-bold text-green-600">-</Text>
                 </TouchableOpacity>
-                <Text className="text-gray-500 text-sm">4.7 ⭐ (512 reviews)</Text>
+                <Text className="text-lg mx-2.5">{quantity} pcs</Text>
+                <TouchableOpacity
+                  className="border border-green-600 bg-white p-2.5 rounded-lg"
+                  onPress={increaseQuantity}
+                >
+                  <Text className="text-lg font-bold text-green-600">+</Text>
+                </TouchableOpacity>
               </View>
             </View>
-            <View className="space-x-2 gap-2.5">
-              <TouchableOpacity
-                className="bg-white border border-green-600 px-3 py-1 rounded-md items-center flex-row"
-                onPress={handleNegotiatePress}
-              >
-                <FontAwesome name="balance-scale" size={16} color="#00B251" />
-                <Text className="text-green-600 ml-2 text-xs">Negotiate</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                className="bg-[#00B251] px-3 py-1 rounded-md items-center flex-row"
-                onPress={handleMessagePress}
-              >
-                <FontAwesome name="comment" size={16} color="#FFF" />
-                <Text className="text-white ml-1 text-xs">Message Seller</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
+            <Text className="text-lg font-bold mb-2.5">Description</Text>
+            <Text className="text-base text-gray-700 mb-5">{displayedProduct.crop_description}</Text>
 
-          {/* Display Related Products */}
-          <Text className="text-lg font-bold mb-2.5">Related Products</Text>
-          <ScrollView horizontal={true} className="mb-2.5">
-            {relatedProducts.map((relatedProduct) => (
-              <View key={relatedProduct.crop_id} className="mr-5">
-                <TouchableOpacity
-                  onPress={() => navigation.navigate("Product Details", { product: relatedProduct })}
-                  className="w-40 bg-white border border-gray-200 rounded-lg"
-                >
+            <View className="border border-green-600 flex-row items-center justify-between p-3 rounded-lg mb-5">
+              <View className="flex-row items-center ">
+                <TouchableOpacity onPress={handleShopPress}>
                   <Image
-                    source={relatedProduct.crop_image_url ? { uri: relatedProduct.crop_image_url } : placeholderimg}
-                    className="w-full h-28 rounded-t-lg"
+                    source={shopInfo.shop_image_url ? { uri: shopInfo.shop_image_url } : placeholderimg}
+                    className="w-20 h-20 rounded-full"
                     resizeMode="cover"
                   />
-                  <View className="p-2.5">
-                    <Text className="text-sm font-bold" numberOfLines={1}>{relatedProduct.crop_name}</Text>
-                    <Text className="text-sm text-[#00B251] font-bold">₱ {(relatedProduct.crop_price).toFixed(2)} / kg</Text>
-                    <Text className="text-xs">⭐ {relatedProduct.crop_rating || 0}</Text>
-                    <Text className="text-xs" numberOfLines={1}>Sold by: {relatedProduct.shop_name}</Text>
-                  </View>
+                </TouchableOpacity>
+                <View className="ml-1">
+                  <TouchableOpacity onPress={handleShopPress}>
+                    <Text className="text-lg font-bold">{shopInfo.shop_name}</Text>
+                  </TouchableOpacity>
+                  <Text className="text-gray-500 text-sm">4.7 ⭐ (512 reviews)</Text>
+                </View>
+              </View>
+              <View className="space-x-2 gap-2.5">
+                <TouchableOpacity
+                  className="bg-white border border-green-600 px-3 py-1 rounded-md items-center flex-row"
+                  onPress={handleNegotiatePress}
+                >
+                  <FontAwesome name="balance-scale" size={16} color="#00B251" />
+                  <Text className="text-green-600 ml-2 text-xs">Negotiate</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  className="bg-[#00B251] px-3 py-1 rounded-md items-center flex-row"
+                  onPress={handleMessagePress}
+                >
+                  <FontAwesome name="comment" size={16} color="#FFF" />
+                  <Text className="text-white ml-1 text-xs">Message Seller</Text>
                 </TouchableOpacity>
               </View>
-            ))}
-          </ScrollView>
+            </View>
 
+            {/* Display Related Products */}
+            <Text className="text-lg font-bold mb-2.5">Related Products</Text>
+            <ScrollView horizontal={true} className="mb-2.5">
+              {relatedProducts.map((relatedProduct) => (
+                <View key={relatedProduct.crop_id} className="mr-5">
+                  <TouchableOpacity
+                    onPress={() => navigation.navigate("Product Details", { product: relatedProduct })}
+                    className="w-40 bg-white border border-gray-200 rounded-lg"
+                  >
+                    <Image
+                      source={relatedProduct.crop_image_url ? { uri: relatedProduct.crop_image_url } : placeholderimg}
+                      className="w-full h-28 rounded-t-lg"
+                      resizeMode="cover"
+                    />
+                    <View className="p-2.5">
+                      <Text className="text-sm font-bold" numberOfLines={1}>{relatedProduct.crop_name}</Text>
+                      <Text className="text-sm text-[#00B251] font-bold">₱ {(relatedProduct.crop_price).toFixed(2)} / kg</Text>
+                      <Text className="text-xs">⭐ {relatedProduct.crop_rating || 0}</Text>
+                      <Text className="text-xs" numberOfLines={1}>Sold by: {relatedProduct.shop_name}</Text>
+                    </View>
+                  </TouchableOpacity>
+                </View>
+              ))}
+            </ScrollView>
+
+          </View>
+        </ScrollView>
+
+        {/* Enhanced Sticky Bottom Bar */}
+        <View className="absolute bottom-0 left-0 right-0 bg-white flex-row mb-1 h-12 px-1">
+          <TouchableOpacity
+            className="flex-1 w-12 items-center justify-center border border-green-600 bg-green-100 rounded-lg"
+            onPress={handleMessagePress}
+          >
+            <FontAwesome name="comment" size={20} color="#00B251" />
+          </TouchableOpacity>
+
+          {/* Separator */}
+          <View className="w-1 bg-white" />
+
+          <TouchableOpacity
+            className="flex-1 flex-row items-center justify-center border border-green-600 rounded-lg"
+            onPress={handleNegotiatePress}
+          >
+            <FontAwesome name="balance-scale" size={20} color="#00B251" />
+          </TouchableOpacity>
+
+          {/* Separator */}
+          <View className="w-1 bg-white" />
+
+          <TouchableOpacity
+            className="flex-1 flex-row items-center justify-center border border-green-600 bg-green-600 rounded-lg"
+            onPress={handleAddToCart}
+            style={{ paddingVertical: 10, minWidth: 150 }}
+          >
+            <FontAwesome name="shopping-cart" size={20} color="white" />
+            <Text className="text-white font-bold text-mg ml-2">Add to Cart</Text>
+          </TouchableOpacity>
         </View>
-      </ScrollView>
-
-      {/* Enhanced Sticky Bottom Bar */}
-      <View className="absolute bottom-0 left-0 right-0 bg-white flex-row mb-1" style={{ height: 45 }}>
-        <TouchableOpacity
-          className="flex-1 flex-row items-center justify-center border border-green-600"
-          onPress={handleMessagePress}
-          style={{ paddingVertical: 10, minWidth: 20 }}
-        >
-          <FontAwesome name="comment" size={20} color="#00B251" />
-          <Text className="text-[#00B251] font-bold text-mg ml-2">Message</Text>
-        </TouchableOpacity>
-
-        {/* Separator */}
-        <View className="w-0.5 bg-white" />
-
-        <TouchableOpacity
-          className="flex-1 flex-row items-center justify-center border border-green-600"
-          onPress={handleNegotiatePress}
-          style={{ paddingVertical: 10, minWidth: 20 }}
-        >
-          <FontAwesome name="balance-scale" size={20} color="#00B251" />
-          <Text className="text-[#00B251] font-bold text-mg ml-2">Negotiate</Text>
-        </TouchableOpacity>
-
-        {/* Separator */}
-        <View className="w-0.5 bg-white" />
-
-        <TouchableOpacity
-          className="flex-1 flex-row items-center justify-center border border-green-600 bg-green-600"
-          onPress={handleAddToCart}
-          style={{ paddingVertical: 10, minWidth: 100 }}
-        >
-          <FontAwesome name="shopping-cart" size={20} color="white" />
-          <Text className="text-white font-bold text-mg ml-2">Add to Cart</Text>
-        </TouchableOpacity>
       </View>
-    </View>
 
-  );
+    );
+  }
 }
 
 export default ProductDetailsScreen;

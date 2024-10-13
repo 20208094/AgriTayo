@@ -62,7 +62,6 @@ function CartScreen() {
     } catch (error) {
       console.error('Failed to load user data:', error);
     } finally {
-      setLoading(false); // Set loading to false when done
     }
   };
 
@@ -130,6 +129,7 @@ function CartScreen() {
         cart_metric_system_id: cart.cart_metric_system_id,
         // Include crop data as part of the cart object
         crop_name: cart.crop.crop_name,
+        shop_id: cart.crop.shop_id,
         crop_price: cart.crop.crop_price,
         crop_image_url: cart.crop.crop_image_url,
         crop_description: cart.crop.crop_description,
@@ -147,7 +147,7 @@ function CartScreen() {
   };
 
   const initializeData = async () => {
-    // Ensure userId is available before fetching data
+    // setLoading(true);
     if (userId) {
       try {
         const [fetchedShops, fetchedCrops, fetchedCarts] = await Promise.all([
@@ -167,6 +167,7 @@ function CartScreen() {
             const matchingCrop = cropsForShop.find((crop) => crop.crop_id === cart.cart_crop_id);
             return {
               crop_id: cart.cart_crop_id,
+              shop_id: cart.shop_id,
               cart_id: cart.cart_id,
               cart_crop_id: cart.cart_crop_id,
               crop_name: cart.crop_name,
@@ -193,8 +194,14 @@ function CartScreen() {
         // Filter out shops that have null, undefined, or empty items arrays
         const filteredShops = combinedShops.filter((shop) => shop.items && shop.items.length > 0);
 
-        // Set the filtered shops data to state
-        setShops(filteredShops);
+        const sortedShops = filteredShops.map((shop) => ({
+          ...shop,
+          items: shop.items.sort((a, b) => a.cart_id - b.cart_id)
+      }));
+      
+      setShops(sortedShops);
+      setLoading(false);
+
       } catch (error) {
         console.error("Error initializing data:", error);
         Alert.alert("Error", "Failed to initialize cart data. Please try again later.");
@@ -204,11 +211,13 @@ function CartScreen() {
     }
   };
 
-  useEffect(() => {
-    if (userId) {
-      initializeData(); // Fetch and initialize data once userId is available
-    }
-  }, [userId]);
+  useFocusEffect(
+    React.useCallback(() => {
+      if (userId) {
+        initializeData();
+      }
+    }, [userId])
+  );
 
   const toggleShopSelection = (shopIndex) => {
     const updatedShops = shops.map((shop, sIndex) => {
@@ -227,85 +236,92 @@ function CartScreen() {
     });
     setShops(updatedShops);
   };
-  
 
   const updateCartOnBackend = async (cart, newQuantity) => {
     try {
-        console.log('Attempting to update cart:', {
-            cart_id: cart.cart_id,
-            cart_total_quantity: newQuantity,
-            cart_user_id: cart.cart_user_id,
-            cart_crop_id: cart.cart_crop_id,
-            cart_metric_system_id: cart.cart_metric_system_id
-        });
-
-        const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/carts/${cart.cart_id}`, {
-            method: 'PUT',
-            headers: {
-                "Content-Type": "application/json",
-                "x-api-key": REACT_NATIVE_API_KEY,
-            },
-            body: JSON.stringify({
-                cart_id: cart.cart_id,
-                cart_total_quantity: newQuantity,
-                cart_user_id: cart.cart_user_id,
-                cart_crop_id: cart.cart_crop_id,
-                cart_metric_system_id: cart.cart_metric_system_id
-            }),
-        });
-
-        // Log response status
-        console.log('Response status:', response.status);
-        
-        if (!response.ok) {
-            const errorBody = await response.text(); // Read response body for debugging
-            console.error('Response not ok:', errorBody);
-            throw new Error('Failed to update cart on backend');
-        }
-
-        console.log('Cart updated successfully');
-    } catch (error) {
-        console.error('Error updating cart:', error);
-        Alert.alert("Error", "Could not update cart, please try again.");
-    }
-};
-
-const updateQuantity = async () => {
-  if (selectedItem) {
-    const updatedQuantity = newQuantity;
-
-    // Update the local state
-    const updatedShops = shops.map((shop) => {
-      return {
-        ...shop,
-        items: shop.items.map((itm) => {
-          if (itm.cart_id === selectedItem.cart_id) {
-            return { ...itm, cart_total_quantity: updatedQuantity };
-          }
-          return itm;
+      const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/carts/${cart.cart_id}`, {
+        method: 'PUT',
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": REACT_NATIVE_API_KEY,
+        },
+        body: JSON.stringify({
+          cart_id: cart.cart_id,
+          cart_total_quantity: newQuantity,
+          cart_user_id: cart.cart_user_id,
+          cart_crop_id: cart.cart_crop_id,
+          cart_metric_system_id: cart.cart_metric_system_id
         }),
-      };
-    });
+      });
 
-    setShops(updatedShops);
-    await updateCartOnBackend(selectedItem, updatedQuantity); // Update backend
-    setModalVisible(false); // Hide modal after update
-  }
-};
+      if (!response.ok) {
+        const errorBody = await response.text(); // Read response body for debugging
+        console.error('Response not ok:', errorBody);
+        throw new Error('Failed to update cart on backend');
+      }
+    } catch (error) {
+      console.error('Error updating cart:', error);
+      Alert.alert("Error", "Could not update cart, please try again.");
+    }
+  };
+
+  const deleteCartOnBackend = async (cart) => {
+    try {
+      const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/carts/${cart.cart_id}`, {
+        method: 'DELETE',
+        headers: {
+          "x-api-key": REACT_NATIVE_API_KEY,
+        },
+      });
+
+      if (!response.ok) {
+        const errorBody = await response.text();
+        console.error('Response not ok:', errorBody);
+        throw new Error('Failed to delete cart on backend');
+      }
+    } catch (error) {
+      console.error('Error updating cart:', error);
+      Alert.alert("Error", "Could not delete cart, please try again.");
+    }
+  };
+
+  const updateQuantity = async () => {
+    // setLoading(true);
+    if (selectedItem) {
+      const updatedQuantity = newQuantity;
+
+      // Update the local state
+      const updatedShops = shops.map((shop) => {
+        return {
+          ...shop,
+          items: shop.items.map((itm) => {
+            if (itm.cart_id === selectedItem.cart_id) {
+              return { ...itm, cart_total_quantity: updatedQuantity };
+            }
+            return itm;
+          }),
+        };
+      });
+      setShops(updatedShops);
+      await updateCartOnBackend(selectedItem, updatedQuantity);
+      // initializeData();
+      setModalVisible(false);
+      // setLoading(false);
+    }
+  };
 
   const renderItem = ({ item, shopIndex, itemIndex }) => {
     let swipeableRef = null;
 
     const editItem = () => {
       setSelectedItem(item);
-      setNewQuantity(item.cart_total_quantity); // Set the current quantity
-      setModalVisible(true); // Show modal
+      setNewQuantity(item.cart_total_quantity);
+      setModalVisible(true);
       swipeableRef.close();
     };
 
     const deleteItem = () => {
-      Alert.alert("Delete Item", `Deleting item: ${item.crop_name}`);
-      swipeableRef.close();
+      setSelectedItem(item);
       const updatedShops = shops.map((shop, sIndex) => {
         if (sIndex === shopIndex) {
           const updatedItems = shop.items.filter((_, iIndex) => iIndex !== itemIndex);
@@ -313,13 +329,16 @@ const updateQuantity = async () => {
         }
         return shop;
       });
+      deleteCartOnBackend(item);
       setShops(updatedShops);
+      initializeData();
+      swipeableRef.close();
     };
 
     const incrementQuantity = async () => {
       const updatedQuantity = item.cart_total_quantity + 1;
       const updatedTotalPrice = item.crop_price * updatedQuantity;
-    
+
       // Update state
       const updatedShops = shops.map(cartItem => {
         if (cartItem.cart_id === item.cart_id) {
@@ -327,19 +346,19 @@ const updateQuantity = async () => {
         }
         return cartItem;
       });
-    
+
       setShops(updatedShops);
       await updateCartOnBackend(item, updatedQuantity);
-      
+
       // Reload data after successful update
       initializeData();
     };
-    
+
     const decrementQuantity = async () => {
       if (item.cart_total_quantity > 1) {
         const updatedQuantity = item.cart_total_quantity - 1;
         const updatedTotalPrice = item.crop_price * updatedQuantity;
-    
+
         // Update state
         const updatedShops = shops.map(cartItem => {
           if (cartItem.cart_id === item.cart_id) {
@@ -347,15 +366,15 @@ const updateQuantity = async () => {
           }
           return cartItem;
         });
-    
+
         setShops(updatedShops);
         await updateCartOnBackend(item, updatedQuantity);
-        
+
         // Reload data after successful update
         initializeData();
       }
     };
-    
+
 
     const toggleSelection = (shopIndex, itemIndex) => {
       const updatedShops = shops.map((shop, sIndex) => {
@@ -364,15 +383,15 @@ const updateQuantity = async () => {
             if (iIndex === itemIndex) {
               // Toggle the selected state of the current item
               const newSelectedState = !itm.selected;
-    
+
               // If deselecting the item, clear the selection for other shops
               if (!newSelectedState) {
                 setSelectedShopIndex(null); // Clear selected shop index
                 return { ...itm, selected: false }; // Deselect the current item
               }
-              
+
               // If selecting, maintain the selection state
-              return { ...itm, selected: true }; 
+              return { ...itm, selected: true };
             }
             return itm;
           });
@@ -385,8 +404,8 @@ const updateQuantity = async () => {
       });
       setShops(updatedShops);
     };
-    
-    
+
+
 
     const renderRightActions = () => (
       <StyledView className="flex-row my-2">
@@ -414,6 +433,14 @@ const updateQuantity = async () => {
     const handleSwipeableWillClose = () => {
       setIsSwiped(false);
     };
+
+    if (loading) {
+      return (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <Text>Loading product...</Text>
+        </View>
+      );
+    }
 
     return (
       <StyledView className="mx-2.5">
@@ -479,7 +506,7 @@ const updateQuantity = async () => {
         </StyledView>
         <StyledText className="text-xl font-bold text-gray-800">{shop.shop_name}</StyledText>
       </StyledView>
-  
+
       <FlatList
         data={shop.items}
         renderItem={({ item, index: itemIndex }) =>
@@ -489,7 +516,7 @@ const updateQuantity = async () => {
       />
     </StyledView>
   );
-  
+
 
   const handleCheckout = () => {
     const selectedItems = shops.flatMap((shop) =>
@@ -504,7 +531,7 @@ const updateQuantity = async () => {
     if (selectedItems.length === 0) {
       Alert.alert("No items selected", "Please select items to proceed to checkout.");
     } else {
-      navigation.navigate("CheckOutScreen", { items: selectedItems });
+      navigation.navigate("CheckOutScreen", { items: selectedItems, user: userData });
     }
   };
 

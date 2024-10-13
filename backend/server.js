@@ -5,7 +5,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const path = require('path');
 const multer = require('multer'); // For handling file uploads
-const { createServer } = require('http'); 
+const { createServer } = require('http');
 const { Server } = require('socket.io');
 const { initializeSocket, getIo } = require('./socket')
 const { setSocketIOInstance } = require('./supabase_connection/crud_services/notifications');
@@ -159,7 +159,7 @@ const {
     addUserBid,
     updateUserBid,
     deleteUserBid
-} = require('./supabase_connection/crud_services/biddings.js');
+} = require('./supabase_connection/crud_services/user_bids.js');
 
 const {
     getChats,
@@ -175,8 +175,8 @@ const { login } = require('./supabase_connection/user_auth_services/login');
 const { loginMobile } = require('./supabase_connection/user_auth_services/loginMobile');
 const { register } = require('./supabase_connection/user_auth_services/register');
 const { logout } = require('./supabase_connection/user_auth_services/logout');
-const {notifySeller} = require('./supabase_connection/crud_services/notify.js')
-
+const { notifySeller } = require('./supabase_connection/crud_services/notify.js')
+const { checkoutOrder } = require('./supabase_connection/crud_services/checkoutOrder.js');
 
 const app = express();
 
@@ -304,6 +304,9 @@ app.post('/api/orders', addOrder);
 app.put('/api/orders/:id', updateOrder);
 app.put('/api/orderStatus/:id', updateOrderStat);
 app.delete('/api/orders/:id', deleteOrder);
+
+// API route for checkout of order
+app.post('/api/checkoutOrder', checkoutOrder);
 
 // API routes for order products
 app.get('/api/order_products', getOrderProducts);
