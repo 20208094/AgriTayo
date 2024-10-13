@@ -1,5 +1,5 @@
 import React from "react";
-import { TouchableOpacity, View, Text, Button } from "react-native";
+import { TouchableOpacity, View, Text } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { styled } from "nativewind";
 import { Icon } from "react-native-elements";
@@ -16,16 +16,16 @@ const NotificationTable = ({ notification, moveToRead, showButton }) => {
     >
       <View className="flex-row justify-between items-center">
         <Text className="flex-1 text-base">
-          <Text className="font-bold text-green-600">{notification.title}</Text>
+          <Text className="font-bold text-[#00B251]">{notification.title}</Text>
           {"\n"}
           <Text className="font-bold text-gray-500">{notification.message}</Text>
         </Text>
         {showButton && (
           <TouchableOpacity
-            onPress={() => moveToRead(notification.id)}
+            onPress={() => moveToRead(notification.notification_id)} // Ensure correct ID reference
             className="ml-4"
           >
-            <Icon name="checkmark" type="ionicon" size={20} color="green" />
+            <Icon name="checkmark" type="ionicon" size={20} color="#00B251" />
           </TouchableOpacity>
         )}
       </View>

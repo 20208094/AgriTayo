@@ -7,10 +7,10 @@ function UnreadScreen({ notifications, moveToRead }) {
     <ScrollView>
       {notifications.map((notification) => (
         <NotificationTable
-          key={notification.id}
+          key={notification.notification_id} 
           notification={notification}
-          moveToRead={moveToRead}
-          showButton={true}
+          moveToRead={moveToRead} 
+          showButton={true} 
         />
       ))}
     </ScrollView>
