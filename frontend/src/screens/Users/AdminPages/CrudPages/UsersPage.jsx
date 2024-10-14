@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
 // API key (replace with your environment variable or API key as needed)
 const API_KEY = import.meta.env.VITE_API_KEY;
@@ -20,12 +22,23 @@ function UsersPage() {
         verified: false,
         image: null // Added field for user image
     });
+
+    const [searchQuery, setSearchQuery] = useState('');
+    const [filteredUsers, setFilteredUsers] = useState([]);
     const [isEdit, setIsEdit] = useState(false);
 
     useEffect(() => {
         fetchUsers();
         fetchUserTypes();
     }, []);
+
+    useEffect(() => {
+        setFilteredUsers(
+            users.filter(user =>
+                `${user.firstname} ${user.lastname}`.toLowerCase().includes(searchQuery.toLowerCase())
+            )
+        );
+    }, [searchQuery, users]);
 
     const fetchUsers = async () => {
         try {
@@ -157,9 +170,58 @@ function UsersPage() {
         }
     };
 
+    const generatePDF = () => {
+        try {
+            const doc = new jsPDF('landscape');
+    
+            // Define the columns
+            const columns = [
+                "ID", "Name", "Email", "Phone", "Gender", "Birthday", "User Type", "Verified", 
+            ];
+    
+            // Map the filtered users data into a format suitable for autoTable
+            const data = filteredUsers.map((user) => [
+                user.user_id,
+                `${user.firstname} ${user.lastname}`,
+                user.email,
+                user.phone_number,
+                user.gender,
+                user.birthday,
+                userTypes.find((type) => type.user_type_id === user.user_type_id)?.user_type_name || 'Unknown',
+                user.verified ? 'Yes' : 'No',
+            ]);
+    
+            doc.setFontSize(18);
+            doc.text('User Report', 14, 22);
+    
+            // Generate the table in the PDF
+            doc.autoTable({
+                head: [columns],
+                body: data,
+                theme: 'striped',
+                headStyles: { fillColor: [0, 0, 256] },
+                bodyStyles: { fontSize: 10 },
+                styles: { cellPadding: 2 },
+                margin: { top: 30 },
+                didDrawPage: (data) => {
+                    doc.setFontSize(10);
+                    doc.text(`Page ${data.pageNumber} of ${data.pageCount}`, 200, 290, { align: 'right' });
+                }
+            });
+    
+            // Save the PDF
+            doc.save('user-reports.pdf');
+        } catch (error) {
+            console.error("Error generating PDF:", error);
+        }
+    };
+    
     return (
         <div style={{ padding: '50px' }}>
             <h1>Users Management</h1>
+            
+            
+            
 
             <form onSubmit={handleSubmit} encType="multipart/form-data">
                 <input
@@ -260,6 +322,22 @@ function UsersPage() {
                 <button type="submit">{isEdit ? 'Update' : 'Create'}</button>
             </form>
 
+            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
+                <input
+                    type="text"
+                    placeholder="Search users"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    style={{ padding: '10px', width: '300px', marginRight: '10px' }} // add margin-right for spacing
+                />
+                <button onClick={generatePDF} style={{ padding: '10px' }}>
+                    Generate PDF
+                </button>
+            </div>
+
+
+            
+
             <table style={{ border: '1px solid black', width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
                 <thead>
                     <tr>
@@ -277,30 +355,29 @@ function UsersPage() {
                     </tr>
                 </thead>
                 <tbody>
-                    {users.map((user) => (
+                    {filteredUsers.map((user) => (
                         <tr key={user.user_id}>
                             <td style={{ border: '1px solid black', padding: '8px' }}>{user.user_id}</td>
-                            <td style={{ border: '1px solid black', padding: '8px' }}>
-                                {user.firstname} {user.lastname}
-                            </td>
+                            <td style={{ border: '1px solid black', padding: '8px' }}>{`${user.firstname} ${user.lastname}`}</td>
                             <td style={{ border: '1px solid black', padding: '8px' }}>{user.email}</td>
                             <td style={{ border: '1px solid black', padding: '8px' }}>{user.phone_number}</td>
                             <td style={{ border: '1px solid black', padding: '8px' }}>{user.gender}</td>
                             <td style={{ border: '1px solid black', padding: '8px' }}>{user.birthday}</td>
+                            <td style={{ border: '1px solid black', padding: '8px' }}>{user.password}</td>
                             <td style={{ border: '1px solid black', padding: '8px' }}>
                                 {userTypes.find((type) => type.user_type_id === user.user_type_id)?.user_type_name || 'Unknown'}
                             </td>
                             <td style={{ border: '1px solid black', padding: '8px' }}>{user.verified ? 'Yes' : 'No'}</td>
-                            <td style={{ border: '1px solid black', padding: '8px' }}>{user.password}</td>
                             <td style={{ border: '1px solid black', padding: '8px' }}>
                                 {user.user_image_url && (
                                     <img
                                         src={user.user_image_url}
-                                        alt={user.firstname + ' ' + user.lastname}
-                                        style={{ width: '100px', height: 'auto' }}
+                                        alt={`${user.firstname} ${user.lastname}`}
+                                        style={{ width: '50px', height: '50px' }}
                                     />
                                 )}
                             </td>
+
                             <td style={{ border: '1px solid black', padding: '8px' }}>
                                 <button onClick={() => handleEdit(user)}>Edit</button>
                                 <button onClick={() => handleDelete(user.user_id)}>Delete</button>

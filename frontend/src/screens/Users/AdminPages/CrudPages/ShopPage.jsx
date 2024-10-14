@@ -1,16 +1,19 @@
 import React, { useState, useEffect } from 'react';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable'; // Ensure to install this package
 
 // API key (replace with your environment variable or API key as needed)
 const API_KEY = import.meta.env.VITE_API_KEY;
 
 function ShopsPage() {
     const [shops, setShops] = useState([]);
+    const [searchTerm, setSearchTerm] = useState(''); // State for search term
     const [formData, setFormData] = useState({
         shop_id: '',
         shop_name: '',
         shop_address: '',
-        latitude: '',    // Separate latitude input
-        longitude: '',   // Separate longitude input
+        latitude: '',
+        longitude: '',
         shop_description: '',
         user_id: '',
         image: null, // Field for shop image
@@ -49,9 +52,6 @@ function ShopsPage() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-        // Combine latitude and longitude into POINT format
-        // const shop_location = `POINT(${formData.longitude} ${formData.latitude})`;
 
         const url = isEdit ? `/api/shops/${formData.shop_id}` : '/api/shops';
         const method = isEdit ? 'PUT' : 'POST';
@@ -126,9 +126,33 @@ function ShopsPage() {
         }
     };
 
+    // Function to handle PDF export
+    const exportToPDF = () => {
+        const doc = new jsPDF();
+        const filteredShops = shops.filter((shop) =>
+            shop.shop_name.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+
+        doc.autoTable({
+            head: [['ID', 'Shop Name', 'Address', 'Latitude', 'Longitude', 'Description', 'User ID']],
+            body: filteredShops.map((shop) => [
+                shop.shop_id,
+                shop.shop_name,
+                shop.shop_address,
+                shop.latitude,
+                shop.longitude,
+                shop.shop_description,
+                shop.user_id,
+            ]),
+        });
+        doc.save('shops.pdf');
+    };
+
     return (
         <div style={{ padding: '50px' }}>
             <h1>Shop Management</h1>
+
+            
 
             <form onSubmit={handleSubmit} encType="multipart/form-data">
                 <input
@@ -194,6 +218,18 @@ function ShopsPage() {
                 />
                 <button type="submit">{isEdit ? 'Update' : 'Create'}</button>
             </form>
+            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
+                <input
+                    type="text"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="Search by shop name"
+                    style={{ padding: '10px', width: '300px', marginRight: '10px' }} 
+                />
+                <button onClick={exportToPDF} style={{ marginLeft: '10px' }}>
+                    Export to PDF
+                </button>
+            </div>
 
             <table style={{ border: '1px solid black', width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
                 <thead>
@@ -210,7 +246,9 @@ function ShopsPage() {
                     </tr>
                 </thead>
                 <tbody>
-                    {shops.map((shop) => (
+                    {shops.filter((shop) =>
+                        shop.shop_name.toLowerCase().includes(searchTerm.toLowerCase())
+                    ).map((shop) => (
                         <tr key={shop.shop_id}>
                             <td style={{ border: '1px solid black', padding: '8px' }}>{shop.shop_id}</td>
                             <td style={{ border: '1px solid black', padding: '8px' }}>{shop.shop_name}</td>
