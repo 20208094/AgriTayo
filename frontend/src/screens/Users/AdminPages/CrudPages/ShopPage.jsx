@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable'; // Ensure to install this package
+import MainLogo from '/AgriTayo_Logo.png';
 
 // API key (replace with your environment variable or API key as needed)
 const API_KEY = import.meta.env.VITE_API_KEY;
@@ -126,14 +127,22 @@ function ShopsPage() {
         }
     };
 
-    // Function to handle PDF export
+    //pdf table design
     const exportToPDF = () => {
         const doc = new jsPDF();
         const filteredShops = shops.filter((shop) =>
             shop.shop_name.toLowerCase().includes(searchTerm.toLowerCase())
         );
-
+    
+        // Add the logo to the PDF
+        doc.addImage(MainLogo, 'PNG', 10, 10, 50, 20); // Adjust position and size as needed
+    
+        // Set a margin below the logo
+        const logoHeight = 20; // Height of the logo
+        const marginBelowLogo = 10; // Space between logo and table
+    
         doc.autoTable({
+            startY: 10 + logoHeight + marginBelowLogo, 
             head: [['ID', 'Shop Name', 'Address', 'Latitude', 'Longitude', 'Description', 'User ID']],
             body: filteredShops.map((shop) => [
                 shop.shop_id,
@@ -147,12 +156,11 @@ function ShopsPage() {
         });
         doc.save('shops.pdf');
     };
+    
 
     return (
         <div style={{ padding: '50px' }}>
             <h1>Shop Management</h1>
-
-            
 
             <form onSubmit={handleSubmit} encType="multipart/form-data">
                 <input

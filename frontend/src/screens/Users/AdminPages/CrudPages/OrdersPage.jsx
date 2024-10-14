@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable'; 
 
-// API key (replace with your environment variable or API key as needed)
 const API_KEY = import.meta.env.VITE_API_KEY;
 
 function OrdersPage() {
     const [orders, setOrders] = useState([]);
+    const [filteredOrders, setFilteredOrders] = useState([]); 
     const [statuses, setStatuses] = useState([]);
     const [users, setUsers] = useState([]);
     const [metricSystems, setMetricSystems] = useState([]);
@@ -16,6 +18,7 @@ function OrdersPage() {
         order_metric_system_id: ''
     });
     const [isEdit, setIsEdit] = useState(false);
+    const [searchTerm, setSearchTerm] = useState(''); 
 
     useEffect(() => {
         fetchOrders();
@@ -23,6 +26,18 @@ function OrdersPage() {
         fetchUsers();
         fetchMetricSystems();
     }, []);
+
+    useEffect(() => {
+        setFilteredOrders(
+            orders.filter(order => 
+                order.total_price.toString().includes(searchTerm) || 
+                order.total_weight.toString().includes(searchTerm) || 
+                statuses.find(status => status.order_status_id === order.status_id)?.order_status_name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                users.find(user => user.user_id === order.user_id)?.firstname.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                users.find(user => user.user_id === order.user_id)?.lastname.toLowerCase().includes(searchTerm.toLowerCase()) 
+            )
+        );
+    }, [orders, searchTerm]);
 
     const fetchOrders = async () => {
         try {
@@ -150,9 +165,38 @@ function OrdersPage() {
         }
     };
 
+    //pdf table design
+    const exportToPDF = () => {
+        const doc = new jsPDF();
+        doc.autoTable({
+            head: [['ID', 'Total Price', 'Total Weight', 'Status', 'User', 'Order Date', 'Metric System']],
+            body: filteredOrders.map((order) => [
+                order.order_id,
+                order.total_price,
+                order.total_weight,
+                statuses.find((status) => status.order_status_id === order.status_id)?.order_status_name || 'Unknown',
+                `${users.find((user) => user.user_id === order.user_id)?.firstname || ''} ${users.find((user) => user.user_id === order.user_id)?.lastname || ''}`,
+                new Date(order.order_date).toLocaleString(),
+                metricSystems.find((metric) => metric.metric_system_id === order.order_metric_system_id)?.metric_system_name || 'Unknown',
+            ]),
+        });
+        doc.save('orders.pdf');
+    };
+
     return (
         <div style={{ padding: '50px' }}>
             <h1>Orders Management</h1>
+
+            <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search Orders"
+                style={{ marginBottom: '20px', width: '300px' }}
+            />
+            <button onClick={exportToPDF} style={{ marginLeft: '10px' }}>
+                Export to PDF
+            </button>
 
             <form onSubmit={handleSubmit}>
                 <input
@@ -226,7 +270,7 @@ function OrdersPage() {
                     </tr>
                 </thead>
                 <tbody>
-                    {orders.map((order) => (
+                    {filteredOrders.map((order) => (
                         <tr key={order.order_id}>
                             <td style={{ border: '1px solid black', padding: '8px' }}>{order.order_id}</td>
                             <td style={{ border: '1px solid black', padding: '8px' }}>{order.total_price}</td>

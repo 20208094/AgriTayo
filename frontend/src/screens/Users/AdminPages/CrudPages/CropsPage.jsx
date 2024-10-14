@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
 // API key (replace with your environment variable or API key as needed)
 const API_KEY = import.meta.env.VITE_API_KEY;
@@ -11,7 +13,7 @@ function CropsPage() {
     crop_description: '',
     category_id: '',
     shop_id: '',
-    image: null, // Changed to null to handle file
+    image: null,
     crop_rating: '',
     crop_price: '',
     crop_quantity: '',
@@ -22,6 +24,7 @@ function CropsPage() {
   const [shops, setShops] = useState([]);
   const [metricSystems, setMetricSystems] = useState([]);
   const [isEdit, setIsEdit] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     fetchCrops();
@@ -102,7 +105,7 @@ function CropsPage() {
     const { name, value, type, files } = e.target;
     setFormData({ 
       ...formData, 
-      [name]: type === 'file' ? files[0] : value // Handle file input
+      [name]: type === 'file' ? files[0] : value
     });
   };
 
@@ -128,23 +131,27 @@ function CropsPage() {
         throw new Error('Network response was not ok');
       }
       fetchCrops();
-      setFormData({
-        crop_id: '',
-        crop_name: '',
-        crop_description: '',
-        category_id: '',
-        shop_id: '',
-        image: null, // Reset to null
-        crop_rating: '',
-        crop_price: '',
-        crop_quantity: '',
-        crop_weight: '',
-        metric_system_id: ''
-      });
+      resetForm();
       setIsEdit(false);
     } catch (error) {
       console.error('Error submitting form:', error);
     }
+  };
+
+  const resetForm = () => {
+    setFormData({
+      crop_id: '',
+      crop_name: '',
+      crop_description: '',
+      category_id: '',
+      shop_id: '',
+      image: null,
+      crop_rating: '',
+      crop_price: '',
+      crop_quantity: '',
+      crop_weight: '',
+      metric_system_id: ''
+    });
   };
 
   const handleEdit = (crop) => {
@@ -167,6 +174,35 @@ function CropsPage() {
     } catch (error) {
       console.error('Error deleting crop:', error);
     }
+  };
+
+  const filteredCrops = crops.filter(crop => 
+    crop.crop_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    crop.crop_description.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  //pdf table design
+  const exportToPDF = () => {
+    const doc = new jsPDF();
+    doc.text('Crops List', 14, 16);
+    const tableData = filteredCrops.map(crop => [
+      crop.crop_id,
+      crop.crop_name,
+      crop.crop_description,
+      categories.find(category => category.crop_category_id === crop.category_id)?.crop_category_name || 'N/A',
+      shops.find(shop => shop.shop_id === crop.shop_id)?.shop_name || 'N/A',
+      crop.crop_image,
+      crop.crop_rating,
+      crop.crop_price,
+      crop.crop_quantity,
+      crop.crop_weight,
+      metricSystems.find(metric => metric.metric_system_id === crop.metric_system_id)?.metric_system_name || 'N/A',
+    ]);
+    doc.autoTable({
+      head: [['ID', 'Name', 'Description', 'Category', 'Shop', 'Image', 'Rating', 'Price', 'Quantity', 'Weight', 'Metric System']],
+      body: tableData,
+    });
+    doc.save('crops_list.pdf');
   };
 
   return (
@@ -216,10 +252,10 @@ function CropsPage() {
           ))}
         </select>
         <input
-          type="file" // Changed to file input
+          type="file"
           name="image"
           onChange={handleInputChange}
-          accept="image/*" // Limit file types to images
+          accept="image/*"
           required
         />
         <input
@@ -270,6 +306,15 @@ function CropsPage() {
         <button type="submit">{isEdit ? 'Update' : 'Create'}</button>
       </form>
 
+      <input
+        type="text"
+        placeholder="Search Crops"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        style={{ margin: '20px 0', padding: '5px' }}
+      />
+      <button onClick={exportToPDF} style={{ marginBottom: '20px' }}>Export to PDF</button>
+
       <table style={{ border: '1px solid black', width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
         <thead>
           <tr>
@@ -288,7 +333,7 @@ function CropsPage() {
           </tr>
         </thead>
         <tbody>
-          {crops.map((crop) => (
+          {filteredCrops.map((crop) => (
             <tr key={crop.crop_id}>
               <td style={{ border: '1px solid black', padding: '8px' }}>{crop.crop_id}</td>
               <td style={{ border: '1px solid black', padding: '8px' }}>{crop.crop_name}</td>

@@ -170,6 +170,7 @@ function UsersPage() {
         }
     };
 
+    //pdf table design
     const generatePDF = () => {
         try {
             const doc = new jsPDF('landscape');
@@ -220,9 +221,6 @@ function UsersPage() {
         <div style={{ padding: '50px' }}>
             <h1>Users Management</h1>
             
-            
-            
-
             <form onSubmit={handleSubmit} encType="multipart/form-data">
                 <input
                     type="hidden"
@@ -331,12 +329,9 @@ function UsersPage() {
                     style={{ padding: '10px', width: '300px', marginRight: '10px' }} // add margin-right for spacing
                 />
                 <button onClick={generatePDF} style={{ padding: '10px' }}>
-                    Generate PDF
+                    Export to PDF
                 </button>
             </div>
-
-
-            
 
             <table style={{ border: '1px solid black', width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
                 <thead>

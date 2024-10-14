@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
 // API key (replace with your environment variable or API key as needed)
 const API_KEY = import.meta.env.VITE_API_KEY;
 
 function ReviewsPage() {
     const [reviews, setReviews] = useState([]);
+    const [filteredReviews, setFilteredReviews] = useState([]);
     const [crops, setCrops] = useState([]);
     const [users, setUsers] = useState([]);
     const [formData, setFormData] = useState({
@@ -14,12 +17,17 @@ function ReviewsPage() {
         review_text: ''
     });
     const [isEdit, setIsEdit] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
         fetchReviews();
         fetchCrops();
         fetchUsers();
     }, []);
+
+    useEffect(() => {
+        setFilteredReviews(reviews);
+    }, [reviews]);
 
     const fetchReviews = async () => {
         try {
@@ -129,6 +137,53 @@ function ReviewsPage() {
         }
     };
 
+
+    //pdf table design
+    const exportToPDF = () => {
+        const doc = new jsPDF();
+        doc.text('Reviews List', 14, 16);
+        
+        const tableData = filteredReviews.map(review => {
+            return [
+                review.review_id,
+                crops.find((crop) => crop.crop_id === review.crop_id)?.crop_name,
+                users.find((user) => user.user_id === review.user_id)?.firstname + ' ' + users.find((user) => user.user_id === review.user_id)?.lastname,
+                review.rating,
+                review.review_text,
+                new Date(review.review_date).toLocaleString()
+            ];
+        });
+
+        doc.autoTable({
+            head: [['ID', 'Crop', 'User', 'Rating', 'Review Text', 'Review Date']],
+            body: tableData,
+            theme: 'grid',
+        });
+
+        doc.save('reviews_list.pdf');
+    };
+
+    const handleSearchChange = (e) => {
+        const value = e.target.value.toLowerCase();
+        setSearchTerm(value);
+
+        const filtered = reviews.filter(review => {
+            const cropName = crops.find(crop => crop.crop_id === review.crop_id)?.crop_name.toLowerCase() || '';
+            const userName = users.find(user => user.user_id === review.user_id)?.firstname.toLowerCase() + ' ' + 
+                             users.find(user => user.user_id === review.user_id)?.lastname.toLowerCase() || '';
+            const reviewText = review.review_text.toLowerCase();
+
+            return (
+                cropName.includes(value) ||
+                userName.includes(value) ||
+                reviewText.includes(value) ||
+                review.rating.toString().includes(value)
+            );
+        });
+
+        setFilteredReviews(filtered);
+    };
+
     return (
         <div style={{ padding: '50px' }}>
             <h1>Reviews Management</h1>
@@ -181,6 +236,18 @@ function ReviewsPage() {
                 <button type="submit">{isEdit ? 'Update' : 'Create'}</button>
             </form>
 
+            <input
+                type="text"
+                value={searchTerm}
+                onChange={handleSearchChange}
+                placeholder="Search reviews..."
+                style={{ marginBottom: '20px', padding: '8px' }}
+            />
+
+            <button onClick={exportToPDF} style={{ marginBottom: '20px', padding: '8px' }}>
+                Export to PDF
+            </button>
+
             <table style={{ border: '1px solid black', width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
                 <thead>
                     <tr>
@@ -194,7 +261,7 @@ function ReviewsPage() {
                     </tr>
                 </thead>
                 <tbody>
-                    {reviews.map((review) => (
+                    {filteredReviews.map((review) => (
                         <tr key={review.review_id}>
                             <td style={{ border: '1px solid black', padding: '8px' }}>{review.review_id}</td>
                             <td style={{ border: '1px solid black', padding: '8px' }}>{crops.find((crop) => crop.crop_id === review.crop_id)?.crop_name}</td>

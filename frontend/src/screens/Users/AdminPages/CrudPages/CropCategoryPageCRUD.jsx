@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
 // API key (replace with your environment variable or API key as needed)
 const API_KEY = import.meta.env.VITE_API_KEY;
@@ -116,17 +118,26 @@ function CropCategoryPageCRUD() {
     category.crop_category_description.toLowerCase().includes(searchQuery)
   );
 
+  //pdf table design
+  const exportToPDF = () => {
+    const doc = new jsPDF();
+    doc.text('Crop Categories List', 14, 16);
+    const tableData = filteredCategories.map(category => [
+      category.crop_category_id,
+      category.crop_category_name,
+      category.crop_category_description,
+      category.crop_category_image_url || 'N/A',
+    ]);
+    doc.autoTable({
+      head: [['ID', 'Category Name', 'Description', 'Image']],
+      body: tableData,
+    });
+    doc.save('crop_categories_list.pdf');
+  };
+
   return (
     <div style={{ padding: '50px' }}>
       <h1>Crop Categories Management</h1>
-
-      <input
-        type="text"
-        placeholder="Search..."
-        value={searchQuery}
-        onChange={handleSearchChange}
-        style={{ marginBottom: '20px', padding: '8px', width: '300px' }}
-      />
 
       <form onSubmit={handleSubmit} encType="multipart/form-data">
         <input
@@ -156,6 +167,17 @@ function CropCategoryPageCRUD() {
         />
         <button type="submit">{isEdit ? 'Update' : 'Create'}</button>
       </form>
+
+      <input
+        type="text"
+        placeholder="Search..."
+        value={searchQuery}
+        onChange={handleSearchChange}
+        style={{ marginBottom: '20px', padding: '8px', width: '300px' }}
+      />
+      <button onClick={exportToPDF} style={{ marginLeft: '20px', padding: '8px' }}>
+        Export to PDF
+      </button>
 
       <table style={{ border: '1px solid black', width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
         <thead>

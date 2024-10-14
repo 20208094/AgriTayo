@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
 // API key (replace with your environment variable or API key as needed)
 const API_KEY = import.meta.env.VITE_API_KEY;
@@ -18,7 +20,8 @@ function OrderProductsPage() {
         order_prod_metric_system_id: ''
     });
     const [isEdit, setIsEdit] = useState(false);
-
+    const [searchTerm, setSearchTerm] = useState('');
+    
     useEffect(() => {
         fetchOrderProducts();
         fetchOrders();
@@ -171,6 +174,45 @@ function OrderProductsPage() {
         }
     };
 
+    const filteredOrderProducts = orderProducts.filter(orderProduct => {
+        const cropName = crops.find(crop => crop.crop_id === orderProduct.order_prod_crop_id)?.crop_name.toLowerCase() || '';
+        const userName = users.find(user => user.user_id === orderProduct.order_prod_user_id);
+        const userFullName = userName ? `${userName.firstname} ${userName.lastname}`.toLowerCase() : '';
+        return (
+            cropName.includes(searchTerm.toLowerCase()) ||
+            userFullName.includes(searchTerm.toLowerCase()) ||
+            orderProduct.order_prod_total_weight.toString().includes(searchTerm) ||
+            orderProduct.order_prod_total_price.toString().includes(searchTerm)
+        );
+    });
+
+    //pdf table design
+    const exportToPDF = () => {
+        const doc = new jsPDF();
+        const tableColumn = ['ID', 'Order ID', 'Product Crop Name', 'Total Weight', 'Total Price', 'User Name', 'Metric System Name'];
+        const tableRows = [];
+
+        filteredOrderProducts.forEach(orderProduct => {
+            const cropName = crops.find(crop => crop.crop_id === orderProduct.order_prod_crop_id)?.crop_name || '';
+            const userName = users.find(user => user.user_id === orderProduct.order_prod_user_id);
+            const userFullName = userName ? `${userName.firstname} ${userName.lastname}` : '';
+            const metricSystemName = metricSystems.find(metric => metric.metric_system_id === orderProduct.order_prod_metric_system_id)?.metric_system_name || '';
+
+            tableRows.push([
+                orderProduct.order_prod_id,
+                orderProduct.order_id,
+                cropName,
+                orderProduct.order_prod_total_weight,
+                orderProduct.order_prod_total_price,
+                userFullName,
+                metricSystemName,
+            ]);
+        });
+
+        doc.autoTable(tableColumn, tableRows, { startY: 20 });
+        doc.save('order_products.pdf');
+    };
+
     return (
         <div style={{ padding: '50px' }}>
             <h1 style={{ marginBottom: '20px' }}>Order Products Management</h1>
@@ -253,6 +295,15 @@ function OrderProductsPage() {
                 <button type="submit" style={{ padding: '5px' }}>{isEdit ? 'Update' : 'Create'}</button>
             </form>
 
+            <input
+                type="text"
+                placeholder="Search Order Products"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                style={{ marginBottom: '20px', padding: '5px' }}
+            />
+            <button onClick={exportToPDF} style={{ padding: '5px', marginBottom: '20px' }}>Export to PDF</button>
+
             <table style={{ border: '1px solid black', width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                     <tr>
@@ -267,7 +318,7 @@ function OrderProductsPage() {
                     </tr>
                 </thead>
                 <tbody>
-                    {orderProducts.map((orderProduct) => (
+                    {filteredOrderProducts.map((orderProduct) => (
                         <tr key={orderProduct.order_prod_id}>
                             <td style={{ border: '1px solid black', padding: '8px' }}>{orderProduct.order_prod_id}</td>
                             <td style={{ border: '1px solid black', padding: '8px' }}>{orderProduct.order_id}</td>
