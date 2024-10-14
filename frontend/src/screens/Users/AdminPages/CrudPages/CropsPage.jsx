@@ -306,15 +306,17 @@ function CropsPage() {
         <button type="submit">{isEdit ? 'Update' : 'Create'}</button>
       </form>
 
-      <input
-        type="text"
-        placeholder="Search Crops"
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        style={{ margin: '20px 0', padding: '5px' }}
-      />
-      <button onClick={exportToPDF} style={{ marginBottom: '20px' }}>Export to PDF</button>
-
+      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
+        <input
+          type="text"
+          placeholder="Search Crops"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          style={{ margin: '20px 0', padding: '5px' }}
+        />
+        <button onClick={exportToPDF} style={{ marginBottom: '20px' }}>Export to PDF</button>
+      </div>
+      
       <table style={{ border: '1px solid black', width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
         <thead>
           <tr>

@@ -187,17 +187,6 @@ function OrdersPage() {
         <div style={{ padding: '50px' }}>
             <h1>Orders Management</h1>
 
-            <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search Orders"
-                style={{ marginBottom: '20px', width: '300px' }}
-            />
-            <button onClick={exportToPDF} style={{ marginLeft: '10px' }}>
-                Export to PDF
-            </button>
-
             <form onSubmit={handleSubmit}>
                 <input
                     type="text"
@@ -255,6 +244,17 @@ function OrdersPage() {
                 </select>
                 <button type="submit">{isEdit ? 'Update' : 'Create'}</button>
             </form>
+
+            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
+                <input
+                    type="text"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="Search Orders"
+                    style={{ marginBottom: '20px', width: '300px' }}
+                />
+                <button onClick={exportToPDF} style={{ marginLeft: '10px' }}>Export to PDF</button>
+            </div>
 
             <table style={{ border: '1px solid black', width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
                 <thead>

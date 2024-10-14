@@ -226,6 +226,7 @@ function ShopsPage() {
                 />
                 <button type="submit">{isEdit ? 'Update' : 'Create'}</button>
             </form>
+
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
                 <input
                     type="text"
@@ -234,9 +235,7 @@ function ShopsPage() {
                     placeholder="Search by shop name"
                     style={{ padding: '10px', width: '300px', marginRight: '10px' }} 
                 />
-                <button onClick={exportToPDF} style={{ marginLeft: '10px' }}>
-                    Export to PDF
-                </button>
+                <button onClick={exportToPDF} style={{ marginLeft: '10px' }}> Export to PDF</button>
             </div>
 
             <table style={{ border: '1px solid black', width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>

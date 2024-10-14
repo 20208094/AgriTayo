@@ -326,11 +326,9 @@ function UsersPage() {
                     placeholder="Search users"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    style={{ padding: '10px', width: '300px', marginRight: '10px' }} // add margin-right for spacing
+                    style={{ padding: '10px', width: '300px', marginRight: '10px' }} 
                 />
-                <button onClick={generatePDF} style={{ padding: '10px' }}>
-                    Export to PDF
-                </button>
+                <button onClick={generatePDF} style={{ padding: '10px' }}>Export to PDF</button>
             </div>
 
             <table style={{ border: '1px solid black', width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
@@ -342,9 +340,9 @@ function UsersPage() {
                         <th style={{ border: '1px solid black', padding: '8px' }}>Phone Number</th>
                         <th style={{ border: '1px solid black', padding: '8px' }}>Gender</th>
                         <th style={{ border: '1px solid black', padding: '8px' }}>Birthday</th>
+                        <th style={{ border: '1px solid black', padding: '8px' }}>Password</th>
                         <th style={{ border: '1px solid black', padding: '8px' }}>User Type</th>
                         <th style={{ border: '1px solid black', padding: '8px' }}>Verified</th>
-                        <th style={{ border: '1px solid black', padding: '8px' }}>Password</th>
                         <th style={{ border: '1px solid black', padding: '8px' }}>Profile Picture</th>
                         <th style={{ border: '1px solid black', padding: '8px' }}>Actions</th>
                     </tr>

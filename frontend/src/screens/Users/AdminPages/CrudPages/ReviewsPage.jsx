@@ -236,18 +236,18 @@ function ReviewsPage() {
                 <button type="submit">{isEdit ? 'Update' : 'Create'}</button>
             </form>
 
-            <input
-                type="text"
-                value={searchTerm}
-                onChange={handleSearchChange}
-                placeholder="Search reviews..."
-                style={{ marginBottom: '20px', padding: '8px' }}
-            />
+            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
+                <input
+                    type="text"
+                    value={searchTerm}
+                    onChange={handleSearchChange}
+                    placeholder="Search reviews..."
+                    style={{ marginBottom: '20px', padding: '8px' }}
+                />
 
-            <button onClick={exportToPDF} style={{ marginBottom: '20px', padding: '8px' }}>
-                Export to PDF
-            </button>
-
+                <button onClick={exportToPDF} style={{ marginBottom: '20px', padding: '8px' }}>Export to PDF</button>
+            </div>
+            
             <table style={{ border: '1px solid black', width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
                 <thead>
                     <tr>

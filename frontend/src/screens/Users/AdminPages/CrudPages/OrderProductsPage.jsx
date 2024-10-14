@@ -295,14 +295,16 @@ function OrderProductsPage() {
                 <button type="submit" style={{ padding: '5px' }}>{isEdit ? 'Update' : 'Create'}</button>
             </form>
 
-            <input
-                type="text"
-                placeholder="Search Order Products"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                style={{ marginBottom: '20px', padding: '5px' }}
-            />
-            <button onClick={exportToPDF} style={{ padding: '5px', marginBottom: '20px' }}>Export to PDF</button>
+            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
+                <input
+                    type="text"
+                    placeholder="Search Order Products"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    style={{ marginBottom: '20px', padding: '5px' }}
+                />
+                <button onClick={exportToPDF} style={{ padding: '5px', marginBottom: '20px' }}>Export to PDF</button>
+            </div>
 
             <table style={{ border: '1px solid black', width: '100%', borderCollapse: 'collapse' }}>
                 <thead>

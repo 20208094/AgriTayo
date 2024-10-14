@@ -168,16 +168,16 @@ function CropCategoryPageCRUD() {
         <button type="submit">{isEdit ? 'Update' : 'Create'}</button>
       </form>
 
-      <input
-        type="text"
-        placeholder="Search..."
-        value={searchQuery}
-        onChange={handleSearchChange}
-        style={{ marginBottom: '20px', padding: '8px', width: '300px' }}
-      />
-      <button onClick={exportToPDF} style={{ marginLeft: '20px', padding: '8px' }}>
-        Export to PDF
-      </button>
+      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
+        <input
+          type="text"
+          placeholder="Search..."
+          value={searchQuery}
+          onChange={handleSearchChange}
+          style={{ marginBottom: '20px', padding: '8px', width: '300px' }}
+        />
+        <button onClick={exportToPDF} style={{ marginLeft: '20px', padding: '8px' }}>Export to PDF</button>
+      </div>
 
       <table style={{ border: '1px solid black', width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
         <thead>
