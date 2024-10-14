@@ -206,11 +206,9 @@ function UsersPage() {
         doc.autoTable({
             head: [columns],
             body: data,
-            theme: 'striped',
-            headStyles: { fillColor: [0, 0, 256] },
-            bodyStyles: { fontSize: 10 },
-            styles: { cellPadding: 2 },
-            margin: { top: 10 }, 
+            headStyles: {
+                fillColor: [0, 128, 0] , halign: 'center', valign: 'middle'
+            },
             startY: tableStartY, 
             didDrawPage: (data) => {
                 doc.setFontSize(10);

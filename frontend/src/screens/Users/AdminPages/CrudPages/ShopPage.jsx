@@ -158,6 +158,9 @@ function ShopsPage() {
                 shop.shop_description,
                 shop.user_id,
             ]),
+            headStyles: {
+                fillColor: [0, 128, 0] , halign: 'center', valign: 'middle'
+            },
         });
         doc.save('shops.pdf');
     };

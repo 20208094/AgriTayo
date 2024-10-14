@@ -215,6 +215,9 @@ function CropsPage() {
       startY: tableStartY, 
       head: [['ID', 'Name', 'Description', 'Category', 'Shop', 'Image', 'Rating', 'Price', 'Quantity', 'Weight', 'Metric System']],
       body: tableData,
+      headStyles: {
+        fillColor: [0, 128, 0] , halign: 'center', valign: 'middle'
+      },
     });
     doc.save('crops_list.pdf');
 };

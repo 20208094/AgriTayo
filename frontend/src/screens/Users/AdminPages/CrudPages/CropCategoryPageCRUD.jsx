@@ -147,10 +147,9 @@ function CropCategoryPageCRUD() {
         startY: tableStartY, 
         head: [['ID', 'Category Name', 'Description', 'Image']],
         body: tableData,
-        theme: 'striped', 
-        headStyles: { fillColor: [0, 0, 256] }, 
-        bodyStyles: { fontSize: 10 }, 
-        styles: { cellPadding: 2 }, 
+        headStyles: {
+          fillColor: [0, 128, 0] , halign: 'center', valign: 'middle'
+        },
     });
     doc.save('crop_categories_list.pdf');
 };

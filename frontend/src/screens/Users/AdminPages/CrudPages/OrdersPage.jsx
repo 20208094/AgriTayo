@@ -197,6 +197,9 @@ function OrdersPage() {
                 new Date(order.order_date).toLocaleString(),
                 metricSystems.find((metric) => metric.metric_system_id === order.order_metric_system_id)?.metric_system_name || 'Unknown',
             ]),
+            headStyles: {
+                fillColor: [0, 128, 0] , halign: 'center', valign: 'middle'
+              },
         });
         doc.save('orders.pdf');
     };

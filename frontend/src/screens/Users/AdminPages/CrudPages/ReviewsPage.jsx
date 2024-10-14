@@ -170,8 +170,10 @@ function ReviewsPage() {
         doc.autoTable({
             head: [['ID', 'Crop', 'User', 'Rating', 'Review Text', 'Review Date']],
             body: tableData,
-            theme: 'grid',
             startY: tableStartY, 
+            headStyles: {
+                fillColor: [0, 128, 0] , halign: 'center', valign: 'middle'
+            },
         });
 
         doc.save('reviews_list.pdf');

@@ -226,7 +226,10 @@ function OrderProductsPage() {
         doc.autoTable({
             head: [tableColumn], 
             body: tableRows,     
-            startY: tableStartY  
+            startY: tableStartY,  
+            headStyles: {
+                fillColor: [0, 128, 0] , halign: 'center', valign: 'middle'
+            },
         });
         doc.save('order_products.pdf');
     };
