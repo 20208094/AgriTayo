@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import MainLogo from '/AgriTayo_Logo_wName.png';
 
-// API key (replace with your environment variable or API key as needed)
 const API_KEY = import.meta.env.VITE_API_KEY;
 
 function CropsPage() {
@@ -183,27 +183,42 @@ function CropsPage() {
 
   //pdf table design
   const exportToPDF = () => {
-    const doc = new jsPDF();
-    doc.text('Crops List', 14, 16);
+    const doc = new jsPDF('landscape'); 
+
+    const logoWidth = 50;
+    const logoHeight = 50; 
+    const marginBelowLogo = 5; 
+    const textMargin = 5;
+
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const xPosition = (pageWidth - logoWidth) / 2; 
+    doc.addImage(MainLogo, 'PNG', xPosition, 10, logoWidth, logoHeight); 
+    const textYPosition = 10 + logoHeight + textMargin; 
+    doc.text("Crop List", xPosition + logoWidth / 2, textYPosition, { align: "center" }); 
+    const tableStartY = textYPosition + marginBelowLogo + 5; 
+
     const tableData = filteredCrops.map(crop => [
-      crop.crop_id,
-      crop.crop_name,
-      crop.crop_description,
-      categories.find(category => category.crop_category_id === crop.category_id)?.crop_category_name || 'N/A',
-      shops.find(shop => shop.shop_id === crop.shop_id)?.shop_name || 'N/A',
-      crop.crop_image,
-      crop.crop_rating,
-      crop.crop_price,
-      crop.crop_quantity,
-      crop.crop_weight,
-      metricSystems.find(metric => metric.metric_system_id === crop.metric_system_id)?.metric_system_name || 'N/A',
-    ]);
+    crop.crop_id,
+    crop.crop_name,
+    crop.crop_description,
+    categories.find(category => category.crop_category_id === crop.category_id)?.crop_category_name || 'N/A',
+    shops.find(shop => shop.shop_id === crop.shop_id)?.shop_name || 'N/A',
+    crop.crop_image,
+    crop.crop_rating,
+    crop.crop_price,
+    crop.crop_quantity,
+    crop.crop_weight,
+    metricSystems.find(metric => metric.metric_system_id === crop.metric_system_id)?.metric_system_name || 'N/A',
+  ]);
+
     doc.autoTable({
+      startY: tableStartY, 
       head: [['ID', 'Name', 'Description', 'Category', 'Shop', 'Image', 'Rating', 'Price', 'Quantity', 'Weight', 'Metric System']],
       body: tableData,
     });
     doc.save('crops_list.pdf');
-  };
+};
+
 
   return (
     <div style={{ padding: '50px' }}>
@@ -314,9 +329,9 @@ function CropsPage() {
           onChange={(e) => setSearchTerm(e.target.value)}
           style={{ margin: '20px 0', padding: '5px' }}
         />
-        <button onClick={exportToPDF} style={{ marginBottom: '20px' }}>Export to PDF</button>
+        <button onClick={exportToPDF}>Export to PDF</button>
       </div>
-      
+
       <table style={{ border: '1px solid black', width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
         <thead>
           <tr>

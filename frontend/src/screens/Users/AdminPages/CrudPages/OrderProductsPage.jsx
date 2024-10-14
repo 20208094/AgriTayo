@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import MainLogo from '/AgriTayo_Logo_wName.png';
 
-// API key (replace with your environment variable or API key as needed)
 const API_KEY = import.meta.env.VITE_API_KEY;
 
 function OrderProductsPage() {
@@ -188,31 +188,49 @@ function OrderProductsPage() {
 
     //pdf table design
     const exportToPDF = () => {
-        const doc = new jsPDF();
+        const doc = new jsPDF('landscape'); // Set the PDF to landscape mode
+    
+        const logoWidth = 50;
+        const logoHeight = 50; 
+        const marginBelowLogo = 5; 
+        const textMargin = 5;
+    
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const xPosition = (pageWidth - logoWidth) / 2; // Center the logo horizontally
+    
+        doc.addImage(MainLogo, 'PNG', xPosition, 10, logoWidth, logoHeight);
+        const textYPosition = 10 + logoHeight + textMargin; 
+        doc.text("Order Product List", xPosition + logoWidth / 2, textYPosition, { align: "center" });
+    
+        const tableStartY = textYPosition + marginBelowLogo + 5;
+    
         const tableColumn = ['ID', 'Order ID', 'Product Crop Name', 'Total Weight', 'Total Price', 'User Name', 'Metric System Name'];
         const tableRows = [];
-
+    
         filteredOrderProducts.forEach(orderProduct => {
-            const cropName = crops.find(crop => crop.crop_id === orderProduct.order_prod_crop_id)?.crop_name || '';
-            const userName = users.find(user => user.user_id === orderProduct.order_prod_user_id);
-            const userFullName = userName ? `${userName.firstname} ${userName.lastname}` : '';
-            const metricSystemName = metricSystems.find(metric => metric.metric_system_id === orderProduct.order_prod_metric_system_id)?.metric_system_name || '';
-
-            tableRows.push([
-                orderProduct.order_prod_id,
-                orderProduct.order_id,
-                cropName,
-                orderProduct.order_prod_total_weight,
-                orderProduct.order_prod_total_price,
-                userFullName,
-                metricSystemName,
-            ]);
+        const cropName = crops.find(crop => crop.crop_id === orderProduct.order_prod_crop_id)?.crop_name || '';
+        const userName = users.find(user => user.user_id === orderProduct.order_prod_user_id);
+        const userFullName = userName ? `${userName.firstname} ${userName.lastname}` : '';
+        const metricSystemName = metricSystems.find(metric => metric.metric_system_id === orderProduct.order_prod_metric_system_id)?.metric_system_name || '';
+    
+        tableRows.push([
+            orderProduct.order_prod_id,
+            orderProduct.order_id,
+            cropName,
+            orderProduct.order_prod_total_weight,
+            orderProduct.order_prod_total_price,
+            userFullName,
+            metricSystemName,
+        ]);
+    });
+        doc.autoTable({
+            head: [tableColumn], 
+            body: tableRows,     
+            startY: tableStartY  
         });
-
-        doc.autoTable(tableColumn, tableRows, { startY: 20 });
         doc.save('order_products.pdf');
     };
-
+    
     return (
         <div style={{ padding: '50px' }}>
             <h1 style={{ marginBottom: '20px' }}>Order Products Management</h1>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable'; 
+import MainLogo from '/AgriTayo_Logo_wName.png';
 
 const API_KEY = import.meta.env.VITE_API_KEY;
 
@@ -167,8 +168,25 @@ function OrdersPage() {
 
     //pdf table design
     const exportToPDF = () => {
-        const doc = new jsPDF();
+        const doc = new jsPDF('landscape');
+    
+        const logoWidth = 50;
+        const logoHeight = 50;
+        const marginBelowLogo = 5;
+        const textMargin = 5;
+    
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const xPosition = (pageWidth - logoWidth) / 2;
+
+        doc.addImage(MainLogo, 'PNG', xPosition, 10, logoWidth, logoHeight);
+  
+        const textYPosition = 10 + logoHeight + textMargin;
+        doc.text("Orders List", pageWidth / 2, textYPosition, { align: "center" });
+ 
+        const tableStartY = textYPosition + marginBelowLogo;
+    
         doc.autoTable({
+            startY: tableStartY, 
             head: [['ID', 'Total Price', 'Total Weight', 'Status', 'User', 'Order Date', 'Metric System']],
             body: filteredOrders.map((order) => [
                 order.order_id,
@@ -182,6 +200,7 @@ function OrdersPage() {
         });
         doc.save('orders.pdf');
     };
+    
 
     return (
         <div style={{ padding: '50px' }}>
@@ -251,10 +270,11 @@ function OrdersPage() {
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="Search Orders"
-                    style={{ marginBottom: '20px', width: '300px' }}
+                    style={{ padding: '5px' }}
                 />
                 <button onClick={exportToPDF} style={{ marginLeft: '10px' }}>Export to PDF</button>
             </div>
+
 
             <table style={{ border: '1px solid black', width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
                 <thead>

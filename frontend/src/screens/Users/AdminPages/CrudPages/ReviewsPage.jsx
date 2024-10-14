@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import MainLogo from '/AgriTayo_Logo_wName.png';
 
-// API key (replace with your environment variable or API key as needed)
 const API_KEY = import.meta.env.VITE_API_KEY;
 
 function ReviewsPage() {
@@ -140,8 +140,7 @@ function ReviewsPage() {
 
     //pdf table design
     const exportToPDF = () => {
-        const doc = new jsPDF();
-        doc.text('Reviews List', 14, 16);
+        const doc = new jsPDF('landscape');
         
         const tableData = filteredReviews.map(review => {
             return [
@@ -154,10 +153,25 @@ function ReviewsPage() {
             ];
         });
 
+        const logoWidth = 50;
+        const logoHeight = 50; 
+        const marginBelowLogo = 5; 
+        const textMargin = 5;
+    
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const xPosition = (pageWidth - logoWidth) / 2; 
+    
+        doc.addImage(MainLogo, 'PNG', xPosition, 10, logoWidth, logoHeight); 
+        const textYPosition = 10 + logoHeight + textMargin; 
+        doc.text("Reviews", xPosition + logoWidth / 2, textYPosition, { align: "center" }); 
+ 
+        const tableStartY = textYPosition + marginBelowLogo + 5; 
+
         doc.autoTable({
             head: [['ID', 'Crop', 'User', 'Rating', 'Review Text', 'Review Date']],
             body: tableData,
             theme: 'grid',
+            startY: tableStartY, 
         });
 
         doc.save('reviews_list.pdf');

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import MainLogo from '/AgriTayo_Logo_wName.png';
 
-// API key (replace with your environment variable or API key as needed)
 const API_KEY = import.meta.env.VITE_API_KEY;
 
 function CropCategoryPageCRUD() {
@@ -120,20 +120,41 @@ function CropCategoryPageCRUD() {
 
   //pdf table design
   const exportToPDF = () => {
-    const doc = new jsPDF();
-    doc.text('Crop Categories List', 14, 16);
+    const doc = new jsPDF('landscape');
+
+    const logoWidth = 50;
+    const logoHeight = 50; 
+    const marginBelowLogo = 5; 
+    const textMargin = 5;
+
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const xPosition = (pageWidth - logoWidth) / 2; 
+    doc.addImage(MainLogo, 'PNG', xPosition, 10, logoWidth, logoHeight); 
+
+    const textYPosition = 10 + logoHeight + textMargin; 
+    doc.text("Crop Categories List", xPosition + logoWidth / 2, textYPosition, { align: "center" }); 
+
+    const tableStartY = textYPosition + marginBelowLogo + 5; 
+
     const tableData = filteredCategories.map(category => [
-      category.crop_category_id,
-      category.crop_category_name,
-      category.crop_category_description,
-      category.crop_category_image_url || 'N/A',
+        category.crop_category_id,
+        category.crop_category_name,
+        category.crop_category_description,
+        category.crop_category_image_url || 'N/A',
     ]);
+
     doc.autoTable({
-      head: [['ID', 'Category Name', 'Description', 'Image']],
-      body: tableData,
+        startY: tableStartY, 
+        head: [['ID', 'Category Name', 'Description', 'Image']],
+        body: tableData,
+        theme: 'striped', 
+        headStyles: { fillColor: [0, 0, 256] }, 
+        bodyStyles: { fontSize: 10 }, 
+        styles: { cellPadding: 2 }, 
     });
     doc.save('crop_categories_list.pdf');
-  };
+};
+
 
   return (
     <div style={{ padding: '50px' }}>
@@ -174,7 +195,7 @@ function CropCategoryPageCRUD() {
           placeholder="Search..."
           value={searchQuery}
           onChange={handleSearchChange}
-          style={{ marginBottom: '20px', padding: '8px', width: '300px' }}
+          style={{ padding: '8px', width: '300px' }}
         />
         <button onClick={exportToPDF} style={{ marginLeft: '20px', padding: '8px' }}>Export to PDF</button>
       </div>

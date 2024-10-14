@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import MainLogo from '/AgriTayo_Logo_wName.png';
 
-// API key (replace with your environment variable or API key as needed)
 const API_KEY = import.meta.env.VITE_API_KEY;
 
 function UsersPage() {
@@ -20,7 +20,7 @@ function UsersPage() {
         birthday: '',
         user_type_id: '',
         verified: false,
-        image: null // Added field for user image
+        image: null 
     });
 
     const [searchQuery, setSearchQuery] = useState('');
@@ -172,50 +172,54 @@ function UsersPage() {
 
     //pdf table design
     const generatePDF = () => {
-        try {
-            const doc = new jsPDF('landscape');
+        const doc = new jsPDF('landscape');
     
-            // Define the columns
-            const columns = [
-                "ID", "Name", "Email", "Phone", "Gender", "Birthday", "User Type", "Verified", 
-            ];
+        const columns = [
+            "ID", "Name", "Email", "Phone", "Gender", "Birthday", "User Type", "Verified", 
+        ];
     
-            // Map the filtered users data into a format suitable for autoTable
-            const data = filteredUsers.map((user) => [
-                user.user_id,
-                `${user.firstname} ${user.lastname}`,
-                user.email,
-                user.phone_number,
-                user.gender,
-                user.birthday,
-                userTypes.find((type) => type.user_type_id === user.user_type_id)?.user_type_name || 'Unknown',
-                user.verified ? 'Yes' : 'No',
-            ]);
+        const data = filteredUsers.map((user) => [
+            user.user_id,
+            `${user.firstname} ${user.lastname}`,
+            user.email,
+            user.phone_number,
+            user.gender,
+            user.birthday,
+            userTypes.find((type) => type.user_type_id === user.user_type_id)?.user_type_name || 'Unknown',
+            user.verified ? 'Yes' : 'No',
+        ]);
     
-            doc.setFontSize(18);
-            doc.text('User Report', 14, 22);
+        const logoWidth = 50;
+        const logoHeight = 50; 
+        const marginBelowLogo = 5; 
+        const textMargin = 5;
     
-            // Generate the table in the PDF
-            doc.autoTable({
-                head: [columns],
-                body: data,
-                theme: 'striped',
-                headStyles: { fillColor: [0, 0, 256] },
-                bodyStyles: { fontSize: 10 },
-                styles: { cellPadding: 2 },
-                margin: { top: 30 },
-                didDrawPage: (data) => {
-                    doc.setFontSize(10);
-                    doc.text(`Page ${data.pageNumber} of ${data.pageCount}`, 200, 290, { align: 'right' });
-                }
-            });
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const xPosition = (pageWidth - logoWidth) / 2; 
     
-            // Save the PDF
-            doc.save('user-reports.pdf');
-        } catch (error) {
-            console.error("Error generating PDF:", error);
-        }
+        doc.addImage(MainLogo, 'PNG', xPosition, 10, logoWidth, logoHeight); 
+        const textYPosition = 10 + logoHeight + textMargin; 
+        doc.text("List of Users", xPosition + logoWidth / 2, textYPosition, { align: "center" }); 
+ 
+        const tableStartY = textYPosition + marginBelowLogo + 5; 
+    
+        doc.autoTable({
+            head: [columns],
+            body: data,
+            theme: 'striped',
+            headStyles: { fillColor: [0, 0, 256] },
+            bodyStyles: { fontSize: 10 },
+            styles: { cellPadding: 2 },
+            margin: { top: 10 }, 
+            startY: tableStartY, 
+            didDrawPage: (data) => {
+                doc.setFontSize(10);
+                doc.text(`Page ${data.pageNumber} of ${data.pageCount}`, 200, 290, { align: 'right' });
+            }
+        });
+        doc.save('user-reports.pdf');
     };
+    
     
     return (
         <div style={{ padding: '50px' }}>

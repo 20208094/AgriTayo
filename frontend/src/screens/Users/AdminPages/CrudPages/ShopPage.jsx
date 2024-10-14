@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import jsPDF from 'jspdf';
-import 'jspdf-autotable'; // Ensure to install this package
-import MainLogo from '/AgriTayo_Logo.png';
+import 'jspdf-autotable';
+import MainLogo from '/AgriTayo_Logo_wName.png';
 
-// API key (replace with your environment variable or API key as needed)
 const API_KEY = import.meta.env.VITE_API_KEY;
 
 function ShopsPage() {
     const [shops, setShops] = useState([]);
-    const [searchTerm, setSearchTerm] = useState(''); // State for search term
+    const [searchTerm, setSearchTerm] = useState(''); 
     const [formData, setFormData] = useState({
         shop_id: '',
         shop_name: '',
@@ -129,20 +128,26 @@ function ShopsPage() {
 
     //pdf table design
     const exportToPDF = () => {
-        const doc = new jsPDF();
+        const doc = new jsPDF('landscape');
         const filteredShops = shops.filter((shop) =>
-            shop.shop_name.toLowerCase().includes(searchTerm.toLowerCase())
+            shop.shop_name.toLowerCase().includes(searchTerm.toLowerCase())||
+            shop.shop_address.toLowerCase().includes(searchTerm.toLowerCase()) 
         );
     
-        // Add the logo to the PDF
-        doc.addImage(MainLogo, 'PNG', 10, 10, 50, 20); // Adjust position and size as needed
+        const logoWidth = 50;
+        const logoHeight = 50; 
+        const marginBelowLogo = 5; 
+        const textMargin = 5;
+
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const xPosition = (pageWidth - logoWidth) / 2; 
     
-        // Set a margin below the logo
-        const logoHeight = 20; // Height of the logo
-        const marginBelowLogo = 10; // Space between logo and table
+        doc.addImage(MainLogo, 'PNG', xPosition, 10, logoWidth, logoHeight); 
+        const textYPosition = 10 + logoHeight + textMargin; 
+        doc.text("List of Shops", xPosition + logoWidth / 2, textYPosition, { align: "center" }); 
     
         doc.autoTable({
-            startY: 10 + logoHeight + marginBelowLogo, 
+            startY: textYPosition + marginBelowLogo, 
             head: [['ID', 'Shop Name', 'Address', 'Latitude', 'Longitude', 'Description', 'User ID']],
             body: filteredShops.map((shop) => [
                 shop.shop_id,
@@ -156,7 +161,6 @@ function ShopsPage() {
         });
         doc.save('shops.pdf');
     };
-    
 
     return (
         <div style={{ padding: '50px' }}>
@@ -254,7 +258,8 @@ function ShopsPage() {
                 </thead>
                 <tbody>
                     {shops.filter((shop) =>
-                        shop.shop_name.toLowerCase().includes(searchTerm.toLowerCase())
+                        shop.shop_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        shop.shop_address.toLowerCase().includes(searchTerm.toLowerCase()) 
                     ).map((shop) => (
                         <tr key={shop.shop_id}>
                             <td style={{ border: '1px solid black', padding: '8px' }}>{shop.shop_id}</td>
