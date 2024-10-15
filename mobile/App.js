@@ -45,6 +45,7 @@ import BiddingDetailsScreen from "./app/screens/Bidding/BiddingDetailsScreen";
 import BiddingViewAllScreen from "./app/screens/Bidding/BiddingViewAllScreen";
 import OrderDetailsScreen from "./app/screens/Orders/OrderDetailsScreen";
 import SellerFaq from "./app/screens/farmers/Shop/LearnAndHelp/SellerFaqScreen";
+import CustomerFaq from "./app/screens/Profile/CustomerFaqScreen";
 import ChatSupportScreen from "./app/screens/farmers/Shop/LearnAndHelp/ChatSupportScreen";
 import EditShopScreen from "./app/screens/farmers/Shop/ViewSalesHistory/EditShopScreen";
 import ProfileScreen from "./app/screens/Profile/ProfileScreen";
@@ -526,6 +527,11 @@ function App() {
             <Stack.Screen
               name='Edit Shop'
               component={EditShopScreen}
+              options={screenOptions}
+            />
+            <Stack.Screen
+              name='Customer FAQ'
+              component={CustomerFaq}
               options={screenOptions}
             />
           </>
