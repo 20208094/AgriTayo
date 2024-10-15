@@ -139,13 +139,12 @@ function CropCategoryPageCRUD() {
     const tableData = filteredCategories.map(category => [
         category.crop_category_id,
         category.crop_category_name,
-        category.crop_category_description,
-        category.crop_category_image_url || 'N/A',
+        category.crop_category_description
     ]);
 
     doc.autoTable({
         startY: tableStartY, 
-        head: [['ID', 'Category Name', 'Description', 'Image']],
+        head: [['ID', 'Category Name', 'Description']],
         body: tableData,
         headStyles: {
           fillColor: [0, 128, 0] , halign: 'center', valign: 'middle'

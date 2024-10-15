@@ -218,7 +218,6 @@ function UsersPage() {
         doc.save('user-reports.pdf');
     };
     
-    
     return (
         <div style={{ padding: '50px' }}>
             <h1>Users Management</h1>
@@ -305,6 +304,7 @@ function UsersPage() {
                         </option>
                     ))}
                 </select>
+
                 <label>
                     Verified:
                     <input
@@ -314,6 +314,7 @@ function UsersPage() {
                         onChange={(e) => setFormData({ ...formData, verified: e.target.checked })}
                     />
                 </label>
+                
                 <input
                     type="file"
                     name="image"
