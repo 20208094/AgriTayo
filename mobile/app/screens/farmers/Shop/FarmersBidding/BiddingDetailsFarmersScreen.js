@@ -24,7 +24,7 @@ function BiddingDetailsFarmersScreen({ route }) {
   const [selectedImage, setSelectedImage] = useState(null); // State to manage modal image
   const [isModalVisible, setIsModalVisible] = useState(false); // Modal visibility state
 
-  const carouselImages = [bidding.pic, bidding.pic, bidding.pic]; // Replace with actual image list
+  const carouselImages = [{uri: bidding.bid_image}, {uri: bidding.bid_image}, {uri: bidding.bid_image}]; // Replace with actual image list
 
   const onViewRef = React.useRef((viewableItems) => {
     if (viewableItems?.changed?.length > 0) {
@@ -99,7 +99,7 @@ function BiddingDetailsFarmersScreen({ route }) {
       <View className="flex-1">
         {/* Background Image */}
         <Image
-          source={bidding.bid_image}
+          source={{uri: bidding.bid_image}}
           className="absolute w-full h-[100%] object-cover -z-1"
           style={{ height: screenHeight * 0.7 }} // Dynamic height based on screen size
         />

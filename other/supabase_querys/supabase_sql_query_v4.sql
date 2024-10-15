@@ -316,6 +316,7 @@ CREATE TABLE biddings (
     bid_image VARCHAR(255),
     bid_description TEXT,
     bid_name VARCHAR(100) NOT NULL,
+    bid_category_id INT,
     bid_subcategory_id INT, 
     bid_starting_price DECIMAL(10, 2) NOT NULL,
     bid_minimum_increment DECIMAL(10, 2) NOT NULL,
@@ -324,6 +325,7 @@ CREATE TABLE biddings (
     number_of_bids INT DEFAULT 0,
     FOREIGN KEY (shop_id) REFERENCES shop(shop_id) ON DELETE CASCADE,
     FOREIGN KEY (bid_subcategory_id) REFERENCES crop_sub_category(crop_sub_category_id) ON DELETE SET NULL,
+    FOREIGN KEY (bid_category_id) REFERENCES crop_category (crop_category_id) ON DELETE SET NULL,
     FOREIGN KEY (bid_user_id) REFERENCES users(user_id) ON DELETE SET NULL,
     FOREIGN KEY (bid_winner_user_id) REFERENCES users(user_id) ON DELETE SET NULL
 );
