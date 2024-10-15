@@ -54,6 +54,8 @@ import NegotiationBuyerScreen from "./app/screens/Negotiation/NegotiationBuyersS
 import NegotiationSellerListScreen from "./app/screens/Negotiation/NegotiationSellerListScreen";
 import NegotiationBuyerEditScreen from "./app/screens/Negotiation/NegotiationBuyerEditScreen";
 import AddLocation from "./app/components/AddLocation";
+import OrdersScreen from "./app/screens/Orders/OrdersScreen";
+import BiddingBuyerScreen from "./app/screens/Bidding/BiddingBuyerScreen";
 // for farmers
 import ShopScreen from "./app/screens/farmers/Shop/ShopScreen";
 import ViewShopScreen from "./app/screens/farmers/Shop/ViewShopScreen";
@@ -495,6 +497,16 @@ function App() {
             <Stack.Screen
               name='Add Location'
               component={AddLocation}
+              options={screenOptions}
+            />
+            <Stack.Screen
+              name="Buyer Bidding"
+              component={BiddingBuyerScreen}
+              options={screenOptions}
+            />
+            <Stack.Screen
+              name="Orders"
+              component={OrdersScreen}
               options={screenOptions}
             />
             <Stack.Screen
