@@ -199,6 +199,7 @@ function ViewShopScreen({ navigation }) {
         shop_location: shopLocation,
         shop_description: shopDescription,
         image: shopImage,
+        shop_image_url: shopImage,
         delivery: isCheckedDelivery,
         pickup: isCheckedPickup,
         delivery_price: shopDeliveryFee,

@@ -322,16 +322,22 @@ const ChatListScreen = () => {
                 <UserName>{item.firstname || item.shop_name}</UserName>
                 <LastMessage>{item.lastMessage || 'No recent messages'}</LastMessage>
               </View>
-              <TimeText>{item.time || 'Unknown time'}</TimeText>
+              <TimeText>{item.time || ''}</TimeText>
             </UserItem>
           )}
-          keyExtractor={(item, index) => {
+          keyExtractor={(item) => {
+            // If the item has a `user_id`, use it as a key
             if (item.user_id) {
-              return `user-${item.user_id}-${item.firstname}-${index}`;
-            } else if (item.shop_id) {
-              return `shop-${item.shop_id}-${item.shop_name}-${index}`;
+              return `user-${item.user_id}`;
             }
+            // If the item has a `shop_id`, use it as a key
+            if (item.shop_id) {
+              return `shop-${item.shop_id}`;
+            }
+            // Fallback in case there's no `user_id` or `shop_id` (this should rarely be the case)
+            return `item-${Math.random().toString(36).substr(2, 9)}`;
           }}
+
         />
       </Container>
     </>

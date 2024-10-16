@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   SafeAreaView,
   View,
@@ -6,126 +6,244 @@ import {
   Image,
   TouchableOpacity,
   ScrollView,
-  FlatList,
+  ActivityIndicator,
+  TextInput,
 } from "react-native";
 import { styled } from "nativewind";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Ionicons } from '@expo/vector-icons';
 import michael from "../../../assets/ehh.png";
 import SearchBarC, {
   NotificationIcon,
   MessagesIcon,
   MarketIcon,
 } from "../../../components/SearchBarC";
-import { Ionicons } from "@expo/vector-icons"; // Importing icons
+import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 
 function SellerShopScreen({ route }) {
-  const { product, shop } = route.params;
+  const { shop_id } = route.params;
   const primaryColor = "#00B251";
   const [selectedTab, setSelectedTab] = useState("Products");
-  const [selectedProductTab, setSelectedProductTab] = useState("Popular");
-  const [selectedCategory, setSelectedCategory] = useState(null);
   const navigation = useNavigation();
+  const [shopData, setShopData] = useState(null);
+  const [cropData, setCropData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [cropCategories, setCropCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [cropSubCategories, setCropSubCategories] = useState([]);
+  const [selectedSubCategory, setSelectedSubCategory] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [userData, setUserData] = useState(null);
+  const [userId, setUserId] = useState(null);
+  const [senderId, setSenderId] = useState(null);
 
-  // React hook to set header options
+  const getAsyncUserData = async () => {
+    try {
+      const storedData = await AsyncStorage.getItem('userData');
+
+      if (storedData) {
+        const parsedData = JSON.parse(storedData);
+
+        if (Array.isArray(parsedData)) {
+          const user = parsedData[0];
+          setUserData(user);
+          setUserId(user.user_id);
+          setSenderId(user.user_id);
+        } else {
+          setUserData(parsedData);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load user data:', error);
+    } 
+  };
+
+  const fetchShopData = async () => {
+    try {
+      const shopResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/shops`, {
+        headers: {
+          "x-api-key": REACT_NATIVE_API_KEY,
+        },
+      });
+      const shopData = await shopResponse.json();
+      const shop = shopData.find((s) => s && s.shop_id === shop_id);
+      setShopData(shop);
+    } catch (error) {
+      console.error("Error fetching shop data:", error);
+      alert("Failed to load shop information.");
+    }
+  };
+
+  const fetchCropData = async () => {
+    try {
+      setIsLoading(true);
+      const cropResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crops`, {
+        headers: {
+          "x-api-key": REACT_NATIVE_API_KEY,
+        },
+      });
+      const cropData = await cropResponse.json();
+      const crops = cropData.filter((c) => c && c.shop_id === shop_id);
+      setCropData(crops);
+    } catch (error) {
+      console.error("Error fetching crop data:", error);
+      alert("Failed to load crop information.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchCropCategories = async () => {
+    try {
+      setIsLoading(true);
+      const categoryResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_categories`, {
+        headers: {
+          "x-api-key": REACT_NATIVE_API_KEY,
+        },
+      });
+      const categoryData = await categoryResponse.json();
+      setCropCategories(categoryData);
+    } catch (error) {
+      console.error("Error fetching crop categories:", error);
+      alert("Failed to load crop categories.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchCropSubCategories = async (categoryId) => {
+    try {
+      setIsLoading(true);
+      const subCategoryResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_sub_categories?category_id=${categoryId}`, {
+        headers: {
+          "x-api-key": REACT_NATIVE_API_KEY,
+        },
+      });
+      const subCategoryData = await subCategoryResponse.json();
+      setCropSubCategories(subCategoryData);
+    } catch (error) {
+      console.error("Error fetching crop subcategories:", error);
+      alert("Failed to load crop subcategories.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchCropsBySubCategory = async (subCategoryId) => {
+    try {
+      setIsLoading(true);
+      const cropResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crops?sub_category_id=${subCategoryId}&shop_id=${shop_id}`, {
+        headers: {
+          "x-api-key": REACT_NATIVE_API_KEY,
+        },
+      });
+      const cropData = await cropResponse.json();
+      setCropData(cropData);
+    } catch (error) {
+      console.error("Error fetching crops:", error);
+      alert("Failed to load crops.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const filterItems = () => {
+    if (selectedTab === "Products") {
+      return cropData.filter((product) =>
+        product.crop_name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    } else if (selectedTab === "Categories") {
+      if (!selectedCategory) {
+        return cropCategories.filter((category) =>
+          category.crop_category_name.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+      } else if (!selectedSubCategory) {
+        return cropSubCategories.filter((subCategory) =>
+          subCategory.crop_sub_category_name.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+      } else {
+        return cropData.filter((product) =>
+          product.crop_name.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+      }
+    }
+  };
+
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchShopData();
+      if (selectedTab === "Products") {
+        fetchCropData();
+      } else if (selectedTab === "Categories") {
+        fetchCropCategories();
+      }
+    }, [shop_id, selectedTab])
+  );
+
+  useFocusEffect(
+    React.useCallback(() => {
+      getAsyncUserData();
+    }, [])
+  );
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (
         <View style={{ flexDirection: "row", marginRight: 15 }}>
           <MarketIcon onPress={() => navigation.navigate("CartScreen")} />
-          <NotificationIcon
-            onPress={() => navigation.navigate("Notifications")}
-          />
+          <NotificationIcon onPress={() => navigation.navigate("Notifications")} />
           <MessagesIcon onPress={() => navigation.navigate("ChatListScreen")} />
         </View>
       ),
     });
   }, [navigation]);
 
-  // Example product cards
-  const productCards = [
-    {
-      id: 1,
-      name: "Classic Men's Casual Pants",
-      price: 148,
-      rating: 4.5,
-      sold: "10K+ sold",
-      discount: 51,
-      image: michael,
-    },
-    {
-      id: 2,
-      name: "NI Men's Pants",
-      price: 149,
-      rating: 4.6,
-      sold: "10K+ sold",
-      discount: 63,
-      image: michael,
-    },
-    {
-      id: 3,
-      name: "Calalo Shirt",
-      price: 149,
-      rating: 4.6,
-      sold: "10K+ sold",
-      discount: 63,
-      image: michael,
-    },
-    {
-      id: 4,
-      name: "HEV CALALO",
-      price: 149,
-      rating: 4.6,
-      sold: "10K+ sold",
-      discount: 63,
-      image: michael,
-    },
-    // Add more products as needed...
-  ];
-
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
       <ScrollView>
         <View className="px-4 py-2">
-          <SearchBarC />
+          {/* New Search Bar */}
+          <TextInput
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            placeholder={`Search ${selectedTab === "Products" ? "products" : "categories, subcategories, or products"}`}
+            className="bg-white p-2 rounded-lg border border-gray-300"
+          />
         </View>
 
         <View className="relative p-4 bg-gray-100">
           <Image
-            source={shop.shop_image_url}
-            className="w-12 h-12 rounded-full absolute top-4 left-4"
+            source={shopData?.shop_image_url ? { uri: shopData.shop_image_url } : michael}
+            className="w-12 h-12 rounded-full absolute top-2 left-4"
           />
           <View className="ml-20">
-            <Text className="text-lg font-bold">{shop.shop_name}</Text>
-            <Text className="text-sm text-gray-500">Active 2 minutes ago</Text>
-            <View className="flex-row items-center space-x-2 mt-1">
-              <Text className="text-yellow-500">⭐ {product.rating}/5.0</Text>
-              <Text className="text-gray-500">
-                | {shop.followers || 0} Followers
-              </Text>
-            </View>
+            <Text className="text-lg font-bold">{shopData?.shop_name}</Text>
           </View>
           <View className="absolute top-4 right-4">
-            <TouchableOpacity className="px-4 py-1 mb-2 bg-[#00B251] rounded-md">
-              <Text className="text-white font-bold text-center">+ Follow</Text>
-            </TouchableOpacity>
             <TouchableOpacity
               className="px-4 py-1 bg-[#00B251] rounded-md"
-              onPress={() =>
-                navigation.navigate("Negotiate To Seller", { product })
-              }
+              onPress={() => navigation.navigate('ChatScreen', {
+                senderId: userId,
+                receiverId: shopData.shop_id,
+                receiverName: shopData.shop_name,
+                receiverType: "Shop",
+                senderType: "User",
+                receiverImage: shopData.shop_image_url,
+              })}
             >
               <Text className="text-white font-bold text-center">Chat</Text>
             </TouchableOpacity>
           </View>
+
+          <Text className="font-bold text-center"></Text>
+
         </View>
 
         <View className="flex-row justify-around bg-white border-t-4 border-[#00B251] py-2">
           {["Products", "Categories"].map((tab, index) => (
             <TouchableOpacity
               key={index}
-              className={`pb-2 ${
-                selectedTab === tab ? "border-b-4 border-[#00B251]" : ""
-              }`}
+              className={`pb-2 ${selectedTab === tab ? "border-b-4 border-[#00B251]" : ""}`}
               onPress={() => setSelectedTab(tab)}
             >
               <Text
@@ -140,125 +258,154 @@ function SellerShopScreen({ route }) {
           ))}
         </View>
 
+        {/* Products Tab */}
         {selectedTab === "Products" && (
           <>
-            <View className="flex-row justify-around bg-white border-b border-[#00B251] py-2">
-              {["Popular", "Latest", "Top Sales", "Price"].map((tab, index) => (
-                <TouchableOpacity
-                  key={index}
-                  className={`pb-2 ${
-                    selectedProductTab === tab
-                      ? "border-b-4 border-[#00B251]"
-                      : ""
-                  }`}
-                  onPress={() => setSelectedProductTab(tab)}
-                >
-                  <Text
-                    style={{
-                      color:
-                        selectedProductTab === tab ? primaryColor : "#757575",
-                    }}
-                    className="text-sm font-bold"
+            {isLoading ? (
+              <View className="flex justify-center items-center h-48">
+                <ActivityIndicator size="large" color={primaryColor} />
+              </View>
+            ) : (
+              <>
+                {selectedSubCategory && (
+                  <TouchableOpacity
+                    onPress={() => setSelectedSubCategory(null)}
+                    className="flex flex-row items-center p-2"
                   >
-                    {tab}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-
-            {/* Product Grid */}
-            <View className="flex flex-wrap flex-row p-2">
-              {productCards.map((product) => (
-                <View key={product.id} className="w-1/2 p-2">
-                  <View className="bg-white border border-white rounded-lg p-2">
-                    <Image
-                      source={product.image}
-                      className="w-full h-32 rounded-lg mb-2"
-                      resizeMode="cover"
-                    />
-                    <Text className="text-sm font-bold">{product.name}</Text>
-                    <Text className="text-[#00B251] text-sm font-bold mt-1">
-                      ₱{product.price}
-                    </Text>
-                    <Text className="text-xs text-gray-500 mt-1">
-                      {product.sold}
-                    </Text>
-                    <Text className="text-xs text-gray-500 mt-1">
-                      ⭐ {product.rating}
-                    </Text>
-                    <View className="flex-row justify-between mt-2">
-                      <Text className="text-xs text-red-500 font-bold">
-                        {product.discount}% OFF
-                      </Text>
-                      <Text className="text-xs text-[#00B251] font-bold">
-                        Free Shipping
-                      </Text>
-                    </View>
-                  </View>
+                    <Ionicons name="arrow-back" size={24} color="black" />
+                    <Text className="ml-2">Go Back</Text>
+                  </TouchableOpacity>
+                )}
+                <View className="flex flex-wrap flex-row p-2">
+                  {Array.isArray(cropData) && cropData.length > 0 ? (
+                    filterItems().map((product) => (
+                      <View key={product.crop_id} className="w-1/2 p-2">
+                        <View className="bg-white border border-white rounded-lg p-2">
+                          <TouchableOpacity
+                            onPress={() => navigation.navigate("Product Details", { product })}
+                            className="bg-white border border-white rounded-lg p-2"
+                          >
+                            <Image
+                              source={{ uri: product.crop_image_url }}
+                              className="w-full h-32 rounded-lg mb-2"
+                              resizeMode="cover"
+                            />
+                            <Text className="text-sm font-bold">{product.crop_name}</Text>
+                            <Text className="text-[#00B251] text-sm font-bold mt-1">
+                              ₱{product.crop_price}
+                            </Text>
+                            <Text className="text-xs text-gray-500 mt-1">{shopData?.shop_name}</Text>
+                            <Text className="text-xs text-gray-500 mt-1">⭐ {product.crop_rating}</Text>
+                          </TouchableOpacity>
+                        </View>
+                      </View>
+                    ))
+                  ) : (
+                    <Text className="text-center">No products found.</Text>
+                  )}
                 </View>
-              ))}
-            </View>
+              </>
+            )}
           </>
         )}
 
+        {/* Categories Tab */}
         {selectedTab === "Categories" && (
-          <View className="p-4">
-            {selectedCategory === null ? (
-              product.seller.categories.category.map((category) => (
-                <TouchableOpacity
-                  className="flex-row items-center justify-between border-b border-[#00B251] py-3"
-                  key={category.id}
-                  onPress={() => setSelectedCategory(category)}
-                >
-                  <View className="flex-row items-center">
-                    <Image
-                      source={category.image}
-                      className="w-12 h-12 rounded-md mr-3"
-                    />
-                    <Text className="text-base">{category.name}</Text>
-                  </View>
-                  <View className="flex-row items-center">
-                    <Text className="text-gray-500 text-sm">
-                      ({category.count})
-                    </Text>
-                    <Text className="text-gray-400 ml-2">{">"}</Text>
-                  </View>
-                </TouchableOpacity>
-              ))
+          <>
+            {isLoading ? (
+              <View className="flex justify-center items-center h-48">
+                <ActivityIndicator size="large" color={primaryColor} />
+              </View>
             ) : (
               <>
-                {/* Subcategory Grid */}
-                <FlatList
-                  data={selectedCategory.subCategories}
-                  keyExtractor={(item) => item.id.toString()}
-                  numColumns={2} // Display as a grid with 2 columns
-                  renderItem={({ item }) => (
-                    <View className="w-1/2 p-2">
-                      <View className="bg-white border border-white rounded-lg p-2">
-                        <Image
-                          source={item.image}
-                          className="w-full h-32 rounded-lg mb-2"
-                          resizeMode="cover"
-                        />
-                        <Text className="text-sm font-bold">{item.name}</Text>
-                      </View>
-                    </View>
-                  )}
-                />
+                {(selectedCategory || selectedSubCategory) && (
+                  <TouchableOpacity
+                    onPress={() => {
+                      if (selectedSubCategory) {
+                        setSelectedSubCategory(null);
+                      } else {
+                        setSelectedCategory(null);
+                      }
+                    }}
+                    className="flex flex-row items-center p-2"
+                  >
+                    <Ionicons name="arrow-back" size={24} color="#00B251" />
+                    <Text className="ml-2 text-[#00B251] font-bold">Go Back</Text>
+                  </TouchableOpacity>
+                )}
 
-                {/* Back to Categories */}
-                <TouchableOpacity
-                  onPress={() => setSelectedCategory(null)}
-                  className="flex-row items-center mt-4"
-                >
-                  <Ionicons name="arrow-back" size={20} color={primaryColor} />
-                  <Text className="text-[#00B251] font-bold ml-2">
-                    Back to Categories
-                  </Text>
-                </TouchableOpacity>
+                {/* Display categories, subcategories, or products */}
+                {!selectedCategory ? (
+                  <View className="flex flex-wrap flex-row p-2">
+                    {filterItems().map((category) => (
+                      <TouchableOpacity
+                        key={category.crop_category_id}
+                        className="w-1/2 p-2"
+                        onPress={() => {
+                          setSelectedCategory(category);
+                          fetchCropSubCategories(category.crop_category_id);
+                        }}
+                      >
+                        <View className="bg-white border border-white rounded-lg p-2">
+                          <Image
+                            source={{ uri: category.crop_category_image_url }}
+                            className="w-full h-32 rounded-lg mb-2"
+                            resizeMode="cover"
+                          />
+                          <Text className="text-sm font-bold">{category.crop_category_name}</Text>
+                        </View>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                ) : !selectedSubCategory ? (
+                  <View className="flex flex-wrap flex-row p-2">
+                    {filterItems().map((subCategory) => (
+                      <TouchableOpacity
+                        key={subCategory.crop_sub_category_id}
+                        className="w-1/2 p-2"
+                        onPress={() => {
+                          setSelectedSubCategory(subCategory);
+                          fetchCropsBySubCategory(subCategory.crop_sub_category_id);
+                        }}
+                      >
+                        <View className="bg-white border border-white rounded-lg p-2">
+                          <Image
+                            source={{ uri: subCategory.crop_sub_category_image_url }}
+                            className="w-full h-32 rounded-lg mb-2"
+                            resizeMode="cover"
+                          />
+                          <Text className="text-sm font-bold">{subCategory.crop_sub_category_name}</Text>
+                        </View>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                ) : (
+                  <View className="flex flex-wrap flex-row p-2">
+                    {filterItems().map((product) => (
+                      <View key={product.crop_id} className="w-1/2 p-2">
+                        <View className="bg-white border border-white rounded-lg p-2">
+                          <TouchableOpacity
+                            onPress={() => navigation.navigate("Product Details", { product })}
+                            className="bg-white border border-white rounded-lg p-2"
+                          >
+                            <Image
+                              source={{ uri: product.crop_image_url }}
+                              className="w-full h-32 rounded-lg mb-2"
+                              resizeMode="cover"
+                            />
+                            <Text className="text-sm font-bold">{product.crop_name}</Text>
+                            <Text className="text-[#00B251] text-sm font-bold mt-1">₱{product.crop_price}</Text>
+                            <Text className="text-xs text-gray-500 mt-1">{shopData?.shop_name}</Text>
+                            <Text className="text-xs text-gray-500 mt-1">⭐ {product.crop_rating}</Text>
+                          </TouchableOpacity>
+                        </View>
+                      </View>
+                    ))}
+                  </View>
+                )}
               </>
             )}
-          </View>
+          </>
         )}
       </ScrollView>
     </SafeAreaView>

@@ -18,7 +18,32 @@ function ShopScreen({ navigation }) {
   const [orderStatuses, setOrderStatuses] = useState([]);
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [userData, setUserData] = useState(null);
+  const [userId, setUserId] = useState(null);
+  const [senderId, setSenderId] = useState(null);
 
+  const getAsyncUserData = async () => {
+    try {
+      const storedData = await AsyncStorage.getItem('userData');
+
+      if (storedData) {
+        const parsedData = JSON.parse(storedData);
+
+        if (Array.isArray(parsedData)) {
+          const user = parsedData[0];
+          setUserData(user);
+          setUserId(user.user_id);
+          setSenderId(user.user_id);
+        } else {
+          setUserData(parsedData);
+          setUserId(parsedData.user_id);
+          setSenderId(parsedData.user_id);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load user data:', error);
+    }
+  };
   const getAsyncShopData = async () => {
     try {
       const storedData = await AsyncStorage.getItem("shopData");
@@ -105,6 +130,12 @@ function ShopScreen({ navigation }) {
     }, [])
   );
 
+  useFocusEffect(
+    React.useCallback(() => {
+      getAsyncUserData();
+    }, [])
+  );
+
   useEffect(() => {
     if (orders.length > 0) {
       fetchOrderStatus();
@@ -120,13 +151,20 @@ function ShopScreen({ navigation }) {
 
   // Chat Support logic from LearnAndHelpScreen.js
   const handleChatSupportClick = () => {
-    const adminId = 1;
-    const adminName = "Admin"; // Assuming the admin's name is 'Admin', modify if needed
-    navigation.navigate("ChatScreen", {
-      receiverId: adminId,
-      receiverName: adminName,
-    });
+    if (userData) {
+      navigation.navigate("ChatScreen", {
+        senderId: userId, 
+        receiverId: 1, 
+        receiverName: "Admin", 
+        receiverType: "User",
+        senderType: "User",
+        receiverImage: "user_image_url", 
+      });
+    } else {
+      console.error("User data not loaded yet");
+    }
   };
+
 
   if (loading) {
     return (
@@ -152,7 +190,7 @@ function ShopScreen({ navigation }) {
         </View>
         <TouchableOpacity
           className="px-4 py-1 border border-[#00B251] rounded-full"
-          onPress={() => navigation.navigate("View Shop", { information })}
+          onPress={() => navigation.navigate("View Shop")}
         >
           <Text className="text-[#00B251]">View Shop</Text>
         </TouchableOpacity>
@@ -219,11 +257,6 @@ function ShopScreen({ navigation }) {
               label: " Negotiation",
               icon: "hands-helping",
               screen: "Seller Negotiation List",
-            },
-            {
-              label: "  Shop Performance",
-              icon: "chart-line",
-              screen: "Shop Performance",
             },
             { label: "    Bidding", icon: "file-contract", screen: "Bidding" },
             {

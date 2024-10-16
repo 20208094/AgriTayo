@@ -19,6 +19,7 @@ function ProductDetailsScreen({ navigation, route }) {
   const [shopData, setShopData] = useState([null]);
   const [shopProducts, setShopProducts] = useState([null]);
   const [cropData, setCropData] = useState([]);
+  const [senderId, setSenderId] = useState(null);
 
   const getAsyncUserData = async () => {
     try {
@@ -31,6 +32,7 @@ function ProductDetailsScreen({ navigation, route }) {
           const user = parsedData[0];
           setUserData(user);
           setUserId(user.user_id);
+          setSenderId(user.user_id);
         } else {
           setUserData(parsedData);
           setUserId(parsedData.user_id);
@@ -92,14 +94,9 @@ function ProductDetailsScreen({ navigation, route }) {
       const shop = shopData.find((s) => s && s.shop_id === product.shop_id);
 
       if (shop) {
-        // Add fallback for followers if it's not available
-        const shopInfo = {
-          ...shop,
-          followers: shop.followers || 0,  // Ensure followers is set, even if missing from API
-        };
-
+        const shop_id = shop.shop_id
         // Navigate to the Seller Shop with the product and shop information
-        navigation.navigate('Seller Shop', { product, shop: shopInfo });
+        navigation.navigate('Seller Shop', { shop_id });
       } else {
         alert('No seller information available for this product.');
       }
@@ -111,10 +108,6 @@ function ProductDetailsScreen({ navigation, route }) {
 
   const handleNegotiatePress = () => {
     navigation.navigate('Buyer Negotiation');
-  };
-
-  const handleMessagePress = () => {
-    navigation.navigate('ChatScreen', { product });
   };
 
   const handleAddToCart = async () => {
@@ -278,6 +271,23 @@ function ProductDetailsScreen({ navigation, route }) {
     }, [displayedProduct, shopData])
   );
 
+
+  const handleMessageSeller = () => {
+    if (!userId || !shopInfo.shop_name) {
+      console.error("Missing userId or shopInfo");
+      return;
+    }
+
+    navigation.navigate('ChatScreen', {
+      senderId: userId,
+      receiverId: product.shop_id,
+      receiverName: shopInfo.shop_name,
+      receiverType: "Shop",
+      senderType: "User",
+      receiverImage: shopInfo.shop_image_url,
+    });
+  };
+
   const toggleModal = () => {
     setIsModalVisible(!isModalVisible);
   };
@@ -339,38 +349,41 @@ function ProductDetailsScreen({ navigation, route }) {
             <Text className="text-base text-gray-700 mb-5">{displayedProduct.crop_description}</Text>
 
             <View className="border border-green-600 flex-row items-center justify-between p-3 rounded-lg mb-5">
-              <View className="flex-row items-center ">
+              <View className="flex-row items-center">
                 <TouchableOpacity onPress={handleShopPress}>
                   <Image
                     source={shopInfo.shop_image_url ? { uri: shopInfo.shop_image_url } : placeholderimg}
-                    className="w-20 h-20 rounded-full"
+                    className="w-16 h-16 md:w-20 md:h-20 rounded-full"
                     resizeMode="cover"
                   />
                 </TouchableOpacity>
-                <View className="ml-1">
+                <View className="ml-2">
                   <TouchableOpacity onPress={handleShopPress}>
-                    <Text className="text-lg font-bold">{shopInfo.shop_name}</Text>
+                    <Text className="text-base md:text-lg font-bold">{shopInfo.shop_name}</Text>
                   </TouchableOpacity>
-                  <Text className="text-gray-500 text-sm">4.7 ⭐ (512 reviews)</Text>
+                  <Text className="text-gray-500 text-xs md:text-sm">4.7 ⭐ (512 reviews)</Text>
                 </View>
               </View>
-              <View className="space-x-2 gap-2.5">
+
+              <View className="space-x-2 gap-2">
                 <TouchableOpacity
-                  className="bg-white border border-green-600 px-3 py-1 rounded-md items-center flex-row"
+                  className="bg-white border border-green-600 px-2.5 md:px-3 py-1 rounded-md items-center flex-row"
                   onPress={handleNegotiatePress}
                 >
-                  <FontAwesome name="balance-scale" size={16} color="#00B251" />
-                  <Text className="text-green-600 ml-2 text-xs">Negotiate</Text>
+                  <FontAwesome name="balance-scale" size={14} color="#00B251" />
+                  <Text className="text-green-600 ml-1 text-xs md:text-sm">Negotiate</Text>
                 </TouchableOpacity>
+
                 <TouchableOpacity
-                  className="bg-[#00B251] px-3 py-1 rounded-md items-center flex-row"
-                  onPress={handleMessagePress}
+                  className="bg-[#00B251] px-2.5 md:px-3 py-1 rounded-md items-center flex-row"
+                  onPress={handleMessageSeller}
                 >
-                  <FontAwesome name="comment" size={16} color="#FFF" />
-                  <Text className="text-white ml-1 text-xs">Message Seller</Text>
+                  <FontAwesome name="comment" size={14} color="#FFF" />
+                  <Text className="text-white ml-1 text-xs md:text-sm">Message Seller</Text>
                 </TouchableOpacity>
               </View>
             </View>
+
 
             {/* Display Related Products */}
             <Text className="text-lg font-bold mb-2.5">Related Products</Text>
@@ -404,7 +417,7 @@ function ProductDetailsScreen({ navigation, route }) {
         <View className="absolute bottom-0 left-0 right-0 bg-white flex-row mb-1 h-12 px-1">
           <TouchableOpacity
             className="flex-1 w-12 items-center justify-center border border-green-600 bg-green-100 rounded-lg"
-            onPress={handleMessagePress}
+            onPress={handleMessageSeller}  // Message seller logic
           >
             <FontAwesome name="comment" size={20} color="#00B251" />
           </TouchableOpacity>
