@@ -194,7 +194,7 @@ function ProfileScreen({ fetchUserSession }) {
         </View>
       </View>
 
-      <View className="px-4 mt-4">
+      <View className="px-4 mt-2">
         <View className="bg-white rounded-lg shadow p-4 space-y-4">
           <TouchableOpacity className="flex-row items-center justify-between" onPress={() => navigation.navigate("View Profile", { userData })}>
             <View className="flex-row items-center">
@@ -207,6 +207,20 @@ function ProfileScreen({ fetchUserSession }) {
             <View className="flex-row items-center">
               <Icon name="address-book" type="font-awesome" size={20} color="#00B251" />
               <Text className="text-gray-800 font-semibold ml-4">Address</Text>
+            </View>
+            <Icon name="chevron-right" type="font-awesome" size={20} color="gray" />
+          </TouchableOpacity>
+          <TouchableOpacity className="flex-row items-center justify-between" onPress={() => navigation.navigate("Address", { userData })}>
+            <View className="flex-row items-center">
+              <Icon name="address-book" type="font-awesome" size={20} color="#00B251" />
+              <Text className="text-gray-800 font-semibold ml-4">My Negotiations</Text>
+            </View>
+            <Icon name="chevron-right" type="font-awesome" size={20} color="gray" />
+          </TouchableOpacity>
+          <TouchableOpacity className="flex-row items-center justify-between" onPress={() => navigation.navigate("Address", { userData })}>
+            <View className="flex-row items-center">
+              <Icon name="address-book" type="font-awesome" size={20} color="#00B251" />
+              <Text className="text-gray-800 font-semibold ml-4">My Bids</Text>
             </View>
             <Icon name="chevron-right" type="font-awesome" size={20} color="gray" />
           </TouchableOpacity>

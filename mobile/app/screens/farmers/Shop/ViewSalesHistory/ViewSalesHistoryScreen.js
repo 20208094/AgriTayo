@@ -101,9 +101,9 @@ function ViewSalesHistoryScreen({ route }) {
     let interval;
 
     if (shopData) {
-      fetchOrdersAndProducts(); // Initial fetch
+      fetchOrdersAndProducts();
       interval = setInterval(() => {
-        fetchOrdersAndProducts(); // Fetch every second
+        fetchOrdersAndProducts();
       }, 5000);
     }
 

@@ -13,51 +13,11 @@ import logo from "../../../assets/logo.png";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 import { ScrollView } from "react-native-gesture-handler";
 
-const dummyNegotiation = [
-  {
-    id: 1,
-    productImage: logo,
-    productName: "Patatas",
-    productDescription:
-      "Patatas masarap asd Patatas masarap asdPatatas masarap asdPatatas masarap asdPatatas masarap asdPatatas masarap asdPatatas masarap asdPatatas masarap asdPatatas masarap asdPatatas masarap asdPatatas masarap asdPatatas masarap asdPatatas masarap asdPatatas masarap asdPatatas masarap asdPatatas masarap asdPatatas masarap asd",
-    productPrice: 10.0,
-    status: "Negotiating",
-    openOrCloseNegotiation: "open",
-  },
-  {
-    id: 2,
-    productImage: logo,
-    productName: "Tomato",
-    productDescription: "Tomato masarap",
-    productPrice: 5.0,
-    status: "Approved",
-    openOrCloseNegotiation: "close",
-  },
-  {
-    id: 3,
-    productImage: logo,
-    productName: "Banana",
-    productDescription: "Banana masarap",
-    productPrice: 5.0,
-    status: "Declined",
-    openOrCloseNegotiation: "open",
-  },
-  {
-    id: 4,
-    productImage: logo,
-    productName: "Saging",
-    productDescription: "Saging masarap",
-    productPrice: 5.0,
-    status: "Completed",
-    openOrCloseNegotiation: "close",
-  },
-];
-
 function ShopScreen({ navigation }) {
   const [shopData, setShopData] = useState(null);
   const [orderStatuses, setOrderStatuses] = useState([]);
   const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true); // Added loading state
+  const [loading, setLoading] = useState(true);
 
   const getAsyncShopData = async () => {
     try {
@@ -282,11 +242,7 @@ function ShopScreen({ navigation }) {
               className="flex-row items-center justify-between"
               onPress={() => {
                 if (label === "Negotiation") {
-                  // Pass the dummyNegotiation and negotiationData only for the Negotiation screen
-                  navigation.navigate(screen, {
-                    dummyNegotiation,
-                    negotiationData,
-                  });
+                  navigation.navigate(screen);
                 } else if (action) {
                   action(); // Call the specific action for Chat Support
                 } else {

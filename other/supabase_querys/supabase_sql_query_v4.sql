@@ -288,21 +288,29 @@ CREATE TABLE negotiations (
     negotiation_id SERIAL PRIMARY KEY,
     user_id INT NOT NULL,
     shop_id INT NOT NULL,
-    product_id INT NOT NULL, -- Assuming you have a products table
+    crop_id INT NOT NULL,
+    metric_system_id INT NOT NULL,
     user_price DECIMAL(10, 2) NOT NULL,
     user_amount DECIMAL(10, 2) NOT NULL,
-    user_total DECIMAL(10, 2) GENERATED ALWAYS AS (user_price * user_amount_kilo) STORED,
+    user_total DECIMAL(10, 2),
     shop_price DECIMAL(10, 2),
-    shop_total DECIMAL(10, 2) GENERATED ALWAYS AS (shop_price * user_amount_kilo) STORED,
+    shop_amount DECIMAL(10, 2),
+    shop_total DECIMAL(10, 2),
     user_open_for_negotiation BOOLEAN DEFAULT TRUE,
     shop_open_for_negotiation BOOLEAN DEFAULT TRUE,
-    status VARCHAR(50) DEFAULT 'negotiating',
+    negotiation_status VARCHAR(50) DEFAULT 'ongoing',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (metric_system_id) REFERENCES metric_system(metric_system_id) ON DELETE SET NULL,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (shop_id) REFERENCES shop(shop_id) ON DELETE CASCADE,
+    FOREIGN KEY (crop_id) REFERENCES crops(crop_id) ON DELETE CASCADE,
 );
 
 CREATE INDEX idx_negotiations_user_id ON negotiations(user_id);
 CREATE INDEX idx_negotiations_shop_id ON negotiations(shop_id);
+CREATE INDEX idx_negotiations_metric_system_id ON negotiations(metric_system_id);
+CREATE INDEX idx_negotiations_crop_id ON negotiations(crop_id);
 
 -- biddings table
 CREATE TABLE biddings (

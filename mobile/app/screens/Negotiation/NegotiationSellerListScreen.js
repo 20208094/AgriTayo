@@ -1,6 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from "react";
 import { SafeAreaView, View, Text, TouchableOpacity, ScrollView, Image } from 'react-native';
 import { styled } from 'nativewind';
+import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const StyledSafeAreaView = styled(SafeAreaView);
 const StyledView = styled(View);
@@ -9,19 +12,143 @@ const StyledTouchableOpacity = styled(TouchableOpacity);
 const StyledScrollView = styled(ScrollView);
 
 function NegotiationSellerListScreen({ route, navigation }) {
-    const { dummyNegotiation, negotiationData } = route.params;
-    const [selectedStatus, setSelectedStatus] = useState("Negotiating");
+    const [selectedStatus, setSelectedStatus] = useState("Ongoing");
+    const [loading, setLoading] = useState(true);
+    const [shopData, setShopData] = useState(null);
+    const [negotiationData, setNegotiationData] = useState(null);
+    const [cropsData, setCropsData] = useState(null);
+    const [usersData, setUsersData] = useState(null);
+    const [metricSystemData, setMetricSystemData] = useState(null);
+    const [filteredNegotiations, setFilteredNegotiations] = useState([]);
 
-    // Filter based on the selected button (status)
-    const filteredNegotiations = dummyNegotiation.filter(
-        (data) => data.status === selectedStatus
-    );
+    const getAsyncShopData = async () => {
+        try {
+            const storedData = await AsyncStorage.getItem("shopData");
+
+            if (storedData) {
+                const parsedData = JSON.parse(storedData);
+
+                if (Array.isArray(parsedData)) {
+                    const shop = parsedData[0];
+                    setShopData(shop);
+                } else {
+                    setShopData(parsedData);
+                }
+            }
+        } catch (error) {
+            console.error("Failed to load shop data:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchNegotiations = async () => {
+        if (!shopData) return;
+
+        try {
+            const [negotiationsResponse, cropsResponse, usersResponse, metricResponse] = await Promise.all([
+                fetch(`${REACT_NATIVE_API_BASE_URL}/api/negotiations?timestamp=${Date.now()}`, {
+                    headers: {
+                        'x-api-key': REACT_NATIVE_API_KEY,
+                    },
+                }),
+                fetch(`${REACT_NATIVE_API_BASE_URL}/api/crops?timestamp=${Date.now()}`, {
+                    headers: {
+                        'x-api-key': REACT_NATIVE_API_KEY,
+                    },
+                }),
+                fetch(`${REACT_NATIVE_API_BASE_URL}/api/users?timestamp=${Date.now()}`, {
+                    headers: {
+                        'x-api-key': REACT_NATIVE_API_KEY,
+                    },
+                }),
+                fetch(`${REACT_NATIVE_API_BASE_URL}/api/metric_systems?timestamp=${Date.now()}`, {
+                    headers: {
+                        'x-api-key': REACT_NATIVE_API_KEY,
+                    },
+                }),
+            ]);
+
+            const [negotiationsData, cropsData, usersData, metricSystemsData] = await Promise.all([
+                negotiationsResponse.ok ? negotiationsResponse.json() : [],
+                cropsResponse.ok ? cropsResponse.json() : [],
+                usersResponse.ok ? usersResponse.json() : [],
+                metricResponse.ok ? metricResponse.json() : [],
+            ]);
+
+            const filteredNegos = negotiationsData
+                .filter(negotiation => negotiation.shop_id === shopData.shop_id)
+                .sort((a, b) => b.negotiation_id - a.negotiation_id);
+
+            const enhancedNegotiations = filteredNegos.map(negotiation => {
+                const cropInfo = cropsData.find(crop => crop.crop_id === negotiation.crop_id);
+                const userInfo = usersData.find(user => user.user_id === negotiation.user_id);
+                const metricInfo = metricSystemsData.find(metric => metric.metric_system_id === negotiation.metric_system_id);
+
+                return {
+                    ...negotiation,
+                    crops: cropInfo || {},
+                    users: userInfo || {},
+                    metric_system: metricInfo || {},
+                };
+            });
+
+            setNegotiationData(enhancedNegotiations);
+
+        } catch (error) {
+            console.error('Error fetching negotiations or related data:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        const fetchData = async () => {
+            await getAsyncShopData();
+        };
+
+        fetchData();
+    }, []);
+
+    useEffect(() => {
+        let interval;
+
+        if (shopData) {
+            fetchNegotiations();
+            interval = setInterval(() => {
+                fetchNegotiations();
+            }, 5000);
+        }
+
+        return () => {
+            if (interval) {
+                clearInterval(interval);
+            }
+        };
+    }, [shopData]);
+
+    useEffect(() => {
+        if (negotiationData) {
+            const filtered = negotiationData.filter((data) => {
+                const cleanedStatus = data.negotiation_status.replace(/'::character varying/g, "").replace(/'/g, "").trim();
+                return cleanedStatus === selectedStatus;
+            });
+            setFilteredNegotiations(filtered);
+        }
+    }, [negotiationData, selectedStatus]);
+
+    if (loading) {
+        return (
+            <SafeAreaView className="bg-white flex-1 justify-center items-center">
+                <Text>Loading...</Text>
+            </SafeAreaView>
+        );
+    }
 
     return (
         <StyledSafeAreaView className="flex-1 bg-white">
-            {/* Buttons for filtering */}
-            <StyledView className="flex-row justify-around py-4">
-                {["Negotiating", "Approved", "Declined"].map((status) => (
+            <StyledView className="flex-row justify-around py-1">
+                {["Ongoing", "Approved", "Completed", "Cancelled"].map((status) => (
                     <StyledTouchableOpacity
                         key={status}
                         className={`border-b-2 ${selectedStatus === status ? 'border-[#00B251]' : 'border-transparent'}`}
@@ -34,66 +161,81 @@ function NegotiationSellerListScreen({ route, navigation }) {
                 ))}
             </StyledView>
 
-            {/* ScrollView for list items */}
-            <StyledScrollView contentContainerStyle={{ paddingVertical: 20 }} className="flex-1 p-5">
+            <StyledScrollView contentContainerStyle={{ paddingVertical: 20 }} className="flex-1 px-5 bg-white">
                 <StyledView className="space-y-6 mb-10">
-                    {filteredNegotiations.map((data) => (
-                        <StyledTouchableOpacity
-                            key={data.id}
-                            className="bg-white border border-gray-300 rounded-lg shadow-lg p-5"
-                            onPress={() =>
-                                navigation.navigate('Seller Negotiation', { dummyNegotiation: data, negotiationData })
-                            }
-                            style={{
-                                shadowColor: "#000",
-                                shadowOffset: { width: 0, height: 2 },
-                                shadowOpacity: 0.25,
-                                shadowRadius: 3.84,
-                                elevation: 5,
-                            }}
-                        >
-                            <StyledView className="flex-row">
-                                {/* Left Column: Image (1/3 width) */}
-                                <StyledView className="w-1/3 pr-1">
-                                    <Image
-                                        source={data.productImage}
-                                        className="w-full h-48 object-cover rounded-lg mb-3"
-                                        resizeMode="cover"
-                                    />
-                                </StyledView>
-
-                                {/* Right Column: Product Information */}
-                                <StyledView className="w-2/3 space-y-3">
-                                    <StyledText className="text-lg font-semibold text-[#00B251] text-center">
-                                        {data.productName}
-                                    </StyledText>
-                                    <StyledText className="text-sm font-medium text-gray-500 text-center">
-                                        ₱{data.productPrice.toFixed(2)}
-                                    </StyledText>
-
-                                    <StyledView className="border-t border-gray-300 mt-2 pt-2 space-y-1">
-                                        <StyledText className="text-sm font-bold text-gray-800 text-center">Negotiation Status:</StyledText>
-                                        <StyledText className={`text-sm ${data.status === 'Pending' ? 'text-gray-500' : 'text-[#00B251]'} text-center`}>
-                                            {data.status || 'Pending'}
-                                        </StyledText>
+                    {filteredNegotiations && filteredNegotiations.length > 0 ? (
+                        filteredNegotiations.map((data) => (
+                            <StyledTouchableOpacity
+                                key={data.negotiation_id}
+                                className="bg-white border border-gray-300 rounded-lg shadow-lg p-4"
+                                onPress={() => navigation.navigate('Seller Negotiation')}
+                                style={{
+                                    shadowColor: "#000",
+                                    shadowOffset: { width: 0, height: 2 },
+                                    shadowOpacity: 0.25,
+                                    shadowRadius: 3.84,
+                                    elevation: 5,
+                                }}
+                            >
+                                <StyledView className="flex-row bg-white rounded-lg shadow-md ">
+                                    <StyledView className="w-1/3 pr-2">
+                                        <Image
+                                            source={{ uri: data.crops.crop_image_url }}
+                                            className="w-full h-32 object-cover rounded-md"
+                                            resizeMode="cover"
+                                        />
                                     </StyledView>
 
-                                    {/* Offer Details */}
-                                    <StyledView className="border-t border-gray-300 mt-2 pt-2 space-y-2">
-                                        <StyledText className="text-sm text-gray-700 text-center">Offered Price: 
-                                            <Text className="font-semibold text-gray-800"> ₱{negotiationData.price}</Text>
+                                    <StyledView className="w-2/3 pl-2 space-y-2">
+                                        {/* Crop Name */}
+                                        <StyledText className="text-xl font-bold text-[#00B251]">
+                                            {data.crops.crop_name}
                                         </StyledText>
-                                        <StyledText className="text-sm text-gray-700 text-center">Amount: 
-                                            <Text className="font-semibold text-gray-800"> {negotiationData.amount}</Text>
+
+                                        {/* Buyer's Details */}
+                                        <StyledText className="text-sm font-semibold text-gray-600">
+                                            Buyer: <Text className="text-gray-800">{data.users.firstname} {data.users.lastname}</Text>
                                         </StyledText>
-                                        <StyledText className="text-sm text-gray-700 text-center">Total: 
-                                            <Text className="font-semibold text-gray-800"> ₱{negotiationData.total}</Text>
-                                        </StyledText>
+
+                                        {/* Price Section */}
+                                        <StyledView className="bg-gray-50 p-2 rounded-lg border border-gray-200">
+                                            {/* Original Price */}
+                                            <StyledView className="flex-row justify-between items-center pb-1 mb-1.5 border-b border-gray-400">
+                                                <StyledText className="text-sm font-medium text-gray-700">Original Price:</StyledText>
+                                                <StyledText className="text-sm text-gray-800">
+                                                    ₱{data.crops.crop_price.toFixed(2)} / {data.metric_system.metric_system_symbol}
+                                                </StyledText>
+                                            </StyledView>
+
+                                            {/* Buyer's Offered Price */}
+                                            <StyledView className="flex-row justify-between items-center mb-1">
+                                                <StyledText className="text-sm font-medium text-gray-700">Offered Price:</StyledText>
+                                                <StyledText className="text-sm text-gray-800">₱{data.user_price.toFixed(2)}</StyledText>
+                                            </StyledView>
+
+                                            {/* Offered Amount */}
+                                            <StyledView className="flex-row justify-between items-center mb-1">
+                                                <StyledText className="text-sm font-medium text-gray-700">Offered Amount:</StyledText>
+                                                <StyledText className="text-sm text-gray-800">
+                                                    {data.user_amount} {data.metric_system.metric_system_symbol}
+                                                </StyledText>
+                                            </StyledView>
+
+                                            {/* Total Offered Price */}
+                                            <StyledView className="flex-row justify-between items-center mb-1">
+                                                <StyledText className="text-sm font-medium text-gray-700">Total Offered Price:</StyledText>
+                                                <StyledText className="text-sm font-bold text-[#00B251]">₱{data.user_total.toFixed(2)}</StyledText>
+                                            </StyledView>
+                                        </StyledView>
                                     </StyledView>
                                 </StyledView>
-                            </StyledView>
-                        </StyledTouchableOpacity>
-                    ))}
+                            </StyledTouchableOpacity>
+                        ))
+                    ) : (
+                        <StyledText className="text-center text-gray-500">
+                            No negotiation data found
+                        </StyledText>
+                    )}
                 </StyledView>
             </StyledScrollView>
         </StyledSafeAreaView>
