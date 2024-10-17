@@ -8,45 +8,25 @@ import {
   ScrollView,
   FlatList,
   Modal,
-  Dimensions
+  Dimensions,
 } from "react-native";
-import { useWindowDimensions } from 'react-native';
+import { useWindowDimensions } from "react-native";
 
-function BiddingDetailsScreen({ route }) {
+function BiddingDetailsScreen({ route, navigation}) {
   const { data } = route.params;
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
 
-  const initialTimeInSeconds = data.day * 86400 + data.hour * 3600 + data.minutes * 60;
-  const [remainingTime, setRemainingTime] = useState(initialTimeInSeconds);
   const [activeIndex, setActiveIndex] = useState(0);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [showFullDescription, setShowFullDescription] = useState(false);
+  const [timeLeft, setTimeLeft] = useState({}); // State for timer
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setRemainingTime((prevTime) => {
-        if (prevTime <= 0) {
-          clearInterval(interval);
-          return 0;
-        }
-        return prevTime - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  const formatTime = (totalSeconds) => {
-    const days = Math.floor(totalSeconds / 86400);
-    const hours = Math.floor((totalSeconds % 86400) / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = totalSeconds % 60;
-
-    return `${days}d ${hours}h ${minutes}m ${seconds}s`;
-  };
-
-  const carouselImages = [data.pic, data.pic, data.pic];
+  const carouselImages = [
+    { uri: data.bid_image },
+    { uri: data.bid_image },
+    { uri: data.bid_image },
+  ];
 
   const onViewRef = React.useRef((viewableItems) => {
     if (viewableItems?.changed?.length > 0) {
@@ -60,12 +40,42 @@ function BiddingDetailsScreen({ route }) {
     setIsModalVisible(true);
   };
 
+  // Function to calculate time left
+  const calculateTimeLeft = (endDate) => {
+    const now = new Date();
+    const end = new Date(endDate);
+    const difference = end - now;
+
+    let timeLeft = {};
+
+    if (difference > 0) {
+      timeLeft = {
+        days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+        minutes: Math.floor((difference / 1000 / 60) % 60),
+        seconds: Math.floor((difference / 1000) % 60),
+      };
+    } else {
+      timeLeft = { expired: true };
+    }
+
+    return timeLeft;
+  };
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft(calculateTimeLeft(data.end_date)); // Update based on your data structure
+    }, 1000);
+
+    return () => clearInterval(timer); // Cleanup timer on component unmount
+  }, [data.end_date]);
+
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
       <View className="flex-1">
         {/* Background Image */}
         <Image
-          source={data.pic}
+          source={{ uri: data.bid_image }}
           className="absolute w-full h-[100%] object-cover -z-1"
           style={{ height: screenHeight * 0.7 }} // Dynamic height based on screen size
         />
@@ -76,20 +86,24 @@ function BiddingDetailsScreen({ route }) {
           <View className="bg-white/80 p-3 rounded-lg mx-5 mt-[45%] self-center w-[90%]">
             {/* Product Name and Details */}
             <Text className="text-center text-2xl font-bold text-gray-900">
-              {data.name}
+              {data.bid_name}
             </Text>
             <Text className="text-center text-lg text-gray-500 mt-2">
-              Sold by: {data.shopName}
+              Sold by: {data.shops.shop_name}
             </Text>
 
             {/* Current Highest Bid */}
             <Text className="text-center text-xl font-semibold text-green-600 mt-4">
-              Current Highest Bid: ₱{data.currentHighestBid}
+              Current Highest Bid: ₱{data.bid_current_highest}
             </Text>
 
             {/* Timer */}
             <Text className="text-center text-xl font-semibold text-gray-900 mt-4">
-              {formatTime(remainingTime)}
+              {timeLeft.expired ? (
+                <Text className="text-xl text-red-600">Bid Expired</Text>
+              ) : (
+                `${timeLeft.days}d ${timeLeft.hours}h ${timeLeft.minutes}m ${timeLeft.seconds}s`
+              )}
             </Text>
 
             {/* Carousel of images */}
@@ -110,7 +124,7 @@ function BiddingDetailsScreen({ route }) {
               className="mt-4 self-center"
               onViewableItemsChanged={onViewRef.current}
               viewabilityConfig={viewConfigRef.current}
-              contentContainerStyle={{ justifyContent: 'center' }}
+              contentContainerStyle={{ justifyContent: "center" }}
             />
 
             {/* Pagination */}
@@ -119,7 +133,7 @@ function BiddingDetailsScreen({ route }) {
                 <View
                   key={index}
                   className={`h-2 w-2 rounded-full mx-1 ${
-                    index === activeIndex ? 'bg-green-600' : 'bg-gray-300'
+                    index === activeIndex ? "bg-green-600" : "bg-gray-300"
                   }`}
                 />
               ))}
@@ -134,18 +148,18 @@ function BiddingDetailsScreen({ route }) {
             </Text>
             {/* Always truncate the description on the main screen */}
             <Text className="text-base text-gray-600 leading-6" numberOfLines={2}>
-              {data.description}
+              {data.bid_description}
             </Text>
 
             {/* Read More Button */}
-            {data.description.length > 100 && (
+            {data.bid_description.length > 100 && (
               <TouchableOpacity onPress={() => setShowFullDescription(true)}>
                 <Text className="text-green-600 text-base mt-1">Read More</Text>
               </TouchableOpacity>
             )}
 
             {/* Place a Bid Button */}
-            <TouchableOpacity className="bg-green-600 py-4 rounded-lg mt-6">
+            <TouchableOpacity className="bg-green-600 py-4 rounded-lg mt-6" onPress={() => navigation.navigate('Place a Bid', {data})}>
               <Text className="text-lg font-bold text-white text-center">
                 Place a Bid
               </Text>
@@ -175,7 +189,7 @@ function BiddingDetailsScreen({ route }) {
               <Text className="text-lg font-semibold mb-2">Full Description</Text>
               <ScrollView>
                 <Text className="text-base text-gray-600 leading-6">
-                  {data.description}
+                  {data.bid_description}
                 </Text>
               </ScrollView>
               <TouchableOpacity onPress={() => setShowFullDescription(false)} className="mt-5">

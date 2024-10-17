@@ -58,6 +58,7 @@ import NegotiationBuyerEditScreen from "./app/screens/Negotiation/Buyer/Negotiat
 import AddLocation from "./app/components/AddLocation";
 import OrdersScreen from "./app/screens/Orders/OrdersScreen";
 import BiddingBuyerScreen from "./app/screens/Bidding/BiddingBuyerScreen";
+import PlaceABid from "./app/screens/Bidding/PlaceABidScreen";
 import AnalyticScreen from "./app/screens/Analytics/AnalyticScreen";
 // for farmers
 import ShopScreen from "./app/screens/farmers/Shop/ShopScreen";
@@ -522,6 +523,11 @@ function App() {
               name="Orders"
               component={OrdersScreen}
               options={screenOptions}
+            />
+            <Stack.Screen
+            name='Place a Bid'
+            component={PlaceABid}
+            options={screenOptions}
             />
             <Stack.Screen
               name="Navigator"
