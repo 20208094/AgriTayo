@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
+import MainLogo from '/AgriTayo_Logo_wName.png';
 
-// API key (replace with your environment variable or API key as needed)
 const API_KEY = import.meta.env.VITE_API_KEY;
 
 function CropCategoryPageCRUD() {
@@ -116,17 +118,45 @@ function CropCategoryPageCRUD() {
     category.crop_category_description.toLowerCase().includes(searchQuery)
   );
 
+  //pdf table design
+  const exportToPDF = () => {
+    const doc = new jsPDF('landscape');
+
+    const logoWidth = 50;
+    const logoHeight = 50; 
+    const marginBelowLogo = 5; 
+    const textMargin = 5;
+
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const xPosition = (pageWidth - logoWidth) / 2; 
+    doc.addImage(MainLogo, 'PNG', xPosition, 10, logoWidth, logoHeight); 
+
+    const textYPosition = 10 + logoHeight + textMargin; 
+    doc.text("Crop Categories List", xPosition + logoWidth / 2, textYPosition, { align: "center" }); 
+
+    const tableStartY = textYPosition + marginBelowLogo + 5; 
+
+    const tableData = filteredCategories.map(category => [
+        category.crop_category_id,
+        category.crop_category_name,
+        category.crop_category_description
+    ]);
+
+    doc.autoTable({
+        startY: tableStartY, 
+        head: [['ID', 'Category Name', 'Description']],
+        body: tableData,
+        headStyles: {
+          fillColor: [0, 128, 0] , halign: 'center', valign: 'middle'
+        },
+    });
+    doc.save('crop_categories_list.pdf');
+};
+
+
   return (
     <div style={{ padding: '50px' }}>
       <h1>Crop Categories Management</h1>
-
-      <input
-        type="text"
-        placeholder="Search..."
-        value={searchQuery}
-        onChange={handleSearchChange}
-        style={{ marginBottom: '20px', padding: '8px', width: '300px' }}
-      />
 
       <form onSubmit={handleSubmit} encType="multipart/form-data">
         <input
@@ -156,6 +186,17 @@ function CropCategoryPageCRUD() {
         />
         <button type="submit">{isEdit ? 'Update' : 'Create'}</button>
       </form>
+
+      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
+        <input
+          type="text"
+          placeholder="Search..."
+          value={searchQuery}
+          onChange={handleSearchChange}
+          style={{ padding: '8px', width: '300px' }}
+        />
+        <button onClick={exportToPDF} style={{ marginLeft: '20px', padding: '8px' }}>Export to PDF</button>
+      </div>
 
       <table style={{ border: '1px solid black', width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
         <thead>

@@ -5,13 +5,16 @@ const API_KEY = import.meta.env.VITE_API_KEY;
 
 function UserTypePage() {
   const [userTypes, setUserTypes] = useState([]);
+  const [filteredUserTypes, setFilteredUserTypes] = useState([]); // State for filtered data
   const [formData, setFormData] = useState({});
   const [isEdit, setIsEdit] = useState(false);
+  const [searchTerm, setSearchTerm] = useState(''); // State for search input
 
   useEffect(() => {
     fetchData();
   }, []);
 
+  // Fetching data from API
   const fetchData = async () => {
     try {
       const response = await fetch('/api/user_types', {
@@ -24,14 +27,30 @@ function UserTypePage() {
       }
       const data = await response.json();
       setUserTypes(data);
+      setFilteredUserTypes(data); // Initialize filtered list
     } catch (error) {
       console.error('Error fetching user types:', error);
     }
   };
 
+  // Handling form input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+  };
+
+  // Handling search input changes
+  const handleSearchChange = (e) => {
+    const { value } = e.target;
+    setSearchTerm(value);
+
+    // Filter user types based on the search term
+    const filtered = userTypes.filter(
+      (type) =>
+        type.user_type_name.toLowerCase().includes(value.toLowerCase()) ||
+        type.user_type_description.toLowerCase().includes(value.toLowerCase())
+    );
+    setFilteredUserTypes(filtered);
   };
 
   const handleSubmit = async (e) => {
@@ -84,7 +103,7 @@ function UserTypePage() {
   return (
     <div style={{ padding: '50px' }}>
       <h1>User Type Table</h1>
-      
+
       <form onSubmit={handleSubmit} style={{ marginBottom: '20px' }}>
         <input
           type="text"
@@ -119,7 +138,18 @@ function UserTypePage() {
         />
         <button type="submit" className="btn btn-primary">{isEdit ? 'Update' : 'Create'}</button>
       </form>
-      
+
+      <div style={{ display: 'flex', marginBottom: '20px' }}>
+      <input
+        type="text"
+        value={searchTerm}
+        onChange={handleSearchChange}
+        placeholder="Search for user type"
+        className="form-control"
+        style={{ marginBottom: '20px', width: '300px' }}
+      />
+      </div>
+
       <table style={{ border: '1px solid black', width: '100%', borderCollapse: 'collapse' }} className="table table-bordered">
         <thead className="thead-dark">
           <tr>
@@ -130,7 +160,7 @@ function UserTypePage() {
           </tr>
         </thead>
         <tbody>
-          {userTypes.map((type) => (
+          {filteredUserTypes.map((type) => (
             <tr key={type.user_type_id}>
               <td style={{ border: '1px solid black', padding: '8px' }}>{type.user_type_id}</td>
               <td style={{ border: '1px solid black', padding: '8px' }}>{type.user_type_name}</td>
