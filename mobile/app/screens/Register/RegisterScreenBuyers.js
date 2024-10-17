@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
   SafeAreaView,
+  Alert,
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { styled } from "nativewind";
@@ -24,11 +25,9 @@ function RegisterScreenBuyers({ navigation }) {
   const [phone, setPhone] = useState("");
 
   const [firstNameError, setFirstNameError] = useState("");
-  const [middleNameError, setMiddleNameError] = useState("");
   const [lastNameError, setLastNameError] = useState("");
   const [birthDayError, setBirthDayError] = useState("");
   const [genderError, setGenderError] = useState("");
-  const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [confirmPasswordError, setConfirmPasswordError] = useState("");
   const [phoneError, setPhoneError] = useState("");
@@ -36,112 +35,114 @@ function RegisterScreenBuyers({ navigation }) {
   const [loading, setLoading] = useState(false); // Loading state to handle spinner
 
   const firstname_regex = /^[A-Za-z\s]{2,}$/;
-  const middlename_regex = /^[A-Za-z\s]{2,}$/;
   const lastname_regex = /^[A-Za-z\s]{2,}$/;
   const password_regex = /^[A-Za-z\d@.#$!%*?&^]{8,30}$/;
-  const email_regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const phone_regex = /^(?:\+63|0)?9\d{9}$/;
 
   const handleRegister = async () => {
     // Reset error states
     setFirstNameError("");
-    setMiddleNameError("");
     setLastNameError("");
     setBirthDayError("");
     setGenderError("");
-    setEmailError("");
     setPasswordError("");
     setConfirmPasswordError("");
     setPhoneError("");
 
     let hasError = false;
 
-    // Validation checks (omitted for brevity, same as before)
-    if (!firstName || !firstname_regex.test(firstName)) {
-      setFirstNameError("Invalid First Name. Please try again.");
-      hasError = true;
-    }
+   // Validation checks
+if (!firstName) {
+  setFirstNameError("First Name is required.");
+  hasError = true;
+} else if (!firstname_regex.test(firstName)) {
+  setFirstNameError("Invalid First Name. Please try again.");
+  hasError = true;
+}
 
-    if (!middleName || !middlename_regex.test(middleName)) {
-      setMiddleNameError("Invalid Middle Name. Please try again.");
-      hasError = true;
-    }
+if (!lastName) {
+  setLastNameError("Last Name is required.");
+  hasError = true;
+} else if (!lastname_regex.test(lastName)) {
+  setLastNameError("Invalid Last Name. Please try again.");
+  hasError = true;
+}
 
-    if (!lastName || !lastname_regex.test(lastName)) {
-      setLastNameError("Invalid Last Name. Please try again.");
-      hasError = true;
-    }
+if (!birthDay) {
+  setBirthDayError("Enter your Birthday.");
+  hasError = true;
+}
 
-    if (!birthDay) {
-      setBirthDayError("Enter your Birthday");
-      hasError = true;
-    }
+if (!gender) {
+  setGenderError("Select your Gender.");
+  hasError = true;
+}
 
-    if (!gender) {
-      setGenderError("Select your Gender");
-      hasError = true;
-    }
+if (!password) {
+  setPasswordError("Password is required.");
+  hasError = true;
+} else if (!password_regex.test(password)) {
+  setPasswordError("Invalid Password. Please try again.");
+  hasError = true;
+}
 
-    if (!email || !email_regex.test(email)) {
-      setEmailError("Invalid Email. Please try again.");
-      hasError = true;
-    }
+if (!confirmPassword) {
+  setConfirmPasswordError("Please confirm your password.");
+  hasError = true;
+} else if (confirmPassword !== password) {
+  setConfirmPasswordError("Passwords do not match.");
+  hasError = true;
+}
 
-    if (!password || !password_regex.test(password)) {
-      setPasswordError("Invalid Password. Please try again.");
-      hasError = true;
-    }
+if (!phone) {
+  setPhoneError("Phone Number is required.");
+  hasError = true;
+} else if (!phone_regex.test(phone)) {
+  setPhoneError("Invalid Phone Number. Please try again.");
+  hasError = true;
+}
 
-    if (!confirmPassword || confirmPassword !== password) {
-      setConfirmPasswordError("Passwords do not match.");
-      hasError = true;
-    }
+if (hasError) {
+  return;
+}
 
-    if (!phone || !phone_regex.test(phone)) {
-      setPhoneError("Invalid Phone Number. Please try again.");
-      hasError = true;
-    }
-
-    if (hasError) {
-      return;
-    }
+    // Create FormData object
+    const formData = new FormData();
+    formData.append("firstname", firstName);
+    formData.append("middlename", middleName);
+    formData.append("lastname", lastName);
+    formData.append("birthday", birthDay);
+    formData.append("gender", gender);
+    formData.append("email", email);
+    formData.append("password", password);
+    formData.append("phone_number", phone);
+    formData.append("user_type_id", "3"); // Assuming it's a string
 
     // If validation passes, proceed to call the backend API for registration
     setLoading(true); // Show loading state while making API call
     try {
-      const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/register`, {
+      const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/users`, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
           "x-api-key": REACT_NATIVE_API_KEY, // Secure API key
         },
-        body: JSON.stringify({
-          firstname: firstName,
-          middlename: middleName,
-          lastname: lastName,
-          birthday: birthDay,
-          gender,
-          email,
-          password,
-          phone_number: phone,
-          user_type_id: 3,
-        }),
+        body: formData, // Use FormData object as the body
       });
 
       if (response.ok) {
         const data = await response.json();
         console.log("Registration successful:", data);
-
+        alert("Registration Successful!");
         // Navigate to OTP Screen or login screen after successful registration
         navigation.navigate("OTP Screen", { email });
       } else {
         const errorData = await response.json();
         console.error("Registration failed:", errorData);
-        setEmailError(errorData.error || "Registration failed. Please try again.");
+        alert("Registration Failed. Please Try Again");
       }
     } catch (error) {
       console.error("Error during registration:", error);
-      setEmailError("An error occurred. Please try again.");
+      alert("An error occurred. Please try again.");
     } finally {
       setLoading(false); // Hide loading state
     }
@@ -191,9 +192,6 @@ function RegisterScreenBuyers({ navigation }) {
             value={middleName}
             onChangeText={setMiddleName}
           />
-          {middleNameError ? (
-            <Text className="w-4/5 text-red-500 mb-4">{middleNameError}</Text>
-          ) : null}
 
           <TextInput
             className="w-full p-3 mb-4 bg-white rounded-lg shadow-md"
@@ -249,6 +247,17 @@ function RegisterScreenBuyers({ navigation }) {
           ) : null}
 
           <TextInput
+            className="w-full p-3 mb-6 bg-white rounded-lg shadow-md"
+            placeholder="Phone Number"
+            keyboardType="phone-pad"
+            value={phone}
+            onChangeText={setPhone}
+          />
+          {phoneError ? (
+            <Text className="w-4/5 text-red-500 mb-4">{phoneError}</Text>
+          ) : null}
+
+          <TextInput
             className="w-full p-3 mb-4 bg-white rounded-lg shadow-md"
             placeholder="Email"
             keyboardType="email-address"
@@ -257,9 +266,6 @@ function RegisterScreenBuyers({ navigation }) {
             value={email}
             onChangeText={setEmail}
           />
-          {emailError ? (
-            <Text className="w-4/5 text-red-500 mb-4">{emailError}</Text>
-          ) : null}
 
           <TextInput
             className="w-full p-3 mb-4 bg-white rounded-lg shadow-md"
@@ -287,17 +293,6 @@ function RegisterScreenBuyers({ navigation }) {
             <Text className="w-4/5 text-red-500 mb-4">
               {confirmPasswordError}
             </Text>
-          ) : null}
-
-          <TextInput
-            className="w-full p-3 mb-6 bg-white rounded-lg shadow-md"
-            placeholder="Phone Number"
-            keyboardType="phone-pad"
-            value={phone}
-            onChangeText={setPhone}
-          />
-          {phoneError ? (
-            <Text className="w-4/5 text-red-500 mb-4">{phoneError}</Text>
           ) : null}
 
           <TouchableOpacity
