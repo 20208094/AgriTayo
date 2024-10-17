@@ -22,13 +22,6 @@ async function addUserBid(req, res) {
     const { bid_id, user_id, price } = req.body;
     console.log(bid_id, user_id, price)
 
-    // Validate required fields
-    if (bid_id || user_id || price === undefined) {
-      return res
-        .status(400)
-        .json({ error: "Bid ID, User ID, and Price are required." });
-    }
-
     const { data, error } = await supabase
       .from("user_bids")
       .insert([{ bid_id, user_id, price }]);
