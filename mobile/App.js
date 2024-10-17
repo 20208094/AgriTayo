@@ -50,13 +50,15 @@ import ChatSupportScreen from "./app/screens/farmers/Shop/LearnAndHelp/ChatSuppo
 import EditShopScreen from "./app/screens/farmers/Shop/ViewSalesHistory/EditShopScreen";
 import ProfileScreen from "./app/screens/Profile/ProfileScreen";
 import Navigator from "./app/components/Navigator";
-import NegotiationSellerScreen from "./app/screens/Negotiation/NegotiationSellerScreen";
-import NegotiationBuyerScreen from "./app/screens/Negotiation/NegotiationBuyersScreen";
-import NegotiationSellerListScreen from "./app/screens/Negotiation/NegotiationSellerListScreen";
-import NegotiationBuyerEditScreen from "./app/screens/Negotiation/NegotiationBuyerEditScreen";
+import NegotiationSellerScreen from "./app/screens/Negotiation/Seller/NegotiationSellerScreen";
+import NegotiationBuyerScreen from "./app/screens/Negotiation/Buyer/NegotiationBuyersScreen";
+import NegotiationSellerListScreen from "./app/screens/Negotiation/Seller/NegotiationSellerListScreen";
+import NegotiationBuyerListScreen from "./app/screens/Negotiation/Buyer/NegotiationBuyerListScreen";
+import NegotiationBuyerEditScreen from "./app/screens/Negotiation/Buyer/NegotiationBuyerEditScreen";
 import AddLocation from "./app/components/AddLocation";
 import OrdersScreen from "./app/screens/Orders/OrdersScreen";
 import BiddingBuyerScreen from "./app/screens/Bidding/BiddingBuyerScreen";
+import AnalyticScreen from "./app/screens/Analytics/AnalyticScreen";
 // for farmers
 import ShopScreen from "./app/screens/farmers/Shop/ShopScreen";
 import ViewShopScreen from "./app/screens/farmers/Shop/ViewShopScreen";
@@ -79,6 +81,7 @@ import AddProductScreen from "./app/screens/farmers/Shop/MyProducts/AddProductSc
 import ChatScreen from "./app/screens/Chat/ChatScreen";
 import ChatListScreen from "./app/screens/Chat/ChatListScreen";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from '@env';
+import { SafeAreaView } from "react-native-safe-area-context";
 const SOCKET_URL = REACT_NATIVE_API_BASE_URL;
 
 const Stack = createStackNavigator();
@@ -481,6 +484,11 @@ function App() {
               options={screenOptions}
             />
             <Stack.Screen
+              name='Buyer Negotiation List'
+              component={NegotiationBuyerListScreen}
+              options={screenOptions}
+            />
+            <Stack.Screen
               name='Seller Negotiation'
               component={NegotiationSellerScreen}
               options={screenOptions}
@@ -496,12 +504,17 @@ function App() {
               options={screenOptions}
             />
             <Stack.Screen
+              name='Analytics'
+              component={AnalyticScreen}
+              options={screenOptions}
+            />
+            <Stack.Screen
               name='Add Location'
               component={AddLocation}
               options={screenOptions}
             />
             <Stack.Screen
-              name="Buyer Bidding"
+              name="Biddings"
               component={BiddingBuyerScreen}
               options={screenOptions}
             />

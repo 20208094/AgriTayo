@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { SafeAreaView, View, Text, TouchableOpacity, TextInput, Image, Modal, ScrollView, Dimensions } from 'react-native';
-import logo from "../../assets/logo.png";
+import logo from "../../../assets/logo.png";
 import { styled } from 'nativewind'; // Import NativeWind
 
 const { width, height } = Dimensions.get('window'); // Get screen dimensions

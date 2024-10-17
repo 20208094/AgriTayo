@@ -9,18 +9,11 @@ import {
   Switch,
   Modal,
 } from "react-native";
-import logo from "../../assets/logo.png";
+import logo from "../../../assets/logo.png";
 import { styled } from "nativewind";
-
-const dummyNegotiation = [
-  {
-    id: 1,
-    productImage: logo,
-    productName: "Patatas",
-    productDescription: "Patatas masarap",
-    productPrice: 10.0,
-  },
-];
+import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const StyledSafeAreaView = styled(SafeAreaView);
 const StyledText = styled(Text);
@@ -29,16 +22,47 @@ const StyledTouchableOpacity = styled(TouchableOpacity);
 const StyledView = styled(View);
 const StyledModal = styled(Modal);
 
-function NegotiationBuyerScreen({ navigation }) {
+function NegotiationBuyerScreen({ navigation, route }) {
+  const [loading, setLoading] = useState(true);
   const [price, setPrice] = useState("");
   const [amount, setAmount] = useState("");
   const [total, setTotal] = useState(0);
   const [modalVisible, setModalVisible] = useState(false);
-  const [confirmationModalVisible, setConfirmationModalVisible] =
-    useState(false);
-  const [isChecked, setIsChecked] = useState(false); // State for toggle (checked or not)
+  const [confirmationModalVisible, setConfirmationModalVisible] = useState(false);
+  const [isChecked, setIsChecked] = useState(false);
+  const { product } = route.params;
+  const toggleSwitch = () => setIsChecked(!isChecked);
+  const [userData, setUserData] = useState([]);
 
-  const toggleSwitch = () => setIsChecked(!isChecked); // Toggle functionalit
+  const getAsyncUserData = async () => {
+    setLoading(true);
+    try {
+      const storedData = await AsyncStorage.getItem('userData');
+
+      if (storedData) {
+        const parsedData = JSON.parse(storedData);
+
+        if (Array.isArray(parsedData)) {
+          const user = parsedData[0];
+          setUserData(user);
+        } else {
+          setUserData(parsedData);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load user data:', error);
+    } finally {
+      setLoading(false);
+
+    }
+  };
+
+  useFocusEffect(
+    React.useCallback(() => {
+      getAsyncUserData();
+    }, [])
+  );
+
 
   useEffect(() => {
     const priceNum = parseFloat(price) || 0;
@@ -47,45 +71,107 @@ function NegotiationBuyerScreen({ navigation }) {
   }, [price, amount]);
 
   const handleSubmit = () => {
-    setConfirmationModalVisible(true); // Show "Are you sure?" modal
+    setConfirmationModalVisible(true);
   };
 
-  const handleConfirmYes = () => {
-    setConfirmationModalVisible(false); // Close "Are you sure?" modal
-    setModalVisible(true); // Show "Negotiation Successful!" modal
+  const handleCreateNegotiation = async (negotiationDetails) => {
+    console.log('Initiating API call to create negotiation with details:', negotiationDetails);
+
+    try {
+      const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/negotiations`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': REACT_NATIVE_API_KEY,
+        },
+        body: JSON.stringify(negotiationDetails),
+      });
+
+      // Log the response status for debugging
+      console.log('API response status:', response.status);
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('Negotiation placed successfully. Response:', result);
+        alert('Negotiation placed successfully!');
+        // Only set modal visible after success
+        setModalVisible(true);
+      } else {
+        const errorResponse = await response.text(); // Capture the response body
+        console.error('Failed to place negotiation. Status:', response.status, 'Status Text:', response.statusText);
+        console.error('Error response from server:', errorResponse);
+        alert('Failed to place negotiation. Please try again.');
+      }
+    } catch (error) {
+      // Log the full error object for better debugging
+      console.error('Error placing negotiation:', error);
+      alert('Network error. Please try again later.');
+    } finally {
+      console.log('Finished handling negotiation bid, closing confirmation modal.');
+      setConfirmationModalVisible(false); // Close the confirmation modal after request
+    }
   };
+  
+  const handleConfirmYes = () => {
+    const negotiationDetails = {
+      user_id: userData.user_id,
+      shop_id: product.shop_id,
+      crop_id: product.crop_id,
+      metric_system_id: product.metric_system_id,
+      user_price: parseFloat(price),
+      user_amount: parseFloat(amount),
+      user_total: parseFloat(total),
+      user_open_for_negotiation: isChecked,
+    };
+
+    handleCreateNegotiation(negotiationDetails);
+  };
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text>Loading Bid...</Text>
+      </View>
+    );
+  }
 
   return (
     <StyledSafeAreaView className="flex-1 p-5 bg-white">
       {/* Product Info */}
-      <StyledView className="mb-6 items-center">
+      <StyledView className="mb-3 items-center">
         <Image
-          source={dummyNegotiation[0].productImage}
+          source={{ uri: product.crop_image_url }}
           className="w-40 h-40"
         />
         <StyledText className="text-lg font-bold mt-4 text-black">
-          Product: {dummyNegotiation[0].productName}
+          Product: {product.crop_name}
         </StyledText>
         <StyledText className="text-sm text-gray-600">
-          Description: {dummyNegotiation[0].productDescription}
+          Description: {product.crop_description}
         </StyledText>
         <StyledText className="text-sm text-gray-600">
-          Product Price: {dummyNegotiation[0].productPrice}
+          Product Price: {product.crop_price}
         </StyledText>
       </StyledView>
 
       <StyledView className="mb-4">
+        <StyledText className=" text-black ml-1">
+          Enter the Price:
+        </StyledText>
         <StyledTextInput
           className={`border border-[#00B251] rounded-lg p-3 text-black`}
           keyboardType="numeric"
-          placeholder="Enter the price"
+          placeholder="₱00.00"
           value={price}
           onChangeText={setPrice}
         />
+        <StyledText className=" mt-2 text-black ml-1">
+          Enter the Ammount:
+        </StyledText>
         <StyledTextInput
-          className={`border border-[#00B251] rounded-lg p-3 mt-3 text-black`}
+          className={`border border-[#00B251] rounded-lg p-3 text-black`}
           keyboardType="numeric"
-          placeholder="Enter the amount"
+          placeholder="0"
           value={amount}
           onChangeText={setAmount}
         />
@@ -99,29 +185,30 @@ function NegotiationBuyerScreen({ navigation }) {
       {/* New Toggle Switch */}
       <StyledView className="flex-row items-center mb-4">
         <StyledText className="text-lg font-bold text-black">
-          Open for:
+          Open for Negotiation:
+        </StyledText>
+        <StyledText className="text-red-700 font-bold text-base ml-3">
+          No
         </StyledText>
         <StyledTouchableOpacity
-          className="relative inline-flex items-center cursor-pointer ml-4"
+          className="relative inline-flex items-center cursor-pointer ml-1"
           onPress={toggleSwitch}
         >
+
           <StyledView
-            className={`relative w-[44px] h-[24px] rounded-full transition-colors duration-300 ${
-              isChecked ? "bg-green-600" : "bg-gray-200"
-            }`}
+            className={`relative w-[44px] h-[24px] rounded-full transition-colors duration-300 ${isChecked ? "bg-green-600" : "bg-gray-200"
+              }`}
           >
             <StyledView
-              className={`absolute top-[2px] start-[2px] h-[20px] w-[20px] rounded-full transition-transform duration-300 ${
-                isChecked
-                  ? "translate-x-[20px] bg-white"
-                  : "translate-x-0 bg-gray-400"
-              }`}
+              className={`absolute top-[2px] start-[2px] h-[20px] w-[20px] rounded-full transition-transform duration-300 ${isChecked
+                ? "translate-x-[20px] bg-white"
+                : "translate-x-0 bg-gray-400"
+                }`}
             />
           </StyledView>
         </StyledTouchableOpacity>
-        <StyledText className="text-lg font-bold text-black">
-          {" "}
-          Negotiation
+        <StyledText className="text-green-700 font-bold text-base ml-1">
+          Yes
         </StyledText>
       </StyledView>
 
@@ -131,7 +218,7 @@ function NegotiationBuyerScreen({ navigation }) {
         onPress={handleSubmit}
       >
         <StyledText className="text-center text-white font-bold">
-          Create Negotiate
+          Create Negotiation
         </StyledText>
       </StyledTouchableOpacity>
 

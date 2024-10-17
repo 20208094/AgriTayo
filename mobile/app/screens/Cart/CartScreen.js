@@ -15,8 +15,8 @@ import placeholderImage from "../../assets/placeholder.png"; // Placeholder imag
 import { Swipeable } from "react-native-gesture-handler";
 import { styled } from "nativewind";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
-import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 

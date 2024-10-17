@@ -298,6 +298,7 @@ CREATE TABLE negotiations (
     shop_total DECIMAL(10, 2),
     user_open_for_negotiation BOOLEAN DEFAULT TRUE,
     shop_open_for_negotiation BOOLEAN DEFAULT TRUE,
+    buyer_turn BOOLEAN DEFAULT FALSE,
     negotiation_status VARCHAR(50) DEFAULT 'ongoing',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

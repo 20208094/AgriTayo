@@ -4,6 +4,7 @@ import { styled } from 'nativewind';
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 const StyledSafeAreaView = styled(SafeAreaView);
 const StyledView = styled(View);
@@ -229,6 +230,25 @@ function NegotiationSellerListScreen({ route, navigation }) {
                                         </StyledView>
                                     </StyledView>
                                 </StyledView>
+                                {data.buyer_turn ? (
+                                    <StyledView className="flex-row items-center space-x-2 mt-2">
+                                        {/* Icon for waiting */}
+                                        <Icon name="hourglass-half" size={20} color="#FFA500" />
+                                        {/* Waiting for response message */}
+                                        <StyledText className="text-gray-700 font-medium">
+                                            Waiting for <Text className="font-bold">Buyer's</Text> response.
+                                        </StyledText>
+                                    </StyledView>
+                                ) : (
+                                    <StyledView className="flex-row items-center space-x-2 mt-2">
+                                        {/* Icon for counteroffer */}
+                                        <Icon name="handshake-o" size={20} color="#00B251" />
+                                        {/* Counteroffer message */}
+                                        <StyledText className="text-gray-700 font-medium">
+                                            <Text className="font-bold">Buyer</Text> has made an offer. Tap the item for details.
+                                        </StyledText>
+                                    </StyledView>
+                                )}
                             </StyledTouchableOpacity>
                         ))
                     ) : (

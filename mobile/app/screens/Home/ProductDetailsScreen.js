@@ -107,7 +107,7 @@ function ProductDetailsScreen({ navigation, route }) {
   };
 
   const handleNegotiatePress = () => {
-    navigation.navigate('Buyer Negotiation');
+    navigation.navigate('Buyer Negotiation', { product: displayedProduct });
   };
 
   const handleAddToCart = async () => {
@@ -328,7 +328,7 @@ function ProductDetailsScreen({ navigation, route }) {
             </View>
             <Text className="text-base text-[#00B251] mb-2.5 font-bold">Available in stock</Text>
             <View className="flex-row justify-between items-center mb-2.5">
-              <Text className="text-base text-gray-700">⭐ {displayedProduct.crop_rating} (192)</Text>
+              <Text className="text-base text-gray-700">⭐ {displayedProduct.crop_rating} ({displayedProduct.rating_count})</Text>
               <View className="flex-row items-center mb-2.5">
                 <TouchableOpacity
                   className="border border-green-600 bg-white p-2.5 rounded-lg"
@@ -414,7 +414,7 @@ function ProductDetailsScreen({ navigation, route }) {
         </ScrollView>
 
         {/* Enhanced Sticky Bottom Bar */}
-        <View className="absolute bottom-0 left-0 right-0 bg-white flex-row mb-1 h-12 px-1">
+        <View className="absolute bottom-0 left-0 right-0 flex-row mb-1 h-12 px-1">
           <TouchableOpacity
             className="flex-1 w-12 items-center justify-center border border-green-600 bg-green-100 rounded-lg"
             onPress={handleMessageSeller}  // Message seller logic
@@ -423,17 +423,17 @@ function ProductDetailsScreen({ navigation, route }) {
           </TouchableOpacity>
 
           {/* Separator */}
-          <View className="w-1 bg-white" />
+          <View className="w-1" />
 
           <TouchableOpacity
-            className="flex-1 flex-row items-center justify-center border border-green-600 rounded-lg"
+            className="flex-1 flex-row items-center justify-center bg-white border border-green-600 rounded-lg"
             onPress={handleNegotiatePress}
           >
             <FontAwesome name="balance-scale" size={20} color="#00B251" />
           </TouchableOpacity>
 
           {/* Separator */}
-          <View className="w-1 bg-white" />
+          <View className="w-1" />
 
           <TouchableOpacity
             className="flex-1 flex-row items-center justify-center border border-green-600 bg-green-600 rounded-lg"
@@ -445,7 +445,6 @@ function ProductDetailsScreen({ navigation, route }) {
           </TouchableOpacity>
         </View>
       </View>
-
     );
   }
 }

@@ -29,8 +29,8 @@ function CheckOutScreen() {
       ? shopDetails?.pickup_price || 0
       : 0;
 
-  const subtotal = totalPrice; 
-  const total = subtotal + shippingFee; 
+  const subtotal = totalPrice;
+  const total = subtotal + shippingFee;
 
   const fetchShops = async (shopId) => {
     try {
@@ -214,7 +214,7 @@ function CheckOutScreen() {
           'Content-Type': 'application/json',
           'x-api-key': REACT_NATIVE_API_KEY,
         },
-        body: JSON.stringify(orderDetails), 
+        body: JSON.stringify(orderDetails),
       });
 
       if (response.ok) {
@@ -231,7 +231,7 @@ function CheckOutScreen() {
     } finally {
       setModalVisible(false);
     }
-};
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-gray-100 mt-2">
