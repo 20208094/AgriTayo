@@ -21,7 +21,8 @@ function OrderProductsPage() {
     });
     const [isEdit, setIsEdit] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
-    
+    const [filterType, setFilterType] = useState(''); // New state for filter type
+
     useEffect(() => {
         fetchOrderProducts();
         fetchOrders();
@@ -178,6 +179,18 @@ function OrderProductsPage() {
         const cropName = crops.find(crop => crop.crop_id === orderProduct.order_prod_crop_id)?.crop_name.toLowerCase() || '';
         const userName = users.find(user => user.user_id === orderProduct.order_prod_user_id);
         const userFullName = userName ? `${userName.firstname} ${userName.lastname}`.toLowerCase() : '';
+
+        // Check filter type
+        if (filterType === 'crop' && cropName) {
+            return cropName.includes(searchTerm.toLowerCase());
+        } else if (filterType === 'user' && userFullName) {
+            return userFullName.includes(searchTerm.toLowerCase());
+        } else if (filterType === 'weight') {
+            return orderProduct.order_prod_total_weight.toString().includes(searchTerm);
+        } else if (filterType === 'price') {
+            return orderProduct.order_prod_total_price.toString().includes(searchTerm);
+        }
+        
         return (
             cropName.includes(searchTerm.toLowerCase()) ||
             userFullName.includes(searchTerm.toLowerCase()) ||
@@ -186,54 +199,57 @@ function OrderProductsPage() {
         );
     });
 
-    //pdf table design
+    // PDF table design
     const exportToPDF = () => {
         const doc = new jsPDF('landscape'); // Set the PDF to landscape mode
-    
+
         const logoWidth = 50;
         const logoHeight = 50; 
         const marginBelowLogo = 5; 
         const textMargin = 5;
-    
+
         const pageWidth = doc.internal.pageSize.getWidth();
         const xPosition = (pageWidth - logoWidth) / 2; // Center the logo horizontally
-    
+
         doc.addImage(MainLogo, 'PNG', xPosition, 10, logoWidth, logoHeight);
         const textYPosition = 10 + logoHeight + textMargin; 
         doc.text("Order Product List", xPosition + logoWidth / 2, textYPosition, { align: "center" });
-    
+
         const tableStartY = textYPosition + marginBelowLogo + 5;
-    
+
         const tableColumn = ['ID', 'Order ID', 'Product Crop Name', 'Total Weight', 'Total Price', 'User Name', 'Metric System Name'];
         const tableRows = [];
-    
+
         filteredOrderProducts.forEach(orderProduct => {
-        const cropName = crops.find(crop => crop.crop_id === orderProduct.order_prod_crop_id)?.crop_name || '';
-        const userName = users.find(user => user.user_id === orderProduct.order_prod_user_id);
-        const userFullName = userName ? `${userName.firstname} ${userName.lastname}` : '';
-        const metricSystemName = metricSystems.find(metric => metric.metric_system_id === orderProduct.order_prod_metric_system_id)?.metric_system_name || '';
-    
-        tableRows.push([
-            orderProduct.order_prod_id,
-            orderProduct.order_id,
-            cropName,
-            orderProduct.order_prod_total_weight,
-            orderProduct.order_prod_total_price,
-            userFullName,
-            metricSystemName,
-        ]);
-    });
+            const cropName = crops.find(crop => crop.crop_id === orderProduct.order_prod_crop_id)?.crop_name || '';
+            const userName = users.find(user => user.user_id === orderProduct.order_prod_user_id);
+            const userFullName = userName ? `${userName.firstname} ${userName.lastname}` : '';
+            const metricSystemName = metricSystems.find(metric => metric.metric_system_id === orderProduct.order_prod_metric_system_id)?.metric_system_name || '';
+
+            tableRows.push([
+                orderProduct.order_prod_id,
+                orderProduct.order_id,
+                cropName,
+                orderProduct.order_prod_total_weight,
+                orderProduct.order_prod_total_price,
+                userFullName,
+                metricSystemName,
+            ]);
+        });
+
         doc.autoTable({
             head: [tableColumn], 
             body: tableRows,     
             startY: tableStartY,  
             headStyles: {
-                fillColor: [0, 128, 0] , halign: 'center', valign: 'middle'
+                fillColor: [0, 128, 0],
+                halign: 'center',
+                valign: 'middle'
             },
         });
         doc.save('order_products.pdf');
     };
-    
+
     return (
         <div style={{ padding: '50px' }}>
             <h1 style={{ marginBottom: '20px' }}>Order Products Management</h1>
@@ -317,14 +333,25 @@ function OrderProductsPage() {
             </form>
 
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
+                <select
+                    value={filterType}
+                    onChange={(e) => setFilterType(e.target.value)}
+                    style={{ marginRight: '10px', padding: '5px' }}
+                >
+                    <option value="">Select Filter Type</option>
+                    <option value="crop">Crop Name</option>
+                    <option value="user">User Name</option>
+                    <option value="weight">Total Weight</option>
+                    <option value="price">Total Price</option>
+                </select>
                 <input
                     type="text"
                     placeholder="Search Order Products"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    style={{ marginBottom: '20px', padding: '5px' }}
+                    style={{ marginRight: '10px', padding: '5px' }}
                 />
-                <button onClick={exportToPDF} style={{ padding: '5px', marginBottom: '20px' }}>Export to PDF</button>
+                <button onClick={exportToPDF} style={{ padding: '5px' }}>Export to PDF</button>
             </div>
 
             <table style={{ border: '1px solid black', width: '100%', borderCollapse: 'collapse' }}>
