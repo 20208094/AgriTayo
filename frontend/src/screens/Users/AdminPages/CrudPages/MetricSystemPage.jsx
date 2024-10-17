@@ -5,6 +5,7 @@ const API_KEY = import.meta.env.VITE_API_KEY;
 
 function MetricSystemPage() {
   const [metricSystems, setMetricSystems] = useState([]);
+  const [filteredMetricSystems, setFilteredMetricSystems] = useState([]); // State for filtered data
   const [formData, setFormData] = useState({
     metric_system_name: '',
     metric_val_kilogram: '',
@@ -12,6 +13,7 @@ function MetricSystemPage() {
     metric_val_pounds: ''
   });
   const [isEdit, setIsEdit] = useState(false);
+  const [searchTerm, setSearchTerm] = useState(''); // State for search input
 
   useEffect(() => {
     fetchMetricSystems();
@@ -29,6 +31,7 @@ function MetricSystemPage() {
       }
       const data = await response.json();
       setMetricSystems(data);
+      setFilteredMetricSystems(data); // Initialize filtered list
     } catch (error) {
       console.error('Error fetching metric systems:', error);
     }
@@ -37,6 +40,21 @@ function MetricSystemPage() {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+  };
+
+  const handleSearchChange = (e) => {
+    const { value } = e.target;
+    setSearchTerm(value);
+
+    // Filter metric systems based on the search term
+    const filtered = metricSystems.filter(
+      (metricSystem) =>
+        metricSystem.metric_system_name.toLowerCase().includes(value.toLowerCase()) ||
+        metricSystem.metric_val_kilogram.toString().includes(value) ||
+        metricSystem.metric_val_gram.toString().includes(value) ||
+        metricSystem.metric_val_pounds.toString().includes(value)
+    );
+    setFilteredMetricSystems(filtered);
   };
 
   const handleSubmit = async (e) => {
@@ -134,6 +152,17 @@ function MetricSystemPage() {
         <button type="submit">{isEdit ? 'Update' : 'Create'}</button>
       </form>
 
+      <div style={{ display: 'flex', alignItems: 'center', padding: '10px' }}>
+      <input
+        type="text"
+        value={searchTerm}
+        onChange={handleSearchChange}
+        placeholder="Search for metric system"
+        className="form-control"
+        style={{ marginBottom: '20px', width: '300px' }}
+      />
+      </div>
+
       <table style={{ border: '1px solid black', width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
         <thead>
           <tr>
@@ -146,7 +175,7 @@ function MetricSystemPage() {
           </tr>
         </thead>
         <tbody>
-          {metricSystems.map((metricSystem) => (
+          {filteredMetricSystems.map((metricSystem) => (
             <tr key={metricSystem.metric_system_id}>
               <td style={{ border: '1px solid black', padding: '8px' }}>{metricSystem.metric_system_id}</td>
               <td style={{ border: '1px solid black', padding: '8px' }}>{metricSystem.metric_system_name}</td>
