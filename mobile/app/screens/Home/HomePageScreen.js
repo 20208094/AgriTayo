@@ -1,223 +1,86 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
   ScrollView,
   Text,
   TouchableOpacity,
   SafeAreaView,
+  TextInput,
+  ActivityIndicator,
+  FlatList
 } from "react-native";
-import SearchBarC, {
-  NotificationIcon,
-  MessagesIcon,
-  MarketIcon,
-} from "../../components/SearchBarC";
-import logo from "../../assets/logo.png";
-import HomeCard from "../../components/HomeCard";
 import { useNavigation } from "@react-navigation/native";
 import { styled } from "nativewind";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
-
-const products = [
-  {
-    id: 1,
-    title: "kamote",
-    price: 5.0,
-    image: logo,
-    rating: 4.8,
-    description: "Kamote Masarap",
-    discount: 10,
-    address: "Baguio",
-    seller: {
-      id: 1,
-      name: "Michael",
-      shopName: "Michael Shop",
-      followers: 1,
-      categories: {
-        category: [
-          {
-            id: 1,
-            name: "Vegetables",
-            subCategories: [
-              {
-                id: 1,
-                name: "Tomato",
-              },
-              {
-                id: 2,
-                name: "Potato",
-              },
-            ],
-          },
-          {
-            id: 2,
-            name: "Fruits",
-            subCategories: [
-              {
-                id: 1,
-                name: "Apple",
-              },
-              {
-                id: 2,
-                name: "Banana",
-              },
-            ],
-          },
-        ],
-      },
-    },
-  },
-  {
-    id: 2,
-    title: "Patatas",
-    price: 10,
-    image: logo,
-    rating: 5.0,
-    description: "Patatas Masarap",
-    discount: 5,
-    address: "Trinidad",
-    seller: {
-      id: 2,
-      name: "Joshua",
-      shopName: "Joshua Shop",
-      followers: 2,
-      categories: {
-        category: [
-          {
-            id: 1,
-            name: "Spices",
-            subCategories: [
-              {
-                id: 1,
-                name: "Turmeric",
-              },
-              {
-                id: 2,
-                name: "Cumin",
-              },
-            ],
-          },
-          {
-            id: 2,
-            name: "Seedlings",
-            subCategories: [
-              {
-                id: 1,
-                name: "Tomato Seedlings",
-              },
-              {
-                id: 2,
-                name: "Basil Seedlings",
-              },
-            ],
-          },
-        ],
-      },
-    },
-  },
-  {
-    id: 3,
-    title: "Patatas",
-    price: 10,
-    image: logo,
-    rating: 5.0,
-    description: "Patatas Masarap",
-    discount: 5,
-    address: "Trinidad",
-    seller: {
-      id: 3,
-      name: "Calalo",
-      shopName: "Calalo Shop",
-      followers: 3,
-      categories: {
-        category: [
-          {
-            id: 1,
-            name: "Plants",
-            subCategories: [
-              {
-                id: 1,
-                name: "Spider Plant",
-              },
-              {
-                id: 2,
-                name: "Aloe Vera",
-              },
-            ],
-          },
-          {
-            id: 2,
-            name: "Flowers",
-            subCategories: [
-              {
-                id: 1,
-                name: "Rose",
-              },
-              {
-                id: 2,
-                name: "Tulip",
-              },
-            ],
-          },
-        ],
-      },
-    },
-  },
-  {
-    id: 4,
-    title: "Patatas",
-    price: 10,
-    image: logo,
-    rating: 5.0,
-    description: "Patatas Masarap",
-    discount: 5,
-    address: "Trinidad",
-    seller: {
-      id: 4,
-      name: "Pogi",
-      shopName: "Pogi Shop",
-      followers: 4,
-      categories: {
-        category: [
-          {
-            id: 1,
-            name: "Sabon",
-            subCategories: [
-              {
-                id: 1,
-                name: "Sabon Panlaba",
-              },
-              {
-                id: 2,
-                name: "Sabon Pankatawan",
-              },
-            ],
-          },
-          {
-            id: 2,
-            name: "Lotion",
-            subCategories: [
-              {
-                id: 1,
-                name: "Lotion ng Mukha",
-              },
-              {
-                id: 2,
-                name: "Lotion ng Katawan",
-              },
-            ],
-          },
-        ],
-      },
-    },
-  },
-];
+import { REACT_NATIVE_API_KEY } from "@env"; // Make sure to have API key
 
 function HomePageScreen() {
   const navigation = useNavigation();
   const [showAgriTutorial, setShowAgriTutorial] = useState(true);
-  const [userData, setUserData] = useState('')
+  const [userData, setUserData] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredCrops, setFilteredCrops] = useState([]);
+  const [crops, setCrops] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [showResults, setShowResults] = useState(false);
 
+  const API_KEY = REACT_NATIVE_API_KEY;
+
+  // Fetch crops data (from MarketCategoryScreen.js)
+  const fetchCrops = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('https://agritayo.azurewebsites.net/api/crops', {
+        headers: {
+          'x-api-key': API_KEY
+        }
+      });
+      const data = await response.json();
+      console.log("Fetched crops data: ", data);  // Debug the fetched data structure
+      setCrops(data); // Save all crops
+    } catch (error) {
+      console.error("Error fetching crops data:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [API_KEY]);
+
+  useEffect(() => {
+    fetchCrops();
+  }, [fetchCrops]);
+
+  // Handle search query
+  const handleSearch = (text) => {
+    setSearchQuery(text);
+    if (text) {
+      // Filter crops based on the search query
+      const results = crops.filter((crop) =>
+        crop.crop_name.toLowerCase().includes(text.toLowerCase())
+      );
+      console.log("Filtered results: ", results);  // Debug filtered crops
+      setFilteredCrops(results);
+      setShowResults(true);  // Show search results dropdown
+    } else {
+      setShowResults(false);  // Hide search results when query is empty
+    }
+  };
+
+  // Clear search input and hide results
+  const clearSearch = () => {
+    setSearchQuery('');  // Clear search query
+    setShowResults(false);  // Hide results
+  };
+
+  // Handle click on a search result and navigate to MarketCategoryScreen
+  const handleSearchItemPress = (product) => {
+    setSearchQuery('');  // Clear search query
+    setShowResults(false);  // Hide results
+    console.log("Navigating to MarketCategoryScreen with product: ", product); // Debug product navigation
+    navigation.navigate("Product List", { selectedProduct: product });  // Pass product data to MarketCategoryScreen
+  };
+
+  // Fetch user data from AsyncStorage
   const getAsyncUserData = async () => {
     try {
       const storedData = await AsyncStorage.getItem("userData");
@@ -235,12 +98,11 @@ function HomePageScreen() {
     }
   };
 
-    // Use useFocusEffect to re-fetch data when the screen is focused (navigated back)
-    useFocusEffect(
-      React.useCallback(() => {
-        getAsyncUserData();
-      }, [])
-    );
+  useFocusEffect(
+    React.useCallback(() => {
+      getAsyncUserData();
+    }, [])
+  );
 
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
@@ -249,20 +111,45 @@ function HomePageScreen() {
         <View className="flex-row justify-between items-center px-4 pt-8">
           <Text className="text-green-600 text-3xl font-bold">Hi {userData.firstname}!</Text>
           <View className="flex-row">
-            <MarketIcon onPress={() => navigation.navigate("CartScreen")} />
-            <NotificationIcon
-              onPress={() => navigation.navigate("Notifications")}
-            />
-            <MessagesIcon
-              onPress={() => navigation.navigate("ChatListScreen")}
-            />
+            {/* Add MarketIcon, NotificationIcon, and MessagesIcon Here */}
           </View>
         </View>
         <Text className="px-4 text-base text-gray-600 mt-2">
           Enjoy our services!
         </Text>
-        <View className="mt-4 px-4 mb-4">
-          <SearchBarC />
+        <View className="relative mt-4 px-4 mb-4">
+          {/* Search Bar */}
+          <View className="flex-row items-center bg-white p-3 rounded-lg shadow-md">
+            <TextInput
+              placeholder="Search crops..."
+              value={searchQuery}
+              onChangeText={handleSearch}
+              className="flex-1 pr-4"
+            />
+            {/* Clear Button (X) */}
+            {searchQuery.length > 0 && (
+              <TouchableOpacity onPress={clearSearch} className="ml-2">
+                <Text className="text-gray-500 text-lg">X</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+
+          {/* Show search results below the search bar */}
+          {showResults && (
+            <FlatList
+              data={filteredCrops}
+              keyExtractor={(item) => item.crop_id.toString()} // Ensure crop_id exists in the data
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  className="bg-gray-100 p-2 border-b border-gray-300"
+                  onPress={() => handleSearchItemPress(item)}
+                >
+                  <Text>{item.crop_name}</Text>
+                </TouchableOpacity>
+              )}
+              style={{ backgroundColor: 'white', marginTop: 5, borderRadius: 5, maxHeight: 150 }}
+            />
+          )}
         </View>
       </View>
 
@@ -297,11 +184,7 @@ function HomePageScreen() {
               <Text className="text-green-600">See All</Text>
             </TouchableOpacity>
           </View>
-          <View className="flex-row flex-wrap justify-between">
-            {products.map((product) => (
-              <HomeCard key={product.id} product={product} />
-            ))}
-          </View>
+          {/* Add Featured Products Logic Here */}
         </View>
       </ScrollView>
     </SafeAreaView>

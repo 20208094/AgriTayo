@@ -28,8 +28,9 @@ const CategoryItemCard = ({ item }) => {
 };
 
 function MarketCategoryScreen({ route }) {
-  const { category, selectedItemId } = route.params;
-  const [crops, setCrops] = useState([]);
+  const { category, selectedItemId, selectedProduct: initialSelectedProduct, searchResults } = route.params || {};
+  const [selectedProduct, setSelectedProduct] = useState(initialSelectedProduct); // Initialize state with route parameter
+  const [crops, setCrops] = useState(searchResults || []); // Use search results from HomePageScreen if available
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [categories, setCategories] = useState([]);
@@ -40,8 +41,35 @@ function MarketCategoryScreen({ route }) {
   const [openDropdown, setOpenDropdown] = useState({});
   const [selectedSubCategories, setSelectedSubCategories] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+  
   const API_KEY = REACT_NATIVE_API_KEY;
 
+  useEffect(() => {
+    // This ensures the hook is not conditionally rendered
+    if (selectedProduct) {
+      console.log('Selected product received:', selectedProduct);
+    }
+    setLoading(false);
+  }, [selectedProduct]);
+
+  const fetchAllCrops = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('https://agritayo.azurewebsites.net/api/crops', {
+        headers: {
+          'x-api-key': API_KEY
+        }
+      });
+      const data = await response.json();
+      setCrops(data);  // Set all crops in state
+    } catch (error) {
+      setError(error);
+      console.error('Error fetching all crops:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [API_KEY]);
+  
   const fetchCategories = async () => {
     try {
       const response = await fetch(
@@ -90,7 +118,7 @@ function MarketCategoryScreen({ route }) {
         const filteredCrops = data.filter(crop => selectedSubCategories.includes(crop.sub_category_id));
         setCrops(filteredCrops);
       } else {
-        setCrops([]); 
+        setCrops([]);
       }
     } catch (error) {
       setError(error);
@@ -127,10 +155,16 @@ function MarketCategoryScreen({ route }) {
     const isSelected = selectedCategories.includes(categoryId);
 
     const updatedSelectedCategories = isSelected
-      ? selectedCategories.filter(id => id !== categoryId) 
+      ? selectedCategories.filter(id => id !== categoryId)
       : [...selectedCategories, categoryId];
 
     setSelectedCategories(updatedSelectedCategories);
+
+    // Reset selectedProduct when changing categories
+    if (!isSelected) {
+      // Clear the selected product if a new category is selected
+      setSelectedProduct(null);
+    }
 
     const subCategoriesForSelectedCategory = subCategories
       .filter(subCategory => subCategory.crop_category_id === categoryId)
@@ -181,7 +215,7 @@ function MarketCategoryScreen({ route }) {
       if (allSelected) {
         setOpenDropdown(prevState => ({
           ...prevState,
-          [categoryId]: false, 
+          [categoryId]: false,
         }));
       }
 
@@ -208,7 +242,7 @@ function MarketCategoryScreen({ route }) {
 
     setActiveSubCategories(prevActiveSubCategories => ({
       ...prevActiveSubCategories,
-      [categoryId]: !allSelectedForCategory, 
+      [categoryId]: !allSelectedForCategory,
     }));
   };
 
@@ -224,7 +258,20 @@ function MarketCategoryScreen({ route }) {
   useEffect(() => {
     fetchCategories();
     fetchSubCategories();
-  }, []);
+  
+    if (!searchResults && selectedSubCategories.length === 0 && !selectedItemId) {
+      // Fetch all crops if no search results, no selected subcategories, and no specific item selected
+      fetchAllCrops();
+    } else if (searchResults) {
+      setCrops(searchResults);  // If there are search results, show them
+    } else if (selectedSubCategories.length > 0) {
+      fetchCropsFiltering();
+    } else if (selectedItemId) {
+      fetchCrops(selectedItemId);
+    }
+  }, [searchResults, selectedSubCategories, selectedItemId]);
+  
+  
 
   useEffect(() => {
     if (selectedSubCategories.length > 0) {
@@ -371,7 +418,7 @@ function MarketCategoryScreen({ route }) {
 
                       <TouchableOpacity
                         className="bg-green-500 rounded-full px-4 py-2 mt-4"
-                        onPress={() => closeModalAndUpdateCrops(categoryId)} 
+                        onPress={() => closeModalAndUpdateCrops(categoryId)}
                       >
                         <Text className="text-white text-center">Close</Text>
                       </TouchableOpacity>
@@ -434,6 +481,13 @@ function MarketCategoryScreen({ route }) {
             <CategoryItemCard key={item.crop_id} item={item} />
           ))}
         </View>
+
+        {/* Display selected product at the top */}
+        {selectedProduct && (
+          <View className="mb-6">
+            <CategoryItemCard item={selectedProduct} />
+          </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
