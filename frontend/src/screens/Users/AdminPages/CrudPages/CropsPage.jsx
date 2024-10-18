@@ -26,6 +26,8 @@ function CropsPage() {
   const [isEdit, setIsEdit] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
+  const [selectedCategory, setSelectedCategory] = useState('');
+
   useEffect(() => {
     fetchCrops();
     fetchCategories();
@@ -103,8 +105,8 @@ function CropsPage() {
 
   const handleInputChange = (e) => {
     const { name, value, type, files } = e.target;
-    setFormData({ 
-      ...formData, 
+    setFormData({
+      ...formData,
       [name]: type === 'file' ? files[0] : value
     });
   };
@@ -176,51 +178,52 @@ function CropsPage() {
     }
   };
 
-  const filteredCrops = crops.filter(crop => 
-    crop.crop_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    crop.crop_description.toLowerCase().includes(searchTerm.toLowerCase())
+  // Filter logic for both search term and category
+  const filteredCrops = crops.filter(crop =>
+    (crop.crop_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      crop.crop_description.toLowerCase().includes(searchTerm.toLowerCase())) &&
+    (selectedCategory === '' || crop.category_id === selectedCategory)
   );
-
   //pdf table design
   const exportToPDF = () => {
-    const doc = new jsPDF('landscape'); 
+    const doc = new jsPDF('landscape');
 
     const logoWidth = 50;
-    const logoHeight = 50; 
-    const marginBelowLogo = 5; 
+    const logoHeight = 50;
+    const marginBelowLogo = 5;
     const textMargin = 5;
 
     const pageWidth = doc.internal.pageSize.getWidth();
-    const xPosition = (pageWidth - logoWidth) / 2; 
-    doc.addImage(MainLogo, 'PNG', xPosition, 10, logoWidth, logoHeight); 
-    const textYPosition = 10 + logoHeight + textMargin; 
-    doc.text("Crop List", xPosition + logoWidth / 2, textYPosition, { align: "center" }); 
-    const tableStartY = textYPosition + marginBelowLogo + 5; 
+    const xPosition = (pageWidth - logoWidth) / 2;
+    doc.addImage(MainLogo, 'PNG', xPosition, 10, logoWidth, logoHeight);
+    const textYPosition = 10 + logoHeight + textMargin;
+    doc.text("Crop List", xPosition + logoWidth / 2, textYPosition, { align: "center" });
+    const tableStartY = textYPosition + marginBelowLogo + 5;
 
     const tableData = filteredCrops.map(crop => [
-    crop.crop_id,
-    crop.crop_name,
-    crop.crop_description,
-    categories.find(category => category.crop_category_id === crop.category_id)?.crop_category_name || 'N/A',
-    shops.find(shop => shop.shop_id === crop.shop_id)?.shop_name || 'N/A',
-    crop.crop_image,
-    crop.crop_rating,
-    crop.crop_price,
-    crop.crop_quantity,
-    crop.crop_weight,
-    metricSystems.find(metric => metric.metric_system_id === crop.metric_system_id)?.metric_system_name || 'N/A',
-  ]);
+      crop.crop_id,
+      crop.crop_name,
+      crop.crop_description,
+      categories.find(category => category.crop_category_id === crop.category_id)?.crop_category_name || 'N/A',
+      shops.find(shop => shop.shop_id === crop.shop_id)?.shop_name || 'N/A',
+      crop.crop_image,
+      crop.crop_rating,
+      crop.crop_price,
+      crop.crop_quantity,
+      crop.crop_weight,
+      metricSystems.find(metric => metric.metric_system_id === crop.metric_system_id)?.metric_system_name || 'N/A',
+    ]);
 
     doc.autoTable({
-      startY: tableStartY, 
+      startY: tableStartY,
       head: [['ID', 'Name', 'Description', 'Category', 'Shop', 'Image', 'Rating', 'Price', 'Quantity', 'Weight', 'Metric System']],
       body: tableData,
       headStyles: {
-        fillColor: [0, 128, 0] , halign: 'center', valign: 'middle'
+        fillColor: [0, 128, 0], halign: 'center', valign: 'middle'
       },
     });
     doc.save('crops_list.pdf');
-};
+  };
 
 
   return (
@@ -323,6 +326,23 @@ function CropsPage() {
         </select>
         <button type="submit">{isEdit ? 'Update' : 'Create'}</button>
       </form>
+
+      {/* New Category Filter Dropdown */}
+      <div>
+        <label htmlFor="categoryFilter">Filter by Category: </label>
+        <select
+          id="categoryFilter"
+          value={selectedCategory}
+          onChange={(e) => setSelectedCategory(e.target.value)}
+        >
+          <option value="">All Categories</option>
+          {categories.map(category => (
+            <option key={category.crop_category_id} value={category.crop_category_id}>
+              {category.crop_category_name}
+            </option>
+          ))}
+        </select>
+      </div>
 
       <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
         <input

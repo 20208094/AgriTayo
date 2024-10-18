@@ -17,6 +17,9 @@ function ReviewsPage() {
         review_text: ''
     });
     const [isEdit, setIsEdit] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [deleteId, setDeleteId] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
@@ -110,6 +113,7 @@ function ReviewsPage() {
                 review_text: ''
             });
             setIsEdit(false);
+            setIsModalOpen(false);
         } catch (error) {
             console.error('Error submitting form:', error);
         }
@@ -118,11 +122,16 @@ function ReviewsPage() {
     const handleEdit = (review) => {
         setFormData(review);
         setIsEdit(true);
+        setIsModalOpen(true);
     };
-
-    const handleDelete = async (id) => {
+    const handleCreate = () => {
+        setFormData({ crop_id: '', user_id: '', rating: '', review_text: '' });  // Reset form data
+        setIsEdit(false);  // Not in edit mode
+        setIsModalOpen(true);  // Open modal for creation
+    };
+    const handleDelete = async () => {
         try {
-            const response = await fetch(`/api/reviews/${id}`, {
+            const response = await fetch(`/api/reviews/${deleteId}`, {
                 method: 'DELETE',
                 headers: {
                     'x-api-key': API_KEY,
@@ -132,16 +141,16 @@ function ReviewsPage() {
                 throw new Error('Network response was not ok');
             }
             fetchReviews();
+            setIsDeleteModalOpen(false);
         } catch (error) {
             console.error('Error deleting review:', error);
         }
     };
 
-
     //pdf table design
     const exportToPDF = () => {
         const doc = new jsPDF('landscape');
-        
+
         const tableData = filteredReviews.map(review => {
             return [
                 review.review_id,
@@ -154,25 +163,25 @@ function ReviewsPage() {
         });
 
         const logoWidth = 50;
-        const logoHeight = 50; 
-        const marginBelowLogo = 5; 
+        const logoHeight = 50;
+        const marginBelowLogo = 5;
         const textMargin = 5;
-    
+
         const pageWidth = doc.internal.pageSize.getWidth();
-        const xPosition = (pageWidth - logoWidth) / 2; 
-    
-        doc.addImage(MainLogo, 'PNG', xPosition, 10, logoWidth, logoHeight); 
-        const textYPosition = 10 + logoHeight + textMargin; 
-        doc.text("Reviews", xPosition + logoWidth / 2, textYPosition, { align: "center" }); 
- 
-        const tableStartY = textYPosition + marginBelowLogo + 5; 
+        const xPosition = (pageWidth - logoWidth) / 2;
+
+        doc.addImage(MainLogo, 'PNG', xPosition, 10, logoWidth, logoHeight);
+        const textYPosition = 10 + logoHeight + textMargin;
+        doc.text("Reviews", xPosition + logoWidth / 2, textYPosition, { align: "center" });
+
+        const tableStartY = textYPosition + marginBelowLogo + 5;
 
         doc.autoTable({
             head: [['ID', 'Crop', 'User', 'Rating', 'Review Text', 'Review Date']],
             body: tableData,
-            startY: tableStartY, 
+            startY: tableStartY,
             headStyles: {
-                fillColor: [0, 128, 0] , halign: 'center', valign: 'middle'
+                fillColor: [0, 128, 0], halign: 'center', valign: 'middle'
             },
         });
 
@@ -185,8 +194,8 @@ function ReviewsPage() {
 
         const filtered = reviews.filter(review => {
             const cropName = crops.find(crop => crop.crop_id === review.crop_id)?.crop_name.toLowerCase() || '';
-            const userName = users.find(user => user.user_id === review.user_id)?.firstname.toLowerCase() + ' ' + 
-                             users.find(user => user.user_id === review.user_id)?.lastname.toLowerCase() || '';
+            const userName = users.find(user => user.user_id === review.user_id)?.firstname.toLowerCase() + ' ' +
+                users.find(user => user.user_id === review.user_id)?.lastname.toLowerCase() || '';
             const reviewText = review.review_text.toLowerCase();
 
             return (
@@ -200,99 +209,262 @@ function ReviewsPage() {
         setFilteredReviews(filtered);
     };
 
-    return (
-        <div style={{ padding: '50px' }}>
-            <h1>Reviews Management</h1>
+    // Crop Filter Handler
+    const handleFilterChange = (e) => {
+        const selectedCrop = e.target.value;
 
-            <form onSubmit={handleSubmit}>
-                <select
-                    name="crop_id"
-                    value={formData.crop_id}
+        const filtered = reviews.filter(review => {
+            return review.crop_id === selectedCrop || selectedCrop === '';
+        });
+
+        setFilteredReviews(filtered);
+    };
+
+    // Rating Filter Handler
+    const handleRatingFilterChange = (e) => {
+        const selectedRating = e.target.value;
+
+        const filtered = reviews.filter(review => {
+            return review.rating === parseInt(selectedRating) || selectedRating === '';
+        });
+
+        setFilteredReviews(filtered);
+    };
+
+
+    return (
+        <div className="p-6 max-w-7xl mx-auto">
+            <h1 className="text-3xl font-bold mb-6">Reviews Management</h1>
+
+            {/* Form Section */}
+            <form className="mb-10 p-6 bg-white shadow-lg rounded-lg" onSubmit={handleSubmit}>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <select
+                        name="crop_id"
+                        value={formData.crop_id}
+                        onChange={handleInputChange}
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                        required
+                    >
+                        <option value="">Select Crop</option>
+                        {crops.map((crop) => (
+                            <option key={crop.crop_id} value={crop.crop_id}>
+                                {crop.crop_name}
+                            </option>
+                        ))}
+                    </select>
+                    <select
+                        name="user_id"
+                        value={formData.user_id}
+                        onChange={handleInputChange}
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                        required
+                    >
+                        <option value="">Select User</option>
+                        {users.map((user) => (
+                            <option key={user.user_id} value={user.user_id}>
+                                {user.firstname} {user.lastname}
+                            </option>
+                        ))}
+                    </select>
+                    <input
+                        type="number"
+                        name="rating"
+                        value={formData.rating}
+                        onChange={handleInputChange}
+                        placeholder="Rating (1-5)"
+                        min="1"
+                        max="5"
+                        step="0.1"
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                        required
+                    />
+                </div>
+                <textarea
+                    name="review_text"
+                    value={formData.review_text}
                     onChange={handleInputChange}
+                    placeholder="Review Text"
+                    className="w-full mt-6 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                     required
+                ></textarea>
+                <button type="submit" className="mt-6 w-full p-3 bg-[#00B251] text-white font-semibold rounded-lg shadow-md hover:bg-green-600 transition duration-300">
+                    {'Create'}
+                </button>
+            </form>
+
+            {/* Search, Filter, and Export Section */}
+            <div className="flex flex-col sm:flex-row justify-between items-center mb-6">
+                {/* Search Input */}
+                <input
+                    type="text"
+                    value={searchTerm}
+                    onChange={handleSearchChange}
+                    placeholder="Search reviews..."
+                    className="p-3 w-full sm:w-1/4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 mb-4 sm:mb-0"
+                />
+
+                {/* Filter Dropdown for Crops */}
+                <select
+                    className="p-3 w-full sm:w-1/4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 mb-4 sm:mb-0"
+                    onChange={handleFilterChange} // <-- New filter change handler
                 >
-                    <option value="">Select Crop</option>
+                    <option value="">Filter by Crop</option>
                     {crops.map((crop) => (
                         <option key={crop.crop_id} value={crop.crop_id}>
                             {crop.crop_name}
                         </option>
                     ))}
                 </select>
+
+                {/* Filter Dropdown for Ratings */}
                 <select
-                    name="user_id"
-                    value={formData.user_id}
-                    onChange={handleInputChange}
-                    required
+                    className="p-3 w-full sm:w-1/4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 mb-4 sm:mb-0"
+                    onChange={handleRatingFilterChange} // <-- New rating filter change handler
                 >
-                    <option value="">Select User</option>
-                    {users.map((user) => (
-                        <option key={user.user_id} value={user.user_id}>
-                            {user.firstname} {user.lastname}
-                        </option>
-                    ))}
+                    <option value="">Filter by Rating</option>
+                    <option value="5">5 Stars</option>
+                    <option value="4">4 Stars</option>
+                    <option value="3">3 Stars</option>
+                    <option value="2">2 Stars</option>
+                    <option value="1">1 Star</option>
                 </select>
-                <input
-                    type="number"
-                    name="rating"
-                    value={formData.rating}
-                    onChange={handleInputChange}
-                    placeholder="Rating (1-5)"
-                    min="1"
-                    max="5"
-                    step="0.1"
-                    required
-                />
-                <textarea
-                    name="review_text"
-                    value={formData.review_text}
-                    onChange={handleInputChange}
-                    placeholder="Review Text"
-                    required
-                ></textarea>
-                <button type="submit">{isEdit ? 'Update' : 'Create'}</button>
-            </form>
 
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
-                <input
-                    type="text"
-                    value={searchTerm}
-                    onChange={handleSearchChange}
-                    placeholder="Search reviews..."
-                    style={{ marginBottom: '20px', padding: '8px' }}
-                />
-
-                <button onClick={exportToPDF} style={{ marginBottom: '20px', padding: '8px' }}>Export to PDF</button>
+                {/* Export to PDF Button */}
+                <button onClick={exportToPDF} className="p-3 w-full sm:w-auto bg-[#00B251] text-white font-semibold rounded-lg shadow-md hover:bg-green-600 transition duration-300">
+                    Export to PDF
+                </button>
             </div>
-            
-            <table style={{ border: '1px solid black', width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
-                <thead>
-                    <tr>
-                        <th style={{ border: '1px solid black', padding: '8px' }}>ID</th>
-                        <th style={{ border: '1px solid black', padding: '8px' }}>Crop</th>
-                        <th style={{ border: '1px solid black', padding: '8px' }}>User</th>
-                        <th style={{ border: '1px solid black', padding: '8px' }}>Rating</th>
-                        <th style={{ border: '1px solid black', padding: '8px' }}>Review Text</th>
-                        <th style={{ border: '1px solid black', padding: '8px' }}>Review Date</th>
-                        <th style={{ border: '1px solid black', padding: '8px' }}>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {filteredReviews.map((review) => (
-                        <tr key={review.review_id}>
-                            <td style={{ border: '1px solid black', padding: '8px' }}>{review.review_id}</td>
-                            <td style={{ border: '1px solid black', padding: '8px' }}>{crops.find((crop) => crop.crop_id === review.crop_id)?.crop_name}</td>
-                            <td style={{ border: '1px solid black', padding: '8px' }}>{users.find((user) => user.user_id === review.user_id)?.firstname} {users.find((user) => user.user_id === review.user_id)?.lastname}</td>
-                            <td style={{ border: '1px solid black', padding: '8px' }}>{review.rating}</td>
-                            <td style={{ border: '1px solid black', padding: '8px' }}>{review.review_text}</td>
-                            <td style={{ border: '1px solid black', padding: '8px' }}>{new Date(review.review_date).toLocaleString()}</td>
-                            <td style={{ border: '1px solid black', padding: '8px' }}>
-                                <button onClick={() => handleEdit(review)}>Edit</button>
-                                <button onClick={() => handleDelete(review.review_id)}>Delete</button>
-                            </td>
+
+
+
+            {/* Table Section */}
+            <div className="overflow-x-auto">
+                <table className="table-auto w-full text-left border-collapse border border-gray-300">
+                    <thead className="bg-[#00B251] text-white">
+                        <tr>
+                            <th className="p-3 border border-gray-300">ID</th>
+                            <th className="p-3 border border-gray-300">Crop</th>
+                            <th className="p-3 border border-gray-300">User</th>
+                            <th className="p-3 border border-gray-300">Rating</th>
+                            <th className="p-3 border border-gray-300">Review Text</th>
+                            <th className="p-3 border border-gray-300">Review Date</th>
+                            <th className="p-3 border border-gray-300">Actions</th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {filteredReviews.map((review) => (
+                            <tr key={review.review_id} className="bg-white hover:bg-gray-100 transition duration-300">
+                                <td className="p-3 border border-gray-300">{review.review_id}</td>
+                                <td className="p-3 border border-gray-300">{crops.find((crop) => crop.crop_id === review.crop_id)?.crop_name}</td>
+                                <td className="p-3 border border-gray-300">{users.find((user) => user.user_id === review.user_id)?.firstname} {users.find((user) => user.user_id === review.user_id)?.lastname}</td>
+                                <td className="p-3 border border-gray-300">{review.rating}</td>
+                                <td className="p-3 border border-gray-300">{review.review_text}</td>
+                                <td className="p-3 border border-gray-300">{new Date(review.review_date).toLocaleString()}</td>
+                                <td className="p-3 border border-gray-300">
+                                    <button onClick={() => handleEdit(review)} className="text-blue-500 hover:underline mr-4">Edit</button>
+                                    <button onClick={() => { setIsDeleteModalOpen(true); setDeleteId(review.review_id); }} className="text-red-500 hover:underline">Delete</button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+
+            {/* Edit Modal */}
+            {isModalOpen && (
+                <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex justify-center items-center z-50">
+                    <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
+                        <h2 className="text-xl font-bold mb-4">{isEdit ? 'Edit Review' : 'Create Review'}</h2>
+                        <form onSubmit={handleSubmit}>
+                            <div className="grid grid-cols-1 gap-6">
+                                <select
+                                    name="crop_id"
+                                    value={formData.crop_id}
+                                    onChange={handleInputChange}
+                                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                                    required
+                                >
+                                    <option value="">Select Crop</option>
+                                    {crops.map((crop) => (
+                                        <option key={crop.crop_id} value={crop.crop_id}>
+                                            {crop.crop_name}
+                                        </option>
+                                    ))}
+                                </select>
+                                <select
+                                    name="user_id"
+                                    value={formData.user_id}
+                                    onChange={handleInputChange}
+                                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                                    required
+                                >
+                                    <option value="">Select User</option>
+                                    {users.map((user) => (
+                                        <option key={user.user_id} value={user.user_id}>
+                                            {user.firstname} {user.lastname}
+                                        </option>
+                                    ))}
+                                </select>
+                                <input
+                                    type="number"
+                                    name="rating"
+                                    value={formData.rating}
+                                    onChange={handleInputChange}
+                                    placeholder="Rating (1-5)"
+                                    min="1"
+                                    max="5"
+                                    step="0.1"
+                                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                                    required
+                                />
+                                <textarea
+                                    name="review_text"
+                                    value={formData.review_text}
+                                    onChange={handleInputChange}
+                                    placeholder="Review Text"
+                                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                                    required
+                                ></textarea>
+                            </div>
+                            <button type="submit" className="mt-6 w-full p-3 bg-[#00B251] text-white font-semibold rounded-lg shadow-md hover:bg-green-600 transition duration-300">
+                                {isEdit ? 'Update' : 'Create'}
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setIsModalOpen(false)}
+                                className="mt-2 w-full p-3 bg-gray-500 text-white font-semibold rounded-lg shadow-md hover:bg-gray-600 transition duration-300"
+                            >
+                                Cancel
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Delete Modal */}
+            {isDeleteModalOpen && (
+                <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex justify-center items-center z-50">
+                    <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
+                        <h2 className="text-xl font-bold mb-4">Confirm Delete</h2>
+                        <p>Are you sure you want to delete this review?</p>
+                        <div className="mt-6 flex justify-between">
+                            <button
+                                onClick={handleDelete}
+                                className="p-3 bg-red-500 text-white font-semibold rounded-lg shadow-md hover:bg-red-600 transition duration-300"
+                            >
+                                Delete
+                            </button>
+                            <button
+                                onClick={() => setIsDeleteModalOpen(false)}
+                                className="p-3 bg-gray-500 text-white font-semibold rounded-lg shadow-md hover:bg-gray-600 transition duration-300"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

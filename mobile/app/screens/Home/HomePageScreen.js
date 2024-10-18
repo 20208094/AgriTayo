@@ -9,6 +9,11 @@ import {
   ActivityIndicator,
   FlatList
 } from "react-native";
+import SearchBarC, {
+  NotificationIcon,
+  MessagesIcon,
+  MarketIcon,
+} from "../../components/SearchBarC";
 import { useNavigation } from "@react-navigation/native";
 import { styled } from "nativewind";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -108,7 +113,13 @@ function HomePageScreen() {
         <View className="flex-row justify-between items-center px-4 pt-8">
           <Text className="text-green-600 text-3xl font-bold">Hi {userData.firstname}!</Text>
           <View className="flex-row">
-            {/* Add MarketIcon, NotificationIcon, and MessagesIcon Here */}
+            <MarketIcon onPress={() => navigation.navigate("CartScreen")} />
+            <NotificationIcon
+              onPress={() => navigation.navigate("Notifications")}
+            />
+            <MessagesIcon
+              onPress={() => navigation.navigate("ChatListScreen")}
+            />
           </View>
         </View>
         <Text className="px-4 text-base text-gray-600 mt-2">
