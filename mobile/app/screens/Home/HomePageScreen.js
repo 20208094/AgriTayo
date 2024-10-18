@@ -37,7 +37,6 @@ function HomePageScreen() {
         }
       });
       const data = await response.json();
-      console.log("Fetched crops data: ", data);  // Debug the fetched data structure
       setCrops(data); // Save all crops
     } catch (error) {
       console.error("Error fetching crops data:", error);
@@ -72,15 +71,13 @@ function HomePageScreen() {
     setShowResults(false);  // Hide results
   };
 
-  // Handle click on a search result and navigate to MarketCategoryScreen
   const handleSearchItemPress = (product) => {
-    setSearchQuery('');  // Clear search query
-    setShowResults(false);  // Hide results
+    setSearchQuery('');
+    setShowResults(false);
     console.log("Navigating to MarketCategoryScreen with product: ", product); // Debug product navigation
     navigation.navigate("Product List", { selectedProduct: product });  // Pass product data to MarketCategoryScreen
   };
 
-  // Fetch user data from AsyncStorage
   const getAsyncUserData = async () => {
     try {
       const storedData = await AsyncStorage.getItem("userData");

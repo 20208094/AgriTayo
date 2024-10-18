@@ -35,7 +35,6 @@ function CartScreen() {
   const [isSwiped, setIsSwiped] = useState(false);
   const [selectedShopIndex, setSelectedShopIndex] = useState(null);
 
-
   useEffect(() => {
     if (userData) {
       // console.log('Updated userData:', userData.user_id);
@@ -531,7 +530,7 @@ function CartScreen() {
     if (selectedItems.length === 0) {
       Alert.alert("No items selected", "Please select items to proceed to checkout.");
     } else {
-      navigation.navigate("CheckOutScreen", { items: selectedItems, user: userData });
+      navigation.navigate("CheckOutScreen", { items: selectedItems, user: userData, order_type: 'normal', cart_type: 'cart' });
     }
   };
 

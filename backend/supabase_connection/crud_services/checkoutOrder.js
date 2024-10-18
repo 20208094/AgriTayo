@@ -3,6 +3,7 @@ const supabase = require('../db');
 
 async function checkoutOrder(req, res) {
     const orderDetails = req.body;
+    console.log('orderDetails :', orderDetails.cartType);
     let newOrder = {};
 
     // CREATING THE NEW ORDER
@@ -65,26 +66,58 @@ async function checkoutOrder(req, res) {
             return res.status(500).json({ error: 'Internal server error' });
         }
 
-        // DELETING THE PRODUCTS IN CART
-        const cartIdsToDelete = items.map(item => item.cart_id);
+        if (orderDetails.cartType === 'cart') {
+            // DELETING THE PRODUCTS IN CART
+            const cartIdsToDelete = items.map(item => item.cart_id);
 
-        const { data: cartData, error: cartError } = await supabase
-            .from('cart')
-            .delete()
-            .in('cart_id', cartIdsToDelete);
+            const { data: cartData, error: cartError } = await supabase
+                .from('cart')
+                .delete()
+                .in('cart_id', cartIdsToDelete);
 
-        if (cartError) {
-            console.error('Supabase cart deletion query failed:', cartError.message);
-            return res.status(500).json({ error: 'Internal server error' });
+            if (cartError) {
+                console.error('Supabase cart deletion query failed:', cartError.message);
+                return res.status(500).json({ error: 'Internal server error' });
+            }
+
+            // Return success response with the new order and items data
+            return res.status(201).json({
+                message: 'Order added successfully',
+                newOrder,
+                itemsData,
+                cartData
+            });
+        } else if (orderDetails.cartType === 'negotiate') {
+            // UPDATING THE NEGOTIATION
+            const cartIdsToUpdate = items.map(item => item.cart_id);
+        
+            const updateData = {};
+            updateData.negotiation_status = 'Completed';
+
+            const { data: cartData, error: cartError } = await supabase
+                .from('negotiations')
+                .update(updateData)
+                .in('negotiation_id', cartIdsToUpdate);  // Use `.in()` instead of `.eq()`
+        
+            if (cartError) {
+                console.error('Supabase negotiation update query failed:', cartError.message);
+                return res.status(500).json({ error: 'Internal server error' });
+            }
+        
+            if (!cartData || cartData.length === 0) {
+                console.error('No negotiations were updated.');
+                return res.status(400).json({ error: 'No negotiations found for update.' });
+            }
+        
+            return res.status(201).json({
+                message: 'Order added successfully',
+                newOrder,
+                itemsData,
+                cartData
+            });
         }
+        
 
-        // Return success response with the new order and items data
-        return res.status(201).json({
-            message: 'Order added successfully',
-            newOrder,
-            itemsData,
-            cartData 
-        });
     } catch (err) {
         console.error('Error executing Supabase query:', err.message);
         return res.status(500).json({ error: 'Internal server error' });

@@ -1,7 +1,5 @@
-// supabase_connection/negotiations.js
 const supabase = require('../db');
 
-// Fetch all negotiations from the database
 async function getNegotiations(req, res) {
     try {
         const { data, error } = await supabase
@@ -20,7 +18,6 @@ async function getNegotiations(req, res) {
     }
 }
 
-// Add a new negotiation
 async function addNegotiation(req, res) {
     try {
         const {
@@ -34,6 +31,7 @@ async function addNegotiation(req, res) {
             shop_price = null,
             shop_amount = null,
             shop_total = null,
+            buyer_turn = false,
             user_open_for_negotiation,
             shop_open_for_negotiation = null,
             negotiation_status = 'Ongoing'
@@ -79,48 +77,16 @@ async function addNegotiation(req, res) {
 async function updateNegotiation(req, res) {
     try {
         const { id } = req.params;
+        const { updatedNegotiation } = req.body;
+        console.log('updateNegotiation :', updatedNegotiation);
 
         if (!id) {
             return res.status(400).json({ error: 'ID is required for update' });
         }
-
-        const {
-            user_id,
-            shop_id,
-            crop_id,
-            metric_system_id,
-            user_price,
-            user_amount,
-            user_total,
-            shop_price,
-            shop_amount,
-            shop_total,
-            user_open_for_negotiation,
-            shop_open_for_negotiation,
-            negotiation_status
-        } = req.body;
-
-        // Prepare the update data
-        const updateData = {};
-
-        if (user_id) updateData.user_id = parseInt(user_id, 10);
-        if (shop_id) updateData.shop_id = parseInt(shop_id, 10);
-        if (crop_id) updateData.crop_id = parseInt(crop_id, 10);
-        if (metric_system_id) updateData.metric_system_id = parseInt(metric_system_id, 10);
-        if (user_price) updateData.user_price = parseFloat(user_price);
-        if (user_amount) updateData.user_amount = parseFloat(user_amount);
-        if (user_total) updateData.user_total = parseFloat(user_total);
-        if (shop_price) updateData.shop_price = parseFloat(shop_price);
-        if (shop_amount) updateData.shop_amount = parseFloat(shop_amount);
-        if (shop_total) updateData.shop_total = parseFloat(shop_total);
-        if (user_open_for_negotiation !== undefined) updateData.user_open_for_negotiation = Boolean(user_open_for_negotiation);
-        if (shop_open_for_negotiation !== undefined) updateData.shop_open_for_negotiation = Boolean(shop_open_for_negotiation);
-        if (negotiation_status) updateData.negotiation_status = negotiation_status;
-
-        // Update the negotiation in the database
+        
         const { data, error } = await supabase
             .from('negotiations')
-            .update(updateData)
+            .update(updatedNegotiation)
             .eq('negotiation_id', id);
 
         if (error) {

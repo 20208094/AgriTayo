@@ -7,7 +7,7 @@ import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 function CheckOutScreen() {
   const navigation = useNavigation();
   const route = useRoute();
-  const { items: checkedOutItems, user: userData } = route.params || { items: [] };
+  const { items: checkedOutItems, user: userData, order_type, cart_type } = route.params || { items: [] };
   const [modalVisible, setModalVisible] = useState(false);
   const [shopDetails, setShopDetails] = useState(null);
   const [selectedShippingMethod, setSelectedShippingMethod] = useState(null);
@@ -108,7 +108,7 @@ function CheckOutScreen() {
     shopDetails && (
       <View className="mt-2 p-4 bg-white rounded-lg shadow border border-[#00b251]">
         <Text className="text-lg font-bold text-gray-800 mb-2">Choose Shipping Method</Text>
-        {shopDetails.Delivery && (
+        {shopDetails.delivery && (
           <TouchableOpacity
             className={`p-3 rounded-lg flex-row items-center justify-between mb-2 ${selectedShippingMethod === "Delivery" ? "bg-[#c6f7d8] border-l-4 border-[#00b251]" : "bg-white"}`}
             onPress={() => handleShippingOption("Delivery")}
@@ -124,7 +124,7 @@ function CheckOutScreen() {
             )}
           </TouchableOpacity>
         )}
-        {shopDetails.Pickup && (
+        {shopDetails.pickup && (
           <TouchableOpacity
             className={`p-3 rounded-lg flex-row items-center justify-between ${selectedShippingMethod === "Pickup" ? "bg-[#c6f7d8] border-l-4 border-[#00b251]" : "bg-white"}`}
             onPress={() => handleShippingOption("Pickup")}
@@ -203,9 +203,12 @@ function CheckOutScreen() {
       statusId: 1,
       userId: userData.user_id,
       shopId: shopDetails.shop_id,
-      orderType: 'normal',
+      orderType: order_type,
+      cartType: cart_type,
       totalWeight: totalweight
     };
+
+    console.log('orderDetails :', orderDetails);
 
     try {
       const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/checkoutOrder`, {
@@ -218,9 +221,7 @@ function CheckOutScreen() {
       });
 
       if (response.ok) {
-        const result = await response.json();
-        console.log('Order placed successfully:', result);
-        alert('Order placed successfully!');
+        navigation.navigate("Orders", { screen: "To Confirm" })
       } else {
         console.error('Failed to place order:', response.statusText);
         alert('Failed to place order. Please try again.');

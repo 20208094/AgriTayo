@@ -108,8 +108,8 @@ function LoginScreen({ navigation, fetchUserSession }) {
         }
       } else {
         if (!phone_regex.test(formData.email)) {
-          setPhoneError("Invalid Email. Please try again.");
-          console.log("Invalid email format");
+          setPhoneError("Invalid phone_number. Please try again.");
+          console.log("Invalid phone_number format");
         }
         if (!password_regex.test(formData.password)) {
           setPasswordError("Invalid Password. Please try again.");
