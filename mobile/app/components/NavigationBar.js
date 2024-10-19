@@ -170,6 +170,7 @@ const NavigationBar = () => {
 
               <TouchableOpacity
                 className="items-center bg-white border border-slate-400 rounded-xl px-2 py-1 w-36 mt-2"
+                onPress={() => navigation.navigate('My Bids')}
               >
                 <Icon name="ticket-outline" size={30} color="#00B251" />
                 <Text>My Bids</Text>
