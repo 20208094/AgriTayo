@@ -50,28 +50,35 @@ function BiddingBuyerScreen({ navigation }) {
 
       if (!response.ok) throw new Error("Network response was not ok");
       if (!shopResponse.ok) throw new Error("Network response was not ok");
-      if (!cropCategoriesResponse.ok) throw new Error("Network response was not ok");
+      if (!cropCategoriesResponse.ok)
+        throw new Error("Network response was not ok");
 
       const data = await response.json();
       const shopData = await shopResponse.json();
       const cropCategoriesData = await cropCategoriesResponse.json();
 
-      const filteredCropCategoriesData = cropCategoriesData.filter((category) => {
-        // Check if any bid has a matching crop_category_id
-        return data.some((bidding) => bidding.bid_category_id === category.crop_category_id);
-      });
+      // Filter out expired bids
+      const currentTime = new Date();
+      const validBids = data.filter(
+        (bid) => new Date(bid.end_date) > currentTime
+      );
+
+      const filteredCropCategoriesData = cropCategoriesData.filter(
+        (category) => {
+          return validBids.some(
+            (bidding) => bidding.bid_category_id === category.crop_category_id
+          );
+        }
+      );
 
       // Ensure data and shopData are arrays
-      if (Array.isArray(data) && Array.isArray(shopData)) {
-        const biddingMap = data.map((bid) => {
-          // Ensure 'bid' is an object and shopData has the required shop structure
-          const newShop = shopData.find(
-            (shop) => shop.shop_id === bid.shop_id
-          );
+      if (Array.isArray(validBids) && Array.isArray(shopData)) {
+        const biddingMap = validBids.map((bid) => {
+          const newShop = shopData.find((shop) => shop.shop_id === bid.shop_id);
 
           return {
             ...bid,
-            shops: newShop || {}, // Safely handle missing shop data
+            shops: newShop || {},
           };
         });
         setBiddingData(biddingMap);
@@ -103,7 +110,6 @@ function BiddingBuyerScreen({ navigation }) {
   };
 
   useEffect(() => {
-    // Check if flatListRef is available and biddingData has at least one item
     if (flatListRef.current && biddingData.length > 0) {
       flatListRef.current.scrollToIndex({
         index: currentIndex,
@@ -117,8 +123,7 @@ function BiddingBuyerScreen({ navigation }) {
     <SafeAreaView className="flex-1 bg-gray-100">
       <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
         {/* Bidding Carousel */}
-        <View style={{ height: screenHeight * 0.60 }}>
-          {/* Added fixed height for the carousel to prevent overlap */}
+        <View style={{ height: screenHeight * 0.6 }}>
           <Animated.FlatList
             ref={flatListRef}
             data={biddingData}
@@ -153,7 +158,14 @@ function BiddingBuyerScreen({ navigation }) {
                 extrapolate: "clamp",
               });
 
-              return <BiddingCard data={item} scale={scale} opacity={opacity} navigation={navigation} />;
+              return (
+                <BiddingCard
+                  data={item}
+                  scale={scale}
+                  opacity={opacity}
+                  navigation={navigation}
+                />
+              );
             }}
             snapToInterval={screenWidth * 0.6}
             decelerationRate="fast"
@@ -162,7 +174,12 @@ function BiddingBuyerScreen({ navigation }) {
 
         {/* Category Sections */}
         {categoryData.map((category) => (
-          <CategorySection key={category.crop_category_id} category={category} biddingData={biddingData} navigation={navigation} />
+          <CategorySection
+            key={category.crop_category_id}
+            category={category}
+            biddingData={biddingData}
+            navigation={navigation}
+          />
         ))}
       </ScrollView>
     </SafeAreaView>
@@ -182,7 +199,7 @@ const BiddingCard = ({ data, scale, opacity, navigation }) => {
       }}
     >
       <TouchableOpacity
-        onPress={() => navigation.navigate("Bidding Details", {data})}
+        onPress={() => navigation.navigate("Bidding Details", { data })}
         className="mt-6 mx-auto bg-white rounded-[20px] border-[3px] border-[#737373] shadow-2xl shadow-black"
       >
         <View className="rounded-t-[15px] overflow-hidden">
@@ -191,7 +208,7 @@ const BiddingCard = ({ data, scale, opacity, navigation }) => {
             className="w-full"
             style={{
               height: screenHeight * 0.3,
-              width: screenWidth * 0.6
+              width: screenWidth * 0.6,
             }}
             resizeMode="cover"
           />
@@ -252,7 +269,8 @@ const Countdown = ({ endDate }) => {
         <Text className="text-base text-red-600">Bid Expired</Text>
       ) : (
         <Text className="text-base text-gray-600">
-          {timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m {timeLeft.seconds}s
+          {timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m{" "}
+          {timeLeft.seconds}s
         </Text>
       )}
     </View>
@@ -260,23 +278,43 @@ const Countdown = ({ endDate }) => {
 };
 
 // Component for rendering a category section with bids
-const CategorySection = ({data, category, biddingData, navigation }) => {
+const CategorySection = ({ data, category, biddingData, navigation }) => {
+  const currentTime = new Date();
+
   return (
     <View className="mt-5">
       <View className="flex-row justify-between items-center px-4">
-        <Text className="text-xl font-bold text-gray-800">{category.crop_category_name}</Text>
-        <TouchableOpacity onPress={() => navigation.navigate("Bidding View All", { category, biddingData })}>
-          <Text className="flex-1 text-[#00B251] p-1 rounded-2xl italic">View All</Text>
+        <Text className="text-xl font-bold text-gray-800">
+          {category.crop_category_name}
+        </Text>
+        <TouchableOpacity
+          onPress={() =>
+            navigation.navigate("Bidding View All", {
+              category,
+              biddingData,
+              data,
+            })
+          }
+        >
+          <Text className="flex-1 text-[#00B251] p-1 rounded-2xl italic">
+            View All
+          </Text>
         </TouchableOpacity>
       </View>
       <FlatList
-        data={biddingData.filter(bid => bid.bid_category_id === category.crop_category_id)}
+        data={biddingData.filter(
+          (bid) =>
+            bid.bid_category_id === category.crop_category_id &&
+            new Date(bid.end_date) > currentTime
+        )}
         keyExtractor={(item) => item.bid_id.toString()}
         horizontal
         showsHorizontalScrollIndicator={false}
         renderItem={({ item }) => (
           <TouchableOpacity
-            onPress={() => navigation.navigate("Bidding Details", {data: item })}
+            onPress={() =>
+              navigation.navigate("Bidding Details", { data: item })
+            }
             className="bg-white m-2 rounded-lg overflow-hidden shadow-md border-gray-500 border-2"
             style={{ width: screenWidth * 0.4, height: screenHeight * 0.25 }}
           >
@@ -287,8 +325,12 @@ const CategorySection = ({data, category, biddingData, navigation }) => {
               resizeMode="cover"
             />
             <View className="p-2">
-              <Text className="text-center font-bold text-gray-800">{item.bid_name}</Text>
-              <Text className="text-center font-bold text-green-500">Current Highest Bid: {item.bid_current_highest}</Text>
+              <Text className="text-center font-bold text-gray-800">
+                {item.bid_name}
+              </Text>
+              <Text className="text-center font-bold text-green-500">
+                Current Highest Bid: ₱{item.bid_current_highest}
+              </Text>
               <Countdown endDate={item.end_date} />
             </View>
           </TouchableOpacity>

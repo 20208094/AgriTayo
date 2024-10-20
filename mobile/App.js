@@ -60,6 +60,7 @@ import OrdersScreen from "./app/screens/Orders/OrdersScreen";
 import BiddingBuyerScreen from "./app/screens/Bidding/BiddingBuyerScreen";
 import PlaceABid from "./app/screens/Bidding/PlaceABidScreen";
 import AnalyticScreen from "./app/screens/Analytics/AnalyticScreen";
+import MyBidScreen from "./app/screens/Bidding/MyBidScreen";
 // for farmers
 import ShopScreen from "./app/screens/farmers/Shop/ShopScreen";
 import ViewShopScreen from "./app/screens/farmers/Shop/ViewShopScreen";
@@ -539,6 +540,11 @@ function App() {
             <Stack.Screen
             name='Place a Bid'
             component={PlaceABid}
+            options={screenOptions}
+            />
+            <Stack.Screen
+            name='My Bids'
+            component={MyBidScreen}
             options={screenOptions}
             />
             <Stack.Screen
