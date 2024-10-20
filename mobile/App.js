@@ -61,6 +61,8 @@ import BiddingBuyerScreen from "./app/screens/Bidding/BiddingBuyerScreen";
 import PlaceABid from "./app/screens/Bidding/PlaceABidScreen";
 import AnalyticScreen from "./app/screens/Analytics/AnalyticScreen";
 import MyBidScreen from "./app/screens/Bidding/MyBidScreen";
+import PastBidScreen from "./app/screens/Bidding/PastBidScreen";
+import WonBidScreen from "./app/screens/Bidding/WonBidScreen";
 // for farmers
 import ShopScreen from "./app/screens/farmers/Shop/ShopScreen";
 import ViewShopScreen from "./app/screens/farmers/Shop/ViewShopScreen";
@@ -79,6 +81,7 @@ import FarmersProductDetailScreen from "./app/screens/farmers/Shop/MyProducts/Fa
 import FarmersOrderDetailsScreen from "./app/screens/farmers/Shop/ViewSalesHistory/FarmersOrderDetailsScreen";
 import ViewShopDetailsScreen from "./app/screens/farmers/Shop/ViewShopDetailsScreen";
 import AddProductScreen from "./app/screens/farmers/Shop/MyProducts/AddProductScreen";
+import CompletedBidScreen from "./app/screens/farmers/Shop/FarmersBidding/CompletedBidScreen";
 // for chat
 import ChatScreen from "./app/screens/Chat/ChatScreen";
 import ChatListScreen from "./app/screens/Chat/ChatListScreen";
@@ -533,6 +536,21 @@ function App() {
             <Stack.Screen
             name='My Bids'
             component={MyBidScreen}
+            options={screenOptions}
+            />
+            <Stack.Screen
+            name='Past Bids'
+            component={PastBidScreen}
+            options={screenOptions}
+            />
+            <Stack.Screen
+            name='Won Bids'
+            component={WonBidScreen}
+            options={screenOptions}
+            />
+             <Stack.Screen
+            name='Completed Bids'
+            component={CompletedBidScreen}
             options={screenOptions}
             />
             <Stack.Screen

@@ -27,7 +27,17 @@ function BiddingScreen({ navigation }) {
       if (!response.ok) throw new Error("Network response was not ok");
 
       const data = await response.json();
-      setBiddingData(data);
+
+      // Get the current date and time
+      const now = new Date();
+
+      // Filter for only available bids
+      const availableBids = data.filter(
+        (bidding) => new Date(bidding.end_date) > now
+      );
+
+      // Set filtered data to state
+      setBiddingData(availableBids);
     } catch (error) {
       alert(`Error fetching bidding systems: ${error.message}`);
     }
@@ -56,15 +66,17 @@ function BiddingScreen({ navigation }) {
       <View className="flex-row justify-between mb-4">
         <TouchableOpacity
           className="rounded-lg px-4 py-2"
-          onPress={() => navigation.navigate("Ongoing Bids")}
+          onPress={() => navigation.navigate("Bidding")}
         >
-          <Text className="text-gray-800 text-base">Ongoing Bids</Text>
+          <Text className="text-[#00b251] font-bold border-b-2 border-[#00b251] pb-1">
+            Ongoing Bids
+          </Text>
         </TouchableOpacity>
         <TouchableOpacity
           className="rounded-lg px-4 py-2"
           onPress={() => navigation.navigate("Completed Bids")}
         >
-          <Text className="text-gray-800 text-base">Completed Bids</Text>
+          <Text className="text-gray-500">Completed Bids</Text>
         </TouchableOpacity>
       </View>
 
@@ -146,6 +158,18 @@ const BidItem = ({ bidding, navigation }) => {
           </Text>
         )}
       </View>
+
+      {/* Conditional Button */}
+      {bidding.number_of_bids === null && (
+        <TouchableOpacity
+          className="ml-4"
+          onPress={() => {
+            /* Define action when icon is pressed */
+          }}
+        >
+          <Ionicons name="create-outline" size={24} color="#00b251" />
+        </TouchableOpacity>
+      )}
     </TouchableOpacity>
   );
 };

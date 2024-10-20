@@ -12,15 +12,17 @@ import {
 import { useFocusEffect } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
-function PlaceABid({ route }) {
+function PlaceABid({ route, navigation }) {
   const { data } = route.params;
   const [timeLeft, setTimeLeft] = useState({});
-  const [amount, setAmount] = useState("");
+  const [amount, setAmount] = useState(""); // Initialize amount with an empty string
   const [error, setError] = useState("");
   const [isBidValid, setIsBidValid] = useState(false);
   const [userId, setUserId] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [minValidBid, setMinValidBid] = useState(0); // New state for minValidBid
 
   // Function to calculate time left
   const calculateTimeLeft = (endDate) => {
@@ -46,17 +48,24 @@ function PlaceABid({ route }) {
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setTimeLeft(calculateTimeLeft(data.end_date)); // Update based on your data structure
+      setTimeLeft(calculateTimeLeft(data.end_date));
     }, 1000);
 
     return () => clearInterval(timer); // Cleanup timer on component unmount
   }, [data.end_date]);
 
-  // Validation for the entered bid amount
+  // Calculate minValidBid and update amount when it is set
   useEffect(() => {
-    const minValidBid =
+    const minBid =
       parseFloat(data.bid_current_highest) +
       parseFloat(data.bid_minimum_increment);
+
+    setMinValidBid(minBid); // Set minValidBid to the calculated value
+    setAmount(minBid.toString()); // Pre-fill amount with minValidBid as soon as it is calculated
+  }, [data.bid_current_highest, data.bid_minimum_increment]);
+
+  // Validation for the entered bid amount
+  useEffect(() => {
     const enteredAmount = parseFloat(amount);
 
     if (isNaN(enteredAmount)) {
@@ -76,7 +85,12 @@ function PlaceABid({ route }) {
       setError("");
       setIsBidValid(true);
     }
-  }, [amount, data.bid_current_highest, data.bid_minimum_increment]);
+  }, [
+    amount,
+    minValidBid,
+    data.bid_current_highest,
+    data.bid_minimum_increment,
+  ]);
 
   // Fetching user data from AsyncStorage
   const getAsyncUserData = async () => {
@@ -104,6 +118,7 @@ function PlaceABid({ route }) {
     }, [])
   );
 
+  // Handle placing a bid
   const handlePlaceBid = async () => {
     if (isBidValid) {
       setLoading(true);
@@ -130,6 +145,7 @@ function PlaceABid({ route }) {
           const result = await response.json();
           console.log("Bid placed successfully:", result);
           alert("Bid placed successfully!");
+          navigation.navigate("My Bids");
         } else {
           console.error("Failed to place bid:", response.statusText);
           alert("Failed to place bid. Please try again.");
@@ -143,6 +159,17 @@ function PlaceABid({ route }) {
     }
   };
 
+  // Function to set the amount to minValidBid
+  const setToMinValidBid = () => {
+    setAmount(minValidBid.toString()); // Update the input value to minValidBid
+  };
+
+  // Function to add bid_minimum_increment to the current amount
+  const addMinimumIncrement = () => {
+    const newAmount = parseFloat(amount) + parseFloat(data.bid_minimum_increment);
+    setAmount(newAmount.toString());
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-white p-4">
       <View className="items-center mb-5">
@@ -151,10 +178,6 @@ function PlaceABid({ route }) {
           className="w-11/12 h-52 rounded-lg"
         />
       </View>
-      <Text className="text-xl font-bold text-gray-800 mb-2">{data.bid_name}
-      </Text>
-      <Text className="text-lg text-gray-600 mb-4">{data.bid_description}
-      </Text>
       <Text className="text-lg mb-4 text-center">
         {timeLeft.expired ? (
           <Text className="text-red-600">Bid Expired</Text>
@@ -162,19 +185,38 @@ function PlaceABid({ route }) {
           `${timeLeft.days}d ${timeLeft.hours}h ${timeLeft.minutes}m ${timeLeft.seconds}s`
         )}
       </Text>
+      <Text className="text-xl font-bold text-gray-800 mb-2">
+        {data.bid_name}
+      </Text>
+      <Text className="text-lg text-gray-600 mb-4">{data.bid_description}</Text>
+
       <Text className="text-lg font-bold text-[#00b251] mb-4">
         Current Highest Bid: {data.bid_current_highest}
       </Text>
 
       <View className="mb-6">
         <Text className="text-base text-gray-700 mb-2">Amount</Text>
-        <TextInput
-          className="border border-gray-300 rounded-lg p-3 text-base text-gray-800"
-          keyboardType="numeric"
-          placeholder="Enter your bid amount"
-          value={amount}
-          onChangeText={setAmount}
-        />
+        <View className="flex-row items-center">
+          <TextInput
+            className="border border-gray-300 rounded-lg p-3 text-base text-gray-800 flex-1"
+            keyboardType="numeric"
+            placeholder="Enter your bid amount"
+            value={amount} // Pre-fill with amount (which will be minValidBid)
+            onChangeText={setAmount}
+          />
+          <TouchableOpacity
+            className="ml-2 p-2 rounded-lg"
+            onPress={setToMinValidBid} // Button to reset amount to minValidBid
+          >
+            <Ionicons name="refresh-outline" size={24} color="#00b251" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            className="ml-2 p-2 rounded-lg"
+            onPress={addMinimumIncrement} // Button to add minimum increment
+          >
+            <Ionicons name="add-outline" size={24} color="#00b251" />
+          </TouchableOpacity>
+        </View>
         {error ? <Text className="text-red-600 mt-2">{error}</Text> : null}
       </View>
 
