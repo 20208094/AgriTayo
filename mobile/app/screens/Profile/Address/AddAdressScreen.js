@@ -214,7 +214,12 @@ function AddAddressScreen({
 
           {/* House Number Input */}
           <Text className="text-base font-bold text-[#00B251] mb-2">House Number:
-            <Text className="text-red-500">*</Text>
+            <Text className="text-red-500"> *</Text>
+            {" "} {errors.houseNumberError ? (
+              <Text className="text-sm w-4/5 text-red-500 mb-4">
+                {errors.houseNumberError}
+              </Text>
+            ) : null}
           </Text>
           <TextInput
             className="border-b border-gray-300 py-2 mb-2 text-black"
@@ -222,15 +227,16 @@ function AddAddressScreen({
             value={houseNumber}
             onChangeText={setHouseNumber}
           />
-          {errors.houseNumberError ? (
-            <Text style={{ color: "red", marginTop: 4 }}>
-              {errors.houseNumberError}
-            </Text>
-          ) : null}
+
 
           {/* Street Name Input */}
           <Text className="text-base font-bold text-[#00B251] mb-2">Street Name:
-            <Text className="text-red-500">*</Text>
+            <Text className="text-red-500"> *</Text>
+            {" "} {errors.streetNameError ? (
+              <Text className="text-sm w-4/5 text-red-500 mb-4">
+                {errors.streetNameError}
+              </Text>
+            ) : null}
           </Text>
           <TextInput
             className="border-b border-gray-300 py-2 mb-2 text-black"
@@ -238,29 +244,31 @@ function AddAddressScreen({
             value={streetName}
             onChangeText={setStreetName}
           />
-          {errors.streetNameError ? (
-            <Text style={{ color: "red", marginTop: 4 }}>
-              {errors.streetNameError}
-            </Text>
-          ) : null}
 
           {/* Building Input */}
-          <Text className="text-base font-bold text-[#00B251] mb-2">Building:</Text>
+          <Text className="text-base font-bold text-[#00B251] mb-2">Building:
+            <Text className="text-red-500"> *</Text>
+            {" "} {errors.buildingError ? (
+              <Text className="text-sm w-4/5 text-red-500 mb-4">
+                {errors.buildingError}
+              </Text>
+            ) : null}
+          </Text>
           <TextInput
             className="border-b border-gray-300 py-2 mb-2 text-black"
             placeholder="Building"
             value={building}
             onChangeText={setBuilding}
           />
-          {errors.buildingError ? (
-            <Text style={{ color: "red", marginTop: 4 }}>
-              {errors.buildingError}
-            </Text>
-          ) : null}
 
           {/* Barangay Input */}
           <Text className="text-base font-bold text-[#00B251] mb-2">Barangay:
-            <Text className="text-red-500">*</Text>
+            <Text className="text-red-500"> *</Text>
+            {" "} {errors.barangayError ? (
+              <Text className="text-sm w-4/5 text-red-500 mb-4">
+                {errors.barangayError}
+              </Text>
+            ) : null}
           </Text>
           <TextInput
             className="border-b border-gray-300 py-2 mb-2 text-black"
@@ -268,15 +276,16 @@ function AddAddressScreen({
             value={barangay}
             onChangeText={setBarangay}
           />
-          {errors.barangayError ? (
-            <Text style={{ color: "red", marginTop: 4 }}>
-              {errors.barangayError}
-            </Text>
-          ) : null}
+
 
           {/* City Input */}
           <Text className="text-base font-bold text-[#00B251] mb-2">City:
-            <Text className="text-red-500">*</Text>
+            <Text className="text-red-500"> *</Text>
+            {" "} {errors.cityError ? (
+              <Text className="text-sm w-4/5 text-red-500 mb-4">
+                {errors.cityError}
+              </Text>
+            ) : null}
           </Text>
           <TextInput
             className="border-b border-gray-300 py-2 mb-2 text-black"
@@ -284,15 +293,16 @@ function AddAddressScreen({
             value={city}
             onChangeText={setCity}
           />
-          {errors.cityError ? (
-            <Text style={{ color: "red", marginTop: 4 }}>
-              {errors.cityError}
-            </Text>
-          ) : null}
 
           {/* Province Input */}
           <Text className="text-base font-bold text-[#00B251] mb-2">Province:
-            <Text className="text-red-500">*</Text>
+            <Text className="text-red-500"> *</Text>
+            {" "} {errors.provinceError ? (
+              <Text className="text-sm w-4/5 text-red-500 mb-4">
+                {errors.provinceError}
+              </Text>
+            ) : null}
+
           </Text>
           <TextInput
             className="border-b border-gray-300 py-2 mb-2 text-black"
@@ -300,15 +310,15 @@ function AddAddressScreen({
             value={province}
             onChangeText={setProvince}
           />
-          {errors.provinceError ? (
-            <Text style={{ color: "red", marginTop: 4 }}>
-              {errors.provinceError}
-            </Text>
-          ) : null}
 
           {/* Region Input */}
           <Text className="text-base font-bold text-[#00B251] mb-2">Region:
-            <Text className="text-red-500">*</Text>
+            <Text className="text-red-500"> *</Text>
+            {" "} {errors.regionError ? (
+              <Text className="text-sm w-4/5 text-red-500 mb-4">
+                {errors.regionError}
+              </Text>
+            ) : null}
           </Text>
           <TextInput
             className="border-b border-gray-300 py-2 mb-2 text-black"
@@ -316,15 +326,16 @@ function AddAddressScreen({
             value={region}
             onChangeText={setRegion}
           />
-          {errors.regionError ? (
-            <Text style={{ color: "red", marginTop: 4 }}>
-              {errors.regionError}
-            </Text>
-          ) : null}
+
 
           {/* Postal Input */}
           <Text className="text-base font-bold text-[#00B251] mb-2">Postal Code:
-            <Text className="text-red-500">*</Text>
+            <Text className="text-red-500"> *</Text>
+            {" "} {errors.postalCodeError ? (
+              <Text className="text-sm w-4/5 text-red-500 mb-4">
+                {errors.postalCodeError}
+              </Text>
+            ) : null}
           </Text>
           <TextInput
             className="border-b border-gray-300 py-2 mb-2 text-black"
@@ -332,11 +343,6 @@ function AddAddressScreen({
             value={postal_code}
             onChangeText={setPostalCode}
           />
-          {errors.postalCodeError ? (
-            <Text style={{ color: "red", marginTop: 4 }}>
-              {errors.postalCodeError}
-            </Text>
-          ) : null}
 
 
           {/* Note Input */}

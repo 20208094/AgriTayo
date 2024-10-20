@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -10,10 +10,10 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
-import { Ionicons } from "@expo/vector-icons"; 
+import { Ionicons } from "@expo/vector-icons";
+import { FontAwesome } from "@expo/vector-icons";
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from '@env';
-const SOCKET_URL = 'https://agritayo.azurewebsites.net';
-
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 function ViewProfileScreen({ route, navigation }) {
@@ -29,8 +29,76 @@ function ViewProfileScreen({ route, navigation }) {
   const [phone, setPhone] = useState(userData.phone_number);
   const [profileImage, setProfileImage] = useState(userData.user_image_url);
   const [modalVisible, setModalVisible] = useState(false);
-  
-  // Function to handle image selection from gallery
+
+  const [showDatePicker, setShowDatePicker] = useState(false);
+
+  // Validation state
+  const [errors, setErrors] = useState({
+    firstName: "",
+    middleName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    birthday: "",
+    gender: "",
+  });
+
+  // RegEx for validation
+  const nameRegex = /^[a-zA-Z\s]+$/;
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const phoneRegex = /^(09|\+639)\d{9}$/; // Matches Philippine phone number
+
+  // Validation function
+  const validateFields = () => {
+    let valid = true;
+    let updatedErrors = {};
+
+    // First Name validation
+    if (!firstName || !nameRegex.test(firstName)) {
+      updatedErrors.firstName = "* Please enter a valid first name";
+      valid = false;
+    }
+
+    // Middle Name validation
+    if (!middleName || !nameRegex.test(middleName)) {
+      updatedErrors.middleName = "* Please enter a valid middle name";
+      valid = false;
+    }
+
+    // Last Name validation
+    if (!lastName || !nameRegex.test(lastName)) {
+      updatedErrors.lastName = "* Please enter a valid last name";
+      valid = false;
+    }
+
+    // Email validation
+    if (!email || !emailRegex.test(email)) {
+      updatedErrors.email = "* Please enter a valid email address";
+      valid = false;
+    }
+
+    // Phone validation
+    if (!phone || !phoneRegex.test(phone)) {
+      updatedErrors.phone = "* Please enter a valid phone number";
+      valid = false;
+    }
+
+    // Birthday validation
+    if (!birthday) {
+      updatedErrors.birthday = "* Please enter a valid birthday";
+      valid = false;
+    }
+
+    // Gender validation
+    if (!gender) {
+      updatedErrors.gender = "* Please select a gender";
+      valid = false;
+    }
+
+    setErrors(updatedErrors);
+    return valid;
+  };
+
   const selectImageFromGallery = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
@@ -50,8 +118,13 @@ function ViewProfileScreen({ route, navigation }) {
     }
   };
 
-  // Function to handle saving the profile
+
+  // Handle form submission
   const handleSubmit = async () => {
+    if (!validateFields()) {
+      return; // Prevent form submission if validation fails
+    }
+
     const formData = new FormData();
     formData.append('user_id', userData.user_id);
     formData.append('user_type_id', userData.user_type_id);
@@ -62,20 +135,16 @@ function ViewProfileScreen({ route, navigation }) {
     formData.append('phone_number', phone);
     formData.append('gender', gender);
     formData.append('birthday', birthday);
-  
+
     if (profileImage) {
       formData.append('image', {
         uri: profileImage,
         name: 'profile.jpg',
         type: 'image/jpeg',
       });
-      console.log("Image added to FormData:", profileImage);
-    } else {
-      console.log("No image selected to upload.");
     }
-  
+
     try {
-      console.log("Sending request to update profile...");
       const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/users/${userData.user_id}`, {
         method: 'PUT',
         headers: {
@@ -83,12 +152,10 @@ function ViewProfileScreen({ route, navigation }) {
         },
         body: formData,
       });
-  
-      console.log("Response Status:", response.status);
+
       if (response.ok) {
         alert("Profile updated successfully!");
-  
-        // Construct updated user data
+
         const updatedUserData = {
           ...userData,
           firstname: firstName,
@@ -98,110 +165,155 @@ function ViewProfileScreen({ route, navigation }) {
           phone_number: phone,
           gender: gender,
           birthday: birthday,
-          user_image_url: profileImage, // Add the profile image URL
+          user_image_url: profileImage,
         };
-  
-        // Save updated data to AsyncStorage
+
         await AsyncStorage.setItem('userData', JSON.stringify(updatedUserData));
-        console.log("Updated profile data saved to AsyncStorage!");
-  
-        // Navigate back and pass the updated user data
-        navigation.goBack(updatedUserData); 
+        navigation.goBack(updatedUserData);
       } else {
         const errorData = await response.json();
-        console.error("Error response data:", errorData);
         throw new Error(errorData.message || "Failed to update profile");
       }
     } catch (error) {
-      console.error("Failed to update profile:", error);
       alert("Failed to update profile: " + error.message);
     }
   };
-  
+
+  const genderOptions = [
+    { label: "Male", value: "Male" },
+    { label: "Female", value: "Female" },
+    { label: "Others", value: "Others" },
+  ];
+
+  const handleDateChange = (event, selectedDate) => {
+    setShowDatePicker(false);
+    if (selectedDate) {
+      const formattedDate = selectedDate.toISOString().split('T')[0]; // Format date as YYYY-MM-DD
+      setBirthday(formattedDate);
+    }
+  };
+
   return (
-    <SafeAreaView className="flex-1 bg-gray-100">
-      <ScrollView className="flex-1 px-4">
-        <View className="bg-white p-4 rounded-lg shadow-sm relative">
-          {/* Circular frame with user image */}
-          <View className="items-center mb-4 mt-8">
-            <View className="relative w-24 h-24 rounded-full border-4 border-green-500 shadow-lg bg-white">
-              <Image
-                source={{ uri: profileImage }}
-                className="w-full h-full rounded-full"
-              />
-              <TouchableOpacity
-                className="absolute bottom-0 right-0 bg-green-500 p-2 rounded-full"
-                onPress={() => setModalVisible(true)}
-              >
-                <Ionicons name="pencil" size={20} color="white" />
-              </TouchableOpacity>
+    <SafeAreaView className="flex-1">
+      <ScrollView contentContainerStyle={{ padding: 16 }}>
+        {/* Profile Image Section */}
+        <View className="items-center mb-8">
+          <View className="relative w-28 h-28 rounded-full border-4 border-green-500 shadow-lg bg-white">
+            <Image
+              source={{ uri: profileImage }}
+              className="w-full h-full rounded-full"
+            />
+            <TouchableOpacity
+              className="absolute bottom-0 right-0 bg-green-500 p-2 rounded-full"
+              onPress={() => setModalVisible(true)}
+            >
+              <Ionicons name="pencil" size={20} color="white" />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* First Name */}
+        <View className="w-full max-w-md mx-auto">
+          <Text className="text-sm mb-2 text-gray-800">First Name:
+            {" "} {errors.firstName ? <Text className="text-red-500 text-xs mb-4">{errors.firstName}</Text> : null}
+          </Text>
+          <TextInput
+            className="w-full p-2 mb-4 bg-white rounded-lg shadow-md text-gray-800"
+            value={firstName}
+            onChangeText={setFirstName}
+          />
+
+          {/* Middle Name */}
+          <Text className="text-sm mb-2 text-gray-800">Middle Name:
+            {" "} {errors.middleName ? <Text className="text-red-500 text-xs mb-4">{errors.middleName}</Text> : null}
+          </Text>
+          <TextInput
+            value={middleName}
+            onChangeText={setMiddleName}
+            className="w-full p-2 mb-4 bg-white rounded-lg shadow-md text-gray-800"
+          />
+
+
+          {/* Last Name */}
+          <Text className="text-sm mb-2 text-gray-800">Last Name:
+            {" "} {errors.lastName ? <Text className="text-red-500 text-xs mb-4">{errors.lastName}</Text> : null}
+          </Text>
+          <TextInput
+            value={lastName}
+            onChangeText={setLastName}
+            className="w-full p-2 mb-4 bg-white rounded-lg shadow-md text-gray-800"
+          />
+
+
+          {/* Birthday */}
+          <Text className="text-sm mb-2 text-gray-800">Birthday:
+            {" "} {errors.birthday ? <Text className="text-red-500 text-xs mb-4">{errors.birthday}</Text> : null}
+          </Text>
+          <TouchableOpacity onPress={() => setShowDatePicker(true)}>
+            <View className="w-full p-3 mb-4 bg-white rounded-lg shadow-md">
+              <Text className="text-gray-800">{birthday ? birthday : "Select your birthday"}</Text>
             </View>
+          </TouchableOpacity>
+
+          {showDatePicker && (
+            <DateTimePicker
+              value={birthday ? new Date(birthday) : new Date()}
+              mode="date"
+              display="default"
+              onChange={handleDateChange}
+            />
+          )}
+
+
+          {/* Gender */}
+          <Text className="text-sm mb-2 text-gray-800">Gender:
+            {" "} {errors.gender ? <Text className="text-red-500 text-xs mb-4">{errors.gender}</Text> : null}
+          </Text>
+          <View className="flex-row mb-4">
+            {genderOptions.map((option) => (
+              <TouchableOpacity
+                key={option.value}
+                onPress={() => setGender(option.value)}
+                className="flex-row items-center mr-6"
+              >
+                <View className="w-7 h-7 rounded-full border-2 border-green-600 flex items-center justify-center">
+                  {gender === option.value && (
+                    <FontAwesome name="circle" size={21} color="#00B251" />
+                  )}
+                </View>
+                <Text className="ml-2 text-gray-800">{option.label}</Text>
+              </TouchableOpacity>
+            ))}
           </View>
 
-          <View className="mb-4">
-            <Text className="text-base text-gray-600">First Name</Text>
-            <TextInput
-              value={firstName}
-              onChangeText={setFirstName}
-              className="mt-1 text-lg text-gray-900 border border-gray-300 rounded-lg p-2"
-            />
-          </View>
-          <View className="mb-4">
-            <Text className="text-base text-gray-600">Middle Name</Text>
-            <TextInput
-              value={middleName}
-              onChangeText={setMiddleName}
-              className="mt-1 text-lg text-gray-900 border border-gray-300 rounded-lg p-2"
-            />
-          </View>
-          <View className="mb-4">
-            <Text className="text-base text-gray-600">Last Name</Text>
-            <TextInput
-              value={lastName}
-              onChangeText={setLastName}
-              className="mt-1 text-lg text-gray-900 border border-gray-300 rounded-lg p-2"
-            />
-          </View>
+          {/* Phone Number */}
+          <Text className="text-sm mb-2 text-gray-800">Phone:
+            {" "} {errors.phone ? <Text className="text-red-500 text-xs mb-4">{errors.phone}</Text> : null}
+          </Text>
+          <TextInput
+            value={phone}
+            onChangeText={setPhone}
+            className="w-full p-2 mb-4 bg-white rounded-lg shadow-md text-gray-800"
+            placeholder="091234567890"
+          />
 
-          <View className="mb-4">
-            <Text className="text-base text-gray-600">Birthday</Text>
-            <TextInput
-              value={birthday}
-              onChangeText={setBirthday}
-              className="mt-1 text-lg text-gray-900 border border-gray-300 rounded-lg p-2"
-            />
-          </View>
-          <View className="mb-4">
-            <Text className="text-base text-gray-600">Gender</Text>
-            <TextInput
-              value={gender}
-              onChangeText={setGender}
-              className="mt-1 text-lg text-gray-900 border border-gray-300 rounded-lg p-2"
-            />
-          </View>
-          <View className="mb-4">
-            <Text className="text-base text-gray-600">Email</Text>
-            <TextInput
-              value={email}
-              onChangeText={setEmail}
-              className="mt-1 text-lg text-gray-900 border border-gray-300 rounded-lg p-2"
-            />
-          </View>
-          <View className="mb-4">
-            <Text className="text-base text-gray-600">Phone</Text>
-            <TextInput
-              value={phone}
-              onChangeText={setPhone}
-              className="mt-1 text-lg text-gray-900 border border-gray-300 rounded-lg p-2"
-              placeholder="091234567890"
-            />
-          </View>
+          {/* Email */}
+          <Text className="text-sm mb-2 text-gray-800">Email:
+            {" "} {errors.email ? <Text className="text-red-500 text-xs mb-4">{errors.email}</Text> : null}
+          </Text>
+          <TextInput
+            value={email}
+            onChangeText={setEmail}
+            className="w-full p-2 mb-4 bg-white rounded-lg shadow-md text-gray-800"
+          />
 
+
+          {/* Submit Button */}
           <TouchableOpacity
-            className="bg-green-500 py-3 rounded-lg flex-row justify-center items-center shadow-lg mt-4 mb-4"
             onPress={handleSubmit}
+            className="w-full p-4 bg-[#00B251] rounded-lg shadow-md"
           >
-            <Text className="text-lg text-white">Submit</Text>
+            <Text className="text-center text-white font-bold">Save Changes</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -213,7 +325,7 @@ function ViewProfileScreen({ route, navigation }) {
         visible={modalVisible}
         onRequestClose={() => setModalVisible(false)}
       >
-        <View className="flex-1 justify-center items-center bg-black bg-opacity-50">
+        <View className="flex-1 justify-center items-center bg-black/50 bg-opacity-50">
           <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
             <Text className="text-lg font-semibold text-gray-900">
               Update Profile Picture

@@ -231,6 +231,7 @@ function App() {
       color: "#00B251",
     },
     headerTintColor: "#00B251",
+      headerTitleAlign: 'center'
   };
 
   return (
