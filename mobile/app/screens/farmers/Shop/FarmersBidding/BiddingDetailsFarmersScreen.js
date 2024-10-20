@@ -122,7 +122,7 @@ function BiddingDetailsFarmersScreen({ route }) {
             </Text>
 
             {/* Timer */}
-            <Text className="text-center text-xl font-semibold text-gray-900 mt-4">
+            <Text className="text-center text-xl font-semibold text-red-900 mt-4">
               {timeLeft.expired ? (
                 "Bid Expired"
               ) : (

@@ -1,11 +1,18 @@
 import React, { useState, useCallback, useEffect } from "react";
-import { SafeAreaView, View, Text, ScrollView, TouchableOpacity, Image } from "react-native";
+import {
+  SafeAreaView,
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  Image,
+} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
-import { Ionicons } from '@expo/vector-icons'; // Import Ionicons
+import { Ionicons } from "@expo/vector-icons";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 
-function MyBidScreen() {
+function MyBidScreen({ navigation }) {
   const [myBidData, setMyBidData] = useState([]);
   const [userId, setUserId] = useState(null);
 
@@ -67,14 +74,13 @@ function MyBidScreen() {
         };
       });
 
-      // Filter out bids where the end date is in the past
       const activeBids = combinedData.filter((bid) => {
         if (bid.bidding && bid.bidding.end_date) {
           const now = new Date();
           const endDate = new Date(bid.bidding.end_date);
-          return endDate > now; // Only include active bids
+          return endDate > now;
         }
-        return false; // Exclude if no bidding information
+        return false;
       });
 
       setMyBidData(activeBids);
@@ -133,7 +139,8 @@ function MyBidScreen() {
           <Text className="text-red-600 font-bold">Bidding Ended</Text>
         ) : (
           <Text className="text-[#00b251] font-bold">
-            Time Left: {timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m {timeLeft.seconds}s
+            Time Left: {timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m{" "}
+            {timeLeft.seconds}s
           </Text>
         )}
       </View>
@@ -143,6 +150,19 @@ function MyBidScreen() {
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
       <ScrollView>
+        <View className="flex-row justify-between items-center px-8 py-4 bg-gray-100 border-b border-gray-300">
+          <TouchableOpacity onPress={() =>navigation.navigate('My Bids')}>
+            <Text className="text-[#00b251] font-bold border-b-2 border-[#00b251] pb-1">
+              Ongoing
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate("Past Bids")}>
+            <Text className="text-gray-500">Past</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate("Won Bids")}>
+            <Text className="text-gray-500">Won</Text>
+          </TouchableOpacity>
+        </View>
         <View className="p-4">
           {myBidData.length > 0 ? (
             myBidData.map((myBid) => (
@@ -160,7 +180,7 @@ function MyBidScreen() {
                       resizeMode="cover"
                     />
                   )}
-                  
+
                   <View className="flex-1">
                     <Text className="text-lg font-semibold text-gray-800">
                       Price: ₱{myBid.price}
@@ -172,7 +192,9 @@ function MyBidScreen() {
                     {/* Bidding Info */}
                     {myBid.bidding ? (
                       <View className="mt-2">
-                        <Text className="font-bold text-[#00b251]">Bidding Info:</Text>
+                        <Text className="font-bold text-[#00b251]">
+                          Bidding Info:
+                        </Text>
                         <Text className="text-gray-700">
                           Bid Name: {myBid.bidding.bid_name}
                         </Text>
@@ -180,26 +202,33 @@ function MyBidScreen() {
                           Starting Price: ₱{myBid.bidding.bid_starting_price}
                         </Text>
                         <Text className="text-gray-700">
-                          Current Highest Bid: ₱{myBid.bidding.bid_current_highest}
+                          Current Highest Bid: ₱
+                          {myBid.bidding.bid_current_highest}
                         </Text>
-                        
+
                         {/* Countdown Timer */}
                         <Countdown endDate={myBid.bidding.end_date} />
                       </View>
                     ) : (
-                      <Text className="text-red-500">No related bidding information available.</Text>
+                      <Text className="text-red-500">
+                        No related bidding information available.
+                      </Text>
+                      
                     )}
                   </View>
                 </View>
 
                 {/* Icon for updating */}
                 <TouchableOpacity className="mt-4 flex-row justify-end">
-                  <Ionicons name="create-outline" size={32} color="#00b251" />
+                  <Ionicons name="add-circle-outline" size={32} color="#00b251" />
                 </TouchableOpacity>
               </View>
             ))
+            
           ) : (
-            <Text className="text-center text-gray-600">No active bids found.</Text>
+            <Text className="text-center text-gray-600">
+              No active bids found.
+            </Text>
           )}
         </View>
       </ScrollView>
