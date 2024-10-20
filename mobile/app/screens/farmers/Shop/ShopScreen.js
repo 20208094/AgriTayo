@@ -249,16 +249,16 @@ function ShopScreen({ navigation }) {
       </View>
 
       {/* Modified Grid Section */}
-      <View className="px-4 mt-4">
+      <View className="px-4 mt-4 mb-4">
         <View className="bg-white rounded-lg shadow p-4 space-y-4">
           {[
             { label: "  My Products", icon: "box", screen: "My Products" },
             {
-              label: " Negotiation",
+              label: " My Negotiation",
               icon: "hands-helping",
               screen: "Seller Negotiation List",
             },
-            { label: "    Bidding", icon: "file-contract", screen: "Bidding" },
+            { label: "    My Bid", icon: "file-contract", screen: "Bidding" },
             {
               label: "  Seller FAQ",
               icon: "question-circle",

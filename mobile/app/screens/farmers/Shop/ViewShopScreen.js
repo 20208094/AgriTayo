@@ -14,6 +14,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as ImagePicker from "expo-image-picker";
 import { useFocusEffect } from "@react-navigation/native";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import { FontAwesome } from "@expo/vector-icons";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 
 function ViewShopScreen({ navigation }) {
@@ -37,6 +38,80 @@ function ViewShopScreen({ navigation }) {
   const [isCheckedCod, setIsCheckedCod] = useState(false);
   const [isCheckedGcash, setIsCheckedGcash] = useState(false);
   const [isCheckedBankTransfer, setIsCheckedBankTransfer] = useState(false);
+
+  const [errors, setErrors] = useState({});
+
+  const validateField = (fieldName, value) => {
+    let errorMessage = '';
+
+    switch (fieldName) {
+      case 'shopName':
+        if (!value) errorMessage = " *Shop name cannot be empty.";
+        break;
+      case 'shopAddress':
+        if (!value) errorMessage = " *Shop address cannot be empty.";
+        break;
+      case 'shopLocation':
+        // You can modify this regex based on your requirement for a valid location
+        if (!value) errorMessage = " *Shop location cannot be empty.";
+        break;
+      case 'shopDescription':
+        if (!value) errorMessage = " *Shop description cannot be empty.";
+        break;
+      case 'shopDeliveryFee':
+        if (isCheckedDelivery && (!value || isNaN(value) || Number(value) < 0)) {
+          errorMessage = " *Delivery fee must be a valid number.";
+        }
+        break;
+      case 'pickupAddress':
+        if (isCheckedPickup && !value) errorMessage = " *Pickup address cannot be empty.";
+        break;
+      case 'pickupAreaFee':
+        if (isCheckedPickup && (!value || isNaN(value) || Number(value) < 0)) {
+          errorMessage = " *Pickup area fee must be a valid number.";
+        }
+        break;
+      default:
+        break;
+    }
+
+    setErrors(prevErrors => ({ ...prevErrors, [fieldName]: errorMessage }));
+  };
+
+  const handleInputChange = (fieldName, value) => {
+    switch (fieldName) {
+      case 'shopName':
+        setShopName(value);
+        validateField('shopName', value);
+        break;
+      case 'shopAddress':
+        setShopAddress(value);
+        validateField('shopAddress', value);
+        break;
+      case 'shopLocation':
+        setShopLocation(value);
+        validateField('shopLocation', value);
+        break;
+      case 'shopDescription':
+        setShopDescription(value);
+        validateField('shopDescription', value);
+        break;
+      case 'shopDeliveryFee':
+        setShopDeliveryFee(value);
+        validateField('shopDeliveryFee', value);
+        break;
+      case 'pickupAddress':
+        setPickUpAddress(value);
+        validateField('pickupAddress', value);
+        break;
+      case 'pickupAreaFee':
+        setPickUpAreaFee(value);
+        validateField('pickupAreaFee', value);
+        break;
+      default:
+        break;
+    }
+  };
 
   const selectImageFromGallery = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -64,9 +139,8 @@ function ViewShopScreen({ navigation }) {
         const parsedData = JSON.parse(storedData);
         setUserData(Array.isArray(parsedData) ? parsedData[0] : parsedData);
 
-        // Here, adjust the property names according to your user data structure
-        const userId = parsedData.user_id || parsedData.id; // Make sure to adjust according to your actual user object
-        setUserId(userId); // Set userId here
+        const userId = parsedData.user_id || parsedData.id;
+        setUserId(userId);
       }
     } catch (error) {
       console.error("Failed to load user data:", error);
@@ -117,16 +191,15 @@ function ViewShopScreen({ navigation }) {
         style={{
           width: 24,
           height: 24,
-          borderRadius: 4,
+          borderRadius: 25,
           borderWidth: 2,
-          borderColor: checked ? "#00b251" : "#ccc",
-          backgroundColor: checked ? "#00b251" : "transparent",
+          borderColor: checked ? "#00b251" : "#00B251",
           justifyContent: "center",
           alignItems: "center",
           marginRight: 8,
         }}
       >
-        {checked && <Ionicons name="checkmark" size={16} color="white" />}
+        {checked && <FontAwesome name="circle" size={16} color="#00B251" />}
       </View>
       <Text style={{ fontSize: 16, color: "#333" }}>{label}</Text>
     </TouchableOpacity>
@@ -157,234 +230,221 @@ function ViewShopScreen({ navigation }) {
     formData.append("longitude", 1.0);
     formData.append("latitude", 1.0);
 
-    // Debugging logs
-    console.log("Submitting shop data:", {
-      shop_name: shopName,
-      shop_address: shopAddress,
-      shop_location: shopLocation,
-      shop_description: shopDescription,
-      image: shopImage,
-      delivery: isCheckedDelivery,
-      pickup: isCheckedPickup,
-      delivery_price: shopDeliveryFee,
-      delivery_address: pickupAddress,
-      pickup_price: pickupAreaFee,
-      gcash: isCheckedGcash,
-      cod: isCheckedCod,
-      bank: isCheckedBankTransfer,
-      user_id: userId,
-      longtitude: 1.0,
-      latitude: 1.0,
-      shop_id: shopId,
-    });
-
     try {
       const response = await fetch(
         `${REACT_NATIVE_API_BASE_URL}/api/shops/${shopId}`,
         {
           method: "PUT",
           headers: {
-            "x-api-key": REACT_NATIVE_API_KEY,
+            "Content-Type": "multipart/form-data",
+            "Authorization": `Bearer ${REACT_NATIVE_API_KEY}`,
           },
           body: formData,
         }
       );
 
-      console.log("Response status:", response.status);
-      console.log("Response body:", await response.text()); // Log response body for more info
-
-      const updatedShopData = {
-        shop_name: shopName,
-        shop_address: shopAddress,
-        shop_location: shopLocation,
-        shop_description: shopDescription,
-        image: shopImage,
-        shop_image_url: shopImage,
-        delivery: isCheckedDelivery,
-        pickup: isCheckedPickup,
-        delivery_price: shopDeliveryFee,
-        delivery_address: pickupAddress,
-        pickup_price: pickupAreaFee,
-        gcash: isCheckedGcash,
-        cod: isCheckedCod,
-        bank: isCheckedBankTransfer,
-        user_id: userId,
-        longtitude: 1.0,
-        latitude: 1.0,
-        shop_id: shopId,
-      };
-
-      if (!response.ok) {
-        throw new Error("Failed to Edit Shop");
+      const result = await response.json();
+      if (result.success) {
+        Alert.alert("Success", "Profile updated successfully!");
+        navigation.navigate("ViewShop");
+      } else {
+        Alert.alert("Error", result.message);
       }
-
-      console.log("form data:", JSON.stringify(updatedShopData));
-      AsyncStorage.setItem("shopData", JSON.stringify(updatedShopData));
-      getAsyncShopData();
-      alert("Shop Updated Successfully!");
-      navigation.navigate('My Shop')
     } catch (error) {
-      alert("There was an error editing the shop.");
+      console.error("Error updating profile:", error);
+      Alert.alert("Error", "Failed to update profile.");
     }
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-100">
-      <ScrollView className="flex-1 px-4">
-        <View className="bg-white p-4 rounded-lg shadow-sm relative">
-          {/* Circular frame with shop image */}
-          <View className="items-center mb-4 mt-8">
-            <View className="relative w-24 h-24 rounded-full border-4 border-green-500 shadow-lg bg-white">
-              <Image
-                source={{ uri: shopImage }}
-                className="w-full h-full rounded-full"
-              />
-              <TouchableOpacity
-                className="absolute bottom-0 right-0 bg-green-500 p-2 rounded-full"
-                onPress={() => setModalVisible(true)}
-              >
-                <Ionicons name="pencil" size={20} color="white" />
-              </TouchableOpacity>
-            </View>
-          </View>
-
-          {/* Shop Name */}
-          <View className="mb-4">
-            <Text className="text-base text-gray-600">Shop Name</Text>
-            <TextInput
-              value={shopName}
-              onChangeText={setShopName}
-              className="mt-1 text-lg text-gray-900 border border-gray-300 rounded-lg p-2"
+    <SafeAreaView className="flex-1">
+      <ScrollView contentContainerStyle={{ padding: 16 }}>
+        {/* Circular frame with shop image */}
+        <View className="items-center mb-8">
+          <View className="relative w-28 h-28 rounded-full border-4 border-green-500 shadow-lg bg-white">
+            <Image
+              source={{ uri: shopImage }}
+              className="w-full h-full rounded-full"
             />
-          </View>
-
-          {/* Shop Address */}
-          <View className="mb-4">
-            <Text className="text-base text-gray-600">Address</Text>
-            <TextInput
-              value={shopAddress}
-              onChangeText={setShopAddress}
-              className="mt-1 text-lg text-gray-900 border border-gray-300 rounded-lg p-2"
-            />
-          </View>
-
-          {/* Shop Location */}
-          <View className="mb-4">
-            <Text className="text-base text-gray-600">Shop Location</Text>
             <TouchableOpacity
-              className="flex-row justify-between items-center p-3 border border-gray-300 rounded-lg"
-              onPress={() => navigation.navigate("Add Location")}
+              className="absolute bottom-0 right-0 bg-green-500 p-2 rounded-full"
+              onPress={() => setModalVisible(true)}
             >
-              <Text className="text-base text-gray-600">Select Location</Text>
-              <Ionicons name="chevron-forward-outline" size={20} color="gray" />
+              <Ionicons name="pencil" size={20} color="white" />
             </TouchableOpacity>
           </View>
+        </View>
+
+        {/* Shop Name */}
+        <View className="w-full max-w-md mx-auto">
+          <Text className="text-sm mb-2 text-gray-800">Shop Name:
+            {errors.shopName && (
+              <Text className="text-red-500 mb-2">{errors.shopName}</Text>
+            )}
+          </Text>
+          <TextInput
+            value={shopName}
+            onChangeText={(value) => handleInputChange('shopName', value)}
+            className="w-full p-2 mb-4 bg-white rounded-lg shadow-md text-gray-800"
+          />
+
+          {/* Shop Address */}
+          <Text className="text-sm mb-2 text-gray-800">Address:
+            {errors.shopAddress && (
+              <Text className="text-red-500 mb-2">{errors.shopAddress}</Text>
+            )}
+          </Text>
+          <TextInput
+            value={shopAddress}
+            onChangeText={(value) => handleInputChange('shopAddress', value)}
+            className="w-full p-2 mb-4 bg-white rounded-lg shadow-md text-gray-800"
+          />
+
+          {/* Shop Location */}
+          <Text className="text-sm mb-2 text-gray-800">Shop Location:</Text>
+          <TouchableOpacity
+            className="w-full p-2 mb-4 bg-white rounded-lg shadow-md text-gray-800"
+            onPress={() => navigation.navigate("Add Location")}
+          >
+            <Text className="text-sm mb-2 text-gray-600">Select Location:</Text>
+          </TouchableOpacity>
+          {errors.shopLocation && (
+            <Text className="text-red-500 mb-2">{errors.shopLocation}</Text>
+          )}
 
           {/* Shop Description */}
-          <View className="mb-4">
-            <Text className="text-base text-gray-600">Shop Description</Text>
-            <TextInput
-              value={shopDescription}
-              onChangeText={setShopDescription}
-              className="mt-1 text-lg text-gray-900 border border-gray-300 rounded-lg p-2"
-            />
-          </View>
+          <Text className="text-sm mb-2 text-gray-800">Shop Description:
+            {errors.shopDescription && (
+              <Text className="text-red-500 mb-2">{errors.shopDescription}</Text>
+            )}
+          </Text>
+          <TextInput
+            value={shopDescription}
+            onChangeText={(value) => handleInputChange('shopDescription', value)}
+            className="w-full p-2 mb-4 bg-white rounded-lg shadow-md text-gray-800"
+          />
 
           {/* Shipping Options */}
-          <View className="mb-4">
-            <Text className="text-base text-gray-600">Shipping Options: </Text>
+          <Text className="text-sm mb-2 text-gray-800">Shipping Options:</Text>
 
-            <CustomCheckbox
-              label="Delivery"
-              checked={isCheckedDelivery}
-              onPress={() => setIsCheckedDelivery(!isCheckedDelivery)}
-            />
-            {isCheckedDelivery && (
-              <>
-                <Text className="text-base text-gray-600">Delivery Fee:</Text>
-                <TextInput
-                  keyboardType="numeric"
-                  value={shopDeliveryFee}
-                  onChangeText={setShopDeliveryFee}
-                  className="mt-1 text-lg text-gray-900 border border-gray-300 rounded-lg p-2"
-                />
-              </>
-            )}
+          <CustomCheckbox
+            label="Delivery"
+            checked={isCheckedDelivery}
+            onPress={() => {
+              setIsCheckedDelivery(!isCheckedDelivery);
+              if (!isCheckedDelivery) setShopDeliveryFee(""); // Reset if unchecked
+            }}
+          />
+          {isCheckedDelivery && (
+            <>
+              <Text className="text-sm mb-2 text-gray-800">Delivery Fee:
+                {errors.shopDeliveryFee && (
+                  <Text className="text-red-500 mb-2">{errors.shopDeliveryFee}</Text>
+                )}
+              </Text>
+              <TextInput
+                keyboardType="numeric"
+                value={shopDeliveryFee}
+                onChangeText={(value) => handleInputChange('shopDeliveryFee', value)}
+                className="w-full p-2 mb-4 bg-white rounded-lg shadow-md text-gray-800"
+              />
 
-            <CustomCheckbox
-              label="Pickup"
-              checked={isCheckedPickup}
-              onPress={() => setIsCheckedPickup(!isCheckedPickup)}
-            />
-            {isCheckedPickup && (
-              <>
-                <Text className="text-base text-gray-600">Pickup Address:</Text>
-                <TextInput
-                  className="mt-1 text-lg text-gray-900 border border-gray-300 rounded-lg p-2"
-                  value={pickupAddress}
-                  onChangeText={setPickUpAddress}
-                />
-                <Text className="text-base text-gray-600">
-                  Pickup Area Fee:
-                </Text>
-                <TextInput
-                  keyboardType="numeric"
-                  value={pickupAreaFee}
-                  onChangeText={setPickUpAreaFee}
-                  className="mt-1 text-lg text-gray-900 border border-gray-300 rounded-lg p-2"
-                />
-              </>
-            )}
-          </View>
+            </>
+          )}
+
+          <CustomCheckbox
+            label="Pickup"
+            checked={isCheckedPickup}
+            onPress={() => {
+              setIsCheckedPickup(!isCheckedPickup);
+              if (!isCheckedPickup) setPickUpAddress(""); // Reset if unchecked
+            }}
+          />
+          {isCheckedPickup && (
+            <>
+              <Text className="text-sm mb-2 text-gray-800">Pickup Address:
+                {errors.pickupAddress && (
+                  <Text className="text-red-500 mb-2">{errors.pickupAddress}</Text>
+                )}
+              </Text>
+              <TextInput
+                className="w-full p-2 mb-4 bg-white rounded-lg shadow-md text-gray-800"
+                value={pickupAddress}
+                onChangeText={(value) => handleInputChange('pickupAddress', value)}
+              />
+
+              <Text className="text-sm mb-2 text-gray-800">Pickup Area Fee:
+                {errors.pickupAreaFee && (
+                  <Text className="text-red-500 mb-2">{errors.pickupAreaFee}</Text>
+                )}
+              </Text>
+              <TextInput
+                keyboardType="numeric"
+                value={pickupAreaFee}
+                onChangeText={(value) => handleInputChange('pickupAreaFee', value)}
+                className="w-full p-2 mb-4 bg-white rounded-lg shadow-md text-gray-800"
+              />
+
+            </>
+          )}
 
           {/* Available Payment Method */}
-          <View className="mb-4">
-            <Text className="text-base text-gray-600">
-              Available Payment Methods
-            </Text>
+          <Text className="text-sm mb-2 text-gray-800">Available Payment Methods:</Text>
 
-            <CustomCheckbox
-              label="Cash on Delivery (COD)"
-              checked={isCheckedCod}
-              onPress={() => setIsCheckedCod(!isCheckedCod)}
-            />
+          <CustomCheckbox
+            label="Cash on Delivery (COD)"
+            checked={isCheckedCod}
+            onPress={() => setIsCheckedCod(!isCheckedCod)}
+          />
 
-            <CustomCheckbox
-              label="GCash"
-              checked={isCheckedGcash}
-              onPress={() => setIsCheckedGcash(!isCheckedGcash)}
-            />
+          <CustomCheckbox
+            label="GCash"
+            checked={isCheckedGcash}
+            onPress={() => setIsCheckedGcash(!isCheckedGcash)}
+          />
 
-            <CustomCheckbox
-              label="Bank Transfer"
-              checked={isCheckedBankTransfer}
-              onPress={() => setIsCheckedBankTransfer(!isCheckedBankTransfer)}
-            />
-          </View>
+          <CustomCheckbox
+            label="Bank Transfer"
+            checked={isCheckedBankTransfer}
+            onPress={() => setIsCheckedBankTransfer(!isCheckedBankTransfer)}
+          />
 
           {/* Submit Button */}
           <TouchableOpacity
-            className="bg-green-500 py-3 rounded-lg flex-row justify-center items-center shadow-lg mt-4 mb-4"
+            className="w-full mt-8 p-4 bg-[#00B251] rounded-lg shadow-md"
             onPress={() => {
-              Alert.alert(
-                "Confirm Update Profile",
-                "Do you really want to update this profile?",
-                [
-                  {
-                    text: "No",
-                    onPress: () => console.log("Shop Update Cancelled"),
-                    style: "cancel",
-                  },
-                  {
-                    text: "Yes",
-                    onPress: handleSubmit,
-                  },
-                ],
-                { cancelable: false }
-              );
+              // Validate all fields before submitting
+              handleInputChange('shopName', shopName);
+              handleInputChange('shopAddress', shopAddress);
+              handleInputChange('shopLocation', shopLocation);
+              handleInputChange('shopDescription', shopDescription);
+              handleInputChange('shopDeliveryFee', shopDeliveryFee);
+              handleInputChange('pickupAddress', pickupAddress);
+              handleInputChange('pickupAreaFee', pickupAreaFee);
+
+              if (Object.values(errors).every(error => !error)) {
+                Alert.alert(
+                  "Confirm Update Profile",
+                  "Do you really want to update this profile?",
+                  [
+                    {
+                      text: "No",
+                      onPress: () => console.log("Shop Update Cancelled"),
+                      style: "cancel",
+                    },
+                    {
+                      text: "Yes",
+                      onPress: handleSubmit,
+                    },
+                  ],
+                  { cancelable: false }
+                );
+              } else {
+                Alert.alert("Error", "Please fix the errors before submitting.");
+              }
             }}
           >
-            <Text className="text-lg text-white">Submit</Text>
+            <Text className="text-center text-white font-bold">Submit</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -396,19 +456,15 @@ function ViewShopScreen({ navigation }) {
         visible={modalVisible}
         onRequestClose={() => setModalVisible(false)}
       >
-        <View className="flex-1 justify-center items-center bg-black bg-opacity-50">
+        <View className="flex-1 justify-center items-center bg-black/50 bg-opacity-50">
           <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
-            <Text className="text-lg font-semibold text-gray-900">
-              Update Profile Picture
-            </Text>
+            <Text className="text-lg font-semibold text-gray-900">Update Profile Picture</Text>
             <TouchableOpacity
               className="mt-4 p-4 bg-green-500 rounded-lg flex-row justify-center items-center"
               onPress={selectImageFromGallery}
             >
               <Ionicons name="image-outline" size={24} color="white" />
-              <Text className="text-lg text-white ml-2">
-                Select from Gallery
-              </Text>
+              <Text className="text-lg text-white ml-2">Select from Gallery</Text>
             </TouchableOpacity>
             <TouchableOpacity
               className="mt-4 p-4 bg-red-500 rounded-lg flex-row justify-center items-center"

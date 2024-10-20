@@ -11,7 +11,7 @@ import {
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { styled } from "nativewind";
 import { FontAwesome } from "@expo/vector-icons";
-import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env"; // Import environment variables
+import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 
 function RegisterScreenBuyers({ navigation }) {
   const [firstName, setFirstName] = useState("");
@@ -23,6 +23,7 @@ function RegisterScreenBuyers({ navigation }) {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [phone, setPhone] = useState("");
+  const [phone2, setPhone2] = useState("");
 
   const [firstNameError, setFirstNameError] = useState("");
   const [lastNameError, setLastNameError] = useState("");
@@ -32,15 +33,52 @@ function RegisterScreenBuyers({ navigation }) {
   const [confirmPasswordError, setConfirmPasswordError] = useState("");
   const [phoneError, setPhoneError] = useState("");
 
-  const [loading, setLoading] = useState(false); // Loading state to handle spinner
+  const [loading, setLoading] = useState(false);
 
   const firstname_regex = /^[A-Za-z\s]{2,}$/;
   const lastname_regex = /^[A-Za-z\s]{2,}$/;
   const password_regex = /^[A-Za-z\d@.#$!%*?&^]{8,30}$/;
   const phone_regex = /^(?:\+63|0)?9\d{9}$/;
+  const phone2_regex = /^(?:\+63|0)?9\d{9}$/;
+
+  // Real-time validation handlers
+  const validateFirstName = (text) => {
+    setFirstName(text);
+    if (!firstname_regex.test(text)) {
+      setFirstNameError("Invalid First Name. Please try again.");
+    } else {
+      setFirstNameError("");
+    }
+  };
+
+  const validateLastName = (text) => {
+    setLastName(text);
+    if (!lastname_regex.test(text)) {
+      setLastNameError("Invalid Last Name. Please try again.");
+    } else {
+      setLastNameError("");
+    }
+  };
+
+  const validatePassword = (text) => {
+    setPassword(text);
+    if (!password_regex.test(text)) {
+      setPasswordError("Invalid Password. Please try again.");
+    } else {
+      setPasswordError("");
+    }
+  };
+
+  const validatePhone = (text) => {
+    setPhone(text);
+    if (!phone_regex.test(text)) {
+      setPhoneError("Invalid Phone Number. Please try again.");
+    } else {
+      setPhoneError("");
+    }
+  };
 
   const handleRegister = async () => {
-    // Reset error states
     setFirstNameError("");
     setLastNameError("");
     setBirthDayError("");
@@ -51,62 +89,48 @@ function RegisterScreenBuyers({ navigation }) {
 
     let hasError = false;
 
-   // Validation checks
-if (!firstName) {
-  setFirstNameError("First Name is required.");
-  hasError = true;
-} else if (!firstname_regex.test(firstName)) {
-  setFirstNameError("Invalid First Name. Please try again.");
-  hasError = true;
-}
+    if (!firstName) {
+      setFirstNameError(" First Name is required.");
+      hasError = true;
+    }
 
-if (!lastName) {
-  setLastNameError("Last Name is required.");
-  hasError = true;
-} else if (!lastname_regex.test(lastName)) {
-  setLastNameError("Invalid Last Name. Please try again.");
-  hasError = true;
-}
+    if (!lastName) {
+      setLastNameError(" Last Name is required.");
+      hasError = true;
+    }
 
-if (!birthDay) {
-  setBirthDayError("Enter your Birthday.");
-  hasError = true;
-}
+    if (!birthDay) {
+      setBirthDayError(" Enter your Birthday.");
+      hasError = true;
+    }
 
-if (!gender) {
-  setGenderError("Select your Gender.");
-  hasError = true;
-}
+    if (!gender) {
+      setGenderError(" Select your Gender.");
+      hasError = true;
+    }
 
-if (!password) {
-  setPasswordError("Password is required.");
-  hasError = true;
-} else if (!password_regex.test(password)) {
-  setPasswordError("Invalid Password. Please try again.");
-  hasError = true;
-}
+    if (!password) {
+      setPasswordError(" Password is required.");
+      hasError = true;
+    }
 
-if (!confirmPassword) {
-  setConfirmPasswordError("Please confirm your password.");
-  hasError = true;
-} else if (confirmPassword !== password) {
-  setConfirmPasswordError("Passwords do not match.");
-  hasError = true;
-}
+    if (!confirmPassword) {
+      setConfirmPasswordError(" Please confirm your password.");
+      hasError = true;
+    } else if (confirmPassword !== password) {
+      setConfirmPasswordError(" Passwords do not match.");
+      hasError = true;
+    }
 
-if (!phone) {
-  setPhoneError("Phone Number is required.");
-  hasError = true;
-} else if (!phone_regex.test(phone)) {
-  setPhoneError("Invalid Phone Number. Please try again.");
-  hasError = true;
-}
+    if (!phone) {
+      setPhoneError(" Phone Number is required.");
+      hasError = true;
+    }
 
-if (hasError) {
-  return;
-}
+    if (hasError) {
+      return;
+    }
 
-    // Create FormData object
     const formData = new FormData();
     formData.append("firstname", firstName);
     formData.append("middlename", middleName);
@@ -116,24 +140,23 @@ if (hasError) {
     formData.append("email", email);
     formData.append("password", password);
     formData.append("phone_number", phone);
-    formData.append("user_type_id", "3"); // Assuming it's a string
+    // formData.append("phone_number2", phone2);
+    formData.append("user_type_id", "3");
 
-    // If validation passes, proceed to call the backend API for registration
-    setLoading(true); // Show loading state while making API call
+    setLoading(true);
     try {
       const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/users`, {
         method: "POST",
         headers: {
-          "x-api-key": REACT_NATIVE_API_KEY, // Secure API key
+          "x-api-key": REACT_NATIVE_API_KEY,
         },
-        body: formData, // Use FormData object as the body
+        body: formData,
       });
 
       if (response.ok) {
         const data = await response.json();
         console.log("Registration successful:", data);
         alert("Registration Successful!");
-        // Navigate to OTP Screen or login screen after successful registration
         navigation.navigate("OTP Screen", { email });
       } else {
         const errorData = await response.json();
@@ -144,13 +167,14 @@ if (hasError) {
       console.error("Error during registration:", error);
       alert("An error occurred. Please try again.");
     } finally {
-      setLoading(false); // Hide loading state
+      setLoading(false);
     }
   };
 
   const genderOptions = [
     { label: "Male", value: "Male" },
     { label: "Female", value: "Female" },
+    { label: "Others", value: "Others" },
   ];
 
   const [show, setShow] = useState(false);
@@ -172,37 +196,62 @@ if (hasError) {
   return (
     <SafeAreaView className="flex-1">
       <ScrollView contentContainerStyle={{ padding: 16 }}>
-        <Text className="text-3xl font-bold mt-6 mb-6 text-gray-800 text-center">
+        <Text className="text-3xl font-bold mt-6 mb-6 text-[#00B251] text-center">
           Register
         </Text>
         <View className="w-full max-w-md mx-auto">
+          {/* First Name */}
+          <Text className="text-sm mb-2 text-gray-800">
+            First Name: <Text className="text-red-500 text-sm">*</Text>{" "}
+            {firstNameError ? (
+              <Text className="text-sm w-4/5 text-red-500 mb-4">
+                {firstNameError}
+              </Text>
+            ) : null}
+          </Text>
           <TextInput
-            className="w-full p-3 mb-4 bg-white rounded-lg shadow-md"
+            className="w-full p-2 mb-4 bg-white rounded-lg shadow-md"
             placeholder="First Name"
             value={firstName}
-            onChangeText={setFirstName}
+            onChangeText={validateFirstName} // Real-time validation
           />
-          {firstNameError ? (
-            <Text className="w-4/5 text-red-500 mb-4">{firstNameError}</Text>
-          ) : null}
 
+          {/* Middle Name */}
+          <Text className="text-sm mb-2 text-gray-800">
+            Middle Name: (Optional)
+          </Text>
           <TextInput
-            className="w-full p-3 mb-4 bg-white rounded-lg shadow-md"
+            className="w-full p-2 mb-4 bg-white rounded-lg shadow-md"
             placeholder="Middle Name"
             value={middleName}
             onChangeText={setMiddleName}
           />
 
+          {/* Last Name */}
+          <Text className="text-sm mb-2 text-gray-800">
+            Last Name: <Text className="text-red-500 text-sm">*</Text>{" "}
+            {lastNameError ? (
+              <Text className="text-sm w-4/5 text-red-500 mb-4">
+                {lastNameError}
+              </Text>
+            ) : null}
+          </Text>
           <TextInput
-            className="w-full p-3 mb-4 bg-white rounded-lg shadow-md"
+            className="w-full p-2 mb-4 bg-white rounded-lg shadow-md"
             placeholder="Last Name"
             value={lastName}
-            onChangeText={setLastName}
+            onChangeText={validateLastName} // Real-time validation
           />
-          {lastNameError ? (
-            <Text className="w-4/5 text-red-500 mb-4">{lastNameError}</Text>
-          ) : null}
 
+          {/* Birthday */}
+          <Text className="text-sm mb-2 text-gray-800">
+            Birthday: <Text className="text-red-500 text-sm">*</Text>{" "}
+            {birthDayError ? (
+              <Text className="text-sm w-4/5 text-red-500 mb-4">
+                {birthDayError}
+              </Text>
+            ) : null}
+          </Text>
           <TouchableOpacity
             onPress={() => setShow(true)}
             className="w-full p-3 mb-4 bg-white rounded-lg shadow-md"
@@ -213,19 +262,17 @@ if (hasError) {
           </TouchableOpacity>
           {show && (
             <DateTimePicker
-              testID="dateTimePicker"
               value={date}
               mode="date"
-              is24Hour={true}
               display="default"
               onChange={handleDateChange}
+              maximumDate={new Date()}
             />
           )}
-          {birthDayError ? (
-            <Text className="w-4/5 text-red-500 mb-4">{birthDayError}</Text>
-          ) : null}
-
-          <Text className="text-lg mb-2 text-gray-800">Gender:</Text>
+          {/* Gender */}
+          <Text className="text-sm mb-2 text-gray-800">Gender: <Text className="text-red-500 text-sm">*</Text> {genderError ? (
+            <Text className="text-sm w-4/5 text-red-500 mb-4">{genderError}</Text>
+          ) : null}</Text>
           <View className="flex-row mb-4">
             {genderOptions.map((option) => (
               <TouchableOpacity
@@ -233,87 +280,113 @@ if (hasError) {
                 onPress={() => setGender(option.value)}
                 className="flex-row items-center mr-6"
               >
-                <View className="w-8 h-8 rounded-full border-2 border-green-600 flex items-center justify-center">
+                <View className="w-7 h-7 rounded-full border-2 border-green-600 flex items-center justify-center">
                   {gender === option.value && (
-                    <FontAwesome name="check" size={25} color="#00B251" />
+                    <FontAwesome name="circle" size={21} color="#00B251" />
                   )}
                 </View>
                 <Text className="ml-2 text-gray-800">{option.label}</Text>
               </TouchableOpacity>
             ))}
           </View>
-          {genderError ? (
-            <Text className="w-4/5 text-red-500 mb-4">{genderError}</Text>
-          ) : null}
 
+          {/* Phone */}
+          <Text className="text-sm mb-2 text-gray-800">
+            Phone Number: <Text className="text-red-500 text-sm">*</Text>{" "}
+            {phoneError ? (
+              <Text className="text-sm w-4/5 text-red-500 mb-4">
+                {phoneError}
+              </Text>
+            ) : null}
+          </Text>
           <TextInput
-            className="w-full p-3 mb-6 bg-white rounded-lg shadow-md"
+            className="w-full p-2 mb-4 bg-white rounded-lg shadow-md"
             placeholder="Phone Number"
-            keyboardType="phone-pad"
             value={phone}
-            onChangeText={setPhone}
+            onChangeText={validatePhone} // Real-time validation
           />
-          {phoneError ? (
-            <Text className="w-4/5 text-red-500 mb-4">{phoneError}</Text>
-          ) : null}
 
+          {/* Phone */}
+          <Text className="text-sm mb-2 text-gray-800">Alternative Phone Number: (Optional)</Text>
           <TextInput
-            className="w-full p-3 mb-4 bg-white rounded-lg shadow-md"
+            className="w-full p-2 mb-4 bg-white rounded-lg shadow-md"
+            placeholder="Phone Number"
+            value={phone}
+            onChangeText={validatePhone} // Real-time validation
+          />
+
+          {/* Email */}
+          <Text className="text-sm mb-2 text-gray-800">Email: (Optional)</Text>
+          <TextInput
+            className="w-full p-2 mb-4 bg-white rounded-lg shadow-md"
             placeholder="Email"
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoCorrect={false}
             value={email}
             onChangeText={setEmail}
           />
 
+          {/* Password */}
+          <Text className="text-sm mb-2 text-gray-800">
+            Password: <Text className="text-red-500 text-sm">*</Text>{" "}
+            {passwordError ? (
+              <Text className="text-sm w-4/5 text-red-500 mb-4">
+                {passwordError}
+              </Text>
+            ) : null}
+          </Text>
           <TextInput
-            className="w-full p-3 mb-4 bg-white rounded-lg shadow-md"
+            className="w-full p-2 mb-4 bg-white rounded-lg shadow-md"
             placeholder="Password"
-            secureTextEntry={true}
-            autoCapitalize="none"
-            autoCorrect={false}
+            secureTextEntry
             value={password}
-            onChangeText={setPassword}
+            onChangeText={validatePassword} // Real-time validation
           />
-          {passwordError ? (
-            <Text className="w-4/5 text-red-500 mb-4">{passwordError}</Text>
-          ) : null}
 
+          {/* Confirm Password */}
+          <Text className="text-sm mb-2 text-gray-800">
+            Confirm Password: <Text className="text-red-500 text-sm">*</Text>{" "}
+            {confirmPasswordError ? (
+              <Text className="text-sm w-4/5 text-red-500 mb-4">
+                {confirmPasswordError}
+              </Text>
+            ) : null}
+          </Text>
           <TextInput
-            className="w-full p-3 mb-6 bg-white rounded-lg shadow-md"
+            className="w-full p-2 mb-4 bg-white rounded-lg shadow-md"
             placeholder="Confirm Password"
-            secureTextEntry={true}
-            autoCapitalize="none"
-            autoCorrect={false}
+            secureTextEntry
             value={confirmPassword}
-            onChangeText={setConfirmPassword}
+            onChangeText={(text) => {
+              setConfirmPassword(text);
+              if (text !== password) {
+                setConfirmPasswordError("Passwords do not match.");
+              } else {
+                setConfirmPasswordError("");
+              }
+            }}
           />
-          {confirmPasswordError ? (
-            <Text className="w-4/5 text-red-500 mb-4">
-              {confirmPasswordError}
-            </Text>
-          ) : null}
 
+
+
+          {/* Submit Button */}
           <TouchableOpacity
             onPress={handleRegister}
-            className="w-full p-3 bg-[#00B251] rounded-lg shadow-md"
+            className="w-full p-4 bg-[#00B251] rounded-lg shadow-md"
           >
-            <Text className="text-white text-center text-lg">
-              {loading ? "Registering..." : "Register"}
-            </Text>
+            <Text className="text-center text-white font-bold">Register</Text>
           </TouchableOpacity>
 
+          {/* Cancel Button */}
           <TouchableOpacity
             onPress={() => navigation.navigate("Login")}
-            className="w-full p-3 bg-gray-300 rounded-lg shadow-md mt-4"
+            className="w-full p-4 bg-gray-300 rounded-lg shadow-md mt-4"
           >
-            <Text className="text-gray-800 text-center text-lg">Cancel</Text>
+            <Text className="text-gray-800 text-center font-bold">Cancel</Text>
           </TouchableOpacity>
+
         </View>
       </ScrollView>
     </SafeAreaView>
   );
 }
 
-export default styled(RegisterScreenBuyers);
+export default RegisterScreenBuyers;
