@@ -9,7 +9,7 @@ const getSingleValue = (value) => Array.isArray(value) ? value[0] : value;
 async function getShops(req, res) {
     try {
         const { data, error } = await supabase
-            .from('shop_with_coordinates') // For the view
+            .from('shop') // For the view
             .select('*');
 
         // or for the function

@@ -3,7 +3,7 @@ const supabase = require('../db');
 let io;
 
 function setSocketIOInstance(socketIOInstance) {
-    io = socketIOInstance; // Store the socket.io instance for later use
+    io = socketIOInstance;
 }
 
 async function getNotifications(req, res) {

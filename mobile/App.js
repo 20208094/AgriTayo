@@ -83,6 +83,8 @@ import ChatScreen from "./app/screens/Chat/ChatScreen";
 import ChatListScreen from "./app/screens/Chat/ChatListScreen";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from '@env';
 import { SafeAreaView } from "react-native-safe-area-context";
+import FilterProductsScreen from "./app/screens/Market/FilterProductsScreen";
+import CompareShopsScreen from "./app/screens/Market/CompareShospScreen";
 const SOCKET_URL = REACT_NATIVE_API_BASE_URL;
 
 const Stack = createStackNavigator();
@@ -377,6 +379,16 @@ function App() {
             <Stack.Screen
               name="Product List"
               component={MarketCategoryScreen}
+              options={screenOptions}
+            />
+            <Stack.Screen
+              name="Filter Products"
+              component={FilterProductsScreen}
+              options={screenOptions}
+            />
+            <Stack.Screen
+              name="Compare Shops"
+              component={CompareShopsScreen}
               options={screenOptions}
             />
             <Stack.Screen

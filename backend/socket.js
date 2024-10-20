@@ -85,6 +85,27 @@ function initializeSocket(server) {
                 }
             }
         });
+
+        socket.on('sms sender', async (data) => {
+            try {
+                const { title, message, phone_number } = data;
+                console.log('SMS request received:', title, message, phone_number);
+
+                socket.broadcast.emit('sms sender', { title, message, phone_number });
+                // Here you can add the logic for sending the SMS
+                // This can be forwarded to the device with the SIM card or an SMS service.
+                // For now, we'll just log it.
+                
+                // Example:
+                // sendSmsToDevice({ title, message }); // Forward the SMS request to your device with SIM card
+
+                // Emit a confirmation or error response back to the sender (if needed)
+                socket.emit('sms status', { status: 'SMS received', title, message, phone_number });
+                // await emitWithAck(socket, 'sms status', JSON.stringify({ title, message, phone_number }));
+            } catch (error) {
+                console.error('Error handling SMS sender:', error);
+            }
+        });
     });
 }
 

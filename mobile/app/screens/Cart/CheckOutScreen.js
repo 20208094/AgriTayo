@@ -42,6 +42,7 @@ function CheckOutScreen() {
       const shops = await response.json();
 
       const filteredShops = shops.filter((shop) => shop.shop_id === shopId);
+      console.log('filteredShops :', filteredShops.shop_number);
       setShopDetails(filteredShops[0]); // Store the first matching shop
     } catch (error) {
       console.error("Error fetching shops:", error);
@@ -205,7 +206,8 @@ function CheckOutScreen() {
       shopId: shopDetails.shop_id,
       orderType: order_type,
       cartType: cart_type,
-      totalWeight: totalweight
+      totalWeight: totalweight,
+      shop_number: shopDetails.shop_number
     };
 
     console.log('orderDetails :', orderDetails);

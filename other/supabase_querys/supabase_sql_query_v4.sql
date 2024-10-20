@@ -98,12 +98,51 @@ CREATE TABLE metric_system (
     metric_val_pounds DECIMAL(10, 4) NOT NULL
 );
 
+-- Create crop_variety table
+CREATE TABLE crop_varieties (
+    crop_variety_id SERIAL PRIMARY KEY,
+    crop_variety_name VARCHAR(100) NOT NULL,
+    crop_variety_description TEXT,
+    crop_variety_image_url VARCHAR(255),
+    crop_category_id INT NOT NULL,
+    crop_sub_category_id INT NOT NULL,
+    FOREIGN KEY (crop_category_id) REFERENCES crop_category(crop_category_id) ON DELETE SET NULL,
+    FOREIGN KEY (crop_sub_category_id) REFERENCES crop_sub_category(crop_sub_category_id) ON DELETE SET NULL
+);
+
+-- Indexes for faster querying
+CREATE INDEX idx_crop_variety_crop_category_id ON crop_variety(crop_category_id);
+CREATE INDEX idx_crop_variety_crop_sub_category_id ON crop_variety(crop_sub_category_id);
+
+-- Create crop_sizes table
+CREATE TABLE crop_sizes (
+    crop_size_id SERIAL PRIMARY KEY,
+    crop_size_name VARCHAR(50) NOT NULL, -- e.g., Small, Medium, Large, Long
+    crop_size_type VARCHAR(50) CHECK (crop_size_type IN ('Size','Weight', 'Length', 'Other')), -- Type of size (Weight/Length)
+    crop_size_description TEXT -- Optional description for the size
+);
+
+-- Create crop_variety_sizes junction table (many-to-many relationship between crop_variety and crop_sizes)
+CREATE TABLE crop_variety_sizes (
+    crop_variety_size_id SERIAL PRIMARY KEY,
+    crop_variety_id INT NOT NULL, -- Reference to crop_variety
+    crop_size_id INT NOT NULL, -- Reference to crop_sizes
+    FOREIGN KEY (crop_variety_id) REFERENCES crop_variety(crop_variety_id) ON DELETE CASCADE,
+    FOREIGN KEY (crop_size_id) REFERENCES crop_sizes(crop_size_id) ON DELETE CASCADE
+);
+
+-- Indexes for faster querying
+CREATE INDEX idx_crop_variety_sizes_crop_variety_id ON crop_variety_sizes(crop_variety_id);
+CREATE INDEX idx_crop_variety_sizes_crop_size_id ON crop_variety_sizes(crop_size_id);
+
 -- Create crops table
 CREATE TABLE crops (
     crop_id SERIAL PRIMARY KEY,
     crop_name VARCHAR(100) NOT NULL,
     crop_description TEXT,
+    -- category_id INT, 
     sub_category_id INT,
+    -- crop_variety_id INT,
     shop_id INT,
     crop_image_url VARCHAR(255),
     crop_rating DECIMAL(3, 2),
@@ -122,6 +161,32 @@ CREATE TABLE crops (
 CREATE INDEX idx_crops_sub_category_id ON crops(sub_category_id);
 CREATE INDEX idx_crops_shop_id ON crops(shop_id);
 CREATE INDEX idx_crops_metric_system_id ON crops(metric_system_id);
+
+-- OLD CROPS
+-- CREATE TABLE crops (
+--     crop_id SERIAL PRIMARY KEY,
+--     crop_name VARCHAR(100) NOT NULL,
+--     crop_description TEXT,
+--     sub_category_id INT,
+--     shop_id INT,
+--     crop_image_url VARCHAR(255),
+--     crop_rating DECIMAL(3, 2),
+--     crop_price DECIMAL(10, 2) NOT NULL,
+--     crop_quantity INT,
+--     crop_weight DECIMAL(10, 4),
+--     metric_system_id INT,
+--     stocks INT,
+--     availability VARCHAR(20) CHECK (availability IN ('live', 'reviewing', 'violation', 'delisted')),
+--     availability_message TEXT,
+--     FOREIGN KEY (sub_category_id) REFERENCES crop_sub_category(crop_sub_category_id) ON DELETE SET NULL,
+--     FOREIGN KEY (shop_id) REFERENCES shop(shop_id) ON DELETE SET NULL,
+--     FOREIGN KEY (metric_system_id) REFERENCES metric_system(metric_system_id) ON DELETE SET NULL
+-- );
+
+-- CREATE INDEX idx_crops_sub_category_id ON crops(sub_category_id);
+-- CREATE INDEX idx_crops_shop_id ON crops(shop_id);
+-- CREATE INDEX idx_crops_metric_system_id ON crops(metric_system_id);
+
 
 -- Create order_status table
 CREATE TABLE order_status (

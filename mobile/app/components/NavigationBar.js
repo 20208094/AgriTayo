@@ -7,6 +7,7 @@ import CropsScreen from "../screens/Market/CropsScreen";
 import ProfileScreen from "../screens/Profile/ProfileScreen";
 import AnalyticScreen from "../screens/Analytics/AnalyticScreen";
 import BiddingScreen from "../screens/Bidding/BiddingBuyerScreen";
+import FeaturedProductScreen from "../screens/Market/FeaturedProductScreen";
 import { NotificationIcon, MessagesIcon, MarketIcon } from "../components/SearchBarC";
 import { useNavigation } from "@react-navigation/native";
 
@@ -54,6 +55,9 @@ const NavigationBar = () => {
               case "Market Category":
                 iconName = "leaf-outline";
                 break;
+              case "Featured Products":
+                iconName = "leaf-outline";
+                break;
               case "Biddings":
                 iconName = "people-outline";
                 break;
@@ -86,8 +90,8 @@ const NavigationBar = () => {
           options={{ headerShown: false }}
         />
         <Tab.Screen
-          name="Market Category"
-          component={CropsScreen}
+          name="Featured Products"
+          component={FeaturedProductScreen}
           options={{
             tabBarLabel: 'Market',
             headerRight: () => (

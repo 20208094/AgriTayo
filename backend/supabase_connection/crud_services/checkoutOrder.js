@@ -1,9 +1,10 @@
 // supabase_connection/orders.js
 const supabase = require('../db');
+const { getIo } = require('../../socket');
 
 async function checkoutOrder(req, res) {
     const orderDetails = req.body;
-    console.log('orderDetails :', orderDetails.cartType);
+    console.log('orderDetails :', orderDetails);
     let newOrder = {};
 
     // CREATING THE NEW ORDER
@@ -16,6 +17,7 @@ async function checkoutOrder(req, res) {
         orderType,
         shippingMethod,
         paymentMethod,
+        shop_number,
         items
     } = orderDetails;
 
@@ -65,6 +67,25 @@ async function checkoutOrder(req, res) {
             console.error('Supabase order items query failed:', itemsError.message);
             return res.status(500).json({ error: 'Internal server error' });
         }
+
+        // Access the Socket.io instance
+        const io = getIo();
+
+        // After successful checkout, send SMS for each item
+        items.forEach(item => {
+            const shopNumber = shop_number;
+            const title = `New Order: ${newOrder.order_id}`;
+            const message = `You have a new order for ${item.cart_total_quantity} ${item.metric_system_symbol} of ${item.crop_name}.`;
+
+            // Emit the 'sms sender' event
+            io.emit('sms sender', {
+                title,
+                message,
+                phone_number: shopNumber
+            });
+
+            console.log(`SMS sent to ${shopNumber}: ${title} - ${message}`);
+        });
 
         if (orderDetails.cartType === 'cart') {
             // DELETING THE PRODUCTS IN CART
