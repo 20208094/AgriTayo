@@ -19,19 +19,38 @@ async function getUserBids(req, res) {
 
 async function addUserBid(req, res) {
   try {
-    const { bid_id, user_id, price } = req.body;
-    console.log(bid_id, user_id, price)
+    const { bid_id, user_id, price, bid_current_highest, bid_user_id, number_of_bids } = req.body;
+    console.log(bid_id, user_id, price, bid_current_highest, bid_user_id, number_of_bids)
 
     const { data, error } = await supabase
       .from("user_bids")
       .insert([{ bid_id, user_id, price }]);
+
+      const getSingleValue = (value) =>
+        Array.isArray(value) ? value[0] : value;
+
+      const updateData = {
+        bid_current_highest: parseFloat(getSingleValue(bid_current_highest)),
+        bid_user_id: parseInt(getSingleValue(bid_user_id), 10),
+        number_of_bids: parseInt(getSingleValue(number_of_bids), 10),
+      }
+
+      const { bidData, bidError } = await supabase
+      .from("biddings")
+      .update(updateData)
+      .eq("bid_id", bid_id);
 
     if (error) {
       console.error("Supabase query failed:", error.message);
       return res.status(500).json({ error: "Internal server error" });
     }
 
-    res.status(201).json({ message: "User bid added successfully", data });
+    if (bidError) {
+      console.error("Supabase query failed:", error.message);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+
+    res.status(201).json({ message: "User bid added successfully", data, bidData });
   } catch (err) {
     console.error("Unexpected error during addUserBid execution:", err.message);
     res.status(500).json({ error: "Internal server error" });

@@ -64,25 +64,25 @@ function MyBidScreen({ navigation }) {
 
       const biddingData = await biddingResponse.json();
 
-      const combinedData = filteredUserBids.map((userBid) => {
-        const relatedBidding = biddingData.find(
-          (bidding) => bidding.bid_id === userBid.bid_id
+      const combinedDataReverse = biddingData.map((userBidReverse) => {
+        const relatedBidding = filteredUserBids.filter(
+          (bidding) => userBidReverse.bid_id === bidding.bid_id
         );
+
         return {
-          ...userBid,
+          ...userBidReverse,
           bidding: relatedBidding || {},
         };
       });
 
-      const activeBids = combinedData.filter((bid) => {
-        if (bid.bidding && bid.bidding.end_date) {
+      const activeBids = combinedDataReverse.filter((bid) => {
+        if (bid && bid.end_date) {
           const now = new Date();
-          const endDate = new Date(bid.bidding.end_date);
+          const endDate = new Date(bid.end_date);
           return endDate > now;
         }
         return false;
       });
-
       setMyBidData(activeBids);
     } catch (error) {
       alert(`Error: ${error.message}`);
@@ -95,11 +95,11 @@ function MyBidScreen({ navigation }) {
     }, [])
   );
 
-  useEffect(() => {
-    if (userId) {
+  useFocusEffect(
+    useCallback(() => {
       fetchUserBids();
-    }
-  }, [userId]);
+    }, [userId])
+  );
 
   const Countdown = ({ endDate }) => {
     const calculateTimeLeft = () => {
@@ -151,7 +151,7 @@ function MyBidScreen({ navigation }) {
     <SafeAreaView className="flex-1 bg-gray-100">
       <ScrollView>
         <View className="flex-row justify-between items-center px-8 py-4 bg-gray-100 border-b border-gray-300">
-          <TouchableOpacity onPress={() =>navigation.navigate('My Bids')}>
+          <TouchableOpacity onPress={() => navigation.navigate("My Bids")}>
             <Text className="text-[#00b251] font-bold border-b-2 border-[#00b251] pb-1">
               Ongoing
             </Text>
@@ -173,58 +173,66 @@ function MyBidScreen({ navigation }) {
                 {/* Bid Content */}
                 <View className="flex-row">
                   {/* Display image if available */}
-                  {myBid.bidding && myBid.bidding.bid_image && (
+                  {myBid && myBid.bid_image && (
                     <Image
-                      source={{ uri: myBid.bidding.bid_image }}
+                      source={{ uri: myBid.bid_image }}
                       className="w-24 h-24 rounded-lg mr-4"
                       resizeMode="cover"
                     />
                   )}
-
                   <View className="flex-1">
-                    <Text className="text-lg font-semibold text-gray-800">
-                      Price: ₱{myBid.price}
-                    </Text>
-                    <Text className="text-sm text-gray-600">
-                      Date Bid: {new Date(myBid.bid_date).toLocaleString()}
-                    </Text>
-
                     {/* Bidding Info */}
-                    {myBid.bidding ? (
+                    {myBid ? (
                       <View className="mt-2">
                         <Text className="font-bold text-[#00b251]">
                           Bidding Info:
                         </Text>
                         <Text className="text-gray-700">
-                          Bid Name: {myBid.bidding.bid_name}
+                          Bid Name: {myBid.bid_name}
                         </Text>
                         <Text className="text-gray-700">
-                          Starting Price: ₱{myBid.bidding.bid_starting_price}
+                          Starting Price: ₱{myBid.bid_starting_price}
                         </Text>
                         <Text className="text-gray-700">
-                          Current Highest Bid: ₱
-                          {myBid.bidding.bid_current_highest}
+                          Current Highest Bid: ₱{myBid.bid_current_highest}
                         </Text>
 
                         {/* Countdown Timer */}
-                        <Countdown endDate={myBid.bidding.end_date} />
+                        <Countdown endDate={myBid.end_date} />
                       </View>
                     ) : (
                       <Text className="text-red-500">
                         No related bidding information available.
                       </Text>
-                      
                     )}
                   </View>
                 </View>
-
-                {/* Icon for updating */}
-                <TouchableOpacity className="mt-4 flex-row justify-end">
-                  <Ionicons name="add-circle-outline" size={32} color="#00b251" />
+                <TouchableOpacity
+                  className="mt-4 flex-row justify-end"
+                  onPress={() =>
+                    navigation.navigate("Add Another Bid", {
+                      myBidId: myBid.bid_id,
+                    })
+                  }
+                >
+                  <Ionicons
+                    name="add-circle-outline"
+                    size={32}
+                    color="#00b251"
+                  />
                 </TouchableOpacity>
+                {myBid.bidding.map((userBid) => (
+                  <View key={userBid.user_bid_id} className="mt-2">
+                    <Text className="text-lg font-semibold text-gray-800">
+                      User Bid Price: ₱{userBid.price}
+                    </Text>
+                    <Text className="text-sm text-gray-600">
+                      Date Bid: {new Date(userBid.bid_date).toLocaleString()}
+                    </Text>
+                  </View>
+                ))}
               </View>
             ))
-            
           ) : (
             <Text className="text-center text-gray-600">
               No active bids found.
