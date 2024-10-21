@@ -5,10 +5,11 @@ import Icon from "react-native-vector-icons/Ionicons";
 import HomePageScreen from "../screens/Home/HomePageScreen";
 import CropsScreen from "../screens/Market/CropsScreen";
 import ProfileScreen from "../screens/Profile/ProfileScreen";
-import AnalyticScreen from "../screens/Analytics/AnalyticScreen";
 import BiddingScreen from "../screens/Bidding/BiddingBuyerScreen";
 import { NotificationIcon, MessagesIcon, MarketIcon } from "../components/SearchBarC";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
+import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Tab = createBottomTabNavigator();
 
@@ -17,6 +18,10 @@ const NavigationBar = () => {
   const [menuVisible, setMenuVisible] = useState(false);
   const [animation] = useState(new Animated.Value(0));
 
+  const [userData, setUserData] = useState(null);
+  const [shopData, setShopData] = useState(null);
+
+  // Toggle menu animation
   const toggleMenu = () => {
     if (menuVisible) {
       Animated.timing(animation, {
@@ -33,6 +38,49 @@ const NavigationBar = () => {
       }).start();
     }
   };
+
+  const getAsyncUserData = async () => {
+    try {
+      const storedData = await AsyncStorage.getItem("userData");
+      if (storedData) {
+        const parsedData = JSON.parse(storedData);
+        setUserData(Array.isArray(parsedData) ? parsedData[0] : parsedData);
+      }
+    } catch (error) {
+      console.error("Failed to load user data:", error);
+    }
+  };
+
+  const getAsyncShopData = async () => {
+    try {
+      const storedData = await AsyncStorage.getItem("shopData");
+      if (storedData) {
+        const parsedData = JSON.parse(storedData);
+        setShopData(Array.isArray(parsedData) ? parsedData[0] : parsedData);
+      }
+    } catch (error) {
+      console.error("Failed to load shop data:", error);
+    }
+  };
+
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      await getAsyncUserData();
+      await getAsyncShopData();
+    };
+    fetchInitialData();
+  }, []);
+
+  // UseFocusEffect to refetch data when the navigation bar is in focus (e.g., switching tabs)
+  useFocusEffect(
+    React.useCallback(() => {
+      const refetchDataOnFocus = async () => {
+        await getAsyncUserData();
+        await getAsyncShopData();
+      };
+      refetchDataOnFocus();
+    }, [])
+  );
 
   // Close menu when clicking outside
   const closeMenuOnOutsidePress = () => {
@@ -57,14 +105,8 @@ const NavigationBar = () => {
               case "Biddings":
                 iconName = "people-outline";
                 break;
-              case "Analytics":
-                iconName = "analytics-outline";
-                break;
               case "Profile":
                 iconName = "person-outline";
-                break;
-              case "Orders":
-                iconName = "receipt-outline";
                 break;
               case "Actions":
                 iconName = menuVisible ? "close-circle-outline" : "grid-outline";
@@ -89,7 +131,7 @@ const NavigationBar = () => {
           name="Market Category"
           component={CropsScreen}
           options={{
-            tabBarLabel: 'Market',
+            tabBarLabel: "Market",
             headerRight: () => (
               <View style={{ flexDirection: "row", marginRight: 15 }}>
                 <MarketIcon onPress={() => navigation.navigate("CartScreen")} />
@@ -143,46 +185,52 @@ const NavigationBar = () => {
       {menuVisible && (
         <TouchableWithoutFeedback onPress={closeMenuOnOutsidePress}>
           <View style={StyleSheet.absoluteFillObject} className="bg-black/10">
-            <Animated.View className="absolute right-0 bottom-16 items-center rounded-xl px-2 py-1 w-full">
-              <TouchableOpacity
-                className="items-center bg-white border border-slate-400 rounded-xl px-2 py-1 w-36 mt-2"
-                onPress={() => navigation.navigate("My Shop")}
-              >
-                <Icon name="storefront-outline" size={30} color="#00B251" />
-                <Text>My Shop</Text>
-              </TouchableOpacity>
+            <Animated.View className="absolute right-0 bottom-16 flex-row items-center rounded-xl px-2 py-1 w-full justify-center flex-wrap">
+              {shopData && (
+                <TouchableOpacity
+                  className="items-center bg-white border border-slate-400 rounded-xl px-2 py-1 mx-2 mb-2"
+                  style={{ width: 120 }}
+                  onPress={() => navigation.navigate("My Shop")}
+                >
+                  <Icon name="storefront-outline" size={30} color="#00B251" />
+                  <Text className="text-center">My Shop</Text>
+                </TouchableOpacity>
+              )}
 
               <TouchableOpacity
-                className="items-center bg-white border border-slate-400 rounded-xl px-2 py-1 w-36 mt-2"
+                className="items-center bg-white border border-slate-400 rounded-xl px-2 py-1 mx-2 mb-2"
+                style={{ width: 120 }}
                 onPress={() => navigation.navigate("Orders")}
               >
                 <Icon name="receipt-outline" size={30} color="#00B251" />
-                <Text>My Orders</Text>
+                <Text className="text-center">My Orders</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                className="items-center bg-white border border-slate-400 rounded-xl px-2 py-1 w-36 mt-2"
+                className="items-center bg-white border border-slate-400 rounded-xl px-2 py-1 mx-2 mb-2"
+                style={{ width: 120 }}
                 onPress={() => navigation.navigate("Buyer Negotiation List")}
               >
                 <Icon name="swap-horizontal-outline" size={30} color="#00B251" />
-                <Text>My Negotiations</Text>
+                <Text className="text-center">My Negotiations</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                className="items-center bg-white border border-slate-400 rounded-xl px-2 py-1 w-36 mt-2"
+                className="items-center bg-white border border-slate-400 rounded-xl px-2 py-1 mx-2 mb-2"
+                style={{ width: 120 }}
               >
                 <Icon name="ticket-outline" size={30} color="#00B251" />
-                <Text>My Bids</Text>
+                <Text className="text-center">My Bids</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                className="items-center bg-white border border-slate-400 rounded-xl px-2 py-1 w-36 mt-2"
+                className="items-center bg-white border border-slate-400 rounded-xl px-2 py-1 mx-2 mb-2"
+                style={{ width: 120 }}
                 onPress={() => navigation.navigate("Analytics")}
               >
                 <Icon name="analytics-outline" size={30} color="#00B251" />
-                <Text>Analytics</Text>
+                <Text className="text-center">Analytics</Text>
               </TouchableOpacity>
-
             </Animated.View>
           </View>
         </TouchableWithoutFeedback>
