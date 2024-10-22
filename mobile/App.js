@@ -63,6 +63,7 @@ import AnalyticScreen from "./app/screens/Analytics/AnalyticScreen";
 import MyBidScreen from "./app/screens/Bidding/MyBidScreen";
 import PastBidScreen from "./app/screens/Bidding/PastBidScreen";
 import WonBidScreen from "./app/screens/Bidding/WonBidScreen";
+import AddAnotherBid from "./app/screens/Bidding/AddAnotherBidScreen";
 // for farmers
 import ShopScreen from "./app/screens/farmers/Shop/ShopScreen";
 import ViewShopScreen from "./app/screens/farmers/Shop/ViewShopScreen";
@@ -564,6 +565,11 @@ function App() {
              <Stack.Screen
             name='Completed Bids'
             component={CompletedBidScreen}
+            options={screenOptions}
+            />
+            <Stack.Screen
+            name='Add Another Bid'
+            component={AddAnotherBid}
             options={screenOptions}
             />
             <Stack.Screen
