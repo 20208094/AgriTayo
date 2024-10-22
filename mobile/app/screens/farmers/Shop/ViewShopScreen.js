@@ -230,29 +230,74 @@ function ViewShopScreen({ navigation }) {
     formData.append("longitude", 1.0);
     formData.append("latitude", 1.0);
 
-    try {
+    // Debugging logs
+    console.log("Submitting shop data:", {
+      shop_name: shopName,
+      shop_address: shopAddress,
+      shop_location: shopLocation,
+      shop_description: shopDescription,
+      image: shopImage,
+      delivery: isCheckedDelivery,
+      pickup: isCheckedPickup,
+      delivery_price: shopDeliveryFee,
+      delivery_address: pickupAddress,
+      pickup_price: pickupAreaFee,
+      gcash: isCheckedGcash,
+      cod: isCheckedCod,
+      bank: isCheckedBankTransfer,
+      user_id: userId,
+      longtitude: 1.0,
+      latitude: 1.0,
+      shop_id: shopId,
+    });
+
+  try {
       const response = await fetch(
         `${REACT_NATIVE_API_BASE_URL}/api/shops/${shopId}`,
         {
           method: "PUT",
           headers: {
-            "Content-Type": "multipart/form-data",
-            "Authorization": `Bearer ${REACT_NATIVE_API_KEY}`,
+            "x-api-key": REACT_NATIVE_API_KEY,
           },
           body: formData,
         }
       );
 
-      const result = await response.json();
-      if (result.success) {
-        Alert.alert("Success", "Profile updated successfully!");
-        navigation.navigate("ViewShop");
-      } else {
-        Alert.alert("Error", result.message);
+      console.log("Response status:", response.status);
+      console.log("Response body:", await response.text()); // Log response body for more info
+
+      const updatedShopData = {
+        shop_name: shopName,
+        shop_address: shopAddress,
+        shop_location: shopLocation,
+        shop_description: shopDescription,
+        image: shopImage,
+        shop_image_url: shopImage,
+        delivery: isCheckedDelivery,
+        pickup: isCheckedPickup,
+        delivery_price: shopDeliveryFee,
+        delivery_address: pickupAddress,
+        pickup_price: pickupAreaFee,
+        gcash: isCheckedGcash,
+        cod: isCheckedCod,
+        bank: isCheckedBankTransfer,
+        user_id: userId,
+        longtitude: 1.0,
+        latitude: 1.0,
+        shop_id: shopId,
+      };
+
+      if (!response.ok) {
+        throw new Error("Failed to Edit Shop");
       }
+
+      console.log("form data:", JSON.stringify(updatedShopData));
+      AsyncStorage.setItem("shopData", JSON.stringify(updatedShopData));
+      getAsyncShopData();
+      alert("Shop Updated Successfully!");
+      navigation.navigate('My Shop')
     } catch (error) {
-      console.error("Error updating profile:", error);
-      Alert.alert("Error", "Failed to update profile.");
+      alert("There was an error editing the shop.");
     }
   };
 
