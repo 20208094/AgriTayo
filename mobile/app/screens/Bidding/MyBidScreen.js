@@ -168,7 +168,7 @@ function MyBidScreen({ navigation }) {
             myBidData.map((myBid) => (
               <View
                 className="mb-4 p-4 border border-gray-300 rounded-lg bg-white"
-                key={myBid.user_bid_id}
+                key={myBid.bid_id} // Unique key for each bid
               >
                 {/* Bid Content */}
                 <View className="flex-row">
@@ -182,31 +182,26 @@ function MyBidScreen({ navigation }) {
                   )}
                   <View className="flex-1">
                     {/* Bidding Info */}
-                    {myBid ? (
-                      <View className="mt-2">
-                        <Text className="font-bold text-[#00b251]">
-                          Bidding Info:
-                        </Text>
-                        <Text className="text-gray-700">
-                          Bid Name: {myBid.bid_name}
-                        </Text>
-                        <Text className="text-gray-700">
-                          Starting Price: ₱{myBid.bid_starting_price}
-                        </Text>
-                        <Text className="text-gray-700">
-                          Current Highest Bid: ₱{myBid.bid_current_highest}
-                        </Text>
-
-                        {/* Countdown Timer */}
-                        <Countdown endDate={myBid.end_date} />
-                      </View>
-                    ) : (
-                      <Text className="text-red-500">
-                        No related bidding information available.
+                    <View className="mt-2">
+                      <Text className="font-bold text-[#00b251]">
+                        Bidding Info:
                       </Text>
-                    )}
+                      <Text className="text-gray-700">
+                        Bid Name: {myBid.bid_name}
+                      </Text>
+                      <Text className="text-gray-700">
+                        Starting Price: ₱{myBid.bid_starting_price}
+                      </Text>
+                      <Text className="text-gray-700">
+                        Current Highest Bid: ₱{myBid.bid_current_highest}
+                      </Text>
+
+                      {/* Countdown Timer */}
+                      <Countdown endDate={myBid.end_date} />
+                    </View>
                   </View>
                 </View>
+
                 <TouchableOpacity
                   className="mt-4 flex-row justify-end"
                   onPress={() =>
@@ -221,6 +216,7 @@ function MyBidScreen({ navigation }) {
                     color="#00b251"
                   />
                 </TouchableOpacity>
+
                 {myBid.bidding.map((userBid) => (
                   <View key={userBid.user_bid_id} className="mt-2">
                     <Text className="text-lg font-semibold text-gray-800">

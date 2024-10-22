@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import {
   SafeAreaView,
   ScrollView,
@@ -24,7 +24,7 @@ function AddAnotherBid({ route, navigation }) {
   const [userId, setUserId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [minValidBid, setMinValidBid] = useState(0); 
-  const [myBid, setMyBidData] = useState(null); // Initialize as null
+  const [myBid, setMyBidData] = useState(null); 
   const [isLoading, setIsLoading] = useState(false);
   const [numberOfBids, setNumberOfBids] = useState(0);
 
@@ -50,7 +50,6 @@ function AddAnotherBid({ route, navigation }) {
 
   // Fetch user bids and calculate time left
   const fetchUserBids = async () => {
-    // setIsLoading(true);
     try {
       const biddingResponse = await fetch(
         `${REACT_NATIVE_API_BASE_URL}/api/biddings`,
@@ -81,23 +80,27 @@ function AddAnotherBid({ route, navigation }) {
 
   // Update time left every second
   useEffect(() => {
+    fetchUserBids();
     const interval = setInterval(() => {
-        fetchUserBids();
       if (myBid) {
         setTimeLeft(calculateTimeLeft(myBid.end_date));
-        fetchUserBids();
       }
     }, 1000);
     
     return () => clearInterval(interval); // Cleanup on unmount
+    
   }, [myBid, myBidId]);
 
-  // Calculate minValidBid and update amount when it's set
+  // Set minimum bid amount and initialize bid amount when fetching bid data
   useEffect(() => {
     if (myBid) {
       const minBid = parseFloat(myBid.bid_current_highest) + parseFloat(myBid.bid_minimum_increment);
       setMinValidBid(minBid);
-      setAmount(minBid.toString()); 
+
+      // Only set amount if it hasn't been modified (i.e., it's still an empty string)
+      if (amount === "") {
+        setAmount(minBid.toString()); 
+      }
     }
   }, [myBid]);
 
@@ -165,6 +168,7 @@ function AddAnotherBid({ route, navigation }) {
           alert(`Failed to place bid: ${errorResponseText}`);
           return;
         } else {
+          Alert.alert('Success!', 'Bid Successfully Added')
           navigation.navigate("My Bids");
         }
       } catch (error) {
@@ -179,12 +183,6 @@ function AddAnotherBid({ route, navigation }) {
     const newAmount = parseFloat(amount) + parseFloat(myBid.bid_minimum_increment);
     setAmount(newAmount.toString());
   };
-
-//   useFocusEffect(
-//     useCallback(() => {
-//       fetchUserBids(); // Fetch bids on focus
-//     }, [myBidId])
-//   );
 
   useEffect(() => {
     getAsyncUserData();
