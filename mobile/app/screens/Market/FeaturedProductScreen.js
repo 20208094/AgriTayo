@@ -6,6 +6,7 @@ import Icon from "react-native-vector-icons/FontAwesome5";
 import { REACT_NATIVE_API_KEY } from '@env';
 
 const CategoryItemCard = ({ item }) => {
+  const navigation = useNavigation();
 
   return (
     <TouchableOpacity

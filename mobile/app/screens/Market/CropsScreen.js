@@ -41,6 +41,7 @@ const MarketCategoryCard = ({ cropCategory }) => {
 
 // Main CropsScreen Component
 function CropsScreen() {
+  const navigation = useNavigation();
   const [categories, setCategories] = useState([]);
   const API_KEY = REACT_NATIVE_API_KEY;
 
