@@ -54,6 +54,27 @@ const {
 } = require('./supabase_connection/crud_services/crop_category');
 
 const {
+    getCropSizes,
+    addCropSize,
+    updateCropSize,
+    deleteCropSize
+} = require('./supabase_connection/crud_services/crop_sizes');
+
+const {
+    getCropVarieties,
+    addCropVariety,
+    updateCropVariety,
+    deleteCropVariety
+} = require('./supabase_connection/crud_services/crop_varieties');
+
+const {
+    getCropVarietySizes,
+    addCropVarietySize,
+    updateCropVarietySize,
+    deleteCropVarietySize
+} = require('./supabase_connection/crud_services/crop_variety_sizes');
+
+const {
     getMetricSystems,
     addMetricSystem,
     updateMetricSystem,
@@ -286,6 +307,21 @@ app.get('/api/crop_categories', getCropCategories);
 app.post('/api/crop_categories', addCropCategory);
 app.put('/api/crop_categories/:id', updateCropCategory);
 app.delete('/api/crop_categories/:id', deleteCropCategory);
+
+app.get('/api/crop_sizes', getCropSizes);
+app.post('/api/crop_sizes', addCropSize);
+app.put('/api/crop_sizes/:id', updateCropSize);
+app.delete('/api/crop_sizes/:id', deleteCropSize);
+
+app.get('/api/crop_varieties', getCropVarieties);
+app.post('/api/crop_varieties', addCropVariety);
+app.put('/api/crop_varieties/:id', updateCropVariety);
+app.delete('/api/crop_varieties/:id', deleteCropVariety);
+
+app.get('/api/crop_variety_sizes', getCropVarietySizes);
+app.post('/api/crop_variety_sizes', addCropVarietySize);
+app.put('/api/crop_variety_sizes/:id', updateCropVarietySize);
+app.delete('/api/crop_variety_sizes/:id', deleteCropVarietySize);
 
 // API routes for metric systems
 app.get('/api/metric_systems', getMetricSystems);

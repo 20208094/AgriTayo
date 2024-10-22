@@ -111,8 +111,8 @@ CREATE TABLE crop_varieties (
 );
 
 -- Indexes for faster querying
-CREATE INDEX idx_crop_variety_crop_category_id ON crop_variety(crop_category_id);
-CREATE INDEX idx_crop_variety_crop_sub_category_id ON crop_variety(crop_sub_category_id);
+CREATE INDEX idx_crop_variety_crop_category_id ON crop_varieties(crop_category_id);
+CREATE INDEX idx_crop_variety_crop_sub_category_id ON crop_varieties(crop_sub_category_id);
 
 -- Create crop_sizes table
 CREATE TABLE crop_sizes (
@@ -127,7 +127,7 @@ CREATE TABLE crop_variety_sizes (
     crop_variety_size_id SERIAL PRIMARY KEY,
     crop_variety_id INT NOT NULL, -- Reference to crop_variety
     crop_size_id INT NOT NULL, -- Reference to crop_sizes
-    FOREIGN KEY (crop_variety_id) REFERENCES crop_variety(crop_variety_id) ON DELETE CASCADE,
+    FOREIGN KEY (crop_variety_id) REFERENCES crop_varieties(crop_variety_id) ON DELETE CASCADE,
     FOREIGN KEY (crop_size_id) REFERENCES crop_sizes(crop_size_id) ON DELETE CASCADE
 );
 
@@ -140,9 +140,10 @@ CREATE TABLE crops (
     crop_id SERIAL PRIMARY KEY,
     crop_name VARCHAR(100) NOT NULL,
     crop_description TEXT,
-    -- category_id INT, 
+    category_id INT, 
     sub_category_id INT,
-    -- crop_variety_id INT,
+    crop_variety_id INT,
+    crop_size_id INT,
     shop_id INT,
     crop_image_url VARCHAR(255),
     crop_rating DECIMAL(3, 2),
