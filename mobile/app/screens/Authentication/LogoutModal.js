@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { View, Text, Modal, ActivityIndicator, TouchableOpacity } from "react-native";
 import { styled } from "nativewind";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const LogoutModal = ({ isVisible, onCancel, fetchUserSession, navigation }) => {
   const [loading, setLoading] = useState(false);
@@ -32,6 +33,7 @@ const LogoutModal = ({ isVisible, onCancel, fetchUserSession, navigation }) => {
       console.error("Logout failed:", error);
       setErrorMessage("Logout failed due to a network issue.");
     } finally {
+      await AsyncStorage.clear();
       setLoading(false);
     }
   };

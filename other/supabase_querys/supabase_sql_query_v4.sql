@@ -149,6 +149,7 @@ CREATE TABLE crops (
     crop_rating DECIMAL(3, 2),
     crop_price DECIMAL(10, 2) NOT NULL,
     crop_quantity INT,
+    crop_class TEXT,
     crop_weight DECIMAL(10, 4),
     metric_system_id INT,
     stocks INT,

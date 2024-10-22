@@ -18,6 +18,7 @@ const NavigationBar = () => {
   const navigation = useNavigation();
   const [menuVisible, setMenuVisible] = useState(false);
   const [animation] = useState(new Animated.Value(0));
+  const [loading, setLoading] = useState(true);
 
   const [userData, setUserData] = useState(null);
   const [shopData, setShopData] = useState(null);
@@ -61,6 +62,8 @@ const NavigationBar = () => {
       }
     } catch (error) {
       console.error("Failed to load shop data:", error);
+    } finally {
+      setLoading(false)
     }
   };
 
@@ -89,6 +92,10 @@ const NavigationBar = () => {
       toggleMenu();
     }
   };
+  
+  if (loading) {
+    return <Text>Loading...</Text>;
+  }
 
   return (
     <View style={{ flex: 1 }}>

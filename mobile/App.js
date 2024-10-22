@@ -230,7 +230,7 @@ function App() {
   useEffect(() => {
     setTimeout(() => {
       setIsLoading(false);
-    }, 3000);
+    }, 10000);
   }, []);
 
   const screenOptions = {

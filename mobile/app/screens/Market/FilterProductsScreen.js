@@ -17,6 +17,8 @@ function FilterProductsScreen() {
   const [minimumPrice, setMinimumPrice] = useState();
   const [maximumPrice, setMaximumPrice] = useState();
   const [selectedQuantity, setSelectedQuantity] = useState('');
+  const [selectedQuantityName, setSelectedQuantityName] = useState('');
+  const [selectedSize, setSelectedSize] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
   const [modalData, setModalData] = useState([]);
   const [searchText, setSearchText] = useState('');
@@ -124,7 +126,6 @@ function FilterProductsScreen() {
       setSubCategoryFormData(subcategories);
       setVarietyFormData(varieties);
       setVarietySizesFormData(variety_sizes);
-      setSizesFormData(null);
       setMetricFormData(metrics);
     } catch (error) {
       console.error("Error fetching shops:", error);
@@ -157,16 +158,16 @@ function FilterProductsScreen() {
   });
 
   const quantities = [
-    { label: '1-5', value: '1-5' },
-    { label: '6-10', value: '6-10' },
-    { label: '11-20', value: '11-20' },
-    { label: '20+', value: '20+' },
+    { label: '1-5', value: [1,5] },
+    { label: '6-10', value: [6,10] },
+    { label: '11-20', value: [11,20] },
+    { label: '21+', value: [21,999999] },
   ];
 
   const sizes = sizesFormData && sizesFormData.length > 0
     ? sizesFormData.map(size => ({
       label: size.crop_size_name,
-      value: size.crop_size_name,
+      value: size.crop_size_id,
     }))
     : [];
 
@@ -195,15 +196,23 @@ function FilterProductsScreen() {
 
   const handleSubmit = () => {
     const filterData = {
-      category,
-      subcategory,
-      variety,
+      categoryId,
+      subcategoryId,
+      varietyId,
       selectedClasses,
+      selectedSize,
       priceRange,
       selectedQuantity,
     };
-    console.log("Applied Filters:", filterData);
-    navigation.navigate("Compare Shops")
+
+    const filter_category_id = categoryId;
+    const filter_sub_category_id = subcategoryId;
+    const filter_variety_id = varietyId;
+    const filter_class = selectedClasses;
+    const filter_size_id = selectedSize;
+    const filter_price_range = priceRange;
+    const filter_quantity = selectedQuantity;
+    navigation.navigate("Compare Shops", {filter_category_id, filter_sub_category_id, filter_variety_id, filter_class, filter_size_id, filter_price_range, filter_quantity})
   };
 
   const handleSelectItem = (item) => {
@@ -309,6 +318,10 @@ function FilterProductsScreen() {
     setModalVisible(false);
   };
 
+  handleSelectQuantity = (qty) => {
+    setSelectedQuantity(qty.value)
+    setSelectedQuantityName(qty.label)
+  }
 
   const filteredItems = modalData.filter(item =>
     item.label.toLowerCase().includes(searchText.toLowerCase())
@@ -364,9 +377,9 @@ function FilterProductsScreen() {
                 sizes.map((size) => (
                   <TouchableOpacity
                     key={size.value}
-                    onPress={() => setSelectedQuantity(size.value)}
+                    onPress={() => setSelectedSize(size.value)}
                     style={{
-                      backgroundColor: selectedQuantity === size.value ? '#00B251' : '#8f8d8d',
+                      backgroundColor: selectedSize === size.value ? '#00B251' : '#8f8d8d',
                       padding: 10,
                       borderRadius: 5,
                       minWidth: 60,
@@ -426,10 +439,10 @@ function FilterProductsScreen() {
             <View className="flex-row justify-around">
               {quantities.map((qty) => (
                 <TouchableOpacity
-                  key={qty.value}
-                  onPress={() => setSelectedQuantity(qty.value)}
+                  key={qty.label}
+                  onPress={() => handleSelectQuantity(qty)}
                   style={{
-                    backgroundColor: selectedQuantity === qty.value ? '#00B251' : '#8f8d8d',
+                    backgroundColor: selectedQuantityName === qty.label ? '#00B251' : '#8f8d8d',
                     padding: 10,
                     borderRadius: 5,
                     minWidth: 60,
