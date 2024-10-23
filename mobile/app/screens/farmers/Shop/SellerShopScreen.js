@@ -8,11 +8,11 @@ import {
   ScrollView,
   ActivityIndicator,
   TextInput,
+  Modal,
 } from "react-native";
-import { styled } from "nativewind";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialIcons } from '@expo/vector-icons'; // Import MaterialIcons for exclamation mark
 import michael from "../../../assets/ehh.png";
 import SearchBarC, {
   NotificationIcon,
@@ -36,27 +36,29 @@ function SellerShopScreen({ route }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [userData, setUserData] = useState(null);
   const [userId, setUserId] = useState(null);
-  const [senderId, setSenderId] = useState(null);
+  const [isIncomplete, setIsIncomplete] = useState(false); // Track if the shop is incomplete
+  const [modalVisible, setModalVisible] = useState(false); // State for modal visibility
 
   const getAsyncUserData = async () => {
     try {
       const storedData = await AsyncStorage.getItem('userData');
-
       if (storedData) {
         const parsedData = JSON.parse(storedData);
-
         if (Array.isArray(parsedData)) {
           const user = parsedData[0];
           setUserData(user);
           setUserId(user.user_id);
-          setSenderId(user.user_id);
+          // Check if the "Submit Later" flag is set in user data
+          if (user.submit_later) {
+            setIsIncomplete(true);
+          }
         } else {
           setUserData(parsedData);
         }
       }
     } catch (error) {
       console.error('Failed to load user data:', error);
-    } 
+    }
   };
 
   const fetchShopData = async () => {
@@ -84,7 +86,7 @@ function SellerShopScreen({ route }) {
         },
       });
       const cropData = await cropResponse.json();
-      const crops = cropData.filter((c) => c && c.shop_id === shop_id);
+      const crops = cropData.filter((c) => c && c.shop_id === shop_id); 
       setCropData(crops);
     } catch (error) {
       console.error("Error fetching crop data:", error);
@@ -96,41 +98,43 @@ function SellerShopScreen({ route }) {
 
   const fetchCropCategories = async () => {
     try {
-      setIsLoading(true);
-      const categoryResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_categories`, {
+      const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_categories`, {
         headers: {
-          "x-api-key": REACT_NATIVE_API_KEY,
-        },
+          'x-api-key': REACT_NATIVE_API_KEY
+        }
       });
-      const categoryData = await categoryResponse.json();
-      setCropCategories(categoryData);
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const data = await response.json();
+      setCropCategories(data);
     } catch (error) {
-      console.error("Error fetching crop categories:", error);
-      alert("Failed to load crop categories.");
-    } finally {
-      setIsLoading(false);
+      console.error('Error fetching crop categories:', error);
     }
   };
 
   const fetchCropSubCategories = async (categoryId) => {
     try {
-      setIsLoading(true);
-      const subCategoryResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_sub_categories?category_id=${categoryId}`, {
-        headers: {
-          "x-api-key": REACT_NATIVE_API_KEY,
-        },
-      });
-      const subCategoryData = await subCategoryResponse.json();
-      setCropSubCategories(subCategoryData);
+      const response = await fetch(
+        `${REACT_NATIVE_API_BASE_URL}/api/crop_sub_categories?category_id=${categoryId}`,
+        {
+          headers: {
+            "x-api-key": REACT_NATIVE_API_KEY,
+          },
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const data = await response.json();
+      const filteredSubCategories = data.filter((subCategory) => subCategory.crop_category_id === categoryId);
+      setCropSubCategories(filteredSubCategories);
     } catch (error) {
-      console.error("Error fetching crop subcategories:", error);
-      alert("Failed to load crop subcategories.");
-    } finally {
-      setIsLoading(false);
+      console.error('Error fetching crop subcategories:', error);
     }
   };
 
-  const fetchCropsBySubCategory = async (subCategoryId) => {
+  const fetchCropsBySubCategoryAndShop = async (subCategoryId) => {
     try {
       setIsLoading(true);
       const cropResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crops?sub_category_id=${subCategoryId}&shop_id=${shop_id}`, {
@@ -139,7 +143,8 @@ function SellerShopScreen({ route }) {
         },
       });
       const cropData = await cropResponse.json();
-      setCropData(cropData);
+      const filteredCrops = cropData.filter((crop) => crop.sub_category_id === subCategoryId && crop.shop_id === shop_id);
+      setCropData(filteredCrops);
     } catch (error) {
       console.error("Error fetching crops:", error);
       alert("Failed to load crops.");
@@ -186,6 +191,7 @@ function SellerShopScreen({ route }) {
       getAsyncUserData();
     }, [])
   );
+
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (
@@ -216,29 +222,53 @@ function SellerShopScreen({ route }) {
             source={shopData?.shop_image_url ? { uri: shopData.shop_image_url } : michael}
             className="w-12 h-12 rounded-full absolute top-2 left-4"
           />
-          <View className="ml-20">
+          <View className="ml-20 flex-row items-center">
             <Text className="text-lg font-bold">{shopData?.shop_name}</Text>
+            {isIncomplete && (
+              <TouchableOpacity onPress={() => setModalVisible(true)}>
+                <MaterialIcons name="error-outline" size={20} color="red" style={{ marginLeft: 5 }} />
+              </TouchableOpacity>
+            )}
           </View>
           <View className="absolute top-4 right-4">
             <TouchableOpacity
               className="px-4 py-1 bg-[#00B251] rounded-md"
-              onPress={() => navigation.navigate('ChatScreen', {
-                senderId: userId,
-                receiverId: shopData.shop_id,
-                receiverName: shopData.shop_name,
-                receiverType: "Shop",
-                senderType: "User",
-                receiverImage: shopData.shop_image_url,
-              })}
+              onPress={() =>
+                navigation.navigate("ChatScreen", {
+                  senderId: userId,
+                  receiverId: shopData.shop_id,
+                  receiverName: shopData.shop_name,
+                  receiverType: "Shop",
+                  senderType: "User",
+                  receiverImage: shopData.shop_image_url,
+                })
+              }
             >
               <Text className="text-white font-bold text-center">Chat</Text>
             </TouchableOpacity>
           </View>
-
-          <Text className="font-bold text-center"></Text>
-
         </View>
 
+        {/* Modal to show incomplete shop information */}
+        <Modal visible={modalVisible} transparent animationType="slide">
+          <View className="flex-1 justify-center items-center bg-black/50">
+            <View className="bg-white p-6 rounded-lg w-3/4">
+              <Text className="text-lg font-bold mb-4">Incomplete Shop Information</Text>
+              <Text className="text-gray-600 mb-4">
+                It seems like the shop has not completed all the required information from the Business Information.
+                Please ensure that all fields are filled out correctly.
+              </Text>
+              <TouchableOpacity
+                onPress={() => setModalVisible(false)}
+                className="px-4 py-2 bg-[#00B251] rounded-md"
+              >
+                <Text className="text-white text-center font-bold">Got it</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+
+        {/* Tab Selection */}
         <View className="flex-row justify-around bg-white border-t-4 border-[#00B251] py-2">
           {["Products", "Categories"].map((tab, index) => (
             <TouchableOpacity
@@ -266,45 +296,34 @@ function SellerShopScreen({ route }) {
                 <ActivityIndicator size="large" color={primaryColor} />
               </View>
             ) : (
-              <>
-                {selectedSubCategory && (
-                  <TouchableOpacity
-                    onPress={() => setSelectedSubCategory(null)}
-                    className="flex flex-row items-center p-2"
-                  >
-                    <Ionicons name="arrow-back" size={24} color="black" />
-                    <Text className="ml-2">Go Back</Text>
-                  </TouchableOpacity>
-                )}
-                <View className="flex flex-wrap flex-row p-2">
-                  {Array.isArray(cropData) && cropData.length > 0 ? (
-                    filterItems().map((product) => (
-                      <View key={product.crop_id} className="w-1/2 p-2">
-                        <View className="bg-white border border-white rounded-lg p-2">
-                          <TouchableOpacity
-                            onPress={() => navigation.navigate("Product Details", { product })}
-                            className="bg-white border border-white rounded-lg p-2"
-                          >
-                            <Image
-                              source={{ uri: product.crop_image_url }}
-                              className="w-full h-32 rounded-lg mb-2"
-                              resizeMode="cover"
-                            />
-                            <Text className="text-sm font-bold">{product.crop_name}</Text>
-                            <Text className="text-[#00B251] text-sm font-bold mt-1">
-                              ₱{product.crop_price}
-                            </Text>
-                            <Text className="text-xs text-gray-500 mt-1">{shopData?.shop_name}</Text>
-                            <Text className="text-xs text-gray-500 mt-1">⭐ {product.crop_rating}</Text>
-                          </TouchableOpacity>
-                        </View>
+              <View className="flex flex-wrap flex-row p-2">
+                {Array.isArray(cropData) && cropData.length > 0 ? (
+                  filterItems().map((product) => (
+                    <View key={product.crop_id} className="w-1/2 p-2">
+                      <View className="bg-white border border-white rounded-lg p-2">
+                        <TouchableOpacity
+                          onPress={() => navigation.navigate("Product Details", { product })}
+                          className="bg-white border border-white rounded-lg p-2"
+                        >
+                          <Image
+                            source={{ uri: product.crop_image_url }}
+                            className="w-full h-32 rounded-lg mb-2"
+                            resizeMode="cover"
+                          />
+                          <Text className="text-sm font-bold">{product.crop_name}</Text>
+                          <Text className="text-[#00B251] text-sm font-bold mt-1">
+                            ₱{product.crop_price}
+                          </Text>
+                          <Text className="text-xs text-gray-500 mt-1">{shopData?.shop_name}</Text>
+                          <Text className="text-xs text-gray-500 mt-1">⭐ {product.crop_rating}</Text>
+                        </TouchableOpacity>
                       </View>
-                    ))
-                  ) : (
-                    <Text className="text-center">No products found.</Text>
-                  )}
-                </View>
-              </>
+                    </View>
+                  ))
+                ) : (
+                  <Text className="text-center">No products found.</Text>
+                )}
+              </View>
             )}
           </>
         )}
@@ -365,7 +384,7 @@ function SellerShopScreen({ route }) {
                         className="w-1/2 p-2"
                         onPress={() => {
                           setSelectedSubCategory(subCategory);
-                          fetchCropsBySubCategory(subCategory.crop_sub_category_id);
+                          fetchCropsBySubCategoryAndShop(subCategory.crop_sub_category_id);
                         }}
                       >
                         <View className="bg-white border border-white rounded-lg p-2">
@@ -381,7 +400,7 @@ function SellerShopScreen({ route }) {
                   </View>
                 ) : (
                   <View className="flex flex-wrap flex-row p-2">
-                    {filterItems().map((product) => (
+                    {cropData.map((product) => (
                       <View key={product.crop_id} className="w-1/2 p-2">
                         <View className="bg-white border border-white rounded-lg p-2">
                           <TouchableOpacity
@@ -412,4 +431,4 @@ function SellerShopScreen({ route }) {
   );
 }
 
-export default styled(SellerShopScreen);
+export default SellerShopScreen;

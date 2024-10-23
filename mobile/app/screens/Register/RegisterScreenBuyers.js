@@ -23,7 +23,6 @@ function RegisterScreenBuyers({ navigation }) {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [phone, setPhone] = useState("");
-  const [phone2, setPhone2] = useState("");
 
   const [firstNameError, setFirstNameError] = useState("");
   const [lastNameError, setLastNameError] = useState("");
@@ -39,7 +38,6 @@ function RegisterScreenBuyers({ navigation }) {
   const lastname_regex = /^[A-Za-z\s]{2,}$/;
   const password_regex = /^[A-Za-z\d@.#$!%*?&^]{8,30}$/;
   const phone_regex = /^(?:\+63|0)?9\d{9}$/;
-  const phone2_regex = /^(?:\+63|0)?9\d{9}$/;
 
   // Real-time validation handlers
   const validateFirstName = (text) => {
@@ -140,7 +138,6 @@ function RegisterScreenBuyers({ navigation }) {
     formData.append("email", email);
     formData.append("password", password);
     formData.append("phone_number", phone);
-    // formData.append("phone_number2", phone2);
     formData.append("user_type_id", "3");
 
     setLoading(true);
@@ -174,7 +171,7 @@ function RegisterScreenBuyers({ navigation }) {
   const genderOptions = [
     { label: "Male", value: "Male" },
     { label: "Female", value: "Female" },
-    { label: "Others", value: "Others" },
+    { label: "Other", value: "Other" },
   ];
 
   const [show, setShow] = useState(false);
@@ -305,16 +302,6 @@ function RegisterScreenBuyers({ navigation }) {
             value={phone}
             onChangeText={validatePhone} // Real-time validation
           />
-
-          {/* Phone */}
-          <Text className="text-sm mb-2 text-gray-800">Alternative Phone Number: (Optional)</Text>
-          <TextInput
-            className="w-full p-2 mb-4 bg-white rounded-lg shadow-md"
-            placeholder="Phone Number"
-            value={phone}
-            onChangeText={validatePhone} // Real-time validation
-          />
-
           {/* Email */}
           <Text className="text-sm mb-2 text-gray-800">Email: (Optional)</Text>
           <TextInput
