@@ -191,7 +191,7 @@ function ViewShopScreen({ navigation }) {
         style={{
           width: 24,
           height: 24,
-          borderRadius: 25,
+          borderRadius: 4,
           borderWidth: 2,
           borderColor: checked ? "#00b251" : "#00B251",
           justifyContent: "center",
@@ -199,7 +199,7 @@ function ViewShopScreen({ navigation }) {
           marginRight: 8,
         }}
       >
-        {checked && <FontAwesome name="circle" size={16} color="#00B251" />}
+        {checked && <FontAwesome name="check" size={16} color="#00B251" />}
       </View>
       <Text style={{ fontSize: 16, color: "#333" }}>{label}</Text>
     </TouchableOpacity>
@@ -346,7 +346,7 @@ function ViewShopScreen({ navigation }) {
           />
 
           {/* Shop Location */}
-          <Text className="text-sm mb-2 text-gray-800">Shop Location:</Text>
+          <Text className="text-sm mb-2 text-gray-800">Shop Location: </Text>
           <TouchableOpacity
             className="w-full p-2 mb-4 bg-white rounded-lg shadow-md text-gray-800"
             onPress={() => navigation.navigate("Add Location")}

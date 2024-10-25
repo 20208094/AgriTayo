@@ -3,7 +3,7 @@ import { Image, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { styled } from 'nativewind';
 import { Icon } from "react-native-elements";
-import ehh from "../../assets/ehh.png";
+import ehh from "../../assets/logolabel.png";
 
 function StartSelling({ navigation, route }) {
   const { userData } = route.params;
