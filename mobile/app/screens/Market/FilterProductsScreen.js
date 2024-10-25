@@ -4,7 +4,7 @@ import MultiSlider from '@ptomasroos/react-native-multi-slider';
 import { useNavigation, useRoute, useFocusEffect } from "@react-navigation/native";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 
-function FilterProductsScreen() {
+function FilterProductsScreen(route) {
   const navigation = useNavigation();
   const [category, setCategory] = useState(null);
   const [categoryId, setCategoryId] = useState(null);
@@ -158,10 +158,10 @@ function FilterProductsScreen() {
   });
 
   const quantities = [
-    { label: '1-5', value: [1,5] },
-    { label: '6-10', value: [6,10] },
-    { label: '11-20', value: [11,20] },
-    { label: '21+', value: [21,999999] },
+    { label: '1-5', value: [1, 5] },
+    { label: '6-10', value: [6, 10] },
+    { label: '11-20', value: [11, 20] },
+    { label: '21+', value: [21, 999999] },
   ];
 
   const sizes = sizesFormData && sizesFormData.length > 0
@@ -195,16 +195,6 @@ function FilterProductsScreen() {
   };
 
   const handleSubmit = () => {
-    const filterData = {
-      categoryId,
-      subcategoryId,
-      varietyId,
-      selectedClasses,
-      selectedSize,
-      priceRange,
-      selectedQuantity,
-    };
-
     const filter_category_id = categoryId;
     const filter_sub_category_id = subcategoryId;
     const filter_variety_id = varietyId;
@@ -212,7 +202,8 @@ function FilterProductsScreen() {
     const filter_size_id = selectedSize;
     const filter_price_range = priceRange;
     const filter_quantity = selectedQuantity;
-    navigation.navigate("Compare Shops", {filter_category_id, filter_sub_category_id, filter_variety_id, filter_class, filter_size_id, filter_price_range, filter_quantity})
+
+    navigation.navigate("Compare Shops", { filter_category_id, filter_sub_category_id, filter_variety_id, filter_class, filter_size_id, filter_price_range, filter_quantity });
   };
 
   const handleSelectItem = (item) => {
@@ -225,6 +216,7 @@ function FilterProductsScreen() {
         setSubcategoryId(null);
         setVariety(null);
         setVarietyId(null);
+        const selectedCategory = categoryData.find(cat => cat.crop_category_id === Number(item.value));
         const filterCategorySubCategories = subCategoryData.filter(cat => cat.crop_category_id === Number(item.value));
         if (filterCategorySubCategories) {
           setSubCategoryFormData(filterCategorySubCategories)
@@ -232,6 +224,19 @@ function FilterProductsScreen() {
         const filterCategoryVarieties = varietyData.filter(cat => cat.crop_category_id === Number(item.value));
         if (filterCategoryVarieties) {
           setVarietyFormData(filterCategoryVarieties)
+        }
+        const filterCropsCat = cropsData.filter(cat => Number(cat.category_id) === Number(selectedCategory.crop_category_id));
+        if (filterCropsCat.length > 0) {
+          // Extracting the crop prices
+          const cropPrices = filterCropsCat.map(crop => crop.crop_price);
+
+          // Finding the minimum and maximum crop prices
+          const minPrice = Math.min(...cropPrices);
+          const maxPrice = Math.max(...cropPrices);
+
+          setMinimumPrice(minPrice);
+          setMaximumPrice(maxPrice);
+          setPriceRange([minPrice, maxPrice])
         }
         break;
       // FOR SUBCATEGORY
@@ -249,7 +254,7 @@ function FilterProductsScreen() {
             setCategoryId(selectedCategoryFromSub.crop_category_id);
           }
           // FILTER FORMS
-          const filterCategorySubCategories = subCategoryData.filter(cat => cat.crop_category_id === Number(item.value));
+          const filterCategorySubCategories = subCategoryData.filter(cat => cat.crop_category_id === selectedCategoryFromSub.crop_category_id);
           if (filterCategorySubCategories) {
             setSubCategoryFormData(filterCategorySubCategories)
           }
@@ -262,6 +267,19 @@ function FilterProductsScreen() {
         const filterSubCategoryVarieties = varietyData.filter(cat => cat.crop_category_id === Number(item.value));
         if (filterSubCategoryVarieties) {
           setVarietyFormData(filterSubCategoryVarieties)
+        }
+        const filterCrops = cropsData.filter(cat => cat.sub_category_id === selectedSubcategory.crop_sub_category_id);
+        if (filterCrops.length > 0) {
+          // Extracting the crop prices
+          const cropPrices = filterCrops.map(crop => crop.crop_price);
+
+          // Finding the minimum and maximum crop prices
+          const minPrice = Math.min(...cropPrices);
+          const maxPrice = Math.max(...cropPrices);
+
+          setMinimumPrice(minPrice);
+          setMaximumPrice(maxPrice);
+          setPriceRange([minPrice, maxPrice])
         }
         break;
       // FOR VARIETY
@@ -461,7 +479,7 @@ function FilterProductsScreen() {
       {/* Bottom Buttons */}
       <View className="flex-row justify-between px-4 py-4 bg-white border-t border-gray-200">
         <TouchableOpacity
-          onPress={() => console.log("Cancel")}
+          onPress={() => navigation.goBack()}
           className="bg-gray-400 p-3 rounded-lg w-[45%] items-center"
         >
           <Text className="text-white font-semibold">Cancel</Text>

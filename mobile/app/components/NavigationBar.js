@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, TouchableOpacity, Animated, StyleSheet, Text, TouchableWithoutFeedback } from "react-native";
+import { View, TouchableOpacity, Animated, StyleSheet, Text, TouchableWithoutFeedback, Image } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Icon from "react-native-vector-icons/Ionicons";
 import HomePageScreen from "../screens/Home/HomePageScreen";
@@ -9,8 +9,8 @@ import BiddingScreen from "../screens/Bidding/BiddingBuyerScreen";
 import FeaturedProductScreen from "../screens/Market/FeaturedProductScreen";
 import { NotificationIcon, MessagesIcon, MarketIcon } from "../components/SearchBarC";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
-import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import LoadingAnimation from "./LoadingAnimation";
 
 const Tab = createBottomTabNavigator();
 
@@ -20,7 +20,6 @@ const NavigationBar = () => {
   const [animation] = useState(new Animated.Value(0));
   const [loading, setLoading] = useState(true);
 
-  const [userData, setUserData] = useState(null);
   const [shopData, setShopData] = useState(null);
 
   // Toggle menu animation
@@ -45,44 +44,31 @@ const NavigationBar = () => {
     try {
       const storedData = await AsyncStorage.getItem("userData");
       if (storedData) {
-        const parsedData = JSON.parse(storedData);
-        setUserData(Array.isArray(parsedData) ? parsedData[0] : parsedData);
+        const parsedUserData = JSON.parse(storedData);
+        const userTypeId = (Array.isArray(parsedUserData) ? Number(parsedUserData[0].user_type_id) : Number(parsedUserData.user_type_id));
+
+        if (userTypeId === 1 || userTypeId === 2) {
+          const storedShopData = await AsyncStorage.getItem("shopData");
+          if (storedShopData) {
+            const parsedData = JSON.parse(storedData);
+            setShopData(Array.isArray(parsedData) ? parsedData[0] : parsedData);
+          }
+        } else {
+        }
       }
     } catch (error) {
       console.error("Failed to load user data:", error);
-    }
-  };
-
-  const getAsyncShopData = async () => {
-    try {
-      const storedData = await AsyncStorage.getItem("shopData");
-      if (storedData) {
-        const parsedData = JSON.parse(storedData);
-        setShopData(Array.isArray(parsedData) ? parsedData[0] : parsedData);
-      }
-    } catch (error) {
-      console.error("Failed to load shop data:", error);
     } finally {
       setLoading(false)
     }
   };
 
-  useEffect(() => {
-    const fetchInitialData = async () => {
-      await getAsyncUserData();
-      await getAsyncShopData();
-    };
-    fetchInitialData();
-  }, []);
-
-  // UseFocusEffect to refetch data when the navigation bar is in focus (e.g., switching tabs)
   useFocusEffect(
     React.useCallback(() => {
-      const refetchDataOnFocus = async () => {
-        await getAsyncUserData();
-        await getAsyncShopData();
-      };
-      refetchDataOnFocus();
+      const timeoutId = setTimeout(() => {
+        getAsyncUserData();
+      }, 3000);
+      return () => clearTimeout(timeoutId);
     }, [])
   );
 
@@ -92,9 +78,9 @@ const NavigationBar = () => {
       toggleMenu();
     }
   };
-  
+
   if (loading) {
-    return <Text>Loading...</Text>;
+    return <LoadingAnimation />;
   }
 
   return (

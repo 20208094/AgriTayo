@@ -238,7 +238,7 @@ function App() {
       color: "#00B251",
     },
     headerTintColor: "#00B251",
-      headerTitleAlign: 'center'
+    headerTitleAlign: 'center'
   };
 
   return (
@@ -543,34 +543,34 @@ function App() {
               options={screenOptions}
             />
             <Stack.Screen
-            name='Place a Bid'
-            component={PlaceABid}
-            options={screenOptions}
+              name='Place a Bid'
+              component={PlaceABid}
+              options={screenOptions}
             />
             <Stack.Screen
-            name='My Bids'
-            component={MyBidScreen}
-            options={screenOptions}
+              name='My Bids'
+              component={MyBidScreen}
+              options={screenOptions}
             />
             <Stack.Screen
-            name='Past Bids'
-            component={PastBidScreen}
-            options={screenOptions}
+              name='Past Bids'
+              component={PastBidScreen}
+              options={screenOptions}
             />
             <Stack.Screen
-            name='Won Bids'
-            component={WonBidScreen}
-            options={screenOptions}
-            />
-             <Stack.Screen
-            name='Completed Bids'
-            component={CompletedBidScreen}
-            options={screenOptions}
+              name='Won Bids'
+              component={WonBidScreen}
+              options={screenOptions}
             />
             <Stack.Screen
-            name='Add Another Bid'
-            component={AddAnotherBid}
-            options={screenOptions}
+              name='Completed Bids'
+              component={CompletedBidScreen}
+              options={screenOptions}
+            />
+            <Stack.Screen
+              name='Add Another Bid'
+              component={AddAnotherBid}
+              options={screenOptions}
             />
             <Stack.Screen
               name="Navigator"

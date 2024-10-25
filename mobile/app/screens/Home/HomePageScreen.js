@@ -19,7 +19,7 @@ import { useNavigation } from "@react-navigation/native";
 import { styled } from "nativewind";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
-import { REACT_NATIVE_API_KEY } from "@env"; // Make sure to have API key
+import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 
 // Category Card Component
 const MarketCategoryCard = ({ cropCategory }) => {
@@ -40,9 +40,9 @@ const MarketCategoryCard = ({ cropCategory }) => {
         className="flex-1"
       >
         <View>
-          <Image 
-            source={getImageSource()} 
-            className="w-full h-40 object-cover" 
+          <Image
+            source={getImageSource()}
+            className="w-full h-40 object-cover"
           />
           <View className="p-3 bg-gray-50">
             <Text className="text-lg font-bold text-gray-800 text-center">
@@ -71,7 +71,7 @@ function HomePageScreen() {
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch('https://agritayo.azurewebsites.net/api/crop_categories', {
+      const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_categories`, {
         headers: {
           'x-api-key': API_KEY
         }
@@ -97,7 +97,7 @@ function HomePageScreen() {
   const fetchCrops = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await fetch('https://agritayo.azurewebsites.net/api/crops', {
+      const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crops`, {
         headers: {
           'x-api-key': API_KEY
         }
@@ -170,7 +170,7 @@ function HomePageScreen() {
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
       {/* Sticky Header */}
-      <View className="bg-gray-100 sticky top-0 z-10">
+      <View className="bg-gray-100 sticky top-0 z-10 pt-2">
         <View className="flex-row justify-between items-center px-4 pt-8">
           <Text className="text-green-600 text-3xl font-bold">Hi {userData.firstname}!</Text>
           <View className="flex-row">
@@ -186,8 +186,7 @@ function HomePageScreen() {
         <Text className="px-4 text-base text-gray-600 mt-2">
           Enjoy our services!
         </Text>
-        <View className="relative mt-4 px-4 mb-4">
-          {/* Search Bar */}
+        {/* <View className="relative mt-4 px-4 mb-4">
           <View className="flex-row items-center bg-white p-3 rounded-lg shadow-md">
             <TextInput
               placeholder="Search crops..."
@@ -195,19 +194,16 @@ function HomePageScreen() {
               onChangeText={handleSearch}
               className="flex-1 pr-4"
             />
-            {/* Clear Button (X) */}
             {searchQuery.length > 0 && (
               <TouchableOpacity onPress={clearSearch} className="ml-2">
                 <Text className="text-gray-500 text-lg">X</Text>
               </TouchableOpacity>
             )}
           </View>
-
-          {/* Show search results below the search bar */}
           {showResults && (
             <FlatList
               data={filteredCrops}
-              keyExtractor={(item) => item.crop_id.toString()} // Ensure crop_id exists in the data
+              keyExtractor={(item) => item.crop_id.toString()}
               renderItem={({ item }) => (
                 <TouchableOpacity
                   className="bg-gray-100 p-2 border-b border-gray-300"
@@ -219,13 +215,13 @@ function HomePageScreen() {
               style={{ backgroundColor: 'white', marginTop: 5, borderRadius: 5, maxHeight: 150 }}
             />
           )}
-        </View>
+        </View> */}
       </View>
 
       {/* Scrollable Content */}
       <ScrollView>
         {/* Featured Products Section */}
-        <View className="mt-4 px-4">
+        <View className="mt-4 px-5">
           <View className="flex-row justify-between items-center mb-2">
             <Text className="text-2xl font-bold">Market Categories</Text>
             <TouchableOpacity

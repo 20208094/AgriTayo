@@ -3,7 +3,8 @@ import { View, Text, SafeAreaView, ScrollView, TouchableOpacity, Image, Activity
 import { useNavigation } from "@react-navigation/native";
 import placeholderimg from '../../assets/placeholder.png';
 import Icon from "react-native-vector-icons/FontAwesome5";
-import { REACT_NATIVE_API_KEY } from '@env';
+import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from '@env';
+import LoadingAnimation from '../../components/LoadingAnimation';
 
 const CategoryItemCard = ({ item }) => {
   const navigation = useNavigation();
@@ -30,8 +31,8 @@ const CategoryItemCard = ({ item }) => {
 
 function FeaturedProductScreen({ route }) {
   const { category, selectedItemId, selectedProduct: initialSelectedProduct, searchResults } = route.params || {};
-  const [selectedProduct, setSelectedProduct] = useState(initialSelectedProduct); // Initialize state with route parameter
-  const [crops, setCrops] = useState(searchResults || []); // Use search results from HomePageScreen if available
+  const [selectedProduct, setSelectedProduct] = useState(initialSelectedProduct);
+  const [crops, setCrops] = useState(searchResults || []);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [categories, setCategories] = useState([]);
@@ -290,11 +291,7 @@ function FeaturedProductScreen({ route }) {
   );
 
   if (loading) {
-    return (
-      <SafeAreaView className="flex-1 bg-gray-100 justify-center items-center">
-        <ActivityIndicator size="large" color="#0000ff" />
-      </SafeAreaView>
-    );
+    return <LoadingAnimation />;
   }
 
   if (error) {

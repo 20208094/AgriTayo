@@ -21,6 +21,7 @@ const LogoutModal = ({ isVisible, onCancel, fetchUserSession, navigation }) => {
       });
 
       if (response.ok) {
+        await AsyncStorage.clear();
         navigation.reset({
           index: 0,
           routes: [{ name: 'Navigator' }],
@@ -33,7 +34,6 @@ const LogoutModal = ({ isVisible, onCancel, fetchUserSession, navigation }) => {
       console.error("Logout failed:", error);
       setErrorMessage("Logout failed due to a network issue.");
     } finally {
-      await AsyncStorage.clear();
       setLoading(false);
     }
   };
@@ -56,7 +56,7 @@ const LogoutModal = ({ isVisible, onCancel, fetchUserSession, navigation }) => {
                 <Text className="text-red-600 mb-4 text-center">{errorMessage}</Text>
               ) : null}
               <View className="flex-row justify-between">
-                <TouchableOpacity 
+                <TouchableOpacity
                   className="bg-gray-200 rounded-full px-6 py-3 flex-1 mx-2"
                   onPress={onCancel}
                 >
