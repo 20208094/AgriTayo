@@ -203,24 +203,27 @@ const NavigationBar = () => {
                 <Text className="text-center">My Orders</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity
-                className="items-center bg-white border border-slate-400 rounded-xl px-2 py-1 mx-2 mb-2"
-                style={{ width: 120 }}
-                onPress={() => navigation.navigate("Buyer Negotiation List")}
-              >
-                <Icon name="swap-horizontal-outline" size={30} color="#00B251" />
-                <Text className="text-center">My Negotiations</Text>
-              </TouchableOpacity>
+              {shopData && (
+                <TouchableOpacity
+                  className="items-center bg-white border border-slate-400 rounded-xl px-2 py-1 mx-2 mb-2"
+                  style={{ width: 120 }}
+                  onPress={() => navigation.navigate("Buyer Negotiation List")}
+                >
+                  <Icon name="swap-horizontal-outline" size={30} color="#00B251" />
+                  <Text className="text-center">My Negotiations</Text>
+                </TouchableOpacity>
+              )}
 
-              <TouchableOpacity
-                className="items-center bg-white border border-slate-400 rounded-xl px-2 py-1 mx-2 mb-2"
-                onPress={() => navigation.navigate('My Bids')}
-                style={{ width: 120 }}
-              >
-                <Icon name="ticket-outline" size={30} color="#00B251" />
-                <Text className="text-center">My Bids</Text>
-              </TouchableOpacity>
-
+              {shopData && (
+                <TouchableOpacity
+                  className="items-center bg-white border border-slate-400 rounded-xl px-2 py-1 mx-2 mb-2"
+                  onPress={() => navigation.navigate('My Bids')}
+                  style={{ width: 120 }}
+                >
+                  <Icon name="ticket-outline" size={30} color="#00B251" />
+                  <Text className="text-center">My Bids</Text>
+                </TouchableOpacity>
+              )}
               <TouchableOpacity
                 className="items-center bg-white border border-slate-400 rounded-xl px-2 py-1 mx-2 mb-2"
                 style={{ width: 120 }}
