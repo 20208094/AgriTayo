@@ -12,62 +12,46 @@ import { ScrollView } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { FontAwesome } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
-import { Ionicons } from "@expo/vector-icons";
-import { Icon } from "react-native-elements";
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from '@env';
+import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 
 function BusinessInformationScreen({ navigation, route }) {
-  const { userData, shopName } = route.params;
+  const { userData, shopData } = route.params;
 
+  const [selectedBusinessInformation, setSelectedBusinessInformation] = useState("");
+  const [tin, setTin] = useState("");
   const [birCertificate, setBirCertificate] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedBusinessInformation, setSelectedBusinessInformation] =
-    useState("");
-  const [tin, setTin] = useState("");
-  const [registeredAddress, setRegisteredAddress] = useState(""); // Text input for Registered Address
   const [errors, setErrors] = useState({
     businessInformation: "",
     tin: "",
     birCertificate: "",
-    registeredAddress: "",
   });
-  const [attemptedSubmit, setAttemptedSubmit] = useState(false); // Track whether the user has attempted to submit
+  const [attemptedSubmit, setAttemptedSubmit] = useState(false);
 
-  // Validation logic for the form
   const validateForm = () => {
     let isValid = true;
     const newErrors = { ...errors };
 
-    // Validate Business Information selection
     if (!selectedBusinessInformation) {
-      newErrors.businessInformation = "Business Information option is required.";
+      newErrors.businessInformation = "Please select 'Submit Later' or 'Submit Now'.";
       isValid = false;
     } else {
       newErrors.businessInformation = "";
     }
 
     if (selectedBusinessInformation === "now") {
-      const tinRegex = /^[0-9]{3}-?[0-9]{3}-?[0-9]{3}$/;
       if (!tin) {
         newErrors.tin = "TIN is required";
         isValid = false;
-      } else if (!tinRegex.test(tin)) {
-        newErrors.tin = "TIN must be 9 digits (e.g., 123456789 or 123-456-789)";
+      } else if (!/^[0-9]{3}-?[0-9]{3}-?[0-9]{3}$/.test(tin)) {
+        newErrors.tin = "TIN must be in the format 123-456-789";
         isValid = false;
       } else {
         newErrors.tin = "";
       }
 
-      if (!registeredAddress) {
-        newErrors.registeredAddress = "Registered Address is required.";
-        isValid = false;
-      } else {
-        newErrors.registeredAddress = "";
-      }
-
       if (!birCertificate) {
-        newErrors.birCertificate = "BIR Certificate of Registration is required.";
+        newErrors.birCertificate = "BIR Certificate image is required.";
         isValid = false;
       } else {
         newErrors.birCertificate = "";
@@ -78,109 +62,121 @@ function BusinessInformationScreen({ navigation, route }) {
     return isValid;
   };
 
-  // Real-time validation handler for each field
   useEffect(() => {
     validateForm();
-  }, [selectedBusinessInformation, tin, registeredAddress, birCertificate]);
+  }, [selectedBusinessInformation, tin, birCertificate]);
 
-  // Selecting image from the gallery or taking a photo
+  // Image Picker Handlers
   const selectImageFromGallery = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== "granted") {
-      alert("Sorry, we need camera roll permissions to make this work!");
-      return;
-    }
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-    });
-
-    if (!result.canceled) {
-      setBirCertificate({ uri: result.assets[0].uri });
-      setModalVisible(false);
+    if (status === "granted") {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        quality: 1,
+      });
+      if (!result.canceled) {
+        setBirCertificate({ uri: result.assets[0].uri });
+        setModalVisible(false);
+      }
+    } else {
+      alert("Permission to access gallery is required.");
     }
   };
 
   const takePicture = async () => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    if (status !== "granted") {
-      alert("Sorry, we need camera permissions to make this work!");
-      return;
-    }
-
-    const result = await ImagePicker.launchCameraAsync({
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-    });
-
-    if (!result.canceled) {
-      setBirCertificate({ uri: result.assets[0].uri });
-      setModalVisible(false);
+    if (status === "granted") {
+      const result = await ImagePicker.launchCameraAsync({
+        quality: 1,
+      });
+      if (!result.canceled) {
+        setBirCertificate({ uri: result.assets[0].uri });
+        setModalVisible(false);
+      }
+    } else {
+      alert("Camera permission is required.");
     }
   };
 
-  // Submit business information form logic
+  useEffect(() => {
+    console.log("Received shopData:", shopData); // Debugging check
+  }, []);
+
+
   const handleSubmit = async () => {
-    setAttemptedSubmit(true); // Trigger error display on submit attempt
-
-    // Ensure form is only submitted on "Submit Later" and all fields are filled
-    if (selectedBusinessInformation !== "later") {
-      Alert.alert("Sorry", "You must select 'Submit Later' or 'Submit now' to create the shop.");
-      return;
-    }
-
+    setAttemptedSubmit(true);
+  
     if (!validateForm()) {
-      Alert.alert("Sorry", "Please fill in all required fields.");
+      Alert.alert("Error", "Please complete all required fields.");
       return;
     }
-
+  
     try {
       const formData = new FormData();
-      formData.append("shop_name", shopName);
-      formData.append("shop_description", "Shop Desc");
-      formData.append("longitude", 120.59337385538859);
-      formData.append("latitude", 16.41197917848812);
+      formData.append("shop_name", shopData.shop_name);
+      formData.append("shop_description", shopData.shop_description);
+      formData.append("shop_address", shopData.shop_address);
+      formData.append("shop_number", shopData.shop_number);
+  
+      formData.append("delivery", shopData.delivery);
+      formData.append("delivery_price", shopData.delivery ? shopData.delivery_price : null);
+      formData.append("pickup", shopData.pickup);
+      formData.append("pickup_price", shopData.pickup ? shopData.pickup_price : null);
+      formData.append("gcash", shopData.gcash);
+      formData.append("cod", shopData.cod);
+      formData.append("bank", shopData.bank);
+  
       formData.append("user_id", userData.user_id);
-      formData.append("tin", tin);
-      formData.append("registered_address", registeredAddress); // Registered address added
-      // formData.append("bir_certificate", {
-      //   uri: birCertificate.uri,
-      //   name: "bir_certificate.jpg",
-      //   type: "image/jpeg",
-      // });
-
+      formData.append("submit_later", selectedBusinessInformation === "later" ? 1 : 0);
+  
+      // Conditionally add shop_image_url if it exists
+      if (shopData.shop_image_url) {
+        formData.append("shop_image_url", shopData.shop_image_url);
+      }
+  
+      if (selectedBusinessInformation === "now") {
+        formData.append("tin_number", tin);
+  
+        if (birCertificate) {
+          formData.append("bir_image_url", {
+            uri: birCertificate.uri,
+            name: "bir_certificate.jpg",
+            type: "image/jpeg",
+          });
+        }
+      }
+  
+      // Log the formData to verify it's correctly populated
+      console.log("FormData before submission:", formData);
+  
+      // Make the API request
       const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/shops`, {
         method: "POST",
         body: formData,
         headers: {
+          "Content-Type": "multipart/form-data",
           "x-api-key": REACT_NATIVE_API_KEY,
         },
       });
-
+  
       const data = await response.json();
-
       if (response.ok) {
         Alert.alert("Success", "Shop created successfully!");
-        await AsyncStorage.setItem("shopData", JSON.stringify(formData));
-
-        // Prevent going back to BusinessInformationScreen
         navigation.reset({
           index: 0,
-          routes: [{ name: "My Shop" }],
+          routes: [{ name: "HomePageScreen" }],
         });
       } else {
         Alert.alert("Error", data.message || "Failed to create shop");
       }
     } catch (error) {
-      console.error("An error occurred while creating the shop:", error);
-      Alert.alert("Error", "An error occurred while creating the shop");
+      console.error("Error while creating shop:", error);
+      Alert.alert("Error", "Failed to create shop. Please try again.");
     }
   };
+  
 
+  
   return (
     <SafeAreaView className="flex-1 bg-white" edges={["bottom", "left", "right"]}>
       <ScrollView contentContainerStyle={{ padding: 16 }}>
@@ -238,19 +234,6 @@ function BusinessInformationScreen({ navigation, route }) {
           </Text>
         </View>
 
-        {/* Registered Address */}
-        <Text className="text-lg font-semibold text-green-600">
-          Registered Address <Text className="text-red-500 text-sm">*</Text> {attemptedSubmit && errors.registeredAddress && (
-            <Text className="text-sm w-4/5 text-red-500 mb-4">{errors.registeredAddress}</Text>
-          )}
-        </Text>
-        <TextInput
-          className="w-full p-2 mb-4 mt-3 bg-white rounded-lg shadow-md text-gray-800"
-          placeholder="Enter your registered address"
-          value={registeredAddress}
-          onChangeText={setRegisteredAddress}
-        />
-
         <Text className="text-lg font-semibold text-green-600">
           Taxpayer Identification Number (TIN) <Text className="text-red-500 text-sm">*</Text> {attemptedSubmit && errors.tin && (
             <Text className="text-sm w-4/5 text-red-500 mb-4">{errors.tin}</Text>
@@ -267,7 +250,7 @@ function BusinessInformationScreen({ navigation, route }) {
 
         <Text className="text-sm text-gray-500 mb-4">
           Your 9-digit TIN and 3 to 5 digit branch code. Please use '000' as
-          your branch code if you don't have one (e.g. 999-999-999-000)
+          your branch code if you don't have one (e.g. 999-999-000)
         </Text>
 
 
@@ -275,7 +258,7 @@ function BusinessInformationScreen({ navigation, route }) {
           BIR Certificate of Registration <Text className="text-red-500 text-sm">* {attemptedSubmit && errors.birCertificate && (
             <Text className="text-sm w-4/5 text-red-500 mb-4">{errors.birCertificate}</Text>
           )}
-        </Text>
+          </Text>
         </Text>
         <TouchableOpacity
           className="border border-dashed border-green-600 rounded-md p-4 my-4 flex-row justify-center items-center"
@@ -285,7 +268,7 @@ function BusinessInformationScreen({ navigation, route }) {
         </TouchableOpacity>
 
         {birCertificate && (
-          <Image source={{ uri: birCertificate.uri }} className="w-24 h-24 mb-4" />
+          <Image source={{ uri: birCertificate.uri || "https://via.placeholder.com/150" }} className="w-24 h-24 mb-4" />
         )}
 
         <Text className="text-sm text-gray-500 mb-4">
@@ -313,7 +296,7 @@ function BusinessInformationScreen({ navigation, route }) {
       </ScrollView>
 
       <Modal visible={modalVisible} animationType="slide" transparent={true}>
-        <View className="flex-1 justify-center items-center bg-black bg-opacity-50">
+        <View className="flex-1 justify-center items-center bg-black/50">
           <View className="bg-white rounded-md p-4">
             <Text className="text-lg font-semibold text-center mb-4">
               Upload Image
