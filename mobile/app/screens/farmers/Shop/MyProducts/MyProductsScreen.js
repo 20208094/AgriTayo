@@ -86,9 +86,9 @@ function MyProductsScreen({ route }) {
     >
       <Tab.Screen name="Live" component={LiveScreen} />
       <Tab.Screen name="Sold Out" component={SoldOutScreen} />
-      <Tab.Screen name="Reviewing" component={ReviewingScreen} />
-      <Tab.Screen name="Violation" component={ViolationScreen} />
       <Tab.Screen name="Delisted" component={DelistedScreen} />
+      <Tab.Screen name="Violation" component={ViolationScreen} />
+      <Tab.Screen name="Reviewing" component={ReviewingScreen} />
     </Tab.Navigator>
   );
 }

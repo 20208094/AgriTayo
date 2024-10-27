@@ -20,6 +20,8 @@ function AddProductScreen({navigation}) {
   const [categories, setCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
   const [metricSystem, setMetricSystem] = useState([]);
+  const [cropSizes, setCropSizes] = useState([]);
+  const [cropVarieties, setCropVarieties] = useState([]);
   const [shopData, setShopData] = useState(null);
   const [loading, setLoading] = useState(false);
   const API_KEY = REACT_NATIVE_API_KEY;
@@ -28,9 +30,7 @@ function AddProductScreen({navigation}) {
   const [cropDescription, setCropDescription] = useState("");
   const [cropPrice, setCropPrice] = useState("");
   const [cropQuantity, setCropQuantity] = useState("");
-  const [cropWeight, setCropWeight] = useState("");
-  const [stocks, setStocks] = useState("");
-  const [availability, setAvailability] = useState("live");
+  const [availability, setAvailability] = useState("");
   const [availabilityMessage, setAvailabilityMessage] = useState(null);
   const [shopId, setShopId] = useState("");
   const [cropRating, setCropRating] = useState("");
@@ -39,10 +39,10 @@ function AddProductScreen({navigation}) {
   const [isClickedMetricSystem, setIsClickedMetricSystem] = useState(false);
   const [isClickedSubCategory, setIsclickedSubCategory] = useState(false);
 
-  const [selectedMetricSystem, setSelectedMetricSystem] = useState("Metric");
-  const [selectedCategory, setSelectedCategory] = useState("Category");
+  const [selectedMetricSystem, setSelectedMetricSystem] = useState("Select Crop Metric");
+  const [selectedCategory, setSelectedCategory] = useState("Select Crop Category");
   const [selectedSubCategory, setSelectedSubCategory] =
-    useState("Sub Category");
+    useState("Select Crop Sub Category");
   const [selectedCategoryId, setSelectedCategoryId] = useState(null);
   const [selectedSubCategoryId, setSelectedSubCategoryId] = useState(null);
   const [selectedMetricSystemId, setSelectedMetricSystemId] = useState(null);
@@ -167,37 +167,139 @@ function AddProductScreen({navigation}) {
     }
   };
 
+  // for crop size
+  const [isClickedCropSize, setIsClickedCropSize] = useState(false);
+  const [selectedCropSize, setSelectedCropSize] = useState(
+    "Select Crop Size"
+  );
+  const [selectedCropSizeId, setSelectedCropSizeId] = useState(null);
+  const handleCropSizeSelect = (cropSize) => {
+    setSelectedCropSize(cropSize.crop_size_name);
+    setSelectedCropSizeId(cropSize.crop_size_id);
+    setIsClickedCropSize(false);
+  };
+
+  // fetching crop size
+  const fetchCropSize = async () => {
+    try {
+      const response = await fetch(
+        `${REACT_NATIVE_API_BASE_URL}/api/crop_sizes`,
+        {
+          headers: {
+            "x-api-key": REACT_NATIVE_API_KEY,
+          },
+        }
+      );
+      if (!response.ok) throw new Error("Network response was not ok");
+
+      const data = await response.json();
+      setCropSizes(data);
+    } catch (error) {
+      alert(`Error fetching crop categories: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // for crop variety
+  const [isClickedCropVariety, setIsClickedCropVariety] = useState(false);
+  const [selectedCropVariety, setSelectedCropVariety] = useState(
+    "Select Crop Variety"
+  );
+  const [selectedCropVarietyId, setSelectedCropVarietyId] = useState(null);
+  const handleCropVarietySelect = (cropVariety) => {
+    setSelectedCropVariety(cropVariety.crop_variety_name);
+    setSelectedCropVarietyId(cropVariety.crop_variety_id);
+    setIsClickedCropVariety(false);
+  };
+
+  // fetching crop variety
+  const fetchCropVariety = async () => {
+    try {
+      const response = await fetch(
+        `${REACT_NATIVE_API_BASE_URL}/api/crop_varieties`,
+        {
+          headers: {
+            "x-api-key": REACT_NATIVE_API_KEY,
+          },
+        }
+      );
+      if (!response.ok) throw new Error("Network response was not ok");
+
+      const data = await response.json();
+      setCropVarieties(data);
+    } catch (error) {
+      alert(`Error fetching crop categories: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useFocusEffect(
     useCallback(() => {
       fetchCategories();
+      fetchCropSize();
+      fetchCropVariety();
       fetchMetricSystem();
       getAsyncShopData();
     }, [])
   );
 
+  const cropClasses = [
+    {
+      crop_class_id: 1,
+      crop_class_name: "A",
+    },
+    {
+      crop_class_id: 2,
+      crop_class_name: "B",
+    },
+    {
+      crop_class_id: 3,
+      crop_class_name: "C",
+    },
+    {
+      crop_class_id: 4,
+      crop_class_name: "Mix",
+    },
+  ];
+
+  // for crop size
+  const [isClickedCropClass, setIsClickedCropClass] = useState(false);
+  const [selectedCropClass, setSelectedCropClass] = useState(
+    "Select Crop Size"
+  );
+  const handleCropClassSelect = (cropClass) => {
+    setSelectedCropClass(cropClass.crop_class_name);
+    setIsClickedCropClass(false);
+  };
+
+
   const handleAddProduct = async () => {
-    console.log("Crop Image URI: ", cropImage);
     if (
-      !cropName ||
       !cropDescription ||
       !cropPrice ||
       !cropQuantity ||
-      !cropWeight ||
       !selectedCategoryId ||
       !selectedSubCategoryId ||
       !selectedMetricSystemId ||
-      !cropImage ||
-      !stocks
+      !selectedCropSizeId ||
+      !selectedCropVarietyId ||
+      !selectedCropClass ||
+      !cropImage
     ) {
       alert("Please fill in all the required fields.");
       return;
     }
 
     const formData = new FormData();
-    formData.append("crop_name", cropName);
+    formData.append("crop_name", selectedCropVariety);
     formData.append("crop_description", cropDescription);
-    formData.append("sub_category_id", selectedSubCategoryId);
-    formData.append("shop_id", shopData.shop_id);
+    formData.append("crop_category_id", parseInt(selectedCategoryId));
+    formData.append("sub_category_id", parseInt(selectedSubCategoryId));
+    formData.append("shop_id", parseInt(shopData.shop_id));
+    formData.append("crop_size_id", parseInt(selectedCropSizeId));
+    formData.append("crop_variety_id", parseInt(selectedCropVarietyId));
     if (cropImage) {
       formData.append("image", {
         uri: cropImage,
@@ -205,14 +307,12 @@ function AddProductScreen({navigation}) {
         type: "image/jpeg",
       });
     }
-    formData.append("crop_rating", cropRating || 0);
+    formData.append("crop_rating", parseFloat(cropRating || 0));
     formData.append("crop_price", parseFloat(cropPrice));
     formData.append("crop_quantity", parseInt(cropQuantity));
-    formData.append("crop_weight", parseFloat(cropWeight));
     formData.append("metric_system_id", selectedMetricSystemId);
-    formData.append("stocks", parseInt(stocks));
-    formData.append("availability", availability);
-    formData.append("availability_message", availabilityMessage || "Available");
+    formData.append("crop_availability", "live");
+    formData.append("crop_class", selectedCropClass);
 
     try {
       setLoading(true);
@@ -249,15 +349,40 @@ function AddProductScreen({navigation}) {
     <SafeAreaView className="flex-1 bg-gray-100">
       <ScrollView className="flex-1 p-4">
         <View className="bg-white p-4 rounded-lg shadow-md">
-          {/* Crop Name */}
+          {/* Variety Selector */}
           <View className="mb-4">
-            <Text className="text-base text-gray-700">Crop Name</Text>
-            <TextInput
-              className="border border-gray-300 rounded-lg p-2 mt-1"
-              placeholder="e.g. Potato, Carrots, Cabbage, etc."
-              value={cropName}
-              onChangeText={setCropName}
-            />
+            <Text className="text-base text-gray-700">
+              Crop Variety
+            </Text>
+            <TouchableOpacity
+              className="flex-row items-center border border-gray-300 p-2 rounded-lg"
+              onPress={() => setIsClickedCropVariety(!isClickedCropVariety)}
+            >
+              <Text className="text-base text-gray-700 flex-1">
+                {selectedCropVariety}
+              </Text>
+              <Ionicons
+                name="chevron-down"
+                size={20}
+                color="gray"
+                className="ml-2"
+              />
+            </TouchableOpacity>
+            {isClickedCropVariety && (
+              <View className="border border-gray-300 rounded-lg p-2 mt-1">
+                {cropVarieties.map((cropVariety) => (
+                  <TouchableOpacity
+                    key={cropVariety.crop_variety_id}
+                    className="p-2"
+                    onPress={() => handleCropVarietySelect(cropVariety)}
+                  >
+                    <Text className="text-base">
+                      {cropVariety.crop_variety_name}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
           </View>
 
           {/* Crop Description */}
@@ -268,25 +393,15 @@ function AddProductScreen({navigation}) {
               placeholder="Describe the crop you want to sell."
               value={cropDescription}
               onChangeText={setCropDescription}
-            />
-          </View>
-
-          {/* Crop Price */}
-          <View className="mb-4">
-            <Text className="text-base text-gray-700">Crop Price</Text>
-            <TextInput
-              className="border border-gray-300 rounded-lg p-2 mt-1"
-              keyboardType="numeric"
-              placeholder="₱ 0.00"
-              value={cropPrice}
-              onChangeText={setCropPrice}
+              multiline
+                numberOfLines={3}
             />
           </View>
 
           {/* Category Selector */}
           <View className="mb-4">
             <Text className="text-base text-gray-700">
-              Select Crop Category
+              Crop Category
             </Text>
             <TouchableOpacity
               className="flex-row items-center border border-gray-300 p-2 rounded-lg"
@@ -321,7 +436,7 @@ function AddProductScreen({navigation}) {
 
           {/* Sub-Category Selector */}
           <View className="mb-4">
-            <Text className="text-base text-gray-700">Select Sub-Category</Text>
+            <Text className="text-base text-gray-700">Sub-Category</Text>
             <TouchableOpacity
               className="flex-row items-center border border-gray-300 p-2 rounded-lg"
               onPress={() => setIsclickedSubCategory(!isClickedSubCategory)}
@@ -353,33 +468,57 @@ function AddProductScreen({navigation}) {
             )}
           </View>
 
-          {/* Crop Quantity */}
+          {/* Crop SIze */}
           <View className="mb-4">
-            <Text className="text-base text-gray-700">Crop Quantity</Text>
+            <Text className="text-base text-gray-700">
+              Crop Size
+            </Text>
+            <TouchableOpacity
+              className="flex-row items-center border border-gray-300 p-2 rounded-lg"
+              onPress={() => setIsClickedCropSize(!isClickedCropSize)}
+            >
+              <Text className="text-base text-gray-700 flex-1">
+                {selectedCropSize}
+              </Text>
+              <Ionicons
+                name="chevron-down"
+                size={20}
+                color="gray"
+                className="ml-2"
+              />
+            </TouchableOpacity>
+            {isClickedCropSize && (
+              <View className="border border-gray-300 rounded-lg p-2 mt-1">
+                {cropSizes.map((cropSize) => (
+                  <TouchableOpacity
+                    key={cropSize.crop_size_id}
+                    className="p-2"
+                    onPress={() => handleCropSizeSelect(cropSize)}
+                  >
+                    <Text className="text-base">
+                      {cropSize.crop_size_name}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
+          </View>
+
+          {/* Crop Price */}
+          <View className="mb-4">
+            <Text className="text-base text-gray-700">Crop Price</Text>
             <TextInput
               className="border border-gray-300 rounded-lg p-2 mt-1"
               keyboardType="numeric"
-              placeholder="Enter the quantity of the crop."
-              value={cropQuantity}
-              onChangeText={setCropQuantity}
+              placeholder="₱ 0.00"
+              value={cropPrice}
+              onChangeText={setCropPrice}
             />
           </View>
 
-          {/* Crop Weight */}
-          <View className="mb-4">
-            <Text className="text-base text-gray-700">Crop Weight</Text>
-            <TextInput
-              className="border border-gray-300 rounded-lg p-2 mt-1"
-              keyboardType="numeric"
-              placeholder="Enter the weight of the crop."
-              value={cropWeight}
-              onChangeText={setCropWeight}
-            />
-          </View>
-
-          {/* Metric System Selector */}
-          <View className="mb-4">
-            <Text className="text-base text-gray-700">Select Crop Metric</Text>
+           {/* Metric System Selector */}
+           <View className="mb-4">
+            <Text className="text-base text-gray-700">Crop Metric</Text>
             <TouchableOpacity
               className="flex-row items-center border border-gray-300 p-2 rounded-lg"
               onPress={() => setIsClickedMetricSystem(!isClickedMetricSystem)}
@@ -411,25 +550,51 @@ function AddProductScreen({navigation}) {
             )}
           </View>
 
-          {/* Stocks Text Input */}
+          {/* Crop Class */}
           <View className="mb-4">
-            <Text className="text-base text-gray-700">Stock/s</Text>
+            <Text className="text-base text-gray-700">
+              Crop Class
+            </Text>
+            <TouchableOpacity
+              className="flex-row items-center border border-gray-300 p-2 rounded-lg"
+              onPress={() => setIsClickedCropClass(!isClickedCropClass)}
+            >
+              <Text className="text-base text-gray-700 flex-1">
+                {selectedCropClass}
+              </Text>
+              <Ionicons
+                name="chevron-down"
+                size={20}
+                color="gray"
+                className="ml-2"
+              />
+            </TouchableOpacity>
+            {isClickedCropClass && (
+              <View className="border border-gray-300 rounded-lg p-2 mt-1">
+                {cropClasses.map((cropClass) => (
+                  <TouchableOpacity
+                    key={cropClass.crop_class_id}
+                    className="p-2"
+                    onPress={() => handleCropClassSelect(cropClass)}
+                  >
+                    <Text className="text-base">
+                      {cropClass.crop_class_name}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
+          </View>
+
+          {/* Crop Quantity */}
+          <View className="mb-4">
+            <Text className="text-base text-gray-700">Crop Quantity</Text>
             <TextInput
-              placeholder="0"
               className="border border-gray-300 rounded-lg p-2 mt-1"
               keyboardType="numeric"
-              value={stocks}
-              onChangeText={setStocks}
-            />
-          </View>
-          {/* Availability Text Input */}
-          <View className="mb-4">
-            <Text className="text-base text-gray-700">Availability</Text>
-            <TextInput
-              className="border border-gray-300 rounded-lg p-2 mt-1"
-              editable={false}
-              value={availability}
-              onChangeText={setAvailability}
+              placeholder="Enter the quantity of the crop."
+              value={cropQuantity}
+              onChangeText={setCropQuantity}
             />
           </View>
 
@@ -439,7 +604,7 @@ function AddProductScreen({navigation}) {
               Upload Crop Image
             </Text>
             <TouchableOpacity
-              className="border border-gray-300 rounded-lg p-2"
+              className="rounded-lg p-2 items-center"
               onPress={() => setModalVisible(true)}
             >
               <Ionicons name="camera" size={24} color="#00b251" />
