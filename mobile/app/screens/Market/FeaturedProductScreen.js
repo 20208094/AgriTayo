@@ -33,7 +33,7 @@ function FeaturedProductScreen({ route }) {
   const { category, selectedItemId, selectedProduct: initialSelectedProduct, searchResults } = route.params || {};
   const [selectedProduct, setSelectedProduct] = useState(initialSelectedProduct);
   const [crops, setCrops] = useState(searchResults || []);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [categories, setCategories] = useState([]);
   const [showCategoriesModal, setShowCategoriesModal] = useState(false);
@@ -57,7 +57,7 @@ function FeaturedProductScreen({ route }) {
 
   const fetchAllCrops = useCallback(async () => {
     try {
-      setLoading(true);
+      // setLoading(true);
       const response = await fetch('https://agritayo.azurewebsites.net/api/crops', {
         headers: {
           'x-api-key': API_KEY

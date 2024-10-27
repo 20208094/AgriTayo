@@ -85,6 +85,7 @@ const {
     getCrops,
     addCrop,
     updateCrop,
+    updateCropAvailability,
     deleteCrop
 } = require('./supabase_connection/crud_services/crops');
 
@@ -205,6 +206,7 @@ const { register } = require('./supabase_connection/user_auth_services/register'
 const { logout } = require('./supabase_connection/user_auth_services/logout');
 const { notifySeller } = require('./supabase_connection/crud_services/notify.js')
 const { checkoutOrder } = require('./supabase_connection/crud_services/checkoutOrder.js');
+const { smsSender } = require('./supabase_connection/sms_sender.js')
 
 const app = express();
 
@@ -333,6 +335,7 @@ app.delete('/api/metric_systems/:id', deleteMetricSystem);
 app.get('/api/crops', getCrops);
 app.post('/api/crops', addCrop);
 app.put('/api/crops/:id', updateCrop);
+app.put('/api/crops_availability/:id', updateCropAvailability);
 app.delete('/api/crops/:id', deleteCrop);
 
 // API routes for order statuses
@@ -350,6 +353,9 @@ app.delete('/api/orders/:id', deleteOrder);
 
 // API route for checkout of order
 app.post('/api/checkoutOrder', checkoutOrder);
+
+// API route for sending sms 
+app.post('/api/sms_sender', smsSender);
 
 // API routes for order products
 app.get('/api/order_products', getOrderProducts);

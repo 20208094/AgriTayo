@@ -180,7 +180,7 @@ async function updateCrop(req, res) {
                 crop_quantity: parseInt(crop_quantity, 10),
                 crop_weight: parseInt(crop_weight, 10),
                 metric_system_id: parseInt(metric_system_id, 10),
-                crop_image_url // Only set if a new image is uploaded
+                crop_image_url
             };
 
             // Update the crop in the database
@@ -203,6 +203,46 @@ async function updateCrop(req, res) {
     }
 }
 
+async function updateCropAvailability(req, res) {
+    try {
+        const { id } = req.params;
+        const { availability, availability_message } = req.body;
+
+        // Validate input
+        if (!id) {
+            return res.status(400).json({ error: 'ID is required for update' });
+        }
+
+        if (availability === undefined || availability_message === undefined) {
+            return res.status(400).json({ error: 'Availability and availability_message are required' });
+        }
+
+        const getSingleValue = (value) => Array.isArray(value) ? value[0] : value;
+        
+        // Prepare the update data
+        const updateData = {
+            availability: getSingleValue(availability),
+            availability_message: getSingleValue(availability_message)
+        };
+
+        // Update the crop in the database
+        const { data, error } = await supabase
+            .from('crops')
+            .update(updateData)
+            .eq('crop_id', id);
+
+        if (error) {
+            console.error('Supabase query failed:', error.message);
+            return res.status(500).json({ error: 'Internal server error' });
+        }
+
+        // Successful update
+        res.status(200).json({ message: 'Crop availability updated successfully', data });
+    } catch (err) {
+        console.error('Error executing updateCropAvailability process:', err.message);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+}
 
 async function deleteCrop(req, res) {
     try {
@@ -249,5 +289,6 @@ module.exports = {
     getCrops,
     addCrop,
     updateCrop,
+    updateCropAvailability,
     deleteCrop
 };

@@ -21,7 +21,9 @@ function MarketAnalyticScreen({ route }) {
   const [varietyData, setVarietyData] = useState([]);
   const [soldInVarietyData, setSoldInVarietyData] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  const [highestData, setHighestData] = useState('');
+  const [lowestData, setLowestData] = useState('');
+  const [averageData, setAverageData] = useState('');
   const navigation = useNavigation();
 
   const fetchData = async () => {
@@ -34,17 +36,39 @@ function MarketAnalyticScreen({ route }) {
         fetch(`${REACT_NATIVE_API_BASE_URL}/api/orders`, { headers: { "x-api-key": REACT_NATIVE_API_KEY } }),
         fetch(`${REACT_NATIVE_API_BASE_URL}/api/order_products`, { headers: { "x-api-key": REACT_NATIVE_API_KEY } }),
       ]);
-
       const crops = await cropsResponse.json();
       const categories = await categoryResponse.json();
       const subcategories = await subcategoryResponse.json();
       const varieties = await varietyResponse.json();
       const orders = await ordersResponse.json();
       const orderProducts = await orderProductsResponse.json();
-      // filter variety to only include variety thats in the subcategory chosen
-      const varietiesFiltered = varieties.filter(variety => Number(variety.crop_sub_category_id) === Number(subcategoryId));
       // filter crops to only include crops thats in the variety chosen
       const cropsFiltered = crops.filter(crop => Number(crop.sub_category_id) === Number(subcategoryId));
+      // filter variety to only include variety thats in the subcategory chosen
+      const varietiesComplete = varieties.filter(variety => Number(variety.crop_sub_category_id) === Number(subcategoryId));
+      // combine orderProducts inside the orders table
+      const varietiesFiltered = varietiesComplete.map(variety => {
+        // Filter crops for the current variety
+        const availableCrops = cropsFiltered.filter(crop => crop.crop_variety_id === variety.crop_variety_id);
+        // If there are no available crops, set defaults to null
+        if (availableCrops.length === 0) {
+          return {
+            ...variety,
+            availableListing: 0, // Set count to 0 if no available crops
+            highestListing: 0,
+            lowestListing: 0,
+          };
+        }
+        // Find the highest and lowest price crops
+        const highestCrop = availableCrops.reduce((max, crop) => (crop.crop_price > max.crop_price ? crop : max), availableCrops[0]);
+        const lowestCrop = availableCrops.reduce((min, crop) => (crop.crop_price < min.crop_price ? crop : min), availableCrops[0]);
+        return {
+          ...variety,
+          availableListing: availableCrops.length,
+          highestListing: highestCrop,
+          lowestListing: lowestCrop,
+        };
+      });
       // filter orders to rate and completed only
       const ordersFiltered = orders.filter(order => Number(order.status_id) === 7 || Number(order.status_id) === 8);
       // combine crop data inside orderProducts
@@ -80,7 +104,6 @@ function MarketAnalyticScreen({ route }) {
       const filteredProductDetailsArray = productDetailsArray.filter(product =>
         cropsFiltered.some(crop => crop.crop_id === product.crop_id)
       );
-
       // Combine data with the same variety_id and order_date
       const combinedProductDetailsArray = filteredProductDetailsArray.reduce((acc, product) => {
         // Create a unique key based on variety_id and order_date
@@ -123,10 +146,7 @@ function MarketAnalyticScreen({ route }) {
         average: item.sum_price_per_weight / item.count, // Calculate average price per weight
       }));
 
-      // Update the state with the combined data
       setSoldInVarietyData(combinedProductDetails);
-      // console.log('combinedProductDetails :', combinedProductDetails);
-
       setVarietyData(varietiesFiltered);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -195,7 +215,6 @@ function MarketAnalyticScreen({ route }) {
   const getDataForItem = (id, filter) => {
     // Calculate date range based on the filter
     const { startDate, today } = calculateDateRange(filter);
-
     // Generate all dates between startDate and today
     const dateRange = [];
     let currentDate = moment(startDate);
@@ -203,13 +222,11 @@ function MarketAnalyticScreen({ route }) {
       dateRange.push(currentDate.clone());
       currentDate = currentDate.add(1, 'days'); // Add day by day
     }
-
     // Filter data based on the variety_id and the selected date range
     const itemData = soldInVarietyData.filter(product =>
       product.variety_id === id &&
       moment(product.order_date).isBetween(startDate, today, null, '[]')
     );
-
     // Create a mapping of order dates to product data
     const dataMap = itemData.reduce((acc, product) => {
       const formattedDate = moment(product.order_date).format('MM/DD/YYYY');
@@ -220,7 +237,6 @@ function MarketAnalyticScreen({ route }) {
         lowest: product.lowest,
         count: 0
       };
-
       acc[formattedDate].totalPrice += product.total_price;
       acc[formattedDate].totalWeight += product.total_weight;
       acc[formattedDate].highest = Math.max(acc[formattedDate].highest, product.highest);
@@ -240,22 +256,24 @@ function MarketAnalyticScreen({ route }) {
       let currentPeriod = [];
       dateRange.forEach((date, index) => {
         currentPeriod.push(date);
-
         // If we reached the end of the period or the end of the date range
         if (currentPeriod.length === groupByDays || index === dateRange.length - 1) {
           let totalWeight = 0, totalPrice = 0, highest = null, lowest = null, count = 0;
-
           currentPeriod.forEach(periodDate => {
             const formattedPeriodDate = moment(periodDate).format('MM/DD/YYYY');
             if (dataMap[formattedPeriodDate]) {
-              totalWeight += dataMap[formattedPeriodDate].totalWeight;
-              totalPrice += dataMap[formattedPeriodDate].totalPrice;
-              highest = highest === null ? dataMap[formattedPeriodDate].highest : Math.max(highest, dataMap[formattedPeriodDate].highest);
-              lowest = lowest === null ? dataMap[formattedPeriodDate].lowest : Math.min(lowest, dataMap[formattedPeriodDate].lowest);
-              count += dataMap[formattedPeriodDate].count;
+              // Extract values and check for nulls before updating
+              const { totalWeight: weight, totalPrice: price, highest: periodHighest, lowest: periodLowest, count: periodCount } = dataMap[formattedPeriodDate];
+
+              if (weight !== null) totalWeight += weight;
+              if (price !== null) totalPrice += price;
+              if (periodHighest !== null) highest = highest === null ? periodHighest : Math.max(highest, periodHighest);
+              if (periodLowest !== null) lowest = lowest === null ? periodLowest : Math.min(lowest, periodLowest);
+              if (periodCount !== null) count += periodCount;
             }
           });
-
+          // Calculate average only if totalWeight > 0 to avoid division by zero
+          const average = totalWeight > 0 ? totalPrice / totalWeight : null;
           let aggregatedDate;
           // Format the date label based on the filter
           switch (filter) {
@@ -283,14 +301,11 @@ function MarketAnalyticScreen({ route }) {
             default:
               aggregatedDate = currentPeriod[0].format('ddd'); // Default to day of the week
           }
-
-
           aggregatedDates.push(aggregatedDate);
-          aggregatedAverage.push(count > 0 ? totalPrice / totalWeight : null);
+          aggregatedAverage.push(average !== null ? average : null);
           aggregatedHighest.push(highest !== null ? highest : null);
           aggregatedLowest.push(lowest !== null ? lowest : null);
           aggregatedSold.push(totalWeight > 0 ? totalWeight : null);
-
           currentPeriod = []; // Reset for the next period
         }
       });
@@ -323,41 +338,48 @@ function MarketAnalyticScreen({ route }) {
       default:
         groupByDays = 1; // Default to daily
     }
-
     const { aggregatedDates, aggregatedAverage, aggregatedHighest, aggregatedLowest, aggregatedSold } = aggregateData(dateRange, groupByDays);
-
+    function calculateAverage(array) {
+      let filteredArray = array.filter(val => val !== null);
+      let sum = filteredArray.reduce((acc, val) => acc + val, 0);
+      return sum / filteredArray.length;
+    }
+    // Helper function to calculate the maximum of an array (ignoring null values)
+    function calculateMax(array) {
+      return Math.max(...array.filter(val => val !== null));
+    }
+    // Helper function to calculate the minimum of an array (ignoring null values)
+    function calculateMin(array) {
+      return Math.min(...array.filter(val => val !== null));
+    }
+    // Calculate overall values and format to two decimals
+    let overallAverage = parseFloat(calculateAverage(aggregatedAverage)).toFixed(2);
+    let overallHighest = parseFloat(calculateMax(aggregatedHighest)).toFixed(2);
+    let overallLowest = parseFloat(calculateMin(aggregatedLowest)).toFixed(2);
+    // Replace nulls with calculated values, formatted to two decimals
+    printAverage = aggregatedAverage.map(val => val === null ? overallAverage : parseFloat(val).toFixed(2));
+    printHighest = aggregatedHighest.map(val => val === null ? overallHighest : parseFloat(val).toFixed(2));
+    printLowest = aggregatedLowest.map(val => val === null ? overallLowest : parseFloat(val).toFixed(2));
     return {
-      dates: aggregatedDates,
-      average: aggregatedAverage,
-      highest: aggregatedHighest,
-      lowest: aggregatedLowest,
-      sold: aggregatedSold,
+      dates: aggregatedDates, average: aggregatedAverage, highest: aggregatedHighest, lowest: aggregatedLowest, averagep: printAverage, highestp: printHighest, lowestp: printLowest, sold: aggregatedSold,
     };
   };
-
-
-
-
   if (loading) {
     return <LoadingAnimation />
   }
-
   const renderAnalyticsChart = (itemId) => {
     const itemData = getDataForItem(itemId, selectedFilter);
     if (itemData.dates.length === 0) {
       return <Text>No data available for this variety.</Text>;
     }
-
     // Calculate min and max values for the Y-axis
     const allValues = [
       ...itemData.average.filter(value => value !== null),
       ...itemData.highest.filter(value => value !== null),
       ...itemData.lowest.filter(value => value !== null)
     ];
-
-    const minValue = Math.floor(Math.min(...allValues)) - 2; // lowest - 2
-    const maxValue = Math.ceil(Math.max(...allValues)) + 2; // highest + 2
-
+    const minValue = Math.floor(Math.min(...allValues)) - 2;
+    const maxValue = Math.ceil(Math.max(...allValues)) + 2;
     // Determine verticalLabelRotation based on selectedFilter
     const verticalLabelRotation = ["1 Month", "3 Months", "6 Months", "9 Months", "12 Months"].includes(selectedFilter) ? 90 : 0;
 
@@ -395,21 +417,14 @@ function MarketAnalyticScreen({ route }) {
             decimalPlaces: 2,
             color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
             labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-            style: {
-              borderRadius: 16,
-              height: 20,
-            },
-            propsForDots: {
-              r: "5",
-              strokeWidth: "2",
-              stroke: "#000000",
-            },
+            style: { borderRadius: 16, height: 20, },
+            propsForDots: { r: "5", strokeWidth: "2", stroke: "#000000", },
             fillShadowGradient: 'transparent',
             fillShadowGradientOpacity: 0,
             paddingRight: 32,
           }}
           bezier
-          className="my-2 rounded-lg pr-10" // Margin vertical, border radius, padding right
+          className="my-2 rounded-lg pr-10"
           fromZero={false}
           segments={6}
           xLabelsOffset={-10}
@@ -420,14 +435,7 @@ function MarketAnalyticScreen({ route }) {
           yAxisMax={maxValue} // Set max value
           onDataPointClick={(data) => {
             if (!itemData.dates[data.index]) return;
-            setTooltip({
-              visible: true,
-              x: data.x,
-              y: data.y,
-              value: data.value,
-              date: itemData.dates[data.index],
-              sold: itemData.sold[data.index],
-            });
+            setTooltip({ visible: true, x: data.x, y: data.y, value: data.value, date: itemData.dates[data.index], sold: itemData.sold[data.index], });
           }}
         />
 
@@ -445,19 +453,7 @@ function MarketAnalyticScreen({ route }) {
               <Text>Sold: {tooltip.sold}</Text>
               <View
                 className="absolute"
-                style={{
-                  bottom: -10,
-                  left: "50%",
-                  marginLeft: -7.5,
-                  width: 0,
-                  height: 0,
-                  borderLeftWidth: 7.5,
-                  borderRightWidth: 7.5,
-                  borderTopWidth: 10,
-                  borderLeftColor: "transparent",
-                  borderRightColor: "transparent",
-                  borderTopColor: "green",
-                }}
+                style={{ bottom: -10, left: "50%", marginLeft: -7.5, width: 0, height: 0, borderLeftWidth: 7.5, borderRightWidth: 7.5, borderTopWidth: 10, borderLeftColor: "transparent", borderRightColor: "transparent", borderTopColor: "green", }}
               />
             </View>
           </View>
@@ -466,28 +462,12 @@ function MarketAnalyticScreen({ route }) {
     );
   };
 
-
-
-
   return (
     <Tab.Navigator
       screenOptions={{
-        swipeEnabled: true,
-        tabBarScrollEnabled: true,
-        lazy: true,
-        tabBarShowLabel: true,
-        tabBarActiveTintColor: "#00B251",
-        tabBarInactiveTintColor: "gray",
-        tabBarStyle: { backgroundColor: "white", elevation: 3 },
-        tabBarIndicatorStyle: {
-          backgroundColor: "#00B251",
-          height: 4,
-          borderRadius: 2,
-        },
+        swipeEnabled: true, tabBarScrollEnabled: true, lazy: true, tabBarShowLabel: true, tabBarActiveTintColor: "#00B251", tabBarInactiveTintColor: "gray", tabBarStyle: { backgroundColor: "white", elevation: 3 }, tabBarIndicatorStyle: { backgroundColor: "#00B251", height: 4, borderRadius: 2, },
       }}
-      initialRouteName={
-        varietyData.length > 0 && varietyData.find((item) => item.crop_variety_id === varietyId)?.crop_variety_name
-      }
+      initialRouteName={varietyData.length > 0 && varietyData.find((item) => item.crop_variety_id === varietyId)?.crop_variety_name}
     >
       {varietyData.map((item) => (
         <Tab.Screen key={item.crop_variety_id} name={item.crop_variety_name}>
@@ -496,29 +476,24 @@ function MarketAnalyticScreen({ route }) {
               <Text className="text-xl font-bold text-green-700 text-center mb-4">
                 {item.crop_variety_name.toUpperCase()} SUMMARY
               </Text>
-
               <Text className="text-sm font-bold text-green-500 mb-2">
                 Current Available Listings
-                <Text className="text-green-700"> 30 Listings</Text>
+                <Text className="text-green-700"> {item.availableListing} Listings</Text>
               </Text>
               <Text className="text-sm font-bold text-green-500 mb-2">
                 Current Highest Price/Kilo
-                <Text className="text-green-700"> ₱70/kilo</Text>
+                <Text className="text-green-700"> ₱{item.highestListing.crop_price}/kilo</Text>
               </Text>
               <Text className="text-sm font-bold text-green-500 mb-4">
-                Current Lowest Price/Kilo{" "}
-                <Text className="text-green-700">₱50/kilo</Text>
+                Current Lowest Price/Kilo
+                <Text className="text-green-700"> ₱{item.lowestListing.crop_price}/kilo</Text>
               </Text>
-
               <TouchableOpacity
-                onPress={() => setModalVisible(true)}
-                className="bg-green-500 p-2 rounded-lg flex-row items-center justify-center mb-4"
-                style={{ width: "100%", alignItems: "center" }}
+                onPress={() => setModalVisible(true)} className="bg-green-500 p-2 rounded-lg flex-row items-center justify-center mb-4" style={{ width: "100%", alignItems: "center" }}
               >
                 <FontAwesome name="cog" size={18} color="white" />
                 <Text className="text-white text-sm ml-2">{selectedFilter} Summary</Text>
               </TouchableOpacity>
-
               <Modal
                 visible={modalVisible}
                 transparent={true}
@@ -557,20 +532,18 @@ function MarketAnalyticScreen({ route }) {
                   </View>
                 </View>
               </Modal>
-
               <Text className="text-sm font-bold text-green-500 mb-2">
-                Average{" "}
-                <Text className="text-green-700">₱{getDataForItem(item.crop_variety_id, selectedFilter).average.slice(-1)[0]}</Text>
+                Average
+                <Text className="text-green-700"> ₱{getDataForItem(item.crop_variety_id, selectedFilter).averagep.slice(-1)[0]}</Text>
               </Text>
               <Text className="text-sm font-bold text-green-500 mb-2">
-                Highest{" "}
-                <Text className="text-green-700">₱{getDataForItem(item.crop_variety_id, selectedFilter).highest.slice(-1)[0]}</Text>
+                Highest
+                <Text className="text-green-700"> ₱{getDataForItem(item.crop_variety_id, selectedFilter).lowestp.slice(-1)[0]}</Text>
               </Text>
               <Text className="text-sm font-bold text-green-500 mb-2">
-                Lowest{" "}
-                <Text className="text-green-700">₱{getDataForItem(item.crop_variety_id, selectedFilter).lowest.slice(-1)[0]}</Text>
+                Lowest
+                <Text className="text-green-700"> ₱{getDataForItem(item.crop_variety_id, selectedFilter).highestp.slice(-1)[0]}</Text>
               </Text>
-
               {renderAnalyticsChart(item.crop_variety_id)}
             </View>
           )}
@@ -579,5 +552,4 @@ function MarketAnalyticScreen({ route }) {
     </Tab.Navigator>
   )
 }
-
 export default MarketAnalyticScreen;

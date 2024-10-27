@@ -72,20 +72,26 @@ async function checkoutOrder(req, res) {
         const io = getIo();
 
         // After successful checkout, send SMS for each item
+        // Define the shop number and title
+        const shopNumber = shop_number;
+        const title = `AgriTayo`;
+
+        // Aggregate items into a single message string
+        let message = `You have a new order with the following items:`;
+
         items.forEach(item => {
-            const shopNumber = shop_number;
-            const title = `New Order: ${newOrder.order_id}`;
-            const message = `You have a new order for ${item.cart_total_quantity} ${item.metric_system_symbol} of ${item.crop_name}.`;
-
-            // Emit the 'sms sender' event
-            io.emit('sms sender', {
-                title,
-                message,
-                phone_number: shopNumber
-            });
-
-            console.log(`SMS sent to ${shopNumber}: ${title} - ${message}`);
+            message += `\n- ${item.cart_total_quantity} ${item.metric_system_symbol} of ${item.crop_name}`;
         });
+
+        // Emit the 'sms sender' event once with the full message
+        io.emit('sms sender', {
+            title,
+            message,
+            phone_number: shopNumber
+        });
+
+        console.log(`SMS sent to ${shopNumber}: ${title} - ${message}`);
+
 
         if (orderDetails.cartType === 'cart') {
             // DELETING THE PRODUCTS IN CART
@@ -111,7 +117,7 @@ async function checkoutOrder(req, res) {
         } else if (orderDetails.cartType === 'negotiate') {
             // UPDATING THE NEGOTIATION
             const cartIdsToUpdate = items.map(item => item.cart_id);
-        
+
             const updateData = {};
             updateData.negotiation_status = 'Completed';
 
@@ -119,17 +125,17 @@ async function checkoutOrder(req, res) {
                 .from('negotiations')
                 .update(updateData)
                 .in('negotiation_id', cartIdsToUpdate);  // Use `.in()` instead of `.eq()`
-        
+
             if (cartError) {
                 console.error('Supabase negotiation update query failed:', cartError.message);
                 return res.status(500).json({ error: 'Internal server error' });
             }
-        
+
             if (!cartData || cartData.length === 0) {
                 console.error('No negotiations were updated.');
                 return res.status(400).json({ error: 'No negotiations found for update.' });
             }
-        
+
             return res.status(201).json({
                 message: 'Order added successfully',
                 newOrder,
@@ -137,7 +143,7 @@ async function checkoutOrder(req, res) {
                 cartData
             });
         }
-        
+
 
     } catch (err) {
         console.error('Error executing Supabase query:', err.message);
