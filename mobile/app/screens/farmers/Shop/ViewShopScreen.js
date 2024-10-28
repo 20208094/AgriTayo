@@ -23,10 +23,10 @@ function ViewShopScreen({ navigation }) {
 
   const [shopName, setShopName] = useState("");
   const [shopAddress, setShopAddress] = useState("");
-  const [shopLocation, setShopLocation] = useState("");
   const [shopDescription, setShopDescription] = useState("");
   const [shopImage, setShopImage] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [modalVisible2, setModalVisible2] = useState(false);
   const [shopDeliveryFee, setShopDeliveryFee] = useState("");
   const [pickupAreaFee, setPickUpAreaFee] = useState("");
   const [pickupAddress, setPickUpAddress] = useState("");
@@ -38,7 +38,9 @@ function ViewShopScreen({ navigation }) {
   const [isCheckedCod, setIsCheckedCod] = useState(false);
   const [isCheckedGcash, setIsCheckedGcash] = useState(false);
   const [isCheckedBankTransfer, setIsCheckedBankTransfer] = useState(false);
-
+  const [tin, setTin] = useState("");
+  const [birCertificate, setBirCertificate] = useState(null);
+  const [shopNumber, setShopNumber] = useState("");
   const [errors, setErrors] = useState({});
 
   const validateField = (fieldName, value) => {
@@ -50,10 +52,6 @@ function ViewShopScreen({ navigation }) {
         break;
       case 'shopAddress':
         if (!value) errorMessage = " *Shop address cannot be empty.";
-        break;
-      case 'shopLocation':
-        // You can modify this regex based on your requirement for a valid location
-        if (!value) errorMessage = " *Shop location cannot be empty.";
         break;
       case 'shopDescription':
         if (!value) errorMessage = " *Shop description cannot be empty.";
@@ -88,13 +86,13 @@ function ViewShopScreen({ navigation }) {
         setShopAddress(value);
         validateField('shopAddress', value);
         break;
-      case 'shopLocation':
-        setShopLocation(value);
-        validateField('shopLocation', value);
-        break;
       case 'shopDescription':
         setShopDescription(value);
         validateField('shopDescription', value);
+        break;
+        case 'shopNumber':
+        setShopNumber(value);
+        validateField('shopNumber', value);
         break;
       case 'shopDeliveryFee':
         setShopDeliveryFee(value);
@@ -110,6 +108,21 @@ function ViewShopScreen({ navigation }) {
         break;
       default:
         break;
+    }
+  };
+
+  const takePicture = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status === "granted") {
+      const result = await ImagePicker.launchCameraAsync({
+        quality: 1,
+      });
+      if (!result.canceled) {
+        setBirCertificate({ uri: result.assets[0].uri });
+        setModalVisible(false);
+      }
+    } else {
+      alert("Camera permission is required.");
     }
   };
 
@@ -131,6 +144,26 @@ function ViewShopScreen({ navigation }) {
       setModalVisible(false);
     }
   };
+
+  const selectBirImageFromGallery = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      alert("Sorry, we need camera roll permissions to make this work!");
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setBirCertificate(result.assets[0].uri);
+      setModalVisible2(false);
+    }
+  };
+
 
   const getAsyncUserData = async () => {
     try {
@@ -157,7 +190,6 @@ function ViewShopScreen({ navigation }) {
         setShopId(shop.shop_id);
         setShopName(shop.shop_name);
         setShopAddress(shop.shop_address);
-        setShopLocation(shop.shop_location);
         setShopDescription(shop.shop_description);
         setShopImage(shop.shop_image_url);
         setShopDeliveryFee(String(shop.delivery_price));
@@ -169,6 +201,9 @@ function ViewShopScreen({ navigation }) {
         setIsCheckedBankTransfer(shop.bank);
         setPickUpAddress(shop.shop_address);
         setUserId(shop.user_id);
+        setTin(shop.tin_number);
+        setBirCertificate(shop.bir_image_url);
+        setShopNumber(shop.shop_number);
       }
     } catch (error) {
       console.error("Failed to load shop data:", error);
@@ -227,14 +262,22 @@ function ViewShopScreen({ navigation }) {
     formData.append("cod", isCheckedCod);
     formData.append("bank", isCheckedBankTransfer);
     formData.append("user_id", userId);
-    formData.append("longitude", 1.0);
-    formData.append("latitude", 1.0);
+
+    formData.append("tin_number", tin);
+    if (birCertificate) {
+      formData.append("bir_image_url", {
+        uri: birCertificate.uri,
+        name: "bir_certificate.jpg",
+        type: "image/jpeg",
+      })
+    }
+
+    formData.append("shop_number", shopNumber);
 
     // Debugging logs
     console.log("Submitting shop data:", {
       shop_name: shopName,
       shop_address: shopAddress,
-      shop_location: shopLocation,
       shop_description: shopDescription,
       image: shopImage,
       delivery: isCheckedDelivery,
@@ -246,12 +289,13 @@ function ViewShopScreen({ navigation }) {
       cod: isCheckedCod,
       bank: isCheckedBankTransfer,
       user_id: userId,
-      longtitude: 1.0,
-      latitude: 1.0,
       shop_id: shopId,
+      tin_number: tin,
+      image: birCertificate,
+      shop_number: shopNumber,
     });
 
-  try {
+    try {
       const response = await fetch(
         `${REACT_NATIVE_API_BASE_URL}/api/shops/${shopId}`,
         {
@@ -269,7 +313,6 @@ function ViewShopScreen({ navigation }) {
       const updatedShopData = {
         shop_name: shopName,
         shop_address: shopAddress,
-        shop_location: shopLocation,
         shop_description: shopDescription,
         image: shopImage,
         shop_image_url: shopImage,
@@ -282,9 +325,11 @@ function ViewShopScreen({ navigation }) {
         cod: isCheckedCod,
         bank: isCheckedBankTransfer,
         user_id: userId,
-        longtitude: 1.0,
-        latitude: 1.0,
         shop_id: shopId,
+        image: birCertificate,
+        bir_image_url: birCertificate,
+        tin_number: tin,
+        shop_number: shopName,
       };
 
       if (!response.ok) {
@@ -301,6 +346,7 @@ function ViewShopScreen({ navigation }) {
     }
   };
 
+  
   return (
     <SafeAreaView className="flex-1">
       <ScrollView contentContainerStyle={{ padding: 16 }}>
@@ -345,18 +391,6 @@ function ViewShopScreen({ navigation }) {
             className="w-full p-2 mb-4 bg-white rounded-lg shadow-md text-gray-800"
           />
 
-          {/* Shop Location */}
-          <Text className="text-sm mb-2 text-gray-800">Shop Location: </Text>
-          <TouchableOpacity
-            className="w-full p-2 mb-4 bg-white rounded-lg shadow-md text-gray-800"
-            onPress={() => navigation.navigate("Add Location")}
-          >
-            <Text className="text-sm mb-2 text-gray-600">Select Location:</Text>
-          </TouchableOpacity>
-          {errors.shopLocation && (
-            <Text className="text-red-500 mb-2">{errors.shopLocation}</Text>
-          )}
-
           {/* Shop Description */}
           <Text className="text-sm mb-2 text-gray-800">Shop Description:
             {errors.shopDescription && (
@@ -367,6 +401,15 @@ function ViewShopScreen({ navigation }) {
             value={shopDescription}
             onChangeText={(value) => handleInputChange('shopDescription', value)}
             className="w-full p-2 mb-4 bg-white rounded-lg shadow-md text-gray-800"
+          />
+
+          {/* Shop Number */}
+          <Text className="text-sm mb-2 text-gray-800">Shop Number:</Text>
+          <TextInput
+            value={shopNumber}
+            onChangeText={(value) => handleInputChange('shopNumber', value)}
+            className="w-full p-2 mb-4 bg-white rounded-lg shadow-md text-gray-800"
+            placeholder="Enter your Shop Number"
           />
 
           {/* Shipping Options */}
@@ -454,6 +497,47 @@ function ViewShopScreen({ navigation }) {
             onPress={() => setIsCheckedBankTransfer(!isCheckedBankTransfer)}
           />
 
+          {/*TIN NUMBER */}
+          <Text className="text-sm mb-2 text-gray-800">
+            Taxpayer Identification Number (TIN): <Text className="text-red-500 text-sm">*</Text>
+          </Text>
+          <TextInput
+            className="w-full p-2 mb-4 bg-white rounded-lg shadow-md text-gray-800"
+            keyboardType="numeric"
+            placeholder="TIN"
+            value={tin}
+            onChangeText={setTin}
+          />
+
+          <Text className="text-sm text-gray-500 mb-4">
+            Your 9-digit TIN and 3 to 5 digit branch code. Please use '000' as
+            your branch code if you don't have one (e.g. 999-999-000)
+          </Text>
+
+          {/*BIR CERITIFICATE */}
+          <Text className="text-sm mb-2 text-gray-800">
+            BIR Certificate of Registration <Text className="text-red-500 text-sm">
+            </Text>
+          </Text>
+          <TouchableOpacity
+            className="border border-dashed border-green-600 rounded-md p-4  flex-row justify-center items-center"
+            onPress={() => setModalVisible2(true)}
+          >
+            <Text className="text-green-600">+ Upload (0/1)</Text>
+          </TouchableOpacity>
+
+          {birCertificate && (
+            <Image source={{ uri: birCertificate.uri || "https://via.placeholder.com/150" }} className="w-24 h-24 mb-4" />
+          )}
+
+          <Text className="text-sm text-gray-500 mb-4">
+            Choose a file that is not more than 1 MB in size.
+          </Text>
+          <Text className="text-sm text-gray-500 mb-4">
+            If Business Name/Trade is not applicable, please enter your Taxpayer
+            Name as indicated on your BIR CoR instead (e.g Acme, Inc.)
+          </Text>
+
           {/* Submit Button */}
           <TouchableOpacity
             className="w-full mt-8 p-4 bg-[#00B251] rounded-lg shadow-md"
@@ -461,7 +545,6 @@ function ViewShopScreen({ navigation }) {
               // Validate all fields before submitting
               handleInputChange('shopName', shopName);
               handleInputChange('shopAddress', shopAddress);
-              handleInputChange('shopLocation', shopLocation);
               handleInputChange('shopDescription', shopDescription);
               handleInputChange('shopDeliveryFee', shopDeliveryFee);
               handleInputChange('pickupAddress', pickupAddress);
@@ -501,7 +584,7 @@ function ViewShopScreen({ navigation }) {
         visible={modalVisible}
         onRequestClose={() => setModalVisible(false)}
       >
-        <View className="flex-1 justify-center items-center bg-black/50 bg-opacity-50">
+        <View className="flex-1 justify-center items-center bg-black/50">
           <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
             <Text className="text-lg font-semibold text-gray-900">Update Profile Picture</Text>
             <TouchableOpacity
@@ -514,6 +597,40 @@ function ViewShopScreen({ navigation }) {
             <TouchableOpacity
               className="mt-4 p-4 bg-red-500 rounded-lg flex-row justify-center items-center"
               onPress={() => setModalVisible(false)}
+            >
+              <Ionicons name="close-outline" size={24} color="white" />
+              <Text className="text-lg text-white ml-2">Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible2}
+        onRequestClose={() => setModalVisible2(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black/50">
+          <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
+            <Text className="text-lg font-semibold text-gray-900">Update Picture</Text>
+            <TouchableOpacity
+              className="mt-4 p-4 bg-[#00B251] rounded-lg flex-row justify-center items-center"
+              onPress={takePicture}
+            >
+              <Ionicons name="camera" size={24} color="white" />
+              <Text className="text-lg text-white ml-2">Take a Picture</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              className="mt-4 p-4 bg-[#00B251] rounded-lg flex-row justify-center items-center"
+              onPress={selectBirImageFromGallery}
+            >
+              <Ionicons name="image-outline" size={24} color="white" />
+              <Text className="text-lg text-white ml-2">Select from Gallery</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              className="mt-4 p-4 bg-red-500 rounded-lg flex-row justify-center items-center"
+              onPress={() => setModalVisible2(false)}
             >
               <Ionicons name="close-outline" size={24} color="white" />
               <Text className="text-lg text-white ml-2">Cancel</Text>

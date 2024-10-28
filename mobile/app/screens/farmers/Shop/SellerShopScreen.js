@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   SafeAreaView,
   View,
@@ -38,6 +38,7 @@ function SellerShopScreen({ route }) {
   const [userId, setUserId] = useState(null);
   const [isIncomplete, setIsIncomplete] = useState(false); // Track if the shop is incomplete
   const [modalVisible, setModalVisible] = useState(false); // State for modal visibility
+  const [missingFields, setMissingFields] = useState([]); // Track missing fields
 
   const getAsyncUserData = async () => {
     try {
@@ -48,10 +49,6 @@ function SellerShopScreen({ route }) {
           const user = parsedData[0];
           setUserData(user);
           setUserId(user.user_id);
-          // Check if the "Submit Later" flag is set in user data
-          if (user.submit_later) {
-            setIsIncomplete(true);
-          }
         } else {
           setUserData(parsedData);
         }
@@ -70,7 +67,18 @@ function SellerShopScreen({ route }) {
       });
       const shopData = await shopResponse.json();
       const shop = shopData.find((s) => s && s.shop_id === shop_id);
-      setShopData(shop);
+      if (shop) {
+        setShopData(shop);
+        // Check if required fields are missing
+        if (!shop.tin_number || !shop.bir_image_url) {
+          setIsIncomplete(true);
+          let missing = [];
+          if (!shop.tin_number) missing.push('TIN Number');
+          if (!shop.bir_image_url) missing.push('BIR Certificate');
+          setMissingFields(missing);
+        }
+      }
+
     } catch (error) {
       console.error("Error fetching shop data:", error);
       alert("Failed to load shop information.");
@@ -86,7 +94,7 @@ function SellerShopScreen({ route }) {
         },
       });
       const cropData = await cropResponse.json();
-      const crops = cropData.filter((c) => c && c.shop_id === shop_id); 
+      const crops = cropData.filter((c) => c && c.shop_id === shop_id);
       setCropData(crops);
     } catch (error) {
       console.error("Error fetching crop data:", error);
@@ -257,6 +265,9 @@ function SellerShopScreen({ route }) {
               <Text className="text-gray-600 mb-4">
                 It seems like the shop has not completed all the required information from the Business Information.
                 Please ensure that all fields are filled out correctly.
+              </Text>
+              <Text className="text-red-600 font-bold mb-4">
+                Missing Fields: {missingFields.join(', ')}
               </Text>
               <TouchableOpacity
                 onPress={() => setModalVisible(false)}

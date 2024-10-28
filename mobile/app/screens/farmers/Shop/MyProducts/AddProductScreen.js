@@ -655,16 +655,16 @@ function AddProductScreen({navigation}) {
 
       {/* Modal for Image Selection */}
       <Modal visible={modalVisible} transparent={true} animationType="slide">
-        <View className="flex-1 justify-center items-center bg-black bg-opacity-50">
+        <View className="flex-1 justify-center items-center bg-black/50 ">
           <View className="bg-white p-6 rounded-lg">
             <Text className="text-lg font-semibold mb-4">
               Select Image Source
             </Text>
             <TouchableOpacity
-              className="mb-4 p-4 bg-gray-100 rounded-lg"
+              className="mb-4 p-4 bg-[#00B251] rounded-lg"
               onPress={selectImageFromGallery}
             >
-              <Text className="text-base">Choose from Gallery</Text>
+              <Text className="text-white text-center">Choose from Gallery</Text>
             </TouchableOpacity>
             <TouchableOpacity
               className="p-4 bg-red-500 rounded-lg"
