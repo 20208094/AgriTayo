@@ -1,4 +1,5 @@
 const supabase = require('../db');
+const formidable = require("formidable");
 
 async function getNegotiations(req, res) {
     try {
@@ -75,26 +76,63 @@ async function addNegotiation(req, res) {
 
 // Update an existing negotiation
 async function updateNegotiation(req, res) {
+    console.log(' im called:', );
     try {
         const { id } = req.params;
-        const { updatedNegotiation } = req.body;
-        console.log('updateNegotiation :', updatedNegotiation);
 
         if (!id) {
             return res.status(400).json({ error: 'ID is required for update' });
         }
-        
-        const { data, error } = await supabase
-            .from('negotiations')
-            .update(updatedNegotiation)
-            .eq('negotiation_id', id);
 
-        if (error) {
-            console.error('Supabase query failed:', error.message);
-            return res.status(500).json({ error: 'Internal server error' });
-        }
+        const form = new formidable.IncomingForm({ multiples: true });
 
-        res.status(200).json({ message: 'Negotiation updated successfully', data });
+        form.parse(req, async (err, fields, files) => {
+            if (err) {
+                console.error("Formidable error:", err);
+                return res.status(500).json({ error: "Form parsing error" });
+            }
+
+            const {
+                user_amount,
+                user_price,
+                user_total,
+                buyer_turn,
+                user_open_for_negotiation,
+                negotiation_status,
+                final_amount,
+                final_price,
+                final_total,
+            } = fields;
+
+            const getSingleValue = (value) =>
+                Array.isArray(value) ? value[0] : value;
+
+            // Prepare the update data
+            const updatedNegotiation = {
+                user_amount: parseInt(user_amount, 10),
+                user_price: parseFloat(user_price, 10),
+                user_total: parseFloat(user_total, 10),
+                buyer_turn: getSingleValue(buyer_turn),
+                user_open_for_negotiation: getSingleValue(user_open_for_negotiation),
+                negotiation_status: getSingleValue(negotiation_status),
+                final_amount: parseFloat(final_amount, 10),
+                final_price: parseFloat(final_price, 10),
+                final_total: parseFloat(final_total, 10),
+            };
+
+            // Update the crop in the database
+            const { data, error } = await supabase
+                .from('negotiations')
+                .update(updatedNegotiation)
+                .eq('negotiation_id', id);
+
+            if (error) {
+                console.error('Supabase query failed:', error.message);
+                return res.status(500).json({ error: 'Internal server error' });
+            }
+
+            res.status(200).json({ message: 'Negotiation updated successfully', data });
+        });
     } catch (err) {
         console.error('Error executing updateNegotiation process:', err.message);
         res.status(500).json({ error: 'Internal server error' });

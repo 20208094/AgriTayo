@@ -44,14 +44,14 @@ function FarmersProductDetailScreen({ route, navigation }) {
       Alert.alert("Permission to access camera roll denied");
       return;
     }
-  
+
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [4, 3],
       quality: 0.5,
     });
-  
+
     if (!result.canceled && result.assets && result.assets.length > 0) {
       setImageSource({ uri: result.assets[0].uri });
     }
@@ -297,7 +297,7 @@ function FarmersProductDetailScreen({ route, navigation }) {
 
   const handleEditProduct = async () => {
     const formData = new FormData();
-  
+
     // Append form data fields
     formData.append("crop_name", selectedCropVariety);
     formData.append("crop_id", product.crop_id);
@@ -305,7 +305,7 @@ function FarmersProductDetailScreen({ route, navigation }) {
     formData.append("crop_description", cropDescription);
     formData.append("crop_image", imageSource ? {
       uri: imageSource.uri,
-      type: "image/jpeg", 
+      type: "image/jpeg",
       name: "product-image.jpg"
     } : product.crop_image_url);
     formData.append("crop_rating", parseFloat(cropRating));
@@ -318,9 +318,9 @@ function FarmersProductDetailScreen({ route, navigation }) {
     formData.append("metric_system_id", parseInt(selectedCropMetricId) || product.metric.metric_system_id);
     formData.append("crop_class", selectedCropClass);
     formData.append("crop_availability", selectedCropAvailability);
-  
+
     console.log("Form Data:", formData);
-  
+
     try {
       const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crops/${product.crop_id}`, {
         method: "PUT",
@@ -329,21 +329,21 @@ function FarmersProductDetailScreen({ route, navigation }) {
         },
         body: formData,
       });
-  
-      console.log("Response Status:", response.status); 
-      console.log("Response Headers:", response.headers); 
-  
+
+      console.log("Response Status:", response.status);
+      console.log("Response Headers:", response.headers);
+
       if (!response.ok) {
         const errorDetails = await response.json();
         console.log("Error Details:", errorDetails);
         throw new Error("Failed to update product");
       }
-  
+
       const updatedProduct = await response.json();
       console.log("Updated Product:", updatedProduct);
       Alert.alert("Success!", "Product Updated Successfully");
       navigation.navigate("My Products");
-  
+
     } catch (error) {
       console.error(`Error updating product: ${error.message}`);
     }
@@ -365,7 +365,7 @@ function FarmersProductDetailScreen({ route, navigation }) {
                   source={{ uri: imageSource?.uri || product.crop_image_url }}
                 />
               </TouchableOpacity>
-            </View> 
+            </View>
             <View className="mb-4">
               <Text className="text-lg font-medium mb-1">Crop Variety</Text>
               <TouchableOpacity
@@ -576,8 +576,8 @@ function FarmersProductDetailScreen({ route, navigation }) {
             </View>
 
             <View className="mb-6">
-              <TouchableOpacity 
-                className="bg-[#00b251] py-2 rounded-lg shadow" 
+              <TouchableOpacity
+                className="bg-[#00b251] py-2 rounded-lg shadow"
                 onPress={() => {
                   Alert.alert(
                     "Confirm Edit Product",
