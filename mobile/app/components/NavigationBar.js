@@ -182,51 +182,86 @@ const NavigationBar = () => {
       {menuVisible && (
         <TouchableWithoutFeedback onPress={closeMenuOnOutsidePress}>
           <View style={StyleSheet.absoluteFillObject} className="bg-black/10">
-            <Animated.View className="absolute right-0 bottom-16 flex-row items-center rounded-xl px-2 py-1 w-full justify-center flex-wrap">
+            <Animated.View className="absolute right-0 bottom-14 bg-white/90 flex-row items-center rounded-xl px-2 py-1 mx-2 w-full*0.85 justify-center flex-wrap">
               {shopData && (
-                <TouchableOpacity
-                  className="items-center bg-white border border-slate-400 rounded-xl px-2 py-1 mx-2 mb-2"
-                  style={{ width: 120 }}
-                  onPress={() => navigation.navigate("My Shop")}
-                >
-                  <Icon name="storefront-outline" size={30} color="#00B251" />
-                  <Text className="text-center">My Shop</Text>
-                </TouchableOpacity>
+                <View className="flex-row items-center w-full px-2 justify-center flex-wrap rounded-xl mb-4">
+                  <View className="w-full ml-6">
+                    <Text className="text-left w-1/2 text-[#00b251] text-xl font-extrabold pl-1 rounded-lg">Shop Navigation</Text>
+                  </View>
+                  <TouchableOpacity
+                    className="items-center bg-white border-2 border-slate-500 rounded-xl px-2 py-1 mx-2 mb-2 w-36"
+                    onPress={() => navigation.navigate("My Shop")}
+                  >
+                    <Icon name="storefront-outline" size={30} color="#00B251" />
+                    <Text className="text-center">My Shop</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    className="items-center bg-white border-2 border-slate-500 rounded-xl px-2 py-1 mx-2 mb-2 w-36"
+                    onPress={() => navigation.navigate("My Shop")}
+                  >
+                    <Icon name="storefront-outline" size={30} color="#00B251" />
+                    <Text className="text-center">Shop Products</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    className="items-center bg-white border-2 border-slate-500 rounded-xl px-2 py-1 mx-2 mb-2 w-36"
+                    onPress={() => navigation.navigate("My Shop")}
+                  >
+                    <Icon name="storefront-outline" size={30} color="#00B251" />
+                    <Text className="text-center">Shop Negotiations</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    className="items-center bg-white border-2 border-slate-500 rounded-xl px-2 py-1 mx-2 mb-2 w-36"
+                    onPress={() => navigation.navigate("My Shop")}
+                  >
+                    <Icon name="storefront-outline" size={30} color="#00B251" />
+                    <Text className="text-center">Shop Bids</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    className="items-center bg-white border-2 border-slate-500 rounded-xl px-2 py-1 mx-2 mb-2 w-36"
+                    onPress={() => navigation.navigate("My Shop")}
+                  >
+                    <Icon name="storefront-outline" size={30} color="#00B251" />
+                    <Text className="text-center">Shop Orders</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    className="items-center bg-white border-2 border-slate-500 rounded-xl px-2 py-1 mx-2 mb-2 w-36"
+                    onPress={() => navigation.navigate("My Shop")}
+                  >
+                    <Icon name="storefront-outline" size={30} color="#00B251" />
+                    <Text className="text-center">Shop View</Text>
+                  </TouchableOpacity>
+                </View>
               )}
-
+              {shopData && (
+                <View className="w-full ml-6">
+                  <Text className="text-left w-1/2 text-[#00b251] text-xl font-bold pl-3 rounded-lg">User Navigation</Text>
+                </View>
+              )}
               <TouchableOpacity
-                className="items-center bg-white border border-slate-400 rounded-xl px-2 py-1 mx-2 mb-2"
-                style={{ width: 120 }}
+                className="items-center bg-white border-2 border-slate-500 rounded-xl px-2 py-1 mx-2 mb-2 w-36"
                 onPress={() => navigation.navigate("Orders")}
               >
                 <Icon name="receipt-outline" size={30} color="#00B251" />
                 <Text className="text-center">My Orders</Text>
               </TouchableOpacity>
 
-              {shopData && (
-                <TouchableOpacity
-                  className="items-center bg-white border border-slate-400 rounded-xl px-2 py-1 mx-2 mb-2"
-                  style={{ width: 120 }}
-                  onPress={() => navigation.navigate("Buyer Negotiation List")}
-                >
-                  <Icon name="swap-horizontal-outline" size={30} color="#00B251" />
-                  <Text className="text-center">My Negotiations</Text>
-                </TouchableOpacity>
-              )}
-
-              {shopData && (
-                <TouchableOpacity
-                  className="items-center bg-white border border-slate-400 rounded-xl px-2 py-1 mx-2 mb-2"
-                  onPress={() => navigation.navigate('My Bids')}
-                  style={{ width: 120 }}
-                >
-                  <Icon name="ticket-outline" size={30} color="#00B251" />
-                  <Text className="text-center">My Bids</Text>
-                </TouchableOpacity>
-              )}
               <TouchableOpacity
-                className="items-center bg-white border border-slate-400 rounded-xl px-2 py-1 mx-2 mb-2"
-                style={{ width: 120 }}
+                className="items-center bg-white border-2 border-slate-500 rounded-xl px-2 py-1 mx-2 mb-2 w-36"
+                onPress={() => navigation.navigate("Buyer Negotiation List")}
+              >
+                <Icon name="swap-horizontal-outline" size={30} color="#00B251" />
+                <Text className="text-center">My Negotiations</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                className="items-center bg-white border-2 border-slate-500 rounded-xl px-2 py-1 mx-2 mb-2 w-36"
+                onPress={() => navigation.navigate('My Bids')}
+              >
+                <Icon name="ticket-outline" size={30} color="#00B251" />
+                <Text className="text-center">My Bids</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                className="items-center bg-white border-2 border-slate-500 rounded-xl px-2 py-1 mx-2 mb-2 w-36"
                 onPress={() => navigation.navigate("Analytics")}
               >
                 <Icon name="analytics-outline" size={30} color="#00B251" />
@@ -235,8 +270,9 @@ const NavigationBar = () => {
             </Animated.View>
           </View>
         </TouchableWithoutFeedback>
-      )}
-    </View>
+      )
+      }
+    </View >
   );
 };
 

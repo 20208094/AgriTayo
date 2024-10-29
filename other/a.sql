@@ -26,25 +26,25 @@ CREATE TABLE users (
 CREATE INDEX idx_users_user_type_id ON users(user_type_id);
 
 -- Create addresses table with additional columns
--- CREATE TABLE addresses (
---     address_id SERIAL PRIMARY KEY,
---     user_id INT NOT NULL,
---     house_number VARCHAR(10),
---     street_name VARCHAR(100),
---     building VARCHAR(50),
---     region VARCHAR(50),
---     city VARCHAR(50),
---     province VARCHAR(50),
---     barangay VARCHAR(50),
---     postal_code VARCHAR(10),
---     label VARCHAR(50),
---     note TEXT,
---     latitude DECIMAL(9, 6),
---     longitude DECIMAL(9, 6),
---     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
--- );
+CREATE TABLE addresses (
+    address_id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL,
+    house_number VARCHAR(10),
+    street_name VARCHAR(100),
+    building VARCHAR(50),
+    region VARCHAR(50),
+    city VARCHAR(50),
+    province VARCHAR(50),
+    barangay VARCHAR(50),
+    postal_code VARCHAR(10),
+    label VARCHAR(50),
+    note TEXT,
+    latitude DECIMAL(9, 6),
+    longitude DECIMAL(9, 6),
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
 
--- CREATE INDEX idx_addresses_user_id ON addresses(user_id);
+CREATE INDEX idx_addresses_user_id ON addresses(user_id);
 
 -- Create shop table
 CREATE TABLE shop (
@@ -169,32 +169,6 @@ CREATE INDEX idx_crops_sub_category_id ON crops(sub_category_id);
 CREATE INDEX idx_crops_shop_id ON crops(shop_id);
 CREATE INDEX idx_crops_metric_system_id ON crops(metric_system_id);
 
--- OLD CROPS
--- CREATE TABLE crops (
---     crop_id SERIAL PRIMARY KEY,
---     crop_name VARCHAR(100) NOT NULL,
---     crop_description TEXT,
---     sub_category_id INT,
---     shop_id INT,
---     crop_image_url VARCHAR(255),
---     crop_rating DECIMAL(3, 2),
---     crop_price DECIMAL(10, 2) NOT NULL,
---     crop_quantity INT,
---     crop_weight DECIMAL(10, 4),
---     metric_system_id INT,
---     stocks INT,
---     availability VARCHAR(20) CHECK (availability IN ('live', 'reviewing', 'violation', 'delisted')),
---     availability_message TEXT,
---     FOREIGN KEY (sub_category_id) REFERENCES crop_sub_category(crop_sub_category_id) ON DELETE SET NULL,
---     FOREIGN KEY (shop_id) REFERENCES shop(shop_id) ON DELETE SET NULL,
---     FOREIGN KEY (metric_system_id) REFERENCES metric_system(metric_system_id) ON DELETE SET NULL
--- );
-
--- CREATE INDEX idx_crops_sub_category_id ON crops(sub_category_id);
--- CREATE INDEX idx_crops_shop_id ON crops(shop_id);
--- CREATE INDEX idx_crops_metric_system_id ON crops(metric_system_id);
-
-
 -- Create order_status table
 CREATE TABLE order_status (
     order_status_id SERIAL PRIMARY KEY,
@@ -303,28 +277,28 @@ CREATE TABLE review_images (
 CREATE INDEX idx_review_images_review_id ON review_images(review_id);
 
 -- Create order_tracking table
--- CREATE TABLE order_tracking (
---     tracking_id SERIAL PRIMARY KEY,
---     order_id INT,
---     status VARCHAR(10) CHECK (status IN ('Placed', 'Processed', 'Shipped', 'Delivered', 'Cancelled')),
---     update_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
---     FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE
--- );
+CREATE TABLE order_tracking (
+    tracking_id SERIAL PRIMARY KEY,
+    order_id INT,
+    status VARCHAR(10) CHECK (status IN ('Placed', 'Processed', 'Shipped', 'Delivered', 'Cancelled')),
+    update_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE
+);
 
--- CREATE INDEX idx_order_tracking_order_id ON order_tracking(order_id);
+CREATE INDEX idx_order_tracking_order_id ON order_tracking(order_id);
 
 -- Create payments table
--- CREATE TABLE payments (
---     payment_id SERIAL PRIMARY KEY,
---     order_id INT,
---     payment_method VARCHAR(50),
---     payment_status VARCHAR(10) CHECK (payment_status IN ('Pending', 'Completed', 'Failed')),
---     payment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
---     amount DECIMAL(10, 2),
---     FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE
--- );
+CREATE TABLE payments (
+    payment_id SERIAL PRIMARY KEY,
+    order_id INT,
+    payment_method VARCHAR(50),
+    payment_status VARCHAR(10) CHECK (payment_status IN ('Pending', 'Completed', 'Failed')),
+    payment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    amount DECIMAL(10, 2),
+    FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE
+);
 
--- CREATE INDEX idx_payments_order_id ON payments(order_id);
+CREATE INDEX idx_payments_order_id ON payments(order_id);
 
 -- Create notifications table
 CREATE TABLE notifications (
