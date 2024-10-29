@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Alert,
   ActivityIndicator,
+  Modal, // Import Modal
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -23,6 +24,7 @@ function PlaceABid({ route, navigation }) {
   const [userId, setUserId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [minValidBid, setMinValidBid] = useState(0); // New state for minValidBid
+  const [modalVisible, setModalVisible] = useState(false); // State for modal visibility
 
   // Function to calculate time left
   const calculateTimeLeft = (endDate) => {
@@ -125,7 +127,10 @@ function PlaceABid({ route, navigation }) {
       const bidDetails = {
         bid_id: data.bid_id,
         user_id: userId,
-        price: amount,
+        price: Number(amount),
+        bid_current_highest: Number(amount),
+        bid_user_id: userId,
+        number_of_bids: data.number_of_bids + 1
       };
 
       try {
@@ -144,7 +149,7 @@ function PlaceABid({ route, navigation }) {
         if (response.ok) {
           const result = await response.json();
           console.log("Bid placed successfully:", result);
-          alert("Bid placed successfully!");
+          Alert.alert("Success!", "Bid placed successfully!");
           navigation.navigate("My Bids");
         } else {
           console.error("Failed to place bid:", response.statusText);
@@ -222,20 +227,8 @@ function PlaceABid({ route, navigation }) {
 
       <View className="items-center">
         <TouchableOpacity
-          className={`w-full py-4 rounded-lg ${
-            isBidValid ? "bg-[#00b251]" : "bg-gray-400"
-          }`}
-          onPress={() => {
-            Alert.alert(
-              "Confirm Placed Bid",
-              "Do you really want to place this bid?",
-              [
-                { text: "No", style: "cancel" },
-                { text: "Yes", onPress: handlePlaceBid },
-              ],
-              { cancelable: false }
-            );
-          }}
+          className={`w-full py-4 rounded-lg ${isBidValid ? "bg-[#00b251]" : "bg-gray-400"}`}
+          onPress={() => setModalVisible(true)} // Show modal instead of directly placing the bid
           disabled={!isBidValid}
         >
           {loading ? (
@@ -247,6 +240,43 @@ function PlaceABid({ route, navigation }) {
           )}
         </TouchableOpacity>
       </View>
+
+      {/* Modal for confirmation */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => {
+          setModalVisible(!modalVisible);
+        }}
+      >
+        <View className="flex-1 justify-center items-center bg-black/50">
+          <View className="bg-white rounded-lg p-6 w-80">
+            <Text className="text-lg font-bold mb-4">Confirm Placed Bid</Text>
+            <Text className="mb-4">Do you really want to place this bid of {amount}?</Text>
+            <View className="flex-row justify-between">
+              <TouchableOpacity
+                onPress={() => {
+                  setModalVisible(false);
+                  console.log("Bid Placement Cancelled");
+                }}
+                className="bg-gray-300 p-2 rounded"
+              >
+                <Text>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  setModalVisible(false);
+                  handlePlaceBid(); // Call handlePlaceBid on confirmation
+                }}
+                className="bg-[#00B251] p-2 rounded"
+              >
+                <Text className="text-white">Yes</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
