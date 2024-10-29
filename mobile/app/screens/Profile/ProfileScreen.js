@@ -194,13 +194,13 @@ function ProfileScreen({ fetchUserSession }) {
               </View>
               <Icon name="chevron-right" type="font-awesome" size={20} color="gray" />
             </TouchableOpacity>
-            <TouchableOpacity className="flex-row items-center justify-between" onPress={() => navigation.navigate("Address", { userData })}>
+            {/* <TouchableOpacity className="flex-row items-center justify-between" onPress={() => navigation.navigate("Address", { userData })}>
               <View className="flex-row items-center">
                 <Icon name="address-book" type="font-awesome" size={20} color="#00B251" />
                 <Text className="text-gray-800 font-semibold ml-4">My Addresses</Text>
               </View>
               <Icon name="chevron-right" type="font-awesome" size={20} color="gray" />
-            </TouchableOpacity>
+            </TouchableOpacity> */}
             <TouchableOpacity className="flex-row items-center justify-between" onPress={() => navigation.navigate("Buyer Negotiation List", { userData })}>
               <View className="flex-row items-center">
                 <Icon name="address-book" type="font-awesome" size={20} color="#00B251" />
@@ -208,7 +208,7 @@ function ProfileScreen({ fetchUserSession }) {
               </View>
               <Icon name="chevron-right" type="font-awesome" size={20} color="gray" />
             </TouchableOpacity>
-            <TouchableOpacity className="flex-row items-center justify-between" onPress={() => navigation.navigate("Address", { userData })}>
+            <TouchableOpacity className="flex-row items-center justify-between" onPress={() => navigation.navigate("My Bids", { userData })}>
               <View className="flex-row items-center">
                 <Icon name="address-book" type="font-awesome" size={20} color="#00B251" />
                 <Text className="text-gray-800 font-semibold ml-4">My Bids</Text>

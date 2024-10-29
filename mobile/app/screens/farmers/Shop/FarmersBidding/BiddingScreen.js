@@ -10,6 +10,7 @@ import {
 import { useFocusEffect } from "@react-navigation/native";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import NavigationbarComponent from "../../../../components/NavigationbarComponent";
 
 function BiddingScreen({ navigation }) {
   const [biddingData, setBiddingData] = useState([]);
@@ -50,6 +51,7 @@ function BiddingScreen({ navigation }) {
   );
 
   return (
+    <>
     <SafeAreaView className="flex-1 p-4 bg-gray-100">
       {/* Header Section */}
       <View className="flex-row justify-between items-center mb-4">
@@ -93,6 +95,8 @@ function BiddingScreen({ navigation }) {
         </View>
       </ScrollView>
     </SafeAreaView>
+    <NavigationbarComponent/>
+    </>
   );
 }
 

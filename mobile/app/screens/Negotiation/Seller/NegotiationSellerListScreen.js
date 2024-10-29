@@ -5,6 +5,7 @@ import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Icon from 'react-native-vector-icons/FontAwesome';
+import NavigationbarComponent from "../../../components/NavigationbarComponent";
 
 const StyledSafeAreaView = styled(SafeAreaView);
 const StyledView = styled(View);
@@ -147,6 +148,7 @@ function NegotiationSellerListScreen({ route, navigation }) {
     }
 
     return (
+        <>
         <StyledSafeAreaView className="flex-1 bg-white">
             <StyledView className="flex-row justify-around py-1">
                 {["Ongoing", "Approved", "Completed", "Cancelled"].map((status) => (
@@ -259,6 +261,8 @@ function NegotiationSellerListScreen({ route, navigation }) {
                 </StyledView>
             </StyledScrollView>
         </StyledSafeAreaView>
+        <NavigationbarComponent/>
+        </>
     );
 }
 

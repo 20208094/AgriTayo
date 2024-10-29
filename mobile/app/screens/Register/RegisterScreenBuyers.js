@@ -22,6 +22,7 @@ function RegisterScreenBuyers({ navigation }) {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [phone, setPhone] = useState("");
+  const [secondaryPhoneNumber, setSecondaryPhoneNumber] = useState('')
 
   const [firstNameError, setFirstNameError] = useState("");
   const [lastNameError, setLastNameError] = useState("");
@@ -87,6 +88,7 @@ function RegisterScreenBuyers({ navigation }) {
     formData.append("email", email);
     formData.append("password", password);
     formData.append("phone_number", phone);
+    formData.append("secondary_phone_number", secondaryPhoneNumber);
     formData.append("user_type_id", "3");
 
     navigation.navigate("OTP Screen", { formData, phone });
@@ -282,6 +284,20 @@ function RegisterScreenBuyers({ navigation }) {
             placeholder="Phone Number"
             value={phone}
             onChangeText={validatePhone} // Real-time validation
+          />
+          {/*Secondary Phone Number*/}
+          <Text className="text-sm mb-2 text-gray-800">
+            Phone Number:
+              <Text className="text-sm w-4/5 text-red-500 mb-4">
+                Optional but you can't recover your account if you leave it empty.
+              </Text>
+          </Text>
+          <TextInput
+            className="w-full p-2 mb-4 bg-white rounded-lg shadow-md"
+            keyboardType="numeric"
+            placeholder="Phone Number"
+            value={secondaryPhoneNumber}
+            onChangeText={setSecondaryPhoneNumber}
           />
           {/* Email */}
           <Text className="text-sm mb-2 text-gray-800">Email: (Optional)</Text>

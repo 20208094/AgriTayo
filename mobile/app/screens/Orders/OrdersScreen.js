@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import Icon from "react-native-vector-icons/Ionicons";
+import NavigationbarComponent from "../../components/NavigationbarComponent";
 
 import CompletedScreen from "./OrderCategories/CompletedScreen";
 import ForReturnScreen from "./OrderCategories/ForReturnScreen";
@@ -112,6 +113,7 @@ function OrdersScreen({ route }) {
   }
 
   return (
+    <>
     <Tab.Navigator
       initialRouteName={initialRouteName}
       screenOptions={({ route }) => ({
@@ -209,6 +211,8 @@ function OrdersScreen({ route }) {
         {() => <RejectedScreen orders={orders} orderProducts={orderProducts} />}
       </Tab.Screen>
     </Tab.Navigator>
+    <NavigationbarComponent/>
+    </>
   );
 }
 

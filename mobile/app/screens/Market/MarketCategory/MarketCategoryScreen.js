@@ -3,6 +3,7 @@ import { View, Text, SafeAreaView, ScrollView, TouchableOpacity, Image, Activity
 import { useNavigation } from "@react-navigation/native";
 import placeholderimg from '../../../assets/placeholder.png';
 import { REACT_NATIVE_API_KEY } from '@env';
+import NavigationbarComponent from '../../../components/NavigationbarComponent';
 
 const CategoryItemCard = ({ item }) => {
   const navigation = useNavigation();
@@ -306,6 +307,7 @@ function MarketCategoryScreen({ route }) {
   }
 
   return (
+    <>
     <SafeAreaView className="flex-1 bg-gray-100">
       <View className="p-4">
         <TextInput
@@ -489,7 +491,9 @@ function MarketCategoryScreen({ route }) {
           </View>
         )}
       </ScrollView>
+      <NavigationbarComponent/>
     </SafeAreaView>
+    </>
   );
 }
 

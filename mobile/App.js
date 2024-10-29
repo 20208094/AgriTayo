@@ -4,7 +4,7 @@ import { createStackNavigator } from "@react-navigation/stack";
 import { useEffect, useState } from "react";
 import { Alert } from "react-native";
 import NetInfo from "@react-native-community/netinfo";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import io from "socket.io-client";
 import SplashScreen from "./app/screens/Splash/SplashScreen";
 import LoginScreen from "./app/screens/Authentication/LoginScreen";
@@ -87,14 +87,14 @@ import CompletedBidScreen from "./app/screens/farmers/Shop/FarmersBidding/Comple
 // for chat
 import ChatScreen from "./app/screens/Chat/ChatScreen";
 import ChatListScreen from "./app/screens/Chat/ChatListScreen";
-import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from '@env';
+import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 import { SafeAreaView } from "react-native-safe-area-context";
 import FilterProductsScreen from "./app/screens/Market/FilterProductsScreen";
 import CompareShopsScreen from "./app/screens/Market/CompareShospScreen";
 const SOCKET_URL = REACT_NATIVE_API_BASE_URL;
 
 const Stack = createStackNavigator();
-const API_KEY = REACT_NATIVE_API_KEY
+const API_KEY = REACT_NATIVE_API_KEY;
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -128,7 +128,7 @@ function App() {
     try {
       const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/session`, {
         headers: {
-          'x-api-key': REACT_NATIVE_API_KEY,
+          "x-api-key": REACT_NATIVE_API_KEY,
         },
       });
 
@@ -136,16 +136,16 @@ function App() {
         const data = await response.json();
         setUserSession(data);
         await fetchUsers(data);
-        if (data.user_type_id = 2 || 1) {
+        if ((data.user_type_id = 2 || 1)) {
           await fetchShops(data);
         }
       } else {
         // if theres no logged in user, go to login screen
         setUserSession(null);
-        navigationRef.current?.navigate('Login');
+        navigationRef.current?.navigate("Login");
       }
     } catch (error) {
-      console.error('Error fetching user session:', error);
+      console.error("Error fetching user session:", error);
       setUserSession(null);
     } finally {
       setIsLoading(false); // Set loading to false regardless of outcome
@@ -156,27 +156,32 @@ function App() {
     try {
       const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/users`, {
         headers: {
-          'x-api-key': REACT_NATIVE_API_KEY,
+          "x-api-key": REACT_NATIVE_API_KEY,
         },
       });
 
       const users = await response.json();
       // get user data of the logged in user
-      const filteredUsers = users.filter(user => user.user_id === sessionData.user_id);
+      const filteredUsers = users.filter(
+        (user) => user.user_id === sessionData.user_id
+      );
       // save user data to assync storage userData
       try {
-        await AsyncStorage.setItem('userData', JSON.stringify(filteredUsers));
+        await AsyncStorage.setItem("userData", JSON.stringify(filteredUsers));
       } catch (error) {
-        console.error('Error saving userData:', error);
+        console.error("Error saving userData:", error);
       }
       // save user data to assync storage userSession
       try {
-        await AsyncStorage.setItem('userSession', JSON.stringify(filteredUsers));
+        await AsyncStorage.setItem(
+          "userSession",
+          JSON.stringify(filteredUsers)
+        );
       } catch (error) {
-        console.error('Error saving userSession:', error);
+        console.error("Error saving userSession:", error);
       }
     } catch (error) {
-      console.error('Error fetching users:', error);
+      console.error("Error fetching users:", error);
     }
   };
   // fetch all shops
@@ -184,27 +189,32 @@ function App() {
     try {
       const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/shops`, {
         headers: {
-          'x-api-key': REACT_NATIVE_API_KEY,
+          "x-api-key": REACT_NATIVE_API_KEY,
         },
       });
 
       const shops = await response.json();
       // get user data of the logged in user
-      const filteredShops = shops.filter(shop => shop.user_id === sessionData.user_id);
+      const filteredShops = shops.filter(
+        (shop) => shop.user_id === sessionData.user_id
+      );
       // save user data to assync storage userData
       try {
-        await AsyncStorage.setItem('shopData', JSON.stringify(filteredShops));
+        await AsyncStorage.setItem("shopData", JSON.stringify(filteredShops));
       } catch (error) {
-        console.error('Error saving shopData:', error);
+        console.error("Error saving shopData:", error);
       }
       // save user data to assync storage userSession
       try {
-        await AsyncStorage.setItem('shopSession', JSON.stringify(filteredShops));
+        await AsyncStorage.setItem(
+          "shopSession",
+          JSON.stringify(filteredShops)
+        );
       } catch (error) {
-        console.error('Error saving shopSession:', error);
+        console.error("Error saving shopSession:", error);
       }
     } catch (error) {
-      console.error('Error fetching shops:', error);
+      console.error("Error fetching shops:", error);
     }
   };
 
@@ -215,12 +225,12 @@ function App() {
   useEffect(() => {
     loadSessionData();
 
-    const socket = io(SOCKET_URL, { transports: ['websocket'] });
-    socket.on('connect', () => {
-      console.log('WebSocket connected:', socket.id);
+    const socket = io(SOCKET_URL, { transports: ["websocket"] });
+    socket.on("connect", () => {
+      console.log("WebSocket connected:", socket.id);
     });
-    socket.on('disconnect', () => {
-      console.log('WebSocket disconnected');
+    socket.on("disconnect", () => {
+      console.log("WebSocket disconnected");
     });
 
     return () => {
@@ -239,7 +249,7 @@ function App() {
       color: "#00B251",
     },
     headerTintColor: "#00B251",
-    headerTitleAlign: 'center'
+    headerTitleAlign: "center",
   };
 
   return (
@@ -469,72 +479,72 @@ function App() {
               options={screenOptions}
             />
             <Stack.Screen
-              name='Bidding Details'
+              name="Bidding Details"
               component={BiddingDetailsScreen}
               options={screenOptions}
             />
             <Stack.Screen
-              name='Bidding View All'
+              name="Bidding View All"
               component={BiddingViewAllScreen}
               options={screenOptions}
             />
             <Stack.Screen
-              name='Shop Bidding Details'
+              name="Shop Bidding Details"
               component={BiddingDetailsFarmersScreen}
               options={screenOptions}
             />
             <Stack.Screen
-              name='Add Bid'
+              name="Add Bid"
               component={AddBidScreen}
               options={screenOptions}
             />
             <Stack.Screen
-              name='Farmers Product Details'
+              name="Farmers Product Details"
               component={FarmersProductDetailScreen}
               options={screenOptions}
             />
             <Stack.Screen
-              name='Farmers Orders Details'
+              name="Farmers Orders Details"
               component={FarmersOrderDetailsScreen}
               options={screenOptions}
             />
             <Stack.Screen
-              name='Order Details'
+              name="Order Details"
               component={OrderDetailsScreen}
               options={screenOptions}
             />
             <Stack.Screen
-              name='Buyer Negotiation'
+              name="Buyer Negotiation"
               component={NegotiationBuyerScreen}
               options={screenOptions}
             />
             <Stack.Screen
-              name='Buyer Negotiation List'
+              name="Buyer Negotiation List"
               component={NegotiationBuyerListScreen}
               options={screenOptions}
             />
             <Stack.Screen
-              name='Seller Negotiation'
+              name="Seller Negotiation"
               component={NegotiationSellerScreen}
               options={screenOptions}
             />
             <Stack.Screen
-              name='Seller Negotiation List'
+              name="Seller Negotiation List"
               component={NegotiationSellerListScreen}
               options={screenOptions}
             />
             <Stack.Screen
-              name='Buyer Edit Negotiation'
+              name="Buyer Edit Negotiation"
               component={NegotiationBuyerEditScreen}
               options={screenOptions}
             />
             <Stack.Screen
-              name='Analytics'
+              name="Analytics"
               component={AnalyticScreen}
               options={screenOptions}
             />
             <Stack.Screen
-              name='Add Location'
+              name="Add Location"
               component={AddLocation}
               options={screenOptions}
             />
@@ -549,32 +559,32 @@ function App() {
               options={screenOptions}
             />
             <Stack.Screen
-              name='Place a Bid'
+              name="Place a Bid"
               component={PlaceABid}
               options={screenOptions}
             />
             <Stack.Screen
-              name='My Bids'
+              name="My Bids"
               component={MyBidScreen}
               options={screenOptions}
             />
             <Stack.Screen
-              name='Past Bids'
+              name="Past Bids"
               component={PastBidScreen}
               options={screenOptions}
             />
             <Stack.Screen
-              name='Won Bids'
+              name="Won Bids"
               component={WonBidScreen}
               options={screenOptions}
             />
             <Stack.Screen
-              name='Completed Bids'
+              name="Completed Bids"
               component={CompletedBidScreen}
               options={screenOptions}
             />
             <Stack.Screen
-              name='Add Another Bid'
+              name="Add Another Bid"
               component={AddAnotherBid}
               options={screenOptions}
             />
@@ -582,35 +592,40 @@ function App() {
               name="Navigator"
               options={{ ...screenOptions, headerShown: false }}
             >
-              {({ navigation }) => <Navigator fetchUserSession={(nav) => fetchUserSession(nav)} navigation={navigation} />}
+              {({ navigation }) => (
+                <Navigator
+                  fetchUserSession={(nav) => fetchUserSession(nav)}
+                  navigation={navigation}
+                />
+              )}
             </Stack.Screen>
             <Stack.Screen
-              name='View Shop Details'
+              name="View Shop Details"
               component={ViewShopDetailsScreen}
               options={screenOptions}
             />
             <Stack.Screen
-              name='Add Product'
+              name="Add Product"
               component={AddProductScreen}
               options={screenOptions}
             />
             <Stack.Screen
-              name='Seller FAQ'
+              name="Seller FAQ"
               component={SellerFaq}
               options={screenOptions}
             />
             <Stack.Screen
-              name='Chat Support'
+              name="Chat Support"
               component={ChatSupportScreen}
               options={screenOptions}
             />
             <Stack.Screen
-              name='Edit Shop'
+              name="Edit Shop"
               component={EditShopScreen}
               options={screenOptions}
             />
             <Stack.Screen
-              name='Customer FAQ'
+              name="Customer FAQ"
               component={CustomerFaq}
               options={screenOptions}
             />
@@ -621,13 +636,23 @@ function App() {
               name="Login"
               options={{ ...screenOptions, headerShown: false }}
             >
-              {({ navigation }) => <LoginScreen fetchUserSession={fetchUserSession} navigation={navigation} />}
+              {({ navigation }) => (
+                <LoginScreen
+                  fetchUserSession={fetchUserSession}
+                  navigation={navigation}
+                />
+              )}
             </Stack.Screen>
             <Stack.Screen
               name="Navigator"
               options={{ ...screenOptions, headerShown: false }}
             >
-              {({ navigation }) => <Navigator fetchUserSession={(nav) => fetchUserSession(nav)} navigation={navigation} />}
+              {({ navigation }) => (
+                <Navigator
+                  fetchUserSession={(nav) => fetchUserSession(nav)}
+                  navigation={navigation}
+                />
+              )}
             </Stack.Screen>
             <Stack.Screen
               name="Register"
@@ -662,7 +687,7 @@ function App() {
           </>
         )}
       </Stack.Navigator>
-    </NavigationContainer >
+    </NavigationContainer>
   );
 }
 

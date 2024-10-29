@@ -11,6 +11,7 @@ import {
 import { useNavigation, useRoute } from "@react-navigation/native";
 import placeholderimg from "../../../assets/placeholder.png"; // Import the placeholder image
 import { REACT_NATIVE_API_KEY } from "@env";
+import NavigationbarComponent from "../../../components/NavigationbarComponent";
 
 function MarketCategoryListScreen() {
   const [items, setItems] = useState([]);
@@ -56,7 +57,7 @@ function MarketCategoryListScreen() {
 
   if (loading) {
     return (
-      <SafeAreaView className="flex-1 justify-center items-center bg-gray-200">
+      <SafeAreaView className="flex-1 justify-center items-center bg-gray-200 pb-14">
         <ActivityIndicator size="large" color="#0000ff" />
       </SafeAreaView>
     );
@@ -73,7 +74,8 @@ function MarketCategoryListScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 p-4 bg-gray-200">
+    <>
+    <SafeAreaView className="p-4 bg-gray-200">
       <ScrollView>
         <View className="flex-col">
           {items.map((item) => (
@@ -111,6 +113,8 @@ function MarketCategoryListScreen() {
         </View>
       </ScrollView>
     </SafeAreaView>
+    <NavigationbarComponent/>
+    </>
   );
 }
 
