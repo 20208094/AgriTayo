@@ -11,6 +11,7 @@ import {
   Alert,
   ActivityIndicator,
   Keyboard,
+  Modal,
 } from 'react-native';
 import io from 'socket.io-client';
 import * as ImagePicker from 'expo-image-picker';
@@ -22,6 +23,7 @@ import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from '@env';
 import moment from 'moment';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Ionicons } from "@expo/vector-icons";
 
 // Styled components with NativeWind
 const Container = styled(View, 'flex-1 bg-white p-4');
@@ -48,6 +50,9 @@ function ChatScreen({ route }) {
   const [loading, setLoading] = useState(false);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const [userData, setUserData] = useState(null);
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+
 
   const socket = useRef(null);
   const { receiverId, receiverName, senderId, receiverType, senderType, receiverImage } = route.params;
@@ -188,10 +193,12 @@ function ChatScreen({ route }) {
         }
       } catch (error) {
         console.error('Error sending message:', error);
-        Alert.alert('Error', 'Network request failed. Please check your connection.');
+        setAlertMessage('Error', 'Network request failed. Please check your connection.');
+        setAlertVisible(true);
       }
     } else {
-      Alert.alert('Error', 'Message or image is required.');
+      setAlertMessage('Error', 'Message or image is required.');
+      setAlertVisible(true);
     }
   };
 
@@ -334,7 +341,29 @@ function ChatScreen({ route }) {
           />
         )}
       </Container>
+      {/* Alert Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={alertVisible}
+        onRequestClose={() => setAlertVisible(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black/50 bg-opacity-50">
+          <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
+            <Text className="text-lg font-semibold text-gray-900 mb-4">{alertMessage}</Text>
+            <TouchableOpacity
+              className="mt-4 p-2 bg-[#00B251] rounded-lg flex-row justify-center items-center"
+              onPress={() => setAlertVisible(false)}
+            >
+              <Ionicons name="checkmark-circle-outline" size={24} color="white" />
+              <Text className="text-lg text-white ml-2">OK</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </KeyboardAvoidingView>
+
+    
   );
 }
 

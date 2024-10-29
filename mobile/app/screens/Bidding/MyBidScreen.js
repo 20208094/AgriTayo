@@ -6,6 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Image,
+  Modal,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
@@ -16,6 +17,9 @@ import NavigationbarComponent from "../../components/NavigationbarComponent";
 function MyBidScreen({ navigation }) {
   const [myBidData, setMyBidData] = useState([]);
   const [userId, setUserId] = useState(null);
+  
+ const [alertVisible, setAlertVisible] = useState(false);
+ const [alertMessage, setAlertMessage] = useState("");
 
   const fetchUserId = async () => {
     try {
@@ -86,7 +90,8 @@ function MyBidScreen({ navigation }) {
       });
       setMyBidData(activeBids);
     } catch (error) {
-      alert(`Error: ${error.message}`);
+      setAlertMessage(`Error: ${error.message}`);
+      setAlertVisible(true);
     }
   };
 
@@ -238,6 +243,26 @@ function MyBidScreen({ navigation }) {
           )}
         </View>
       </ScrollView>
+      {/* Alert Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={alertVisible}
+        onRequestClose={() => setAlertVisible(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black/50 bg-opacity-50">
+          <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
+            <Text className="text-lg font-semibold text-gray-900 mb-4">{alertMessage}</Text>
+            <TouchableOpacity
+              className="mt-4 p-2 bg-[#00B251] rounded-lg flex-row justify-center items-center"
+              onPress={() => setAlertVisible(false)}
+            >
+              <Ionicons name="checkmark-circle-outline" size={24} color="white" />
+              <Text className="text-lg text-white ml-2">OK</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
     <NavigationbarComponent/>
     </>

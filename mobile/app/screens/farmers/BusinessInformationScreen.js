@@ -13,9 +13,14 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { FontAwesome } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
+import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 function BusinessInformationScreen({ navigation, route }) {
   const { userData, shopData } = route.params;
+
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
 
   const [selectedBusinessInformation, setSelectedBusinessInformation] = useState("");
   const [tin, setTin] = useState("");
@@ -68,51 +73,38 @@ function BusinessInformationScreen({ navigation, route }) {
 
   // Image Picker Handlers
   const selectImageFromGallery = async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status === "granted") {
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        quality: 1,
-      });
-      if (!result.canceled) {
-        setBirCertificate({ uri: result.assets[0].uri });
-        setModalVisible(false);
-      }
-    } else {
-      alert("Permission to access gallery is required.");
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permissionResult.granted) {
+      setAlertMessage("Permission Required", "Permission to access the gallery is required.");
+      setAlertVisible(true);
+      return;
+    }
+
+    const pickerResult = await ImagePicker.launchImageLibraryAsync({
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 1,
+    });
+
+    if (!pickerResult.canceled) {
+      setBirCertificate(pickerResult.assets[0].uri);
+      setModalVisible(false);
     }
   };
 
-  const takePicture = async () => {
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    if (status === "granted") {
-      const result = await ImagePicker.launchCameraAsync({
-        quality: 1,
-      });
-      if (!result.canceled) {
-        setBirCertificate({ uri: result.assets[0].uri });
-        setModalVisible(false);
-      }
-    } else {
-      alert("Camera permission is required.");
-    }
-  };
-
-  useEffect(() => {
-    console.log("Received shopData:", shopData); // Debugging check
-  }, []);
-
-
+ 
   const handleSubmit = async () => {
     setAttemptedSubmit(true);
   
     if (!validateForm()) {
-      Alert.alert("Error", "Please complete all required fields.");
+      setAlertMessage("Error", "Please complete all required fields.");
+      setAlertVisible(true);
       return;
     }
   
     try {
       const formData = new FormData();
+      
       formData.append("shop_name", shopData.shop_name);
       formData.append("shop_description", shopData.shop_description);
       formData.append("shop_address", shopData.shop_address);
@@ -128,22 +120,27 @@ function BusinessInformationScreen({ navigation, route }) {
   
       formData.append("user_id", userData.user_id);
       formData.append("submit_later", selectedBusinessInformation === "later" ? 1 : 0);
-  
-      // Conditionally add shop_image_url if it exists
-      if (shopData.shop_image_url) {
-        formData.append("shop_image_url", shopData.shop_image_url);
+      console.log(shopData.shop_image);
+      
+      if (shopData.shop_image) {
+        formData.append('shop_image', {
+          uri: shopData.shop_image,
+          name: 'profile.jpg',
+          type: 'image/jpeg',
+        });
       }
   
       if (selectedBusinessInformation === "now") {
         formData.append("tin_number", tin);
   
         if (birCertificate) {
-          formData.append("bir_image_url", {
-            uri: birCertificate.uri,
-            name: "bir_certificate.jpg",
-            type: "image/jpeg",
+          formData.append('bir_image', {
+            uri: birCertificate,
+            name: 'profile.jpg',
+            type: 'image/jpeg',
           });
         }
+
       }
   
       // Log the formData to verify it's correctly populated
@@ -154,24 +151,38 @@ function BusinessInformationScreen({ navigation, route }) {
         method: "POST",
         body: formData,
         headers: {
-          "Content-Type": "multipart/form-data",
           "x-api-key": REACT_NATIVE_API_KEY,
         },
       });
   
       const data = await response.json();
       if (response.ok) {
-        Alert.alert("Success", "Shop created successfully!");
-        navigation.reset({
-          index: 0,
-          routes: [{ name: "HomePageScreen" }],
+        const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/shops`, {
+          headers: {
+            'x-api-key': REACT_NATIVE_API_KEY,
+          },
         });
+  
+        const shops = await response.json();
+        // get user data of the logged in user
+        const filteredShops = shops.filter(shop => shop.user_id === userData.user_id);
+        // save user data to assync storage userData
+        try {
+          await AsyncStorage.setItem('shopData', JSON.stringify(filteredShops));
+        } catch (error) {
+          console.error('Error saving shopData:', error);
+        }
+        setAlertMessage("Success, Shop created successfully!");
+        setAlertVisible(true);
+        // navigation.pop(3)
       } else {
-        Alert.alert("Error", data.message || "Failed to create shop");
+        setAlertMessage("Error, Failed to create shop");
+        setAlertVisible(true);
       }
     } catch (error) {
       console.error("Error while creating shop:", error);
-      Alert.alert("Error", "Failed to create shop. Please try again.");
+      setAlertMessage("Error, Failed to create shop. Please try again.");
+      setAlertVisible(true);
     }
   };
   
@@ -268,7 +279,7 @@ function BusinessInformationScreen({ navigation, route }) {
         </TouchableOpacity>
 
         {birCertificate && (
-          <Image source={{ uri: birCertificate.uri || "https://via.placeholder.com/150" }} className="w-24 h-24 mb-4" />
+          <Image source={{ uri: birCertificate }} className="w-24 h-24 mb-4" />
         )}
 
         <Text className="text-sm text-gray-500 mb-4">
@@ -303,12 +314,6 @@ function BusinessInformationScreen({ navigation, route }) {
             </Text>
             <TouchableOpacity
               className="bg-green-600 p-4 rounded-md mb-4"
-              onPress={takePicture}
-            >
-              <Text className="text-white text-center">Take a Picture</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              className="bg-green-600 p-4 rounded-md mb-4"
               onPress={selectImageFromGallery}
             >
               <Text className="text-white text-center">Select from Gallery</Text>
@@ -318,6 +323,27 @@ function BusinessInformationScreen({ navigation, route }) {
               onPress={() => setModalVisible(false)}
             >
               <Text className="text-black text-center">Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Alert Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={alertVisible}
+        onRequestClose={() => setAlertVisible(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black/50 bg-opacity-50">
+          <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
+            <Text className="text-lg font-semibold text-gray-900 mb-4">{alertMessage}</Text>
+            <TouchableOpacity
+              className="mt-4 p-2 bg-[#00B251] rounded-lg flex-row justify-center items-center"
+              onPress={() => setAlertVisible(false)}
+            >
+              <Ionicons name="checkmark-circle-outline" size={24} color="white" />
+              <Text className="text-lg text-white ml-2">OK</Text>
             </TouchableOpacity>
           </View>
         </View>

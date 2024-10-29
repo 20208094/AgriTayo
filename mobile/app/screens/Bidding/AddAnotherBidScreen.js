@@ -15,6 +15,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
+
 function AddAnotherBid({ route, navigation }) {
   const { myBidId } = route.params;
 
@@ -29,6 +30,8 @@ function AddAnotherBid({ route, navigation }) {
   const [isLoading, setIsLoading] = useState(false);
   const [numberOfBids, setNumberOfBids] = useState(0);
   const [modalVisible, setModalVisible] = useState(false); // State for modal visibility
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
 
   // Function to calculate time left
   const calculateTimeLeft = (endDate) => {
@@ -74,7 +77,8 @@ function AddAnotherBid({ route, navigation }) {
       setTimeLeft(calculateTimeLeft(bidData.end_date));
 
     } catch (error) {
-      alert(`Error: ${error.message}`);
+      setAlertMessage(`Error: ${error.message}`);
+      setAlertVisible(true);
     } finally {
       setIsLoading(false);
     }
@@ -167,14 +171,17 @@ function AddAnotherBid({ route, navigation }) {
 
         if (!response.ok) {
           const errorResponseText = await response.text();
-          alert(`Failed to place bid: ${errorResponseText}`);
+          setAlertMessage(`Failed to place bid: ${errorResponseText}`);
+          setAlertVisible(true);
           return;
         } else {
-          Alert.alert('Success!', 'Bid Successfully Added');
+          setAlertMessage('Success!', 'Bid Successfully Added');
+          setAlertVisible(true);
           navigation.navigate("My Bids");
         }
       } catch (error) {
-        alert("Network error. Please try again later.");
+        setAlertMessage("Network error. Please try again later.");
+        setAlertVisible(true);
       } finally {
         setLoading(false);
       }
@@ -292,6 +299,27 @@ function AddAnotherBid({ route, navigation }) {
                 <Text className="text-white">Yes</Text>
               </TouchableOpacity>
             </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Alert Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={alertVisible}
+        onRequestClose={() => setAlertVisible(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black/50 bg-opacity-50">
+          <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
+            <Text className="text-lg font-semibold text-gray-900 mb-4">{alertMessage}</Text>
+            <TouchableOpacity
+              className="mt-4 p-2 bg-[#00B251] rounded-lg flex-row justify-center items-center"
+              onPress={() => setAlertVisible(false)}
+            >
+              <Ionicons name="checkmark-circle-outline" size={24} color="white" />
+              <Text className="text-lg text-white ml-2">OK</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>

@@ -19,6 +19,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { Ionicons } from "@expo/vector-icons";
 
 const StyledView = styled(View);
 const StyledText = styled(Text);
@@ -34,6 +35,9 @@ function CartScreen() {
   const [loading, setLoading] = useState(true);
   const [isSwiped, setIsSwiped] = useState(false);
   const [selectedShopIndex, setSelectedShopIndex] = useState(null);
+
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
 
   useEffect(() => {
     if (userData) {
@@ -97,7 +101,8 @@ function CartScreen() {
       return allCrops; // Return fetched crops
     } catch (error) {
       console.error("Error fetching crops:", error);
-      Alert.alert("Error", "Could not fetch crops, please try again later.");
+      setAlertMessage("Error", "Could not fetch crops, please try again later.");
+      setAlertVisible(true);
       return []; // Return an empty array on error
     }
   };
@@ -105,7 +110,8 @@ function CartScreen() {
   const fetchCarts = async () => {
     // Ensure userId is present before making the fetch call
     if (!userId) {
-      Alert.alert("User ID is not available", "Please log in to access your cart.");
+      setAlertMessage("User ID is not available", "Please log in to access your cart.");
+      setAlertVisible(true);
       return [];
     }
 
@@ -140,7 +146,8 @@ function CartScreen() {
       return flattenedCarts;
     } catch (error) {
       console.error("Error fetching carts:", error);
-      Alert.alert("Error", "Could not fetch carts, please try again later.");
+      setAlertMessage("Error", "Could not fetch carts, please try again later.");
+      setAlertVisible(true);
       return [];
     }
   };
@@ -203,7 +210,8 @@ function CartScreen() {
 
       } catch (error) {
         console.error("Error initializing data:", error);
-        Alert.alert("Error", "Failed to initialize cart data. Please try again later.");
+        setAlertMessage("Error", "Failed to initialize cart data. Please try again later.");
+        setAlertVisible(true);
       }
     } else {
       console.warn("User ID not available");
@@ -260,7 +268,8 @@ function CartScreen() {
       }
     } catch (error) {
       console.error('Error updating cart:', error);
-      Alert.alert("Error", "Could not update cart, please try again.");
+      setAlertMessage("Error", "Could not update cart, please try again.");
+      setAlertVisible(true);
     }
   };
 
@@ -280,7 +289,8 @@ function CartScreen() {
       }
     } catch (error) {
       console.error('Error updating cart:', error);
-      Alert.alert("Error", "Could not delete cart, please try again.");
+      setAlertMessage("Error", "Could not delete cart, please try again.");
+      setAlertVisible(true);
     }
   };
 
@@ -528,7 +538,8 @@ function CartScreen() {
     );
 
     if (selectedItems.length === 0) {
-      Alert.alert("No items selected", "Please select items to proceed to checkout.");
+      setAlertMessage("No items selected", "Please select items to proceed to checkout.");
+      setAlertVisible(true);
     } else {
       navigation.navigate("CheckOutScreen", { items: selectedItems, user: userData, order_type: 'normal', cart_type: 'cart' });
     }
@@ -575,7 +586,28 @@ function CartScreen() {
           </View>
         </View>
       </Modal>
+      {/* Alert Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={alertVisible}
+        onRequestClose={() => setAlertVisible(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black/50 bg-opacity-50">
+          <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
+            <Text className="text-lg font-semibold text-gray-900 mb-4">{alertMessage}</Text>
+            <TouchableOpacity
+              className="mt-4 p-2 bg-[#00B251] rounded-lg flex-row justify-center items-center"
+              onPress={() => setAlertVisible(false)}
+            >
+              <Ionicons name="checkmark-circle-outline" size={24} color="white" />
+              <Text className="text-lg text-white ml-2">OK</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </StyledView>
+    
   );
 }
 

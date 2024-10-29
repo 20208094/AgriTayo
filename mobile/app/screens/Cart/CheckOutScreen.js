@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, FlatList, SafeAreaView, Modal } from "rea
 import { useNavigation, useRoute, useFocusEffect } from "@react-navigation/native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons"; // Add vector icons
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
+import { Ionicons } from "@expo/vector-icons";
 
 function CheckOutScreen() {
   const navigation = useNavigation();
@@ -12,6 +13,9 @@ function CheckOutScreen() {
   const [shopDetails, setShopDetails] = useState(null);
   const [selectedShippingMethod, setSelectedShippingMethod] = useState(null);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(null);
+
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
 
   const totalPrice = checkedOutItems.reduce(
     (total, item) => total + item.crop_price * item.cart_total_quantity,
@@ -226,11 +230,13 @@ function CheckOutScreen() {
         navigation.navigate("Orders", { screen: "To Confirm" })
       } else {
         console.error('Failed to place order:', response.statusText);
-        alert('Failed to place order. Please try again.');
+        alertMessage('Failed to place order. Please try again.');
+        alertVisible(true);
       }
     } catch (error) {
       console.error('Error placing order:', error);
-      alert('Network error. Please try again later.');
+      alertMessage('Network error. Please try again later.');
+      alertVisible(true);
     } finally {
       setModalVisible(false);
     }
@@ -300,6 +306,26 @@ function CheckOutScreen() {
             </TouchableOpacity>
           </View>
         </TouchableOpacity>
+      </Modal>
+      {/* Alert Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={alertVisible}
+        onRequestClose={() => setAlertVisible(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black/50 bg-opacity-50">
+          <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
+            <Text className="text-lg font-semibold text-gray-900 mb-4">{alertMessage}</Text>
+            <TouchableOpacity
+              className="mt-4 p-2 bg-[#00B251] rounded-lg flex-row justify-center items-center"
+              onPress={() => setAlertVisible(false)}
+            >
+              <Ionicons name="checkmark-circle-outline" size={24} color="white" />
+              <Text className="text-lg text-white ml-2">OK</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
       </Modal>
     </SafeAreaView>
   );
