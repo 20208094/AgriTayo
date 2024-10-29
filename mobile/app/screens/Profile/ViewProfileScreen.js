@@ -144,6 +144,9 @@ function ViewProfileScreen({ route, navigation }) {
       });
     }
 
+    console.log('profileImage :', profileImage);
+    console.log('formData :', formData);
+
     try {
       const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/users/${userData.user_id}`, {
         method: 'PUT',

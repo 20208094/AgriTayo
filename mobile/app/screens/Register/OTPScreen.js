@@ -14,8 +14,6 @@ import { io } from 'socket.io-client';
 function OTPScreen({ route, navigation }) {
   const { formData, phone } = route.params;
 
-  console.log(phone)
-
   const [generatedCode, setGeneratedCode] = useState("");
 
   const socket = io( REACT_NATIVE_API_BASE_URL);

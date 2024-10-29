@@ -12,20 +12,21 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 import placeholderimg from "../../../assets/placeholder.png";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 
-function MarketCategoryListScreen() {
+function MarketVarietyListScreen() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigation = useNavigation();
   const route = useRoute();
-  const { category } = route.params;
+  const { subcategoryId } = route.params;
+  console.log('subcategoryId :', subcategoryId);
   const API_KEY = REACT_NATIVE_API_KEY;
 
   // Fetch crop sub category data from API
-  const fetchCropSubCategories = async () => {
+  const fetchCropVarieties = async () => {
     try {
       const response = await fetch(
-        `${REACT_NATIVE_API_BASE_URL}/api/crop_sub_categories`,
+        `${REACT_NATIVE_API_BASE_URL}/api/crop_varieties`,
         {
           headers: {
             "x-api-key": API_KEY,
@@ -36,9 +37,9 @@ function MarketCategoryListScreen() {
         throw new Error("Network response was not ok");
       }
       const data = await response.json();
-      // Filter crops based on the category_id
+      
       const filteredItems = data.filter(
-        (item) => item.crop_category_id === category
+        (item) => item.crop_sub_category_id === subcategoryId
       );
       setItems(filteredItems);
     } catch (error) {
@@ -49,10 +50,9 @@ function MarketCategoryListScreen() {
     }
   };
 
-  // Fetch crops when screen is focused
   useEffect(() => {
-    fetchCropSubCategories();
-  }, [category]);
+    fetchCropVarieties();
+  }, [subcategoryId]);
 
   if (loading) {
     return (
@@ -78,20 +78,21 @@ function MarketCategoryListScreen() {
         <View className="flex-col">
           {items.map((item) => (
             <TouchableOpacity
-              key={item.crop_sub_category_id}
+              key={item.crop_variety_id}
               onPress={() =>
-                navigation.navigate("Market Variety", {
-                  subcategoryId: item.crop_sub_category_id,
+                navigation.navigate("Product List", {
+                  variety: items,
+                  selectedItemId: item.crop_variety_id,
                 })
               }
               className="bg-white rounded-lg shadow-md flex-row items-start p-4 mb-4 border border-gray-300"
-              style={{ elevation: 3 }} // Adds shadow effect
-              activeOpacity={0.8} // Provides visual feedback when pressed
+              style={{ elevation: 3 }} 
+              activeOpacity={0.8}
             >
               <Image
                 source={
-                  item.crop_sub_category_image_url
-                    ? { uri: item.crop_sub_category_image_url }
+                  item.crop_variety_image_url
+                    ? { uri: item.crop_variety_image_url }
                     : placeholderimg
                 }
                 className="w-24 h-24 rounded-lg mr-4"
@@ -99,10 +100,10 @@ function MarketCategoryListScreen() {
               />
               <View className="flex-1">
                 <Text className="text-lg font-semibold text-gray-800 mb-1">
-                  {item.crop_sub_category_name}
+                  {item.crop_variety_name}
                 </Text>
                 <Text className="text-sm text-gray-600">
-                  {item.crop_sub_category_description}
+                  {item.crop_variety_description}
                 </Text>
               </View>
             </TouchableOpacity>
@@ -113,4 +114,4 @@ function MarketCategoryListScreen() {
   );
 }
 
-export default MarketCategoryListScreen;
+export default MarketVarietyListScreen;

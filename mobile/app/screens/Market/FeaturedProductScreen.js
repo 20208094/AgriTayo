@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, SafeAreaView, ScrollView, TouchableOpacity, Image, ActivityIndicator, Modal, TextInput } from 'react-native';
+import { View, Text, SafeAreaView, ScrollView, TouchableOpacity, Image, ActivityIndicator, Modal, TextInput, Pressable } from 'react-native';
 import { useNavigation } from "@react-navigation/native";
 import placeholderimg from '../../assets/placeholder.png';
 import Icon from "react-native-vector-icons/FontAwesome5";
@@ -8,7 +8,6 @@ import LoadingAnimation from '../../components/LoadingAnimation';
 
 const CategoryItemCard = ({ item }) => {
   const navigation = useNavigation();
-
   return (
     <TouchableOpacity
       className="w-[48%] bg-white rounded-lg shadow-md mb-4"
@@ -21,6 +20,8 @@ const CategoryItemCard = ({ item }) => {
       />
       <View className="p-4">
         <Text className="text-lg font-semibold text-gray-800">{item.crop_name}</Text>
+        {/* <Text className="text-sm text-gray-600 mt-1">Size: {item.size.crop_size_name}</Text> */}
+        <Text className="text-sm text-gray-600 mt-1">Class: {item.crop_class}</Text>
         <Text className="text-sm text-gray-600 mt-1">{item.crop_description}</Text>
         <Text className="text-base font-bold text-green-600 mt-2">₱ {item.crop_price}</Text>
         <Text className="text-sm text-gray-600">⭐ {item.crop_rating}</Text>
@@ -44,11 +45,12 @@ function FeaturedProductScreen({ route }) {
   const [selectedSubCategories, setSelectedSubCategories] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const navigation = useNavigation();
+  const [modalVisible, setModalVisible] = useState(false);
+  const [currentSort, setCurrentSort] = useState({ method: 'price', order: 'asc' });
 
   const API_KEY = REACT_NATIVE_API_KEY;
 
   useEffect(() => {
-    // This ensures the hook is not conditionally rendered
     if (selectedProduct) {
       console.log('Selected product received:', selectedProduct);
     }
@@ -57,14 +59,13 @@ function FeaturedProductScreen({ route }) {
 
   const fetchAllCrops = useCallback(async () => {
     try {
-      // setLoading(true);
-      const response = await fetch('https://agritayo.azurewebsites.net/api/crops', {
+      const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crops`, {
         headers: {
           'x-api-key': API_KEY
         }
       });
       const data = await response.json();
-      setCrops(data);  // Set all crops in state
+      setCrops(data);
     } catch (error) {
       setError(error);
       console.error('Error fetching all crops:', error);
@@ -76,7 +77,7 @@ function FeaturedProductScreen({ route }) {
   const fetchCategories = async () => {
     try {
       const response = await fetch(
-        "https://agritayo.azurewebsites.net/api/crop_categories",
+        `${REACT_NATIVE_API_BASE_URL}/api/crop_categories`,
         {
           headers: {
             "x-api-key": API_KEY,
@@ -93,7 +94,7 @@ function FeaturedProductScreen({ route }) {
   const fetchSubCategories = async () => {
     try {
       const response = await fetch(
-        "https://agritayo.azurewebsites.net/api/crop_sub_categories",
+        `${REACT_NATIVE_API_BASE_URL}/api/crop_sub_categories`,
         {
           headers: {
             "x-api-key": API_KEY,
@@ -110,7 +111,7 @@ function FeaturedProductScreen({ route }) {
   const fetchCropsFiltering = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await fetch('https://agritayo.azurewebsites.net/api/crops', {
+      const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crops`, {
         headers: {
           'x-api-key': API_KEY
         }
@@ -118,7 +119,7 @@ function FeaturedProductScreen({ route }) {
       const data = await response.json();
 
       if (selectedSubCategories.length > 0) {
-        const filteredCrops = data.filter(crop => selectedSubCategories.includes(crop.sub_category_id));
+        const filteredCrops = data.filter(crop => selectedSubCategories.includes(crop.sub_variety_id));
         setCrops(filteredCrops);
       } else {
         setCrops([]);
@@ -131,17 +132,31 @@ function FeaturedProductScreen({ route }) {
     }
   }, [API_KEY, selectedSubCategories]);
 
-  const fetchCrops = useCallback(async (subCategoryId) => {
+  const fetchCrops = useCallback(async (selectedItemId) => {
     try {
       setLoading(true);
-      const response = await fetch('https://agritayo.azurewebsites.net/api/crops', {
+      const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crops`, {
         headers: {
           'x-api-key': API_KEY
         }
       });
+      const sizeResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_sizes`, {
+        headers: {
+          "x-api-key": API_KEY,
+        },
+      });
       const data = await response.json();
-      const filteredCrops = data.filter(crop => crop.sub_category_id === subCategoryId);
-      setCrops(filteredCrops);
+      const sizes = await sizeResponse.json();
+      const filteredCrops = data.filter(crop => crop.crop_variety_id === selectedItemId);
+
+      const combinedData = filteredCrops.map(crop => {
+        const actualSize = sizes.find(size => size.crop_size_id === (crop ? crop.crop_size_id : null));
+        return {
+          ...crop,
+          size: actualSize ? actualSize : null,
+        };
+      });
+      setCrops(combinedData);
     } catch (error) {
       setError(error);
       console.error('Error fetching crops data:', error);
@@ -149,114 +164,6 @@ function FeaturedProductScreen({ route }) {
       setLoading(false);
     }
   }, [API_KEY]);
-
-  const toggleCategoriesModal = () => {
-    setShowCategoriesModal(prevState => !prevState);
-  };
-
-  const toggleCategorySelection = (categoryId) => {
-    const isSelected = selectedCategories.includes(categoryId);
-
-    const updatedSelectedCategories = isSelected
-      ? selectedCategories.filter(id => id !== categoryId)
-      : [...selectedCategories, categoryId];
-
-    setSelectedCategories(updatedSelectedCategories);
-
-    // Reset selectedProduct when changing categories
-    if (!isSelected) {
-      // Clear the selected product if a new category is selected
-      setSelectedProduct(null);
-    }
-
-    const subCategoriesForSelectedCategory = subCategories
-      .filter(subCategory => subCategory.crop_category_id === categoryId)
-      .map(subCategory => subCategory.crop_sub_category_id);
-
-    setSelectedSubCategories(prevSelectedSubCategories => {
-      if (isSelected) {
-        return prevSelectedSubCategories.filter(id => !subCategoriesForSelectedCategory.includes(id));
-      } else {
-        return [...new Set([...prevSelectedSubCategories, ...subCategoriesForSelectedCategory])];
-      }
-    });
-
-    setActiveSubCategories(prevActiveSubCategories => ({
-      ...prevActiveSubCategories,
-      [categoryId]: !prevActiveSubCategories[categoryId],
-    }));
-
-  };
-
-  const toggleDropdown = (categoryId) => {
-    setOpenDropdown(prevState => ({
-      ...prevState,
-      [categoryId]: !prevState[categoryId]
-    }));
-  };
-
-
-  const toggleSubCategorySelection = (subCategoryId, categoryId) => {
-    const subCategoriesForSelectedCategory = subCategories
-      .filter(subCategory => subCategory.crop_category_id === categoryId)
-      .map(subCategory => subCategory.crop_sub_category_id);
-
-    setSelectedSubCategories(prevSelectedSubCategories => {
-      const isSelected = prevSelectedSubCategories.includes(subCategoryId);
-
-      let updatedSelectedSubCategories;
-      if (isSelected) {
-        updatedSelectedSubCategories = prevSelectedSubCategories.filter(id => id !== subCategoryId);
-      } else {
-        updatedSelectedSubCategories = [...prevSelectedSubCategories, subCategoryId];
-      }
-
-      const allSelected = subCategoriesForSelectedCategory.every(id =>
-        updatedSelectedSubCategories.includes(id)
-      );
-
-      if (allSelected) {
-        setOpenDropdown(prevState => ({
-          ...prevState,
-          [categoryId]: false,
-        }));
-      }
-
-      return updatedSelectedSubCategories;
-    });
-  };
-
-  const toggleAllSubCategories = (categoryId) => {
-    const subCategoriesForSelectedCategory = subCategories
-      .filter(subCategory => subCategory.crop_category_id === categoryId)
-      .map(subCategory => subCategory.crop_sub_category_id);
-
-    const allSelectedForCategory = subCategoriesForSelectedCategory.every(subCategoryId =>
-      selectedSubCategories.includes(subCategoryId)
-    );
-
-    setSelectedSubCategories(prevSelectedSubCategories => {
-      if (allSelectedForCategory) {
-        return prevSelectedSubCategories.filter(id => !subCategoriesForSelectedCategory.includes(id));
-      } else {
-        return [...new Set([...prevSelectedSubCategories, ...subCategoriesForSelectedCategory])];
-      }
-    });
-
-    setActiveSubCategories(prevActiveSubCategories => ({
-      ...prevActiveSubCategories,
-      [categoryId]: !allSelectedForCategory,
-    }));
-  };
-
-  const closeModalAndUpdateCrops = (categoryId) => {
-    setOpenDropdown(prevState => ({
-      ...prevState,
-      [categoryId]: false,
-    }));
-
-    fetchCropsFiltering();
-  };
 
   useEffect(() => {
     fetchCategories();
@@ -286,9 +193,48 @@ function FeaturedProductScreen({ route }) {
     setSearchQuery(text);
   };
 
-  const filteredCrops = crops.filter(crop =>
-    crop.crop_name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredCrops = crops.filter(crop => {
+    const searchLower = searchQuery.toLowerCase();
+
+    // Convert values to strings for consistent comparison and handle undefined values.
+    const name = crop.crop_name?.toLowerCase() || "";
+    const description = crop.crop_description?.toLowerCase() || "";
+    const price = crop.crop_price?.toString() || "";
+    const rating = crop.crop_rating?.toString() || "";
+    const sizeName = crop.size?.crop_size_name?.toLowerCase() || "";
+    const cropClass = crop.crop_class?.toLowerCase() || "";
+
+    return (
+      name.includes(searchLower) ||
+      description.includes(searchLower) ||
+      price.includes(searchLower) ||
+      rating.includes(searchLower) ||
+      cropClass.includes(searchLower) ||
+      sizeName.includes(searchLower)
+    );
+  });
+  
+  const sortOptions = [
+    { method: 'price', iconAsc: 'sort-amount-down-alt', iconDesc: 'sort-amount-up' },
+    { method: 'rating', iconAsc: 'sort-amount-down-alt', iconDesc: 'sort-amount-up' },
+    { method: 'available', iconAsc: 'sort-amount-down-alt', iconDesc: 'sort-amount-up' }
+  ];
+
+  const handleSort = (sortBy, order) => {
+    let sortedData;
+    if (sortBy === 'price') {
+      sortedData = [...crops].sort((a, b) => order === 'asc' ? a.crop_price - b.crop_price : b.crop_price - a.crop_price);
+    } else if (sortBy === 'rating') {
+      sortedData = [...crops].sort((a, b) => order === 'asc' ? a.crop_rating - b.crop_rating : b.crop_rating - a.crop_rating);
+    } else if (sortBy === 'available') {
+      sortedData = [...crops].sort((a, b) => order === 'asc' ? a.crop_quantity - b.crop_quantity : b.crop_quantity - a.crop_quantity);
+    } else if (sortBy === 'class') {
+      sortedData = [...crops].sort((a, b) => order === 'asc' ? a.crop_class.localeCompare(b.crop_class) : b.crop_class.localeCompare(a.crop_class));
+    }
+    setCrops(sortedData);
+    setCurrentSort({ method: sortBy, order }); // Update current sorting method
+    setModalVisible(false); // Close modal after sorting
+  };
 
   if (loading) {
     return <LoadingAnimation />;
@@ -304,175 +250,29 @@ function FeaturedProductScreen({ route }) {
 
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
-      <View className="p-4 flex-row align-middle items-center">
+      <View className="p-4 py-1 flex-row items-center space-x-3 bg-white shadow-sm">
         <TouchableOpacity
-          className="flex py-2 w-12 align-middle items-center rounded-xl mr-2 bg-[#00B251]"
+          className="flex w-10 h-10 items-center justify-center rounded-lg bg-[#00B251] shadow-md"
           onPress={() => navigation.navigate("Filter Products")}
         >
-          <Icon name="filter" size={30} color="white" />
+          <Icon name="filter" size={18} color="white" />
         </TouchableOpacity>
-        <TextInput
-          placeholder="Search crops..."
-          value={searchQuery}
-          onChangeText={handleSearch}
-          className="bg-white p-3 rounded-lg shadow-md flex-1 border border-[#00B251]"
-        />
-      </View>
-
-      <View className="flex-row items-center p-4">
         <TouchableOpacity
-          className="bg-green-500 rounded-full px-4 py-2"
-          onPress={toggleCategoriesModal}
+          className="flex w-10 h-10 items-center justify-center rounded-lg bg-[#00B251] shadow-md"
+          onPress={() => setModalVisible(true)}
         >
-          <Text className="text-white">Categories</Text>
+          <Icon name="sort" size={18} color="white" />
         </TouchableOpacity>
-
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} className="ml-2">
-          {selectedCategories.map(categoryId => {
-            const category = categories.find(c => c.crop_category_id === categoryId);
-            if (!category) return null;
-
-            const filteredSubCategories = subCategories.filter(subCategory => subCategory.crop_category_id === categoryId);
-
-            return (
-              <View key={categoryId} className="flex-row items-center mr-2">
-                <TouchableOpacity
-                  className="bg-gray-200 rounded-full px-4 py-2 flex-row justify-between items-center"
-                  onPress={() => toggleDropdown(categoryId)}
-                >
-                  <Text>{category.crop_category_name}</Text>
-
-                  <TouchableOpacity
-                    className="ml-2"
-                    onPress={() => {
-                      setSelectedCategories(prevSelectedCategories =>
-                        prevSelectedCategories.filter(id => id !== categoryId)
-                      );
-
-                      const subCategoriesForSelectedCategory = subCategories
-                        .filter(subCategory => subCategory.crop_category_id === categoryId)
-                        .map(subCategory => subCategory.crop_sub_category_id);
-
-                      setSelectedSubCategories(prevSelectedSubCategories =>
-                        prevSelectedSubCategories.filter(id => !subCategoriesForSelectedCategory.includes(id))
-                      );
-
-                      fetchCropsFiltering();
-                    }}
-                  >
-                    <Text className="text-gray-500 font-bold">❌</Text>
-                  </TouchableOpacity>
-                </TouchableOpacity>
-
-
-                <Modal
-                  visible={openDropdown[categoryId] === true}
-                  transparent={true}
-                  animationType="slide"
-                  onRequestClose={() => closeModalAndUpdateCrops(categoryId)}
-                >
-                  <TouchableOpacity
-                    activeOpacity={1}
-                    className="flex-1 justify-end bg-black/50"
-                    onPress={() => closeModalAndUpdateCrops(categoryId)}
-                  >
-                    <TouchableOpacity
-                      activeOpacity={1}
-                      className="bg-white bg-opacity-50 p-4 rounded-t-lg shadow-lg"
-                      onPress={() => { }}
-                    >
-                      <Text className="text-lg font-bold mb-4">{category.crop_category_name}</Text>
-
-                      <ScrollView>
-                        <TouchableOpacity
-                          className={`flex-row items-center p-2 ${subCategories
-                            .filter(subCategory => subCategory.crop_category_id === categoryId)
-                            .every(subCategory => selectedSubCategories.includes(subCategory.crop_sub_category_id))
-                            ? 'bg-green-100' : ''
-                            }`}
-                          onPress={() => toggleAllSubCategories(categoryId)}
-                        >
-                          <Text className="flex-1 font-bold">All</Text>
-                          {subCategories
-                            .filter(subCategory => subCategory.crop_category_id === categoryId)
-                            .every(subCategory => selectedSubCategories.includes(subCategory.crop_sub_category_id)) && (
-                              <Text className="text-green-500">❌</Text>
-                            )}
-                        </TouchableOpacity>
-                        {subCategories
-                          .filter(subCategory => subCategory.crop_category_id === categoryId)
-                          .map(subCategory => (
-                            <TouchableOpacity
-                              key={subCategory.crop_sub_category_id}
-                              className={`flex-row items-center p-2 ${selectedSubCategories.includes(subCategory.crop_sub_category_id) ? 'bg-green-100' : ''
-                                }`}
-                              onPress={() => toggleSubCategorySelection(subCategory.crop_sub_category_id, categoryId)}
-                            >
-                              <Text className="flex-1">{subCategory.crop_sub_category_name}</Text>
-                              {selectedSubCategories.includes(subCategory.crop_sub_category_id) && (
-                                <Text className="text-green-500">❌</Text>
-                              )}
-                            </TouchableOpacity>
-                          ))}
-                      </ScrollView>
-
-                      <TouchableOpacity
-                        className="bg-green-500 rounded-full px-4 py-2 mt-4"
-                        onPress={() => closeModalAndUpdateCrops(categoryId)}
-                      >
-                        <Text className="text-white text-center">Close</Text>
-                      </TouchableOpacity>
-
-                    </TouchableOpacity>
-                  </TouchableOpacity>
-                </Modal>
-              </View>
-            );
-          })}
-        </ScrollView>
+        <View className="flex-1 flex-row bg-gray-100 rounded-lg border border-[#00B251] shadow-sm items-center px-2">
+          <Icon name="search" size={16} color="gray" />
+          <TextInput
+            placeholder="Search products..."
+            className="p-2 pl-2 flex-1 text-xs text-gray-700"
+            value={searchQuery}
+            onChangeText={handleSearch}
+          />
+        </View>
       </View>
-
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={showCategoriesModal}
-        onRequestClose={toggleCategoriesModal}
-      >
-        <TouchableOpacity
-          activeOpacity={1}
-          className="flex-1 justify-end bg-black/50"
-          onPress={toggleCategoriesModal}
-        >
-          <TouchableOpacity
-            activeOpacity={1}
-            className="bg-white bg-opacity-50 p-4 rounded-t-lg shadow-lg"
-            onPress={() => { }}
-          >
-            <Text className="text-lg font-bold mb-4">Select Categories</Text>
-            <ScrollView>
-              {categories.map(category => (
-                <TouchableOpacity
-                  key={category.crop_category_id}
-                  className={`flex-row items-center p-2 ${selectedCategories.includes(category.crop_category_id) ? 'bg-green-100' : ''
-                    }`}
-                  onPress={() => toggleCategorySelection(category.crop_category_id)}
-                >
-                  <Text className="flex-1">{category.crop_category_name}</Text>
-                  {selectedCategories.includes(category.crop_category_id) && (
-                    <Text className="text-green-500">❌</Text>
-                  )}
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-            <TouchableOpacity
-              className="bg-green-500 rounded-full px-4 py-2 mt-4"
-              onPress={toggleCategoriesModal}
-            >
-              <Text className="text-white text-center">Done</Text>
-            </TouchableOpacity>
-          </TouchableOpacity>
-        </TouchableOpacity>
-      </Modal>
 
       {/* Product List */}
       <ScrollView className="p-4">
@@ -481,15 +281,50 @@ function FeaturedProductScreen({ route }) {
             <CategoryItemCard key={item.crop_id} item={item} />
           ))}
         </View>
-
-        {/* Display selected product at the top */}
-        {selectedProduct && (
-          <View className="mb-6">
-            <CategoryItemCard item={selectedProduct} />
-          </View>
-        )}
       </ScrollView>
+
+      {/* Sort Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black/50">
+          <View className="bg-white rounded-lg shadow-lg p-6 w-4/5">
+            <Text className="text-xl font-bold mb-6 text-center">Sort By</Text>
+
+            {sortOptions.map(option => (
+              <View key={option.method} className="mb-4">
+                <Text className="text-gray-600 font-medium">{option.method.charAt(0).toUpperCase() + option.method.slice(1)}</Text>
+                <View className="flex-row justify-between">
+                  <TouchableOpacity
+                    onPress={() => handleSort(option.method, 'asc')}
+                    className={`flex-1 p-3 rounded-lg border ${currentSort.method === option.method && currentSort.order === 'asc' ? 'bg-green-300' : 'bg-white'} border-gray-300 flex-row items-center justify-center shadow-sm`}
+                  >
+                    <Icon name={option.iconAsc} size={16} color={currentSort.method === option.method && currentSort.order === 'asc' ? 'white' : 'black'} />
+                    <Text className={`ml-2 ${currentSort.method === option.method && currentSort.order === 'asc' ? 'text-white' : 'text-black'}`}>Descending</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => handleSort(option.method, 'desc')}
+                    className={`flex-1 ml-2 p-3 rounded-lg border ${currentSort.method === option.method && currentSort.order === 'desc' ? 'bg-green-300' : 'bg-white'} border-gray-300 flex-row items-center justify-center shadow-sm`}
+                  >
+                    <Icon name={option.iconDesc} size={16} color={currentSort.method === option.method && currentSort.order === 'desc' ? 'white' : 'black'} />
+                    <Text className={`ml-2 ${currentSort.method === option.method && currentSort.order === 'desc' ? 'text-white' : 'text-black'}`}>Ascending</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            ))}
+
+            <Pressable onPress={() => setModalVisible(false)} className="mt-6 p-3 bg-[#00B251] rounded-md shadow-md">
+              <Text className="text-white text-center font-semibold">Close</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
+
+    
   );
 }
 

@@ -257,6 +257,7 @@ const ChatListScreen = () => {
 
   return (
     <>
+    {shopData && (
       <View style={{ flexDirection: 'row' }}>
         <Button1
           onPress={() => handleSenderTypeChange('User')}
@@ -272,7 +273,7 @@ const ChatListScreen = () => {
           <ButtonText className={senderType === 'Shop' ? 'text-white' : 'text-[#00B251]'}>{'Chat as Seller'}</ButtonText>
         </Button1>
       </View>
-
+    )}
       <Container>
 
         <Header>

@@ -130,7 +130,7 @@ function CompareShopsScreen({ route }) {
     setSearchQuery(query);
 
     if (query.trim() === "") {
-      setFilteredData(combinedData);  // Reset to all data if query is empty
+      setFilteredData(combinedData);
     } else {
       const lowercasedQuery = query.toLowerCase();
       const searchResults = combinedData.filter(crop =>
@@ -202,10 +202,10 @@ function CompareShopsScreen({ route }) {
         </TouchableOpacity>
 
         {/* Search Bar */}
-        <View className="flex-1 flex-row bg-gray-100 rounded-lg border border-gray-200 shadow-sm items-center px-2">
+        <View className="flex-1 flex-row bg-gray-100 rounded-lg border border-[#00B251] shadow-sm items-center px-2">
           <Icon name="search" size={16} color="gray" />
           <TextInput
-            placeholder="Search crops..."
+            placeholder="Search products..."
             className="p-2 pl-2 flex-1 text-xs text-gray-700"
             value={searchQuery}
             onChangeText={handleSearch}
@@ -271,6 +271,8 @@ function CompareShopsScreen({ route }) {
                   metricSymbol={crop.metric.metric_system_symbol}
                   size={crop.size.crop_size_name}
                   cropClass={crop.crop_class}
+                  shop_id={crop.shop_id}
+                  cropData={crop}
                 />
               ))
             ) : (
@@ -283,35 +285,40 @@ function CompareShopsScreen({ route }) {
   );
 }
 
-const ShopCard = ({ shopName, productName, price, available, rating, shopImage, metricSymbol, size, cropClass }) => {
+const ShopCard = ({ shopName, productName, price, available, rating, shopImage, metricSymbol, size, cropClass, shop_id, cropData }) => {
+  const navigation = useNavigation();
   return (
     <View className="flex-row border p-2 rounded-md shadow-sm bg-white items-center mb-2">
       <View className="flex-1 justify-between">
-        <View className="flex-1 flex-row items-center ml-2">
+        <Pressable
+          className="flex-1 flex-row items-center ml-2"
+          onPress={() => navigation.navigate('Seller Shop', { shop_id })}
+        >
           <View className="w-10 h-10 rounded-full overflow-hidden border border-gray-300">
             <Image source={{ uri: shopImage }} className="w-full h-full" />
           </View>
           <Text className="text-base ml-3 font-semibold text-gray-700">{shopName}</Text>
-        </View>
-
-        <Text className="text-lg text-center font-extrabold text-[#00B251]">{productName} ({size})</Text>
-        <View className="flex-1 flex-row px-3">
-          <View className="flex-row w-1/2">
-            <View className="ml-2 w-2/5">
-              <Text className="text-sm font-bold text-gray-700">Class:</Text>
-              <Text className="text-sm font-bold text-gray-700">Rating:</Text>
-              <Text className="text-sm font-bold text-gray-700">Available:</Text>
+        </Pressable>
+        <Pressable onPress={() => navigation.navigate("Product Details", { product: cropData })}>
+          <Text className="text-lg text-center font-extrabold text-[#00B251]">{productName} ({size})</Text>
+          <View className="flex-1 flex-row px-3">
+            <View className="flex-row w-1/2">
+              <View className="ml-2 w-2/5">
+                <Text className="text-sm font-bold text-gray-700">Class:</Text>
+                <Text className="text-sm font-bold text-gray-700">Rating:</Text>
+                <Text className="text-sm font-bold text-gray-700">Available:</Text>
+              </View>
+              <View className="w-2/5">
+                <Text className="text-sm text-gray-700">{cropClass}</Text>
+                <Text className="text-sm text-gray-700">{rating}⭐</Text>
+                <Text className="text-sm text-gray-700">{available} {metricSymbol}</Text>
+              </View>
             </View>
-            <View className="w-2/5">
-              <Text className="text-sm text-gray-700">{cropClass}</Text>
-              <Text className="text-sm text-gray-700">{rating}⭐</Text>
-              <Text className="text-sm text-gray-700">{available} {metricSymbol}</Text>
+            <View className="justify-center w-1/2">
+              <Text className="text-2xl text-center font-bold text-[#00B251]"> ₱{price}/{metricSymbol}</Text>
             </View>
           </View>
-          <View className="justify-center w-1/2">
-            <Text className="text-2xl text-center font-bold text-[#00B251]"> ₱{price}/{metricSymbol}</Text>
-          </View>
-        </View>
+        </Pressable>
       </View>
     </View>
   );
