@@ -9,9 +9,9 @@ import {
 } from "react-native";
 import pic from "../../assets/emailotp.png";
 
-function ChangePasswordOTPSCreen({ navigation }) {
-  const phoneNumber = '+639123456789'
-
+function ChangePasswordOTPSCreen({ navigation, route }) {
+  const {phoneNumber} = route.params
+  
   const [seconds, setSeconds] = useState(10 * 60);
   const [isResendEnabled, setIsResendEnabled] = useState(false);
 

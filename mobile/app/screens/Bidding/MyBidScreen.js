@@ -11,6 +11,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
+import NavigationbarComponent from "../../components/NavigationbarComponent";
 
 function MyBidScreen({ navigation }) {
   const [myBidData, setMyBidData] = useState([]);
@@ -148,6 +149,7 @@ function MyBidScreen({ navigation }) {
   };
 
   return (
+    <>
     <SafeAreaView className="flex-1 bg-gray-100">
       <ScrollView>
         <View className="flex-row justify-between items-center px-8 py-4 bg-gray-100 border-b border-gray-300">
@@ -237,6 +239,8 @@ function MyBidScreen({ navigation }) {
         </View>
       </ScrollView>
     </SafeAreaView>
+    <NavigationbarComponent/>
+    </>
   );
 }
 

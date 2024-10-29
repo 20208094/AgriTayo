@@ -6,6 +6,7 @@ import {
   TextInput,
   TouchableOpacity,
   SafeAreaView,
+  Alert,
 } from "react-native";
 import pic from "../../assets/emailotp.png";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
@@ -76,6 +77,7 @@ function OTPScreen({ route, navigation }) {
         if (response.ok) {
           const data = await response.json();
           console.log("Successfully Registered")
+          Alert.alert("Success!", "Successfully Registered")
           navigation.navigate("Login");
         } else {
           const errorData = await response.json();

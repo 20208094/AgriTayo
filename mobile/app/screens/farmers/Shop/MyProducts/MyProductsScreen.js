@@ -7,6 +7,7 @@ import ViolationScreen from "./ViolationScreen";
 import DelistedScreen from "./DelistedScreen";
 import LiveScreen from "./LiveScreen";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons"; // For icons
+import NavigationbarComponent from "../../../../components/NavigationbarComponent";
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -14,6 +15,7 @@ function MyProductsScreen({ route }) {
   const initialRouteName = route.params?.screen || "Live";
 
   return (
+    <>
     <Tab.Navigator
       initialRouteName={initialRouteName}
       screenOptions={({ route }) => ({
@@ -90,6 +92,8 @@ function MyProductsScreen({ route }) {
       <Tab.Screen name="Violation" component={ViolationScreen} />
       <Tab.Screen name="Reviewing" component={ReviewingScreen} />
     </Tab.Navigator>
+      <NavigationbarComponent/>
+      </>
   );
 }
 

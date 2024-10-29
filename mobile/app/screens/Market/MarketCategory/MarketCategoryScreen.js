@@ -4,6 +4,7 @@ import { useNavigation } from "@react-navigation/native";
 import placeholderimg from '../../../assets/placeholder.png';
 import Icon from "react-native-vector-icons/FontAwesome5";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
+import NavigationbarComponent from '../../../components/NavigationbarComponent';
 
 const CategoryItemCard = ({ item }) => {
   const navigation = useNavigation();
@@ -230,6 +231,7 @@ function MarketCategoryScreen({ route }) {
   }
 
   return (
+    <>
     <SafeAreaView className="flex-1 bg-gray-100">
       <View className="p-4 pb-0 flex-row align-middle items-center">
         <TouchableOpacity
@@ -254,7 +256,9 @@ function MarketCategoryScreen({ route }) {
           ))}
         </View>
       </ScrollView>
+      <NavigationbarComponent/>
     </SafeAreaView>
+    </>
   );
 }
 

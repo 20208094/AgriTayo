@@ -14,6 +14,7 @@ async function register(req, res) {
                 middlename,
                 lastname,
                 email,
+                secondary_phone_number,
                 password: hashedPassword,
                 phone_number,
                 gender,

@@ -15,6 +15,7 @@ import ToRateScreen from "./OrderCategories/ToRateScreen";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from '@env';
 import { View, Text } from "react-native";
+import NavigationbarComponent from "../../../../components/NavigationbarComponent";
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -120,6 +121,7 @@ function ViewSalesHistoryScreen({ route }) {
   }
 
   return (
+    <>
     <Tab.Navigator
       initialRouteName={initialRouteName}
       screenOptions={({ route }) => ({
@@ -217,6 +219,8 @@ function ViewSalesHistoryScreen({ route }) {
         {() => <RejectedScreen orders={orders} orderProducts={orderProducts} />}
       </Tab.Screen>
     </Tab.Navigator>
+    <NavigationbarComponent/>
+    </>
   );
 }
 

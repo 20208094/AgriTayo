@@ -4,6 +4,7 @@ import Icon from "react-native-vector-icons/FontAwesome5";
 import placeholderimg from '../../assets/placeholder.png';
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
+import NavigationbarComponent from '../../components/NavigationbarComponent';
 
 function CompareShopsScreen({ route }) {
   const navigation = useNavigation();
@@ -281,6 +282,7 @@ function CompareShopsScreen({ route }) {
           </View>
         </View>
       </ScrollView>
+      <NavigationbarComponent/>
     </SafeAreaView>
   );
 }

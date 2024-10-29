@@ -1,37 +1,23 @@
-import React, { useState, useEffect } from "react";
+import React, {useState} from 'react'
 import {
-  View,
-  TouchableOpacity,
-  Animated,
-  StyleSheet,
-  Text,
-  TouchableWithoutFeedback,
-  Image,
-} from "react-native";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import Icon from "react-native-vector-icons/Ionicons";
-import HomePageScreen from "../screens/Home/HomePageScreen";
-import CropsScreen from "../screens/Market/CropsScreen";
-import ProfileScreen from "../screens/Profile/ProfileScreen";
-import BiddingScreen from "../screens/Bidding/BiddingBuyerScreen";
-import FeaturedProductScreen from "../screens/Market/FeaturedProductScreen";
-import {
-  NotificationIcon,
-  MessagesIcon,
-  MarketIcon,
-} from "../components/SearchBarC";
-import { useNavigation, useFocusEffect } from "@react-navigation/native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import LoadingAnimation from "./LoadingAnimation";
+    View,
+    TouchableOpacity,
+    Animated,
+    StyleSheet,
+    Text,
+    TouchableWithoutFeedback,
+    Image,
+  } from "react-native";
+  import Icon from "react-native-vector-icons/Ionicons";
+  import { useNavigation, useFocusEffect } from "@react-navigation/native";
+  import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const Tab = createBottomTabNavigator();
-
-const NavigationBar = () => {
+const NavigationbarComponent = () => {
   const navigation = useNavigation();
   const [menuVisible, setMenuVisible] = useState(false);
   const [animation] = useState(new Animated.Value(0));
   const [loading, setLoading] = useState(true);
-  const [shop_id, setShopId] = useState([])
+  const [shop_id, setShopId] = useState([]);
 
   const [shopData, setShopData] = useState(null);
 
@@ -67,7 +53,11 @@ const NavigationBar = () => {
           if (storedShopData) {
             const parsedData = JSON.parse(storedData);
             setShopData(Array.isArray(parsedData) ? parsedData[0] : parsedData);
-            setShopId(Array.isArray(parsedData.shop_id) ? parsedData[0].shop_id: parsedData.shop_id)
+            setShopId(
+              Array.isArray(parsedData.shop_id)
+                ? parsedData[0].shop_id
+                : parsedData.shop_id
+            );
           }
         } else {
         }
@@ -83,7 +73,7 @@ const NavigationBar = () => {
     React.useCallback(() => {
       const timeoutId = setTimeout(() => {
         getAsyncUserData();
-      }, 3000);
+      });
       return () => clearTimeout(timeoutId);
     }, [])
   );
@@ -95,121 +85,39 @@ const NavigationBar = () => {
     }
   };
 
-  if (loading) {
-    return <LoadingAnimation />;
-  }
-
   return (
-    <View style={{ flex: 1 }}>
-      <Tab.Navigator
-        screenOptions={({ route }) => ({
-          tabBarIcon: ({ color, size }) => {
-            let iconName;
-            switch (route.name) {
-              case "Home":
-                iconName = "home-outline";
-                break;
-              case "Market Category":
-                iconName = "leaf-outline";
-                break;
-              case "Featured Products":
-                iconName = "leaf-outline";
-                break;
-              case "Biddings":
-                iconName = "people-outline";
-                break;
-              case "Profile":
-                iconName = "person-outline";
-                break;
-              case "Actions":
-                iconName = menuVisible
-                  ? "close-circle-outline"
-                  : "grid-outline";
-                break;
-              default:
-                iconName = "ellipse-outline";
-            }
-            return <Icon name={iconName} size={size} color={color} />;
-          },
-          tabBarActiveTintColor: "#00B251",
-          tabBarInactiveTintColor: "gray",
-          headerTitleStyle: { color: "#00B251" },
-          headerTintColor: "#00B251",
-        })}
-      >
-        <Tab.Screen
-          name="Home"
-          component={HomePageScreen}
-          options={{ headerShown: false }}
-        />
-        <Tab.Screen
-          name="Featured Products"
-          component={FeaturedProductScreen}
-          options={{
-            tabBarLabel: "Market",
-            headerRight: () => (
-              <View style={{ flexDirection: "row", marginRight: 15 }}>
-                <MarketIcon onPress={() => navigation.navigate("CartScreen")} />
-                <NotificationIcon
-                  onPress={() => navigation.navigate("Notifications")}
-                />
-                <MessagesIcon
-                  onPress={() => navigation.navigate("ChatListScreen")}
-                />
-              </View>
-            ),
-          }}
-        />
-        <Tab.Screen
-          name="Actions"
-          options={{ tabBarLabel: "Menu" }}
-          listeners={{
-            tabPress: (e) => {
-              e.preventDefault();
-              toggleMenu();
-            },
-          }}
-        >
-          {() => <View />}
-        </Tab.Screen>
-        <Tab.Screen
-          name="Biddings"
-          component={BiddingScreen}
-          options={{
-            headerRight: () => (
-              <View style={{ flexDirection: "row", marginRight: 15 }}>
-                <MarketIcon onPress={() => navigation.navigate("CartScreen")} />
-                <NotificationIcon
-                  onPress={() => navigation.navigate("Notifications")}
-                />
-                <MessagesIcon
-                  onPress={() => navigation.navigate("ChatListScreen")}
-                />
-              </View>
-            ),
-          }}
-        />
-        <Tab.Screen
-          name="Profile"
-          component={ProfileScreen}
-          options={{
-            headerRight: () => (
-              <View style={{ flexDirection: "row", marginRight: 15 }}>
-                <MarketIcon onPress={() => navigation.navigate("CartScreen")} />
-                <NotificationIcon
-                  onPress={() => navigation.navigate("Notifications")}
-                />
-                <MessagesIcon
-                  onPress={() => navigation.navigate("ChatListScreen")}
-                />
-              </View>
-            ),
-          }}
-        />
-      </Tab.Navigator>
+    <View className="">
+      {/* Bottom Navigation Bar */}
+      <View className="absolute bottom-0 left-0 right-0 h-14 flex-row justify-around items-center bg-white border-t border-gray-300 shadow-md">
+        <TouchableOpacity onPress={() => navigation.navigate("Home")} className="items-center">
+          <Icon name="home-outline" size={25} color="gray" />
+          <Text className="text-xs text-gray-600">Home</Text>
+        </TouchableOpacity>
 
-      {/* Overlay to detect clicks outside the menu */}
-      {menuVisible && (
+        <TouchableOpacity onPress={() => navigation.navigate("Featured Products")} className="items-center">
+          <Icon name="leaf-outline" size={25} color="gray" />
+          <Text className="text-xs text-gray-600">Market</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={toggleMenu} className="items-center">
+          <Icon name={menuVisible ? "close-circle-outline" : "grid-outline"} size={25} color="gray" />
+          <Text className="text-xs text-gray-600">Menu</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={() => navigation.navigate("Biddings")} className="items-center">
+          <Icon name="people-outline" size={25} color="gray" />
+          <Text className="text-xs text-gray-600">Biddings</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={() => navigation.navigate("Profile")} className="items-center">
+          <Icon name="person-outline" size={25} color="gray" />
+          <Text className="text-xs text-gray-600">Profile</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Overlay for additional menu options */}
+     {/* Overlay to detect clicks outside the menu */}
+     {menuVisible && (
         <TouchableWithoutFeedback onPress={closeMenuOnOutsidePress}>
           <View style={StyleSheet.absoluteFillObject} className="bg-black/10">
             <Animated.View className="absolute right-0 bottom-14 bg-white/90 flex-row items-center rounded-xl px-2 py-1 mx-2 w-full*0.85 justify-center flex-wrap">
@@ -313,4 +221,4 @@ const NavigationBar = () => {
   );
 };
 
-export default NavigationBar;
+export default NavigationbarComponent;
