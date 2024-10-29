@@ -7,8 +7,10 @@ import {
   TextInput,
   KeyboardAvoidingView,
   ScrollView,
+  Modal,
 } from "react-native";
 import { styled } from "nativewind";
+import { Ionicons } from "@expo/vector-icons";
 import { Icon } from "react-native-elements";
 import Map from "../../../components/Map";
 import * as Location from "expo-location";
@@ -48,6 +50,9 @@ function AddAddressScreen({
   const [note, setNote] = useState("");
   const [label, setLabel] = useState("Partner");
   const [postal_code, setPostalCode] = useState('');
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+
 
   // Error states
   const [errors, setErrors] = useState({
@@ -137,10 +142,11 @@ function AddAddressScreen({
       (async () => {
         const { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== "granted") {
-          Alert.alert(
+          setAlertMessage(
             "Location Permission Denied",
             "Permission to access location was denied"
           );
+          setAlertVisible(true);
           return;
         }
 
@@ -182,7 +188,8 @@ function AddAddressScreen({
         setProvince(place.region || "");          // Province
       }
     } catch (error) {
-      Alert.alert("Error", "Unable to fetch address from the selected location.");
+      setAlertMessage("Sorry", "Unable to fetch address from the selected location.");
+      setAlertVisible(true);
     }
   };
 
@@ -382,6 +389,27 @@ function AddAddressScreen({
             </Text>
           </TouchableOpacity>
         </View>
+
+        {/* Alert Modal */}
+       <Modal
+        animationType="fade"
+        transparent={true}
+        visible={alertVisible}
+        onRequestClose={() => setAlertVisible(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black/50 bg-opacity-50">
+          <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
+            <Text className="text-lg font-semibold text-gray-900 mb-4">{alertMessage}</Text>
+            <TouchableOpacity
+              className="mt-4 p-2 bg-[#00B251] rounded-lg flex-row justify-center items-center"
+              onPress={() => setAlertVisible(false)}
+            >
+              <Ionicons name="checkmark-circle-outline" size={24} color="white" />
+              <Text className="text-lg text-white ml-2">OK</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
       </ScrollView>
     </KeyboardAvoidingView>
   );

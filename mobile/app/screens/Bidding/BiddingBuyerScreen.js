@@ -9,6 +9,7 @@ import {
   Animated,
   FlatList,
   Dimensions,
+  Modal,
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";

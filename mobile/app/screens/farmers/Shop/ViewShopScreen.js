@@ -43,6 +43,9 @@ function ViewShopScreen({ navigation }) {
   const [shopNumber, setShopNumber] = useState("");
   const [errors, setErrors] = useState({});
 
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+
   const validateField = (fieldName, value) => {
     let errorMessage = '';
 
@@ -122,14 +125,16 @@ function ViewShopScreen({ navigation }) {
         setModalVisible(false);
       }
     } else {
-      alert("Camera permission is required.");
+      setAlertMessage("Camera permission is required.");
+      setAlertVisible(true);
     }
   };
 
   const selectImageFromGallery = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
-      alert("Sorry, we need camera roll permissions to make this work!");
+      setAlertMessage("Sorry, we need camera roll permissions to make this work!");
+      setAlertVisible(true);
       return;
     }
 
@@ -148,7 +153,8 @@ function ViewShopScreen({ navigation }) {
   const selectBirImageFromGallery = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
-      alert("Sorry, we need camera roll permissions to make this work!");
+      setAlertMessage("Sorry, we need camera roll permissions to make this work!");
+      setAlertVisible(true);
       return;
     }
 
@@ -339,10 +345,12 @@ function ViewShopScreen({ navigation }) {
       console.log("form data:", JSON.stringify(updatedShopData));
       AsyncStorage.setItem("shopData", JSON.stringify(updatedShopData));
       getAsyncShopData();
-      alert("Shop Updated Successfully!");
+      setAlertMessage("Shop Updated Successfully!");
+      setAlertVisible(true);
       navigation.navigate('My Shop')
     } catch (error) {
-      alert("There was an error editing the shop.");
+      setAlertMessage("There was an error editing the shop.");
+      setAlertVisible (true);
     }
   };
 
@@ -634,6 +642,27 @@ function ViewShopScreen({ navigation }) {
             >
               <Ionicons name="close-outline" size={24} color="white" />
               <Text className="text-lg text-white ml-2">Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Alert Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={alertVisible}
+        onRequestClose={() => setAlertVisible(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black/50 bg-opacity-50">
+          <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
+            <Text className="text-lg font-semibold text-gray-900 mb-4">{alertMessage}</Text>
+            <TouchableOpacity
+              className="mt-4 p-2 bg-[#00B251] rounded-lg flex-row justify-center items-center"
+              onPress={() => setAlertVisible(false)}
+            >
+              <Ionicons name="checkmark-circle-outline" size={24} color="white" />
+              <Text className="text-lg text-white ml-2">OK</Text>
             </TouchableOpacity>
           </View>
         </View>

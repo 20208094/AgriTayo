@@ -21,6 +21,7 @@ import SearchBarC, {
 } from "../../../components/SearchBarC";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 
+
 function SellerShopScreen({ route }) {
   const { shop_id } = route.params;
   const primaryColor = "#00B251";
@@ -39,6 +40,10 @@ function SellerShopScreen({ route }) {
   const [isIncomplete, setIsIncomplete] = useState(false); // Track if the shop is incomplete
   const [modalVisible, setModalVisible] = useState(false); // State for modal visibility
   const [missingFields, setMissingFields] = useState([]); // Track missing fields
+
+  
+ const [alertVisible, setAlertVisible] = useState(false);
+ const [alertMessage, setAlertMessage] = useState("");
 
   const getAsyncUserData = async () => {
     try {
@@ -81,7 +86,8 @@ function SellerShopScreen({ route }) {
 
     } catch (error) {
       console.error("Error fetching shop data:", error);
-      alert("Failed to load shop information.");
+      setAlertMessage("Failed to load shop information.");
+      setAlertVisible(true);
     }
   };
 
@@ -98,7 +104,8 @@ function SellerShopScreen({ route }) {
       setCropData(crops);
     } catch (error) {
       console.error("Error fetching crop data:", error);
-      alert("Failed to load crop information.");
+      setAlertMessage("Failed to load crop information.");
+      setAlertVisible(true);
     } finally {
       setIsLoading(false);
     }
@@ -155,7 +162,8 @@ function SellerShopScreen({ route }) {
       setCropData(filteredCrops);
     } catch (error) {
       console.error("Error fetching crops:", error);
-      alert("Failed to load crops.");
+      setAlertMessage("Failed to load crops.");
+      setAlertVisible(true);
     } finally {
       setIsLoading(false);
     }
@@ -438,6 +446,27 @@ function SellerShopScreen({ route }) {
           </>
         )}
       </ScrollView>
+
+      {/* Alert Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={alertVisible}
+        onRequestClose={() => setAlertVisible(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black/50 bg-opacity-50">
+          <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
+            <Text className="text-lg font-semibold text-gray-900 mb-4">{alertMessage}</Text>
+            <TouchableOpacity
+              className="mt-4 p-2 bg-[#00B251] rounded-lg flex-row justify-center items-center"
+              onPress={() => setAlertVisible(false)}
+            >
+              <Ionicons name="checkmark-circle-outline" size={24} color="white" />
+              <Text className="text-lg text-white ml-2">OK</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }

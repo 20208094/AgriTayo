@@ -55,7 +55,8 @@ async function addShop(req, res) {
             const pickup_address = getSingleValue(fields.pickup_address);
 
 
-            const shopImageFile = files.image ? files.image[0] : null;
+            const shopImageFile = files.shop_image ? files.shop_image[0] : null;
+            console.log(shopImageFile);
             let shop_image_url = null;
 
             // Handle image upload

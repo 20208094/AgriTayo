@@ -1,11 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { SafeAreaView, ScrollView, View, Text, TouchableOpacity, Image } from "react-native";
+import { SafeAreaView, ScrollView, View, Text, TouchableOpacity, Image, Modal } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
+import { Ionicons } from "@expo/vector-icons";
 
 function PastBidScreen({ navigation }) {
   const [expiredBidData, setExpiredBidData] = useState([]);
   const [userId, setUserId] = useState(null);
+
+  
+ const [alertVisible, setAlertVisible] = useState(false);
+ const [alertMessage, setAlertMessage] = useState("");
+
 
   const fetchUserId = async () => {
     try {
@@ -76,7 +82,8 @@ function PastBidScreen({ navigation }) {
 
       setExpiredBidData(expiredBids);
     } catch (error) {
-      alert(`Error: ${error.message}`);
+      setAlertMessage(`Error: ${error.message}`);
+      setAlertVisible(true);
     }
   };
 
@@ -145,6 +152,26 @@ function PastBidScreen({ navigation }) {
           )}
         </View>
       </ScrollView>
+      {/* Alert Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={alertVisible}
+        onRequestClose={() => setAlertVisible(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black/50 bg-opacity-50">
+          <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
+            <Text className="text-lg font-semibold text-gray-900 mb-4">{alertMessage}</Text>
+            <TouchableOpacity
+              className="mt-4 p-2 bg-[#00B251] rounded-lg flex-row justify-center items-center"
+              onPress={() => setAlertVisible(false)}
+            >
+              <Ionicons name="checkmark-circle-outline" size={24} color="white" />
+              <Text className="text-lg text-white ml-2">OK</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }

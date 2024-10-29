@@ -14,6 +14,7 @@ import { styled } from "nativewind";
 import { Icon } from "react-native-elements";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import * as ImagePicker from 'expo-image-picker';
+import placeholderlogo from "../../assets/logolabel.png"
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 
 function ShopInformationScreen({ route, navigation }) {
@@ -34,6 +35,11 @@ function ShopInformationScreen({ route, navigation }) {
   const [modalVisible, setModalVisible] = useState(false);
   const [errors, setErrors] = useState({});
   const [pickupAddress, setPickupAddress] = useState("");
+
+
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+
 
   const shopNameRegex = /^[A-Za-z\s]{2,}$/;
   const addressRegex = /^[A-Za-z0-9\s,'-]{10,}$/;
@@ -86,25 +92,33 @@ function ShopInformationScreen({ route, navigation }) {
   const pickImage = async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permissionResult.granted) {
-      Alert.alert("Permission Required", "Permission to access the gallery is required.");
+      setAlertMessage("Permission Required, Permission to access the gallery is required.");
+      setAlertVisible(true);
       return;
     }
 
-    const pickerResult = await ImagePicker.launchImageLibraryAsync({
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
-      aspect: [1, 1],
       quality: 1,
     });
 
-    if (!pickerResult.canceled) {
-      setShopImage(pickerResult.assets[0].uri);
+
+    if (!result.canceled) {
+      setShopImage(result.assets[0].uri);
       setModalVisible(false);
     }
   };
 
+ 
+
   const handleSubmit = () => {
     let hasError = false;
-
+    if (!shopImage) {
+      setErrors((prev) => ({ ...prev, shopImage: "Shop Image is required." }));
+      hasError = true;
+    }
     if (!shopName) {
       setErrors((prev) => ({ ...prev, shopName: "Shop name is required." }));
       hasError = true;
@@ -119,15 +133,17 @@ function ShopInformationScreen({ route, navigation }) {
     }
 
     if (hasError) {
-      Alert.alert("Sorry", "Please fill up the forms before continuing.");
+      setAlertMessage("Sorry,  Please fill up the forms before continuing.");
+      setAlertVisible(true);
       return;
+
     }
 
     const shopData = {
       shop_name: shopName,
       shop_address: shopAddress,
       shop_description: shopDescription,
-      shop_image_url: shopImage,
+      shop_image: shopImage,
       user_id: userData.user_id,
       delivery: isCheckedDelivery,
       delivery_price: isCheckedDelivery ? shopDeliveryFee : null,
@@ -147,7 +163,7 @@ function ShopInformationScreen({ route, navigation }) {
       shopData,
     });
   };
-  
+
 
   return (
     <SafeAreaView className="flex-1 bg-white" edges={['bottom', 'left', 'right']}>
@@ -165,7 +181,7 @@ function ShopInformationScreen({ route, navigation }) {
         <View className="items-center mb-8 mt-4">
           <View className="relative w-28 h-28 rounded-full border-4 border-green-500 shadow-lg bg-white">
             <Image
-              source={{ uri: shopImage || "https://via.placeholder.com/150" }}
+              source={shopImage ? { uri: shopImage } : placeholderlogo}
               className="w-full h-full rounded-full"
             />
             <TouchableOpacity
@@ -174,7 +190,11 @@ function ShopInformationScreen({ route, navigation }) {
             >
               <Ionicons name="pencil" size={20} color="white" />
             </TouchableOpacity>
+            {errors.shopImage && (
+              <Text className="text-red-500 mb-2">{errors.shopImage}</Text>
+            )}
           </View>
+
         </View>
 
         {/* Shop Name */}
@@ -223,6 +243,7 @@ function ShopInformationScreen({ route, navigation }) {
           />
 
           {/* Delivery Checkbox */}
+          <Text className="text-orange-500 text-sm">NOTE: AgriTayo will not handle shipping and payment, this will only serve as away to inform the buyer for your available shipping and payment option.</Text>
           <Text className="text-sm mb-2 text-[#00B251]">Shipping Options: <Text className="text-red-500 text-sm">*</Text></Text>
           <View className="flex-row items-center mb-4">
             <TouchableOpacity
@@ -370,6 +391,28 @@ function ShopInformationScreen({ route, navigation }) {
               onPress={() => setModalVisible(false)}
             >
               <Text className="text-white text-center">Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+
+      {/* Alert Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={alertVisible}
+        onRequestClose={() => setAlertVisible(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black/50 bg-opacity-50">
+          <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
+            <Text className="text-lg font-semibold text-gray-900 mb-4">{alertMessage}</Text>
+            <TouchableOpacity
+              className="mt-4 p-2 bg-[#00B251] rounded-lg flex-row justify-center items-center"
+              onPress={() => setAlertVisible(false)}
+            >
+              <Ionicons name="checkmark-circle-outline" size={24} color="white" />
+              <Text className="text-lg text-white ml-2">OK</Text>
             </TouchableOpacity>
           </View>
         </View>

@@ -50,6 +50,9 @@ function AddProductScreen({navigation}) {
   const [modalVisible, setModalVisible] = useState(false);
   const [cropImage, setCropImage] = useState(null);
 
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+
   const handleMetricSelect = (metric) => {
     setSelectedMetricSystem(metric.metric_system_name);
     setSelectedMetricSystemId(metric.metric_system_id);
@@ -72,7 +75,8 @@ function AddProductScreen({navigation}) {
   const selectImageFromGallery = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
-      alert("Sorry, we need camera roll permissions to make this work!");
+      setAlertMessage("Sorry, we need camera roll permissions to make this work!");
+      setAlertVisible(true);
       return;
     }
 
@@ -107,7 +111,8 @@ function AddProductScreen({navigation}) {
       const data = await response.json();
       setCategories(data);
     } catch (error) {
-      alert(`Error fetching crop categories: ${error.message}`);
+      setAlertMessage(`Error fetching crop categories: ${error.message}`);
+      setAlertVisible(true);
     }
   };
 
@@ -129,7 +134,9 @@ function AddProductScreen({navigation}) {
       );
       setSubCategories(filteredData);
     } catch (error) {
-      alert(`Error fetching crop subcategories: ${error.message}`);
+      setAlertMessage(`Error fetching crop subcategories: ${error.message}`);
+      setAlertVisible(true);
+
     }
   };
 
@@ -142,7 +149,8 @@ function AddProductScreen({navigation}) {
         setShopData(shop);
       }
     } catch (error) {
-      alert(`Failed to load shop data: ${error.message}`);
+      setAlertMessage(`Failed to load shop data: ${error.message}`);
+      setAlertVisible(true);
     } finally {
       setLoading(false);
     }
@@ -163,7 +171,9 @@ function AddProductScreen({navigation}) {
       const data = await response.json();
       setMetricSystem(data);
     } catch (error) {
-      alert(`Error fetching metric systems: ${error.message}`);
+      setAlertMessage(`Error fetching metric systems: ${error.message}`);
+      setAlertVisible(true);
+
     }
   };
 
@@ -195,7 +205,8 @@ function AddProductScreen({navigation}) {
       const data = await response.json();
       setCropSizes(data);
     } catch (error) {
-      alert(`Error fetching crop categories: ${error.message}`);
+      setAlertMessage(`Error fetching crop categories: ${error.message}`);
+      setAlertVisible(true);
     } finally {
       setLoading(false);
     }
@@ -229,7 +240,8 @@ function AddProductScreen({navigation}) {
       const data = await response.json();
       setCropVarieties(data);
     } catch (error) {
-      alert(`Error fetching crop categories: ${error.message}`);
+      setAlertMessage(`Error fetching crop categories: ${error.message}`);
+      setAlertVisible(true);
     } finally {
       setLoading(false);
     }
@@ -288,7 +300,8 @@ function AddProductScreen({navigation}) {
       !selectedCropClass ||
       !cropImage
     ) {
-      alert("Please fill in all the required fields.");
+      setAlertMessage("Please fill in all the required fields.");
+      setAlertVisible(true);
       return;
     }
 
@@ -332,14 +345,17 @@ function AddProductScreen({navigation}) {
       if (response.ok) {
         const responseData = JSON.parse(responseText);
         console.log("Response data: ", responseData);
-        alert("Product added successfully!");
+        setAlertMessage("Product added successfully!");
+        setAlertVisible(true);
         navigation.navigate('My Products')
       } else {
         console.error("Error adding product: ", responseText);
-        alert("Failed to add product. Please try again.");
+        setAlertMessage("Failed to add product. Please try again.");
+        setAlertVisible(true);
       }
     } catch (error) {
-      alert(`An error occurred while adding the product: ${error.message}`);
+      setAlertMessage(`An error occurred while adding the product: ${error.message}`);
+      setAlertVisible(true);
     } finally {
       setLoading(false);
     }
