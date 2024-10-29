@@ -9,12 +9,11 @@ function NewPasswordScreen({ navigation }) {
       <View className="flex-1 justify-center items-center px-5">
         <View className="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
           <Text className="text-2xl font-bold text-green-700 mb-4 text-center">
-            Enter Your New Phone Number
+            Enter Your New Password
           </Text>
           <TextInput
             className="border border-gray-300 rounded-lg px-4 py-2 mb-4"
-            placeholder="Phone Number"
-            keyboardType="phone-pad"
+            secureTextEntry={true}
             autoCapitalize="none"
             autoCorrect={false}
           />
