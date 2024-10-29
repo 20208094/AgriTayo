@@ -8,24 +8,88 @@ import {
   SafeAreaView,
 } from "react-native";
 import pic from "../../assets/emailotp.png";
+import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
+import { io } from 'socket.io-client';
 
-function OTPScreen({navigation}) {
-  const phoneNumber = "+639123456789";
+function OTPScreen({ route, navigation }) {
+  const { formData, phone } = route.params;
+
+  console.log(phone)
+
+  const [generatedCode, setGeneratedCode] = useState("");
+
+  const socket = io( REACT_NATIVE_API_BASE_URL);
 
   // for validation
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [otpError, setOtpError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const inputRefs = useRef([]);
 
-  const handleOtp = () => {
+  const generateRandomCode = () => {
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    setGeneratedCode(code); // Store generated code in state
+    console.log("Generated OTP code:", code); // For debugging, remove in production
+    const title = 'AgriTayo'
+    const message = `Your OTP code is: ${code}`
+    const phone_number = phone
+    socket.emit('sms sender', {
+      title,
+      message,
+      phone_number
+  });
+  };
+
+  useEffect(() => {
+    generateRandomCode(); // Generate code on component mount
+
+    let interval = null;
+    if (seconds > 0) {
+      interval = setInterval(() => {
+        setSeconds((prevSeconds) => prevSeconds - 1);
+      }, 1000);
+    } else {
+      setIsResendEnabled(true);
+      clearInterval(interval);
+    }
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleOtp = async () => {
     setOtpError("");
     const otpString = otp.join("");
 
     if (otpString.length < 6) {
       setOtpError("Enter the 6 digit code");
+    } else if (otpString !== generatedCode) {
+      setOtpError("Invalid OTP. Please try again.");
     } else {
-      navigation.navigate("Login");
+      setLoading(true);
+      try {
+        const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/users`, {
+          method: "POST",
+          headers: {
+            "x-api-key": REACT_NATIVE_API_KEY,
+          },
+          body: formData,
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log("Successfully Registered")
+          navigation.navigate("Login");
+        } else {
+          const errorData = await response.json();
+          console.error("Registration failed:", errorData);
+          alert("Registration Failed. Please Try Again");
+        }
+      } catch (error) {
+        console.error("Error during registration:", error);
+        alert("An error occurred. Please try again.");
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -87,7 +151,7 @@ function OTPScreen({navigation}) {
 
         <View className="mb-6">
           <Text className="text-gray-600 text-center">
-            A 6-digit code has been sent to {phoneNumber}
+            A 6-digit code has been sent to {formData.phone_number}
           </Text>
           <View className="flex-row justify-center">
             <TouchableOpacity

@@ -6,12 +6,11 @@ import {
   TouchableOpacity,
   ScrollView,
   SafeAreaView,
+  Modal,
   Alert,
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { styled } from "nativewind";
 import { FontAwesome } from "@expo/vector-icons";
-import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 
 function RegisterScreenBuyers({ navigation }) {
   const [firstName, setFirstName] = useState("");
@@ -33,6 +32,8 @@ function RegisterScreenBuyers({ navigation }) {
   const [phoneError, setPhoneError] = useState("");
 
   const [loading, setLoading] = useState(false);
+
+  const [modalVisible, setModalVisible] = useState(false);
 
   const firstname_regex = /^[A-Za-z\s]{2,}$/;
   const lastname_regex = /^[A-Za-z\s]{2,}$/;
@@ -77,6 +78,44 @@ function RegisterScreenBuyers({ navigation }) {
   };
 
   const handleRegister = async () => {
+    const formData = new FormData();
+    formData.append("firstname", firstName);
+    formData.append("middlename", middleName);
+    formData.append("lastname", lastName);
+    formData.append("birthday", birthDay);
+    formData.append("gender", gender);
+    formData.append("email", email);
+    formData.append("password", password);
+    formData.append("phone_number", phone);
+    formData.append("user_type_id", "3");
+
+    navigation.navigate("OTP Screen", { formData, phone });
+
+  };
+
+  const genderOptions = [
+    { label: "Male", value: "Male" },
+    { label: "Female", value: "Female" },
+    { label: "Other", value: "Other" },
+  ];
+
+  const [show, setShow] = useState(false);
+  const [date, setDate] = useState(new Date());
+  const [formattedDate, setFormattedDate] = useState("");
+
+  const handleDateChange = (event, selectedDate) => {
+    if (event.type === "set") {
+      const currentDate = selectedDate || date;
+      setShow(false);
+      setDate(currentDate);
+      setFormattedDate(currentDate.toLocaleDateString());
+      setBirthDay(currentDate.toLocaleDateString());
+    } else {
+      setShow(false);
+    }
+  };
+
+  const handleModal = () => {
     setFirstNameError("");
     setLastNameError("");
     setBirthDayError("");
@@ -128,67 +167,8 @@ function RegisterScreenBuyers({ navigation }) {
     if (hasError) {
       return;
     }
-
-    const formData = new FormData();
-    formData.append("firstname", firstName);
-    formData.append("middlename", middleName);
-    formData.append("lastname", lastName);
-    formData.append("birthday", birthDay);
-    formData.append("gender", gender);
-    formData.append("email", email);
-    formData.append("password", password);
-    formData.append("phone_number", phone);
-    formData.append("user_type_id", "3");
-
-    setLoading(true);
-    try {
-      const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/users`, {
-        method: "POST",
-        headers: {
-          "x-api-key": REACT_NATIVE_API_KEY,
-        },
-        body: formData,
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log("Registration successful:", data);
-        alert("Registration Successful!");
-        navigation.navigate("OTP Screen", { email });
-      } else {
-        const errorData = await response.json();
-        console.error("Registration failed:", errorData);
-        alert("Registration Failed. Please Try Again");
-      }
-    } catch (error) {
-      console.error("Error during registration:", error);
-      alert("An error occurred. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const genderOptions = [
-    { label: "Male", value: "Male" },
-    { label: "Female", value: "Female" },
-    { label: "Other", value: "Other" },
-  ];
-
-  const [show, setShow] = useState(false);
-  const [date, setDate] = useState(new Date());
-  const [formattedDate, setFormattedDate] = useState("");
-
-  const handleDateChange = (event, selectedDate) => {
-    if (event.type === "set") {
-      const currentDate = selectedDate || date;
-      setShow(false);
-      setDate(currentDate);
-      setFormattedDate(currentDate.toLocaleDateString());
-      setBirthDay(currentDate.toLocaleDateString());
-    } else {
-      setShow(false);
-    }
-  };
+    setModalVisible(true)
+  }
 
   return (
     <SafeAreaView className="flex-1">
@@ -298,6 +278,7 @@ function RegisterScreenBuyers({ navigation }) {
           </Text>
           <TextInput
             className="w-full p-2 mb-4 bg-white rounded-lg shadow-md"
+            keyboardType="numeric"
             placeholder="Phone Number"
             value={phone}
             onChangeText={validatePhone} // Real-time validation
@@ -352,11 +333,9 @@ function RegisterScreenBuyers({ navigation }) {
             }}
           />
 
-
-
           {/* Submit Button */}
           <TouchableOpacity
-            onPress={handleRegister}
+            onPress={handleModal} // Open modal instead of alert
             className="w-full p-4 bg-[#00B251] rounded-lg shadow-md"
           >
             <Text className="text-center text-white font-bold">Register</Text>
@@ -370,6 +349,42 @@ function RegisterScreenBuyers({ navigation }) {
             <Text className="text-gray-800 text-center font-bold">Cancel</Text>
           </TouchableOpacity>
 
+          {/* Modal for Registration Confirmation */}
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={modalVisible}
+            onRequestClose={() => {
+              setModalVisible(!modalVisible);
+            }}
+          >
+            <View className="flex-1 justify-center items-center bg-black/50">
+              <View className="bg-white rounded-lg p-6 w-80">
+                <Text className="text-lg font-bold mb-4">Register</Text>
+                <Text className="mb-4">Do you really want to register?</Text>
+                <View className="flex-row justify-between">
+                  <TouchableOpacity
+                    onPress={() => {
+                      setModalVisible(false);
+                      console.log("Registration Cancelled");
+                    }}
+                    className="bg-gray-300 p-2 rounded"
+                  >
+                    <Text>Cancel</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => {
+                      setModalVisible(false);
+                      handleRegister(); // Call handleRegister on confirmation
+                    }}
+                    className="bg-[#00B251] p-2 rounded"
+                  >
+                    <Text className="text-white">Yes</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          </Modal>
         </View>
       </ScrollView>
     </SafeAreaView>

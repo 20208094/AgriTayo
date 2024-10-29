@@ -25,10 +25,9 @@ function AddBidScreen({navigation}) {
   const [bidName, setBidName] = useState("");
   const [bidStartingPrice, setBidStartingPrice] = useState("");
   const [bidMinimumIncrement, setBidMinimumIcrement] = useState("");
-  const [bidCurrentHighest, setBidCurrentHighest] = useState("");
   const [imageUri, setImageUri] = useState(null);
   const [hasPermission, setHasPermission] = useState(null);
-  const [numberOfBids, setNumberOfBids] = useState("");
+  const [numberOfBids, setNumberOfBids] = useState(0);
   const [metricSystem, setMetricSystem] = useState([])
   const [loading, setLoading] = useState(false);
 
@@ -245,7 +244,6 @@ function AddBidScreen({navigation}) {
       !selectedCategoryId ||
       !selectedSubCategoryId ||
       !selectedMetricSystemId ||
-      !bidCurrentHighest ||
       !bidMinimumIncrement ||
       !bidStartingPrice 
     ) {
@@ -268,7 +266,7 @@ function AddBidScreen({navigation}) {
     formData.append("bid_subcategory_id", selectedSubCategoryId);
     formData.append("bid_starting_price", bidStartingPrice);
     formData.append("bid_minimum_increment", bidMinimumIncrement);
-    formData.append("bid_current_highest", bidCurrentHighest);
+    formData.append("bid_current_highest", bidStartingPrice);
     formData.append("number_of_bids", numberOfBids);
     formData.append('metric_system_id', selectedMetricSystemId)
 
@@ -450,18 +448,6 @@ function AddBidScreen({navigation}) {
               className="border border-gray-300 rounded-lg p-2 mt-1"
               value={bidStartingPrice}
               onChangeText={setBidStartingPrice}
-            />
-          </View>
-  
-          {/* Current Highest Bid */}
-          <View className="mb-4">
-            <Text className="text-base text-gray-700">Enter Highest Bid</Text>
-            <TextInput
-              placeholder="₱ 0.00"
-              keyboardType="numeric"
-              className="border border-gray-300 rounded-lg p-2 mt-1"
-              value={bidCurrentHighest}
-              onChangeText={setBidCurrentHighest}
             />
           </View>
   

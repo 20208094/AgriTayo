@@ -12,7 +12,21 @@ function LoginScreen({ navigation, fetchUserSession }) {
   const [loading, setLoading] = useState(true);
 
   const password_regex = /^[A-Za-z\d@.#$!%*?&^]{8,30}$/;
-  const phone_regex = /^(?:\+63|0)?9\d{9}$/;
+  const phone_regex = /^(?:\+63|0)9\d{2}[-\s]?\d{3}[-\s]?\d{4}$/;
+
+  useEffect(() => {
+    if (formData.phone_number && !phone_regex.test(formData.phone_number)) {
+      setPhoneError("Invalid phone number format. Please use +639 or 09 followed by 9 digits.");
+    } else {
+      setPhoneError("");
+    }
+
+    if (formData.password && !password_regex.test(formData.password)) {
+      setPasswordError("Invalid Password. Please enter at least 8 characters in your password.");
+    } else {
+      setPasswordError("");
+    }
+  }, [formData.phone_number, formData.password]);
 
   useEffect(() => {
     const fetchUserSession = async () => {
@@ -36,8 +50,6 @@ function LoginScreen({ navigation, fetchUserSession }) {
           } else {
             console.log("No user found in session");
           }
-        } else {
-          // console.log("Failed to fetch user session:", response.status);
         }
       } catch (error) {
         console.error("Login Error fetching user session:", error);
@@ -68,59 +80,40 @@ function LoginScreen({ navigation, fetchUserSession }) {
       hasError = true;
     }
 
-    if (!hasError) {
-      if (
-        phone_regex.test(formData.phone_number) &&
-        password_regex.test(formData.password)
-      ) {
-        try {
-          console.log("Attempting to log in with:", formData);
-          const response = await fetch(
-            `${REACT_NATIVE_API_BASE_URL}/api/loginMobile`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                "x-api-key": REACT_NATIVE_API_KEY,
-              },
-              body: JSON.stringify(formData),
-            }
-          );
-          console.log("Login response status:", response.status);
-
-          if (!response.ok) {
-            const errorData = await response.json();
-            setPhoneError(errorData.error || "Login failed. Please try again.");
-            console.log("Login failed:", errorData);
-            return;
+    if (!hasError && !phoneError && !passwordError) {
+      try {
+        console.log("Attempting to log in with:", formData);
+        const response = await fetch(
+          `${REACT_NATIVE_API_BASE_URL}/api/loginMobile`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "x-api-key": REACT_NATIVE_API_KEY,
+            },
+            body: JSON.stringify(formData),
           }
+        );
+        console.log("Login response status:", response.status);
 
-          // Call fetchUserSession after successful login
-          console.log("Login successful, fetching user session...");
-          await fetchUserSession();
-          // navigation.reset({
-          //   index: 0,
-          //   routes: [{ name: 'HomePageScreen' }],
-          // });
-        } catch (error) {
-          console.error("Error during login:", error);
-          setPhoneError("An error occurred. Please try again.");
+        if (!response.ok) {
+          const errorData = await response.json();
+          setPhoneError(errorData.error || "Login failed. Please try again.");
+          console.log("Login failed:", errorData);
+          return;
         }
-      } else {
-        if (!phone_regex.test(formData.email)) {
-          setPhoneError("Invalid phone_number. Please try again.");
-          console.log("Invalid phone_number format");
-        }
-        if (!password_regex.test(formData.password)) {
-          setPasswordError("Invalid Password. Please try again.");
-          console.log("Invalid password format");
-        }
+
+        console.log("Login successful, fetching user session...");
+        await fetchUserSession();
+      } catch (error) {
+        console.error("Error during login:", error);
+        setPhoneError("An error occurred. Please try again.");
       }
     }
   };
 
   if (loading) {
-    return <Text>Loading...</Text>; // or your loading spinner
+    return <Text>Loading...</Text>;
   }
 
   return (
@@ -129,7 +122,7 @@ function LoginScreen({ navigation, fetchUserSession }) {
       <TextInput
         className="w-4/5 p-3 mb-2 bg-white rounded-lg shadow-md"
         placeholder="Phone Number"
-        keyboardType="phone-pad"
+        keyboardType="numeric"
         autoCapitalize="none"
         autoCorrect={false}
         onChangeText={(value) => handleInputChange("phone_number", value)}
@@ -138,7 +131,6 @@ function LoginScreen({ navigation, fetchUserSession }) {
       {phoneError ? (
         <Text className="w-4/5 text-red-500 mb-4">{phoneError}</Text>
       ) : null}
-
       <TextInput
         className="w-4/5 p-3 mb-2 bg-white rounded-lg shadow-md"
         placeholder="Password"

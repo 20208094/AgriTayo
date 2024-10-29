@@ -9,6 +9,7 @@ import {
   Image,
   Alert,
   ActivityIndicator,
+  Modal, // Import Modal
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
@@ -23,10 +24,11 @@ function AddAnotherBid({ route, navigation }) {
   const [isBidValid, setIsBidValid] = useState(false);
   const [userId, setUserId] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [minValidBid, setMinValidBid] = useState(0); 
-  const [myBid, setMyBidData] = useState(null); 
+  const [minValidBid, setMinValidBid] = useState(0);
+  const [myBid, setMyBidData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [numberOfBids, setNumberOfBids] = useState(0);
+  const [modalVisible, setModalVisible] = useState(false); // State for modal visibility
 
   // Function to calculate time left
   const calculateTimeLeft = (endDate) => {
@@ -64,13 +66,13 @@ function AddAnotherBid({ route, navigation }) {
 
       const biddingData = await biddingResponse.json();
       const bidData = biddingData.find(bid => bid.bid_id === myBidId);
-      
+
       setMyBidData(bidData);
       setNumberOfBids(bidData.number_of_bids + 1);
-      
+
       // Calculate time left immediately after fetching
       setTimeLeft(calculateTimeLeft(bidData.end_date));
-      
+
     } catch (error) {
       alert(`Error: ${error.message}`);
     } finally {
@@ -86,9 +88,9 @@ function AddAnotherBid({ route, navigation }) {
         setTimeLeft(calculateTimeLeft(myBid.end_date));
       }
     }, 1000);
-    
+
     return () => clearInterval(interval); // Cleanup on unmount
-    
+
   }, [myBid, myBidId]);
 
   // Set minimum bid amount and initialize bid amount when fetching bid data
@@ -99,7 +101,7 @@ function AddAnotherBid({ route, navigation }) {
 
       // Only set amount if it hasn't been modified (i.e., it's still an empty string)
       if (amount === "") {
-        setAmount(minBid.toString()); 
+        setAmount(minBid.toString());
       }
     }
   }, [myBid]);
@@ -168,7 +170,7 @@ function AddAnotherBid({ route, navigation }) {
           alert(`Failed to place bid: ${errorResponseText}`);
           return;
         } else {
-          Alert.alert('Success!', 'Bid Successfully Added')
+          Alert.alert('Success!', 'Bid Successfully Added');
           navigation.navigate("My Bids");
         }
       } catch (error) {
@@ -248,17 +250,7 @@ function AddAnotherBid({ route, navigation }) {
         <View className="items-center">
           <TouchableOpacity
             className={`w-full py-4 rounded-lg ${isBidValid ? "bg-[#00b251]" : "bg-gray-400"}`}
-            onPress={() => {
-              Alert.alert(
-                "Confirm Placed Bid",
-                "Do you really want to place this bid?",
-                [
-                  { text: "No", style: "cancel" },
-                  { text: "Yes", onPress: handlePlaceBid },
-                ],
-                { cancelable: false }
-              );
-            }}
+            onPress={() => setModalVisible(true)} // Show modal instead of placing bid directly
             disabled={!isBidValid}
           >
             {loading ? (
@@ -271,6 +263,38 @@ function AddAnotherBid({ route, navigation }) {
           </TouchableOpacity>
         </View>
       </ScrollView>
+
+      {/* Modal for Bid Confirmation */}
+      <Modal
+        transparent={true}
+        animationType="slide"
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black/50">
+          <View className="bg-white rounded-lg p-6 w-80">
+            <Text className="text-lg font-bold mb-4">Confirm Placed Bid</Text>
+            <Text className="mb-4">Do you really want to place this bid of {amount}?</Text>
+            <View className="flex-row justify-between">
+              <TouchableOpacity
+                onPress={() => setModalVisible(false)} // Close the modal on cancel
+                className="bg-gray-300 p-2 rounded"
+              >
+                <Text>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  setModalVisible(false);
+                  handlePlaceBid(); // Call handlePlaceBid on confirmation
+                }}
+                className="bg-[#00B251] p-2 rounded"
+              >
+                <Text className="text-white">Yes</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
