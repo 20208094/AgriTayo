@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, SafeAreaView, ScrollView, TouchableOpacity, Image, TextInput, Modal, Pressable } from 'react-native';
 import Icon from "react-native-vector-icons/FontAwesome5";
 import placeholderimg from '../../assets/placeholder.png';
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 import NavigationbarComponent from '../../components/NavigationbarComponent';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 function CompareShopsScreen({ route }) {
   const navigation = useNavigation();
@@ -16,6 +17,9 @@ function CompareShopsScreen({ route }) {
   const [combinedData, setCombinedData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [shopData, setShopData] = useState(null);
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
 
   const fetchCrops = async () => {
     try {
@@ -124,6 +128,28 @@ function CompareShopsScreen({ route }) {
     React.useCallback(() => {
       fetchCrops();
     }, [filter_category_id, filter_sub_category_id, filter_variety_id, filter_class, filter_size_id, filter_price_range, filter_quantity])
+  );
+
+  const getAsyncShopData = async () => {
+    try {
+      const storedData = await AsyncStorage.getItem("shopData");
+      if (storedData) {
+        const parsedData = JSON.parse(storedData);
+        const shop = Array.isArray(parsedData) ? parsedData[0] : parsedData;
+        setShopData(shop);
+      }
+    } catch (error) {
+      setAlertMessage(`Failed to load shop data: ${error.message}`);
+      setAlertVisible(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      getAsyncShopData();
+    }, [])
   );
 
   // Handle search filtering
@@ -279,10 +305,20 @@ function CompareShopsScreen({ route }) {
             ) : (
               <Text className="text-center text-gray-500">No filtered data</Text>
             )}
+            
           </View>
         </View>
       </ScrollView>
       <NavigationbarComponent/>
+      {shopData && (
+        <TouchableOpacity
+          className="absolute flex-row items-center bottom-5 right-5 bg-[#00B251] rounded-full p-4 shadow-lg"
+          onPress={() => navigation.navigate("Add Product")}
+        >
+          <Icon name="plus" size={20} color="white" />
+          <Text className="text-white ml-2 text-base font-bold">Add Product</Text>
+        </TouchableOpacity>
+      )}
     </SafeAreaView>
   );
 }

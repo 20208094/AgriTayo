@@ -236,9 +236,22 @@ function ProductDetailsScreen({ navigation, route }) {
           "x-api-key": REACT_NATIVE_API_KEY,
         },
       });
+      const shopResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/shops`, {
+        headers: {
+          "x-api-key": REACT_NATIVE_API_KEY,
+        },
+      });
       const cropsData = await cropResponse.json();
       const newCrop = cropsData.filter(crop => crop.crop_id === product.crop_id)
-      setCropData(newCrop);
+      const shopData = await shopResponse.json();
+      const combinedData = newCrop.map(crop => {
+        const shopinfo = shopData.find(shop => shop.shop_id === crop.shop_id);
+        return {
+          ...crop,
+          shop: shopinfo ? shopinfo : null
+        };
+      });
+      setCropData(combinedData);
     } catch (error) {
       console.error("Error fetching shop or related products:", error);
     }

@@ -175,7 +175,38 @@ const NegotiationBuyerScreen = ({ route }) => {
           </View>
 
           {/* Negotiation Details */}
-          {negotiationData.shop_open_for_negotiation ? (
+          {negotiationData.buyer_turn ? (
+            <>
+            <View className="border border-gray-200 rounded-lg p-4 shadow-sm bg-white mb-5 ml-2 mt-3">
+                {/* Message */}
+                <Text className="text-lg md:text-xl font-semibold text-orange-600 mb-3">
+                  Please wait for the seller to make a new offer, Accept, or Decline the negotiation
+                </Text>
+
+                {/* Pricing Information */}
+                <View className="space-y-1 mb-4">
+                  <View className="flex-row justify-between">
+                    <Text className="text-sm md:text-base font-bold text-gray-700">Your Price:</Text>
+                    <Text className="text-sm md:text-base text-gray-600">₱{negotiationData.user_price}</Text>
+                  </View>
+                  <View className="flex-row justify-between">
+                    <Text className="text-sm md:text-base font-bold text-gray-700">Amount:</Text>
+                    <Text className="text-sm md:text-base text-gray-600">₱{negotiationData.user_amount}</Text>
+                  </View>
+                  <View className="flex-row justify-between">
+                    <Text className="text-sm md:text-base font-bold text-gray-700">Total Price:</Text>
+                    <Text className="text-sm md:text-base text-gray-600">₱{negotiationData.user_total}</Text>
+                  </View>
+                </View>
+              </View>
+              <View className="flex-row ">
+                {/* Your Offer Section */}
+                <View className="flex-1 border border-white rounded-md p-4 bg-white shadow-md h-96">
+                  
+                </View>
+              </View>
+            </>
+          ) : negotiationData.shop_open_for_negotiation ? (
             <>
               <View className="flex-row space-x-4 ">
                 {/* Seller Offer Section */}
@@ -304,19 +335,27 @@ const NegotiationBuyerScreen = ({ route }) => {
           ) : (
             <>
               {/* Closed Negotiation State */}
-              <View className="border-b border-gray-300 pb-4 ml-2 mb-5">
-                <Text className="text-lg md:text-xl font-semibold text-red-600 mb-2">
-                  Negotiation Closed
+              <View className="border border-gray-200 rounded-lg p-4 shadow-sm bg-white mb-5 ml-2">
+                {/* Message */}
+                <Text className="text-lg md:text-xl font-semibold text-red-500 mb-3">
+                The seller has indicated that they do not wish to negotiate further. Please either accept or decline the offer.
                 </Text>
-                <Text className="text-sm md:text-base text-gray-600 mb-2">
-                  Seller Price: ₱{negotiationData.crops.crop_price}
-                </Text>
-                <Text className="text-sm md:text-base text-gray-600 mb-2">
-                  Your Offer: ₱{negotiationData.user_price}
-                </Text>
-                <Text className="text-sm md:text-base text-gray-600">
-                  Total Amount: ₱{negotiationData.final_total}
-                </Text>
+
+                {/* Pricing Information */}
+                <View className="space-y-1 mb-4">
+                  <View className="flex-row justify-between">
+                    <Text className="text-sm md:text-base font-bold text-gray-700">Seller Price:</Text>
+                    <Text className="text-sm md:text-base text-gray-600">₱{negotiationData.shop_price}</Text>
+                  </View>
+                  <View className="flex-row justify-between">
+                    <Text className="text-sm md:text-base font-bold text-gray-700">Amount:</Text>
+                    <Text className="text-sm md:text-base text-gray-600">₱{negotiationData.shop_amount}</Text>
+                  </View>
+                  <View className="flex-row justify-between">
+                    <Text className="text-sm md:text-base font-bold text-gray-700">Total Price:</Text>
+                    <Text className="text-sm md:text-base text-gray-600">₱{negotiationData.shop_total}</Text>
+                  </View>
+                </View>
               </View>
 
               {/* Action Buttons */}

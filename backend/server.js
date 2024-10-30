@@ -115,6 +115,7 @@ const {
     getNegotiations,
     addNegotiation,
     updateNegotiation,
+    updateShopNegotiation,
     deleteNegotiation
 } = require('./supabase_connection/crud_services/negotiations');
 
@@ -367,6 +368,7 @@ app.delete('/api/order_products/:id', deleteOrderProduct);
 app.get('/api/negotiations', getNegotiations);
 app.post('/api/negotiations', addNegotiation);
 app.put('/api/negotiations/:id', updateNegotiation);
+app.put('/api/shop_negotiations/:id', updateShopNegotiation);
 app.delete('/api/negotiations/:id', deleteNegotiation);
 
 // API routes for carts

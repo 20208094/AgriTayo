@@ -122,6 +122,8 @@ function NegotiationBuyerScreen({ navigation, route }) {
       user_amount: parseFloat(amount),
       user_total: parseFloat(total),
       user_open_for_negotiation: isChecked,
+      shop_number: product.shop.shop_number,
+      crop_name: product.crop_name,
     };
 
     handleCreateNegotiation(negotiationDetails);

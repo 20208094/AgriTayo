@@ -5,6 +5,8 @@ import placeholderimg from '../../assets/placeholder.png';
 import Icon from "react-native-vector-icons/FontAwesome5";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from '@env';
 import LoadingAnimation from '../../components/LoadingAnimation';
+import { useFocusEffect } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const CategoryItemCard = ({ item }) => {
   const navigation = useNavigation();
@@ -47,6 +49,9 @@ function FeaturedProductScreen({ route }) {
   const navigation = useNavigation();
   const [modalVisible, setModalVisible] = useState(false);
   const [currentSort, setCurrentSort] = useState({ method: 'price', order: 'asc' });
+  const [shopData, setShopData] = useState(null);
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
 
   const API_KEY = REACT_NATIVE_API_KEY;
 
@@ -193,6 +198,28 @@ function FeaturedProductScreen({ route }) {
     setSearchQuery(text);
   };
 
+  const getAsyncShopData = async () => {
+    try {
+      const storedData = await AsyncStorage.getItem("shopData");
+      if (storedData) {
+        const parsedData = JSON.parse(storedData);
+        const shop = Array.isArray(parsedData) ? parsedData[0] : parsedData;
+        setShopData(shop);
+      }
+    } catch (error) {
+      setAlertMessage(`Failed to load shop data: ${error.message}`);
+      setAlertVisible(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      getAsyncShopData();
+    }, [])
+  );
+
   const filteredCrops = crops.filter(crop => {
     const searchLower = searchQuery.toLowerCase();
 
@@ -213,7 +240,7 @@ function FeaturedProductScreen({ route }) {
       sizeName.includes(searchLower)
     );
   });
-  
+
   const sortOptions = [
     { method: 'price', iconAsc: 'sort-amount-down-alt', iconDesc: 'sort-amount-up' },
     { method: 'rating', iconAsc: 'sort-amount-down-alt', iconDesc: 'sort-amount-up' },
@@ -283,6 +310,18 @@ function FeaturedProductScreen({ route }) {
         </View>
       </ScrollView>
 
+      {shopData && (
+        <TouchableOpacity
+          className="absolute flex-row items-center bottom-5 right-5 bg-[#00B251] rounded-full p-4 shadow-lg"
+          onPress={() => navigation.navigate("Add Product")}
+        >
+          <Icon name="plus" size={20} color="white" />
+          <Text className="text-white ml-2 text-base font-bold">Add Product</Text>
+        </TouchableOpacity>
+      )}
+
+
+
       {/* Sort Modal */}
       <Modal
         animationType="slide"
@@ -324,7 +363,7 @@ function FeaturedProductScreen({ route }) {
       </Modal>
     </SafeAreaView>
 
-    
+
   );
 }
 

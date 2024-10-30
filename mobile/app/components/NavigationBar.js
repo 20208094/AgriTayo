@@ -236,7 +236,7 @@ const NavigationBar = () => {
                   </TouchableOpacity>
                   <TouchableOpacity
                     className="items-center bg-white border-2 border-slate-500 rounded-xl px-2 py-1 mx-2 mb-2 w-36"
-                    onPress={() => navigation.navigate("Buyer Negotiation List")}
+                    onPress={() => navigation.navigate("Seller Negotiation List")}
                   >
                     <Icon name="storefront-outline" size={30} color="#00B251" />
                     <Text className="text-center">Shop Negotiations</Text>

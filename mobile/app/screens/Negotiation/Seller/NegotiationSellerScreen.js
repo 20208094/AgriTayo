@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import {
   SafeAreaView,
   View,
@@ -7,227 +7,448 @@ import {
   TextInput,
   Image,
   Modal,
+  ScrollView,
   Dimensions,
-} from "react-native";
-import { styled } from "nativewind"; // Import NativeWind
+} from 'react-native';
+import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
+import { styled } from 'nativewind';
+import { useNavigation } from '@react-navigation/native';
 
-const { width, height } = Dimensions.get("window"); // Get screen dimensions
 
-const NegotiationSellerScreen = ({ route, navigation }) => {
-  const { dummyNegotiation, negotiationData } = route.params;
+const { width, height } = Dimensions.get('window');
+const StyledText = styled(Text);
+const StyledTouchableOpacity = styled(TouchableOpacity);
+const StyledView = styled(View);
 
-  const [price, setPrice] = useState("");
-  const [amount, setAmount] = useState("");
+const NegotiationSellerScreen = ({ route }) => {
+  const { data: negotiationData } = route.params;
+  const navigation = useNavigation();
+  const [offerPrice, setOfferPrice] = useState('');
+  const [amount, setAmount] = useState('');
   const [total, setTotal] = useState(0);
-  const [modalVisible, setModalVisible] = useState(false); // Modal state
-  const [isReadMore, setIsReadMore] = useState(true); // Read more state
+  const [modalVisible, setModalVisible] = useState(false);
+  const [confirmationModalVisible, setConfirmationModalVisible] = useState(false);
+  const [confirmationAction, setConfirmationAction] = useState(null);
+  const [isReadMore, setIsReadMore] = useState(true);
+  const toggleSwitch = () => setIsChecked(!isChecked);
+  const [isChecked, setIsChecked] = useState(true);
 
-  // Effect to calculate the total based on price and amount
+  // Effect to calculate the total price dynamically
   useEffect(() => {
-    const priceNum = parseFloat(price) || 0;
+    const priceNum = parseFloat(offerPrice) || 0;
     const amountNum = parseFloat(amount) || 0;
     setTotal((priceNum * amountNum).toFixed(2));
-  }, [price, amount]);
+  }, [offerPrice, amount]);
 
-  // Read More logic: only show "Read More" if description exceeds 50 characters
-  const shouldShowReadMore = dummyNegotiation.productDescription.length > 50;
+  handleMakeOffer = async () => {
+    const formData = new FormData();
+    formData.append("shop_amount", amount);
+    formData.append("shop_price", offerPrice);
+    formData.append("shop_total", total);
+    formData.append("buyer_turn", true);
+    formData.append("shop_open_for_negotiation", isChecked);
+    formData.append("negotiation_status", negotiationData.negotiation_status);
+    formData.append("final_amount", negotiationData.final_amount);
+    formData.append("final_price", negotiationData.final_price);
+    formData.append("final_total", negotiationData.final_total);
+
+    const isSuccess = await handleSubmit(formData);
+
+    if (isSuccess) {
+      navigation.navigate("Buyer Negotiation List", { screen: "Ongoing" });
+    } else {
+      alert('Failed to decline the offer. Please try again.');
+    }
+  }
+
+  handleAcceptOffer = async () => {
+    const formData = new FormData();
+    formData.append("shop_amount", negotiationData.shop_amount);
+    formData.append("shop_price", negotiationData.shop_price);
+    formData.append("shop_total", negotiationData.shop_total);
+    formData.append("buyer_turn", negotiationData.buyer_turn);
+    formData.append("shop_open_for_negotiation", negotiationData.shop_open_for_negotiation);
+    formData.append("negotiation_status", 'Approved');
+    formData.append("final_amount", negotiationData.user_amount);
+    formData.append("final_price", negotiationData.user_price);
+    formData.append("final_total", negotiationData.user_total);
+
+    const isSuccess = await handleSubmit(formData);
+
+    if (isSuccess) {
+      navigation.navigate("Buyer Negotiation List", { screen: "Approved" });
+    } else {
+      alert('Failed to decline the offer. Please try again.');
+    }
+  }
+
+  handleDeclineOffer = async () => {
+    const formData = new FormData();
+    formData.append("shop_amount", negotiationData.shop_amount);
+    formData.append("shop_price", negotiationData.shop_price);
+    formData.append("shop_total", negotiationData.shop_total);
+    formData.append("buyer_turn", negotiationData.buyer_turn);
+    formData.append("shop_open_for_negotiation", negotiationData.shop_open_for_negotiation);
+    formData.append("negotiation_status", 'Cancelled');
+    formData.append("final_amount", negotiationData.final_amount);
+    formData.append("final_price", negotiationData.final_price);
+    formData.append("final_total", negotiationData.final_total);
+
+    const isSuccess = await handleSubmit(formData);
+
+    if (isSuccess) {
+      navigation.navigate("Buyer Negotiation List", { screen: "Cancelled" });
+    } else {
+      alert('Failed to decline the offer. Please try again.');
+    }
+  }
+
+  const handleSubmit = async (formData) => {
+    try {
+      const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/shop_negotiations/${negotiationData.negotiation_id}`, {
+        method: "PUT",
+        headers: {
+          "x-api-key": REACT_NATIVE_API_KEY,
+        },
+        body: formData,
+      });
+
+      if (response.ok) {
+        return true;
+      } else {
+        console.error('Failed to place order:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error placing order:', error);
+    } finally {
+      setModalVisible(false);
+    }
+  };
+
+  const confirmAction = async () => {
+    if (confirmationAction === "accept") {
+      await handleAcceptOffer();
+    } else if (confirmationAction === "decline") {
+      await handleDeclineOffer();
+    }
+  };
+
+  // Logic to only show "Read More" if the description is longer than 50 characters
+  const shouldShowReadMore = negotiationData.crops.crop_description.length > 50;
 
   // Dynamic styles based on screen width and height
-  const dynamicTextSize = width > 400 ? "text-lg" : "text-base"; // Adjust font size for larger screens
-  const dynamicButtonPadding = width > 400 ? "py-4" : "py-3"; // Adjust button padding for larger screens
+  const dynamicButtonPadding = width > 400 ? 'py-4' : 'py-3'; // Adjust button padding dynamically
   const dynamicImageHeight = height * 0.25; // Adjust image height to 25% of the screen height
 
   return (
-    <SafeAreaView className="flex-1 bg-white p-4">
-      <View className="flex-1 justify-between">
-        {/* Product Details */}
-        <View className="px-1 py-1">
-          <View className="border-b border-gray-300 pb-4 mb-1">
-            <Image
-              source={dummyNegotiation.productImage}
-              className="w-full object-cover rounded-lg mb-4"
-              style={{ height: dynamicImageHeight }} // Dynamically set image height
-              resizeMode="contain" // Make sure the image scales properly
-            />
-            <Text
-              className={`${dynamicTextSize} font-semibold text-gray-800 mb-2`}
-            >
-              {dummyNegotiation.productName}
-            </Text>
-            <Text className="text-sm text-gray-600 mb-2">
-              {isReadMore
-                ? `${dummyNegotiation.productDescription.substring(0, 50)}${
-                    shouldShowReadMore ? "..." : ""
-                  }`
-                : dummyNegotiation.productDescription}
-              {shouldShowReadMore && isReadMore && (
-                <Text
-                  className="text-[#00B251] font-semibold"
-                  onPress={() => setModalVisible(true)} // Set modalVisible to true
-                >
-                  {" "}
-                  Read More
-                </Text>
-              )}
-            </Text>
-            <Text className={`${dynamicTextSize} font-bold text-[#00B251]`}>
-              ₱{dummyNegotiation.productPrice}
-            </Text>
+    <SafeAreaView className="flex-1 bg-gray-50 p-4">
+      <View className="flex-1">
+        <View className="flex-1 justify-between">
+          {/* Product Details */}
+          <View className="px-1 py-1">
+            <View className="border-b border-gray-300">
+              <Image
+                source={{ uri: negotiationData.crops.crop_image_url }}
+                className="w-full object-cover rounded-lg mb-4"
+                style={{ height: dynamicImageHeight }}
+                resizeMode="contain"
+              />
+              <Text
+                className={`text-lg font-semibold text-gray-800 mb-2`}
+              >
+                {negotiationData.crops.crop_name}
+              </Text>
+              <Text className="text-sm text-gray-600">
+                {isReadMore
+                  ? `${negotiationData.crops.crop_description.substring(
+                    0,
+                    50
+                  )}${shouldShowReadMore ? '...' : ''}`
+                  : negotiationData.crops.crop_description}
+                {shouldShowReadMore && isReadMore && (
+                  <Text className="text-[#00B251] font-semibold" onPress={() => setModalVisible(true)} >
+                    {' '} Read More
+                  </Text>
+                )}
+              </Text>
+            </View>
           </View>
-        </View>
 
-        {/* Buyer and Seller Negotiation Details */}
-        {dummyNegotiation.openOrCloseNegotiation === "open" ? (
-          <>
-            <View className="flex-row justify-between space-x-4 mt-1">
-              {/* Buyer Offer Section */}
-              <View className="flex-1 border border-gray-300 rounded-md p-4">
-                <Text
-                  className={`${dynamicTextSize} font-semibold text-gray-800 mb-2`}
-                >
-                  Buyer Offer
+          {/* Negotiation Details */}
+          {negotiationData.buyer_turn ? (
+            <>
+            <View className="border border-gray-200 rounded-lg p-4 shadow-sm bg-white mb-5 ml-2 mt-3">
+                {/* Message */}
+                <Text className="text-lg md:text-xl font-semibold text-orange-600 mb-3">
+                  Please wait for the buyer to make a new offer, Accept, or Decline the negotiation
                 </Text>
-                <Text className="text-sm text-gray-600 mt-2">
-                  Price: ₱{negotiationData.price}
-                </Text>
-                <Text className="text-sm text-gray-600 mt-9">
-                  Amount: {negotiationData.amount}
-                </Text>
-                <Text className="font-bold text-lg text-black mt-7">
-                  Total: ₱{negotiationData.total}
-                </Text>
+
+                {/* Pricing Information */}
+                <View className="space-y-1 mb-4">
+                  <View className="flex-row justify-between">
+                    <Text className="text-sm md:text-base font-bold text-gray-700">Your Price:</Text>
+                    <Text className="text-sm md:text-base text-gray-600">₱{negotiationData.shop_price}</Text>
+                  </View>
+                  <View className="flex-row justify-between">
+                    <Text className="text-sm md:text-base font-bold text-gray-700">Amount:</Text>
+                    <Text className="text-sm md:text-base text-gray-600">₱{negotiationData.shop_amount}</Text>
+                  </View>
+                  <View className="flex-row justify-between">
+                    <Text className="text-sm md:text-base font-bold text-gray-700">Total Price:</Text>
+                    <Text className="text-sm md:text-base text-gray-600">₱{negotiationData.shop_total}</Text>
+                  </View>
+                </View>
+              </View>
+              <View className="flex-row ">
+                {/* Your Offer Section */}
+                <View className="flex-1 border border-white rounded-md p-4 bg-white shadow-md h-96">
+                  
+                </View>
+              </View>
+            </>
+          ) : negotiationData.shop_open_for_negotiation ? (
+            <>
+              <View className="flex-row space-x-4 ">
+                {/* Seller Offer Section */}
+                <View className=" border border-gray-300 rounded-md p-4 bg-white shadow-md">
+                  <Text
+                    className={`text-lg font-semibold text-gray-800 mb-2`}
+                  >
+                    Buyer Offer
+                  </Text>
+                  <Text className="text-sm text-gray-600 mt-2">
+                    Price: ₱{negotiationData.user_price}
+                  </Text>
+                  <Text className="text-sm text-gray-600 mt-9">
+                    Amount: {negotiationData.user_amount}
+                  </Text>
+                  <Text className="font-bold text-lg text-black mt-7">
+                    Total: ₱{negotiationData.user_total}
+                  </Text>
+                </View>
+
+                {/* Your Offer Section */}
+                <View className="flex-1 border border-[#00B251] rounded-md p-4 bg-white shadow-md">
+                  <Text
+                    className={`text-lg font-semibold text-gray-800 mb-2`}
+                  >
+                    Your Offer
+                  </Text>
+                  <View className="">
+                    <Text className={`text-base font-bold text-gray-800`} >
+                      Price:
+                    </Text>
+                    <TextInput
+                      className="border border-gray-300 rounded-md p-2 text-gray-800"
+                      keyboardType="numeric"
+                      placeholder={`₱${negotiationData.shop_price}`}
+                      value={offerPrice}
+                      onChangeText={setOfferPrice}
+                      style={{ fontSize: width > 400 ? 18 : 16 }}
+                    />
+                    <Text className={`text-base font-bold text-gray-800`} >
+                      Ammount:
+                    </Text>
+                    <TextInput
+                      className="border border-gray-300 rounded-md p-2 text-gray-800"
+                      keyboardType="numeric"
+                      placeholder={`${negotiationData.shop_amount}`}
+                      value={amount}
+                      onChangeText={setAmount}
+                      style={{ fontSize: width > 400 ? 18 : 16 }} // Adjust font size
+                    />
+                    <Text
+                      className={`text-base font-bold text-gray-800`}
+                    >
+                      Total: ₱{total}
+                    </Text>
+
+                    {/* New Toggle Switch */}
+
+                    <StyledText className="text-base font-bold text-gray-800 mt-2">
+                      Open for Negotiation:
+                    </StyledText>
+                    <StyledView className="flex-row items-center mb-4 w-full">
+                      <StyledText className="text-red-700 font-bold text-base ml-12">
+                        No
+                      </StyledText>
+                      <StyledTouchableOpacity
+                        className="relative inline-flex items-center cursor-pointer ml-1"
+                        onPress={toggleSwitch}
+                      >
+
+                        <StyledView
+                          className={`relative w-[44px] h-[24px] rounded-full transition-colors duration-300 ${isChecked ? "bg-green-600" : "bg-gray-300"
+                            }`}
+                        >
+                          <StyledView
+                            className={`absolute top-[2px] start-[2px] h-[20px] w-[20px] rounded-full transition-transform duration-300 ${isChecked
+                              ? "translate-x-[20px] bg-white"
+                              : "translate-x-0 bg-gray-500"
+                              }`}
+                          />
+                        </StyledView>
+                      </StyledTouchableOpacity>
+                      <StyledText className="text-green-700 font-bold text-base ml-1">
+                        Yes
+                      </StyledText>
+                    </StyledView>
+
+                    <TouchableOpacity
+                      className={`border border-[#00B251] ${dynamicButtonPadding} rounded-md bg-[#00B251]`}
+                      onPress={() => handleMakeOffer()}
+                    >
+                      <Text className="text-white text-center font-semibold">
+                        Make Offer
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
               </View>
 
-              {/* Seller Offer Section */}
-              <View className="flex-1 border border-[#00B251] rounded-md p-4">
-                <Text
-                  className={`${dynamicTextSize} font-semibold text-gray-800 mb-2`}
+              {/* Action Buttons */}
+              <View className="flex-row justify-between space-x-4 mt-4">
+                <TouchableOpacity
+                  className={`bg-[#00B251] py-4 rounded-md flex-1`}
+                  onPress={() => {
+                    setConfirmationModalVisible(true);
+                    setConfirmationAction("accept");
+                  }}
                 >
-                  Your Offer
-                </Text>
-                <View className="space-y-4">
-                  <TextInput
-                    className="border border-gray-300 rounded-md p-1 text-gray-800"
-                    keyboardType="numeric"
-                    placeholder={`Price: ${negotiationData.price}`}
-                    value={price}
-                    onChangeText={setPrice}
-                    style={{ fontSize: width > 400 ? 18 : 16 }} // Dynamically adjust font size
-                  />
-                  <TextInput
-                    className="border border-gray-300 rounded-md p-1 text-gray-800"
-                    keyboardType="numeric"
-                    placeholder={`Amount: ${negotiationData.amount}`}
-                    value={amount}
-                    onChangeText={setAmount}
-                    style={{ fontSize: width > 400 ? 18 : 16 }} // Adjust font size
-                  />
-                  <Text
-                    className={`${dynamicTextSize} font-bold text-gray-800`}
-                  >
-                    Total: ₱{total}
+                  <Text className="text-white text-center font-semibold">
+                    Accept Offer
                   </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  className={`bg-red-500 py-4 rounded-md flex-1`}
+                  onPress={() => {
+                    setConfirmationModalVisible(true);
+                    setConfirmationAction("decline");
+                  }}
+                >
+                  <Text className="text-white text-center font-semibold">
+                    Decline Offer
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </>
+          ) : (
+            <>
+              {/* Closed Negotiation State */}
+              <View className="border border-gray-200 rounded-lg p-4 shadow-sm bg-white mb-5 ml-2">
+                {/* Message */}
+                <Text className="text-lg md:text-xl font-semibold text-red-500 mb-3">
+                The buyer has indicated that they do not wish to negotiate further. Please either accept or decline the offer.
+                </Text>
+
+                {/* Pricing Information */}
+                <View className="space-y-1 mb-4">
+                  <View className="flex-row justify-between">
+                    <Text className="text-sm md:text-base font-bold text-gray-700">Buyer Price:</Text>
+                    <Text className="text-sm md:text-base text-gray-600">₱{negotiationData.user_price}</Text>
+                  </View>
+                  <View className="flex-row justify-between">
+                    <Text className="text-sm md:text-base font-bold text-gray-700">Amount:</Text>
+                    <Text className="text-sm md:text-base text-gray-600">₱{negotiationData.user_amount}</Text>
+                  </View>
+                  <View className="flex-row justify-between">
+                    <Text className="text-sm md:text-base font-bold text-gray-700">Total Price:</Text>
+                    <Text className="text-sm md:text-base text-gray-600">₱{negotiationData.user_total}</Text>
+                  </View>
+                </View>
+              </View>
+
+              {/* Action Buttons */}
+              <View className="flex-row justify-between space-x-4 mt-4">
+                <TouchableOpacity
+                  className={`bg-[#00B251] py-4 rounded-md flex-1`}
+                  onPress={() => {
+                    setConfirmationModalVisible(true);
+                    setConfirmationAction("accept");
+                  }}
+                >
+                  <Text className="text-white text-center font-semibold">
+                    Accept Offer
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  className={`bg-red-500 py-4 rounded-md flex-1`}
+                  onPress={() => {
+                    setConfirmationModalVisible(true);
+                    setConfirmationAction("decline");
+                  }}
+                >
+                  <Text className="text-white text-center font-semibold">
+                    Decline Offer
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </>
+          )}
+
+          {/* Modal for full product description */}
+          <Modal
+            visible={modalVisible}
+            animationType="slide"
+            transparent={true}
+            onRequestClose={() => setModalVisible(false)} // Close modal on back press
+          >
+            <View className="flex-1 justify-center items-center bg-black/50">
+              <View className="bg-white w-4/5 p-6 rounded-lg shadow-lg">
+                <Text className="text-lg font-bold text-[#00B251] mb-4">
+                  Product Description
+                </Text>
+                <ScrollView className="mb-4">
+                  <Text className="text-sm text-gray-600">
+                    {negotiationData.crops.crop_description}
+                  </Text>
+                </ScrollView>
+                <TouchableOpacity
+                  className={`bg-[#00B251] ${dynamicButtonPadding} rounded-md`}
+                  onPress={() => setModalVisible(false)} // Close modal on press
+                >
+                  <Text className="text-white text-center font-semibold">
+                    Close
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
+
+          {/* Confirmation Modal */}
+          <Modal
+            visible={confirmationModalVisible}
+            animationType="fade"
+            transparent={true}
+            onRequestClose={() => setConfirmationModalVisible(false)}
+          >
+            <View className="flex-1 justify-center items-center bg-black/50">
+              <View className="bg-white w-4/5 p-6 rounded-lg shadow-lg">
+                <Text className="text-lg font-bold text-gray-800 mb-4">
+                  Are you sure you want to {confirmationAction === "accept" ? "accept" : "decline"} the offer?
+                </Text>
+                <View className="flex-row justify-between">
                   <TouchableOpacity
-                    className={`border border-[#00B251] ${dynamicButtonPadding} rounded-md`}
-                    onPress={() => {}}
+                    className="bg-gray-300 px-4 py-2 rounded-md mr-2 flex-1"
+                    onPress={() => setConfirmationModalVisible(false)}
                   >
-                    <Text className="text-[#00B251] text-center font-semibold">
-                      Negotiate
+                    <Text className="text-center font-semibold text-gray-700">
+                      Cancel
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    className="bg-[#00B251] px-4 py-2 rounded-md flex-1"
+                    onPress={confirmAction}
+                  >
+                    <Text className="text-white text-center font-semibold">
+                      Confirm
                     </Text>
                   </TouchableOpacity>
                 </View>
               </View>
             </View>
-
-            {/* Action Buttons */}
-            <View className="flex-row justify-between space-x-4 mt-4">
-              <TouchableOpacity
-                className={`bg-[#00B251] ${dynamicButtonPadding} rounded-md flex-1`}
-                onPress={() => navigation.navigate("Buyer Edit Negotiation")}
-              >
-                <Text className="text-white text-center font-semibold">
-                  Accept
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                className={`bg-red-500 ${dynamicButtonPadding} rounded-md flex-1`}
-                onPress={() => {}}
-              >
-                <Text className="text-white text-center font-semibold">
-                  Decline
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </>
-        ) : (
-          <>
-            {/* Closed Negotiation State */}
-            <View className="border rounded-lg p-3 border-gray-300 pb-4 ml-2 mb-5 ">
-              <Text className="text-lg md:text-xl font-semibold text-red-600 mb-2">
-                The buyer did not want to negotiate.
-              </Text>
-              <Text className="text-lg md:text-xl font-semibold text-gray-800 mb-2">
-                Buyer Offer:{" "}
-              </Text>
-              <Text className="text-sm md:text-base text-gray-600 mb-2">
-                Price: ₱{negotiationData.price}
-              </Text>
-              <Text className="text-sm md:text-base text-gray-600 mb-2">
-                Amount: {negotiationData.amount}
-              </Text>
-              <Text className="text-sm md:text-base text-gray-600">
-                Total: ₱{negotiationData.total}
-              </Text>
-            </View>
-
-            {/* Action Buttons */}
-            <View className="flex-row justify-between space-x-4 mb-40">
-              <TouchableOpacity
-                className={`bg-[#00B251] ${dynamicButtonPadding} rounded-md flex-1`}
-                onPress={() => navigation.navigate("Buyer Edit Negotiation")}
-              >
-                <Text className="text-white text-center font-semibold">
-                  Accept
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                className={`bg-red-500 ${dynamicButtonPadding} rounded-md flex-1`}
-                onPress={() => {}}
-              >
-                <Text className="text-white text-center font-semibold">
-                  Decline
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </>
-        )}
-
-        {/* Modal for full product description */}
-        <Modal
-          visible={modalVisible}
-          animationType="slide"
-          transparent={true}
-          onRequestClose={() => setModalVisible(false)} // Close modal on back press
-        >
-          <View className="flex-1 justify-center items-center bg-black/50">
-            <View className="bg-white w-4/5 p-6 rounded-lg">
-              <Text className="text-lg font-bold text-[#00B251] mb-4">
-                Product Description
-              </Text>
-              <Text className="text-sm text-gray-600 mb-4">
-                {dummyNegotiation.productDescription}
-              </Text>
-              <TouchableOpacity
-                className={`bg-[#00B251] ${dynamicButtonPadding} rounded-md`}
-                onPress={() => setModalVisible(false)} // Close modal on press
-              >
-                <Text className="text-white text-center font-semibold">
-                  Close
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </Modal>
+          </Modal>
+        </View>
       </View>
     </SafeAreaView>
   );

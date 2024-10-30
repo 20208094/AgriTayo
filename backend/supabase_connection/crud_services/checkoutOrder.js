@@ -108,12 +108,7 @@ async function checkoutOrder(req, res) {
             }
 
             // Return success response with the new order and items data
-            return res.status(201).json({
-                message: 'Order added successfully',
-                newOrder,
-                itemsData,
-                cartData
-            });
+            return res.status(201).json({ message: 'Order added successfully', newOrder, itemsData, cartData });
         } else if (orderDetails.cartType === 'negotiate') {
             // UPDATING THE NEGOTIATION
             const cartIdsToUpdate = items.map(item => item.cart_id);
@@ -124,24 +119,14 @@ async function checkoutOrder(req, res) {
             const { data: cartData, error: cartError } = await supabase
                 .from('negotiations')
                 .update(updateData)
-                .in('negotiation_id', cartIdsToUpdate);  // Use `.in()` instead of `.eq()`
+                .in('negotiation_id', cartIdsToUpdate);
 
             if (cartError) {
                 console.error('Supabase negotiation update query failed:', cartError.message);
                 return res.status(500).json({ error: 'Internal server error' });
             }
 
-            if (!cartData || cartData.length === 0) {
-                console.error('No negotiations were updated.');
-                return res.status(400).json({ error: 'No negotiations found for update.' });
-            }
-
-            return res.status(201).json({
-                message: 'Order added successfully',
-                newOrder,
-                itemsData,
-                cartData
-            });
+            return res.status(201).json({ message: 'Order added successfully' });
         }
 
 

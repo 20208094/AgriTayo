@@ -171,7 +171,7 @@ function NegotiationSellerListScreen({ route, navigation }) {
                             <StyledTouchableOpacity
                                 key={data.negotiation_id}
                                 className="bg-white border border-gray-300 rounded-lg shadow-lg p-4"
-                                onPress={() => navigation.navigate('Seller Negotiation')}
+                                onPress={() => navigation.navigate('Seller Negotiation', { data })}
                                 style={{
                                     shadowColor: "#000",
                                     shadowOffset: { width: 0, height: 2 },

@@ -88,30 +88,30 @@ const NavigationbarComponent = () => {
   return (
     <View className="">
       {/* Bottom Navigation Bar */}
-      <View className="absolute bottom-0 left-0 right-0 h-14 flex-row justify-around items-center bg-white border-t border-gray-300 shadow-md">
-        <TouchableOpacity onPress={() => navigation.navigate("Home")} className="items-center">
+      <View className="absolute bottom-0 left-0 right-0 h-14 flex-row items-center bg-white border-t border-gray-300 shadow-md">
+        <TouchableOpacity onPress={() => navigation.navigate("Home")} className="items-center w-1/5">
           <Icon name="home-outline" size={25} color="gray" />
-          <Text className="text-xs text-gray-600">Home</Text>
+          <Text className="text-xs text-gray-600 w-full text-center">Home</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => navigation.navigate("Featured Products")} className="items-center">
+        <TouchableOpacity onPress={() => navigation.navigate("Featured Products")} className="items-center w-1/5">
           <Icon name="leaf-outline" size={25} color="gray" />
-          <Text className="text-xs text-gray-600">Market</Text>
+          <Text className="text-xs text-gray-600 w-full text-center">Market</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={toggleMenu} className="items-center">
+        <TouchableOpacity onPress={toggleMenu} className="items-center w-1/5">
           <Icon name={menuVisible ? "close-circle-outline" : "grid-outline"} size={25} color="gray" />
-          <Text className="text-xs text-gray-600">Menu</Text>
+          <Text className="text-xs text-gray-600 w-full text-center">Menu</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => navigation.navigate("Biddings")} className="items-center">
+        <TouchableOpacity onPress={() => navigation.navigate("Biddings")} className="items-center w-1/5">
           <Icon name="people-outline" size={25} color="gray" />
-          <Text className="text-xs text-gray-600">Biddings</Text>
+          <Text className="text-xs text-gray-600 w-full text-center">Biddings</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => navigation.navigate("Profile")} className="items-center">
+        <TouchableOpacity onPress={() => navigation.navigate("Profile")} className="items-center w-1/5">
           <Icon name="person-outline" size={25} color="gray" />
-          <Text className="text-xs text-gray-600">Profile</Text>
+          <Text className="text-xs text-gray-600 w-full text-center">Profile</Text>
         </TouchableOpacity>
       </View>
 
@@ -144,7 +144,7 @@ const NavigationbarComponent = () => {
                   </TouchableOpacity>
                   <TouchableOpacity
                     className="items-center bg-white border-2 border-slate-500 rounded-xl px-2 py-1 mx-2 mb-2 w-36"
-                    onPress={() => navigation.navigate("Buyer Negotiation List")}
+                    onPress={() => navigation.navigate("Seller Negotiation List")}
                   >
                     <Icon name="storefront-outline" size={30} color="#00B251" />
                     <Text className="text-center">Shop Negotiations</Text>
