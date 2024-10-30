@@ -153,13 +153,6 @@ function OTPScreen({ route, navigation }) {
           <Text className="text-gray-600 text-center">
             A 6-digit code has been sent to {formData.phone_number}
           </Text>
-          <View className="flex-row justify-center">
-            <TouchableOpacity
-              onPress={() => navigation.navigate("Change Email")}
-            >
-              <Text className="text-green-500">Change</Text>
-            </TouchableOpacity>
-          </View>
         </View>
 
         <View className="flex-row justify-between w-full max-w-xs mb-4">

@@ -229,6 +229,61 @@ async function updateUser(req, res) {
 // Helper function to get single value from array
 const getSingleValue = (value) => Array.isArray(value) ? value[0] : value;
 
+async function changePassword(req, res) {
+    try {
+        const { phone_number } = req.params;
+
+        if (!phone_number) {
+            return res.status(400).json({ error: 'Phone Number is required for update' });
+        }
+
+        const form = new formidable.IncomingForm({ multiples: true });
+
+        form.parse(req, async (err, fields, files) => {
+            if (err) {
+                console.error('Formidable error:', err);
+                return res.status(500).json({ error: 'Form parsing error' });
+            }
+
+            const {
+                pass,
+            } = fields;
+
+            console.log(pass)
+
+            const passwordString = getSingleValue(pass);
+            if (passwordString && typeof passwordString !== 'string') return res.status(400).json({ error: 'Invalid password type' });
+
+            const updateData = {
+                
+            }
+
+            updateData.password = await bcrypt.hash(passwordString, 10);
+
+            const { data, error } = await supabase
+                .from('users')
+                .update(updateData)
+                .eq('phone_number', phone_number);
+
+            if (error) {
+                console.error('Supabase query failed:', error.message);
+                return res.status(500).json({ error: 'Internal server error' });
+            }
+
+            console.log('User updated successfully:', data);
+            res.status(200).json({ message: 'User updated successfully', data });
+        });
+    } catch (err) {
+        console.error('Error executing updateUser process:', err.message);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+    
+// Helper function to get single value from array
+const getSingleValue = (value) => Array.isArray(value) ? value[0] : value;
+}
+
+
+
 async function deleteUser(req, res) {
     try {
         const { id } = req.params;
@@ -283,5 +338,6 @@ module.exports = {
     getUsers,
     addUser,
     updateUser,
-    deleteUser
+    deleteUser,
+    changePassword
 };
