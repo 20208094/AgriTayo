@@ -27,6 +27,7 @@ const {
 
 const {
     getUsers,
+    changePassword,
     addUser,
     updateUser,
     deleteUser
@@ -290,6 +291,7 @@ app.delete('/api/user_types/:id', deleteUserType);
 app.get('/api/users', getUsers);
 app.post('/api/users', addUser);
 app.put('/api/users/:id', updateUser);
+app.put('/api/changePassword/:phone_number', changePassword);
 app.delete('/api/users/:id', deleteUser);
 
 // API routes for addresses
