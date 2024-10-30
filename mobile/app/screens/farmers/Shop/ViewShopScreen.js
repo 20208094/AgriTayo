@@ -16,7 +16,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { FontAwesome } from "@expo/vector-icons";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
-
+import LoadingAnimation from "../../../components/LoadingAnimation";
 function ViewShopScreen({ navigation }) {
   const [userData, setUserData] = useState(null);
   const [shopData, setShopData] = useState(null);
@@ -45,6 +45,7 @@ function ViewShopScreen({ navigation }) {
 
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const validateField = (fieldName, value) => {
     let errorMessage = '';
@@ -93,7 +94,7 @@ function ViewShopScreen({ navigation }) {
         setShopDescription(value);
         validateField('shopDescription', value);
         break;
-        case 'shopNumber':
+      case 'shopNumber':
         setShopNumber(value);
         validateField('shopNumber', value);
         break;
@@ -114,21 +115,6 @@ function ViewShopScreen({ navigation }) {
     }
   };
 
-  const takePicture = async () => {
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    if (status === "granted") {
-      const result = await ImagePicker.launchCameraAsync({
-        quality: 1,
-      });
-      if (!result.canceled) {
-        setBirCertificate({ uri: result.assets[0].uri });
-        setModalVisible(false);
-      }
-    } else {
-      setAlertMessage("Camera permission is required.");
-      setAlertVisible(true);
-    }
-  };
 
   const selectImageFromGallery = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -247,18 +233,29 @@ function ViewShopScreen({ navigation }) {
   );
 
   const handleSubmit = async () => {
+    setLoading(true);
+    console.log("Starting submission...");
+    console.log("Shop ID:", shopId);
+    console.log("Shop Image:", shopImage);
+    console.log("BIR Certificate:", birCertificate);
+
     const formData = new FormData();
     formData.append("shop_id", shopId);
     formData.append("shop_name", shopName);
     formData.append("shop_address", shopAddress);
     formData.append("shop_description", shopDescription);
+
     if (shopImage) {
       formData.append("image", {
         uri: shopImage,
         name: "shop.jpg",
         type: "image/jpeg",
       });
+      console.log("Appended shop image:", shopImage);
+    } else {
+      console.log("No shop image to append.");
     }
+
     formData.append("delivery", isCheckedDelivery);
     formData.append("pickup", isCheckedPickup);
     formData.append("delivery_price", shopDeliveryFee);
@@ -270,38 +267,24 @@ function ViewShopScreen({ navigation }) {
     formData.append("user_id", userId);
 
     formData.append("tin_number", tin);
+
     if (birCertificate) {
-      formData.append("bir_image_url", {
+      formData.append("bir_image", {
         uri: birCertificate.uri,
         name: "bir_certificate.jpg",
         type: "image/jpeg",
-      })
+      });
+      console.log("Appended BIR certificate:", birCertificate.uri);
+    } else {
+      console.log("No BIR certificate to append.");
     }
 
     formData.append("shop_number", shopNumber);
 
-    // Debugging logs
-    console.log("Submitting shop data:", {
-      shop_name: shopName,
-      shop_address: shopAddress,
-      shop_description: shopDescription,
-      image: shopImage,
-      delivery: isCheckedDelivery,
-      pickup: isCheckedPickup,
-      delivery_price: shopDeliveryFee,
-      delivery_address: pickupAddress,
-      pickup_price: pickupAreaFee,
-      gcash: isCheckedGcash,
-      cod: isCheckedCod,
-      bank: isCheckedBankTransfer,
-      user_id: userId,
-      shop_id: shopId,
-      tin_number: tin,
-      image: birCertificate,
-      shop_number: shopNumber,
-    });
+    console.log("Final FormData before submission:", formData);
 
     try {
+      // Send the request
       const response = await fetch(
         `${REACT_NATIVE_API_BASE_URL}/api/shops/${shopId}`,
         {
@@ -313,48 +296,39 @@ function ViewShopScreen({ navigation }) {
         }
       );
 
-      console.log("Response status:", response.status);
-      console.log("Response body:", await response.text()); // Log response body for more info
-
-      const updatedShopData = {
-        shop_name: shopName,
-        shop_address: shopAddress,
-        shop_description: shopDescription,
-        image: shopImage,
-        shop_image_url: shopImage,
-        delivery: isCheckedDelivery,
-        pickup: isCheckedPickup,
-        delivery_price: shopDeliveryFee,
-        delivery_address: pickupAddress,
-        pickup_price: pickupAreaFee,
-        gcash: isCheckedGcash,
-        cod: isCheckedCod,
-        bank: isCheckedBankTransfer,
-        user_id: userId,
-        shop_id: shopId,
-        image: birCertificate,
-        bir_image_url: birCertificate,
-        tin_number: tin,
-        shop_number: shopName,
-      };
-
+      
       if (!response.ok) {
-        throw new Error("Failed to Edit Shop");
+        throw new Error(responseText || "Failed to Edit Shop");
       }
+      else{
+        setLoading(false);
+      }
+      const shops = await response.json();
+      // get user data of the logged in user
+      const filteredShops = shops.filter(shop => shop.user_id === userData.user_id);
+      // save user data to assync storage userData
 
-      console.log("form data:", JSON.stringify(updatedShopData));
-      AsyncStorage.setItem("shopData", JSON.stringify(updatedShopData));
+      AsyncStorage.setItem('shopData', JSON.stringify(filteredShops));
+
+      console.log("Saved updated shop data to AsyncStorage.");
       getAsyncShopData();
+
       setAlertMessage("Shop Updated Successfully!");
       setAlertVisible(true);
-      navigation.navigate('My Shop')
-    } catch (error) {
+      navigation.navigate('My Shop');
+    } catch (error1) {
+      console.error("Error during submission:", error1.message);
+      console.error("Full error object:", error1);
       setAlertMessage("There was an error editing the shop.");
-      setAlertVisible (true);
+      setAlertVisible(true);
     }
+
   };
 
-  
+
+  if (loading) {
+    return <LoadingAnimation />;
+  }
   return (
     <SafeAreaView className="flex-1">
       <ScrollView contentContainerStyle={{ padding: 16 }}>
@@ -531,11 +505,11 @@ function ViewShopScreen({ navigation }) {
             className="border border-dashed border-green-600 rounded-md p-4  flex-row justify-center items-center"
             onPress={() => setModalVisible2(true)}
           >
-            <Text className="text-green-600">+ Upload (0/1)</Text>
+            <Text className="text-green-600">+ Upload </Text>
           </TouchableOpacity>
 
           {birCertificate && (
-            <Image source={{ uri: birCertificate.uri || "https://via.placeholder.com/150" }} className="w-24 h-24 mb-4" />
+            <Image source={{ uri: birCertificate }} className="w-24 h-24 mb-4 mt-4" />
           )}
 
           <Text className="text-sm text-gray-500 mb-4">
@@ -622,13 +596,6 @@ function ViewShopScreen({ navigation }) {
         <View className="flex-1 justify-center items-center bg-black/50">
           <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
             <Text className="text-lg font-semibold text-gray-900">Update Picture</Text>
-            <TouchableOpacity
-              className="mt-4 p-4 bg-[#00B251] rounded-lg flex-row justify-center items-center"
-              onPress={takePicture}
-            >
-              <Ionicons name="camera" size={24} color="white" />
-              <Text className="text-lg text-white ml-2">Take a Picture</Text>
-            </TouchableOpacity>
             <TouchableOpacity
               className="mt-4 p-4 bg-[#00B251] rounded-lg flex-row justify-center items-center"
               onPress={selectBirImageFromGallery}

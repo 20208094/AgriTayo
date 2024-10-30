@@ -143,8 +143,7 @@ function AddAddressScreen({
         const { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== "granted") {
           setAlertMessage(
-            "Location Permission Denied",
-            "Permission to access location was denied"
+            "Location Permission Denied, Permission to access location was denied"
           );
           setAlertVisible(true);
           return;
@@ -188,7 +187,7 @@ function AddAddressScreen({
         setProvince(place.region || "");          // Province
       }
     } catch (error) {
-      setAlertMessage("Sorry", "Unable to fetch address from the selected location.");
+      setAlertMessage("Sorry, Unable to fetch address from the selected location.");
       setAlertVisible(true);
     }
   };

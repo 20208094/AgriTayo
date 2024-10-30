@@ -80,19 +80,20 @@ function BusinessInformationScreen({ navigation, route }) {
       return;
     }
 
-    const pickerResult = await ImagePicker.launchImageLibraryAsync({
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
-      aspect: [1, 1],
       quality: 1,
     });
 
-    if (!pickerResult.canceled) {
-      setBirCertificate(pickerResult.assets[0].uri);
+
+    if (!result.canceled) {
+      setBirCertificate(result.assets[0].uri);
       setModalVisible(false);
     }
   };
 
- 
+
   const handleSubmit = async () => {
     setAttemptedSubmit(true);
   
@@ -174,7 +175,7 @@ function BusinessInformationScreen({ navigation, route }) {
         }
         setAlertMessage("Success, Shop created successfully!");
         setAlertVisible(true);
-        // navigation.pop(3)
+        navigation.pop(3)
       } else {
         setAlertMessage("Error, Failed to create shop");
         setAlertVisible(true);
@@ -275,7 +276,7 @@ function BusinessInformationScreen({ navigation, route }) {
           className="border border-dashed border-green-600 rounded-md p-4 my-4 flex-row justify-center items-center"
           onPress={() => setModalVisible(true)}
         >
-          <Text className="text-green-600">+ Upload (0/1)</Text>
+          <Text className="text-green-600">+ Upload</Text>
         </TouchableOpacity>
 
         {birCertificate && (

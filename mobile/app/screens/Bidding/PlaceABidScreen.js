@@ -152,7 +152,7 @@ function PlaceABid({ route, navigation }) {
         if (response.ok) {
           const result = await response.json();
           console.log("Bid placed successfully:", result);
-          setAlertMessage("Success!", "Bid placed successfully!");
+          setAlertMessage("Success!, Bid placed successfully!");
           setAlertVisible(true);
           navigation.navigate("My Bids");
         } else {
