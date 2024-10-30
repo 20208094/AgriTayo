@@ -101,7 +101,7 @@ function CartScreen() {
       return allCrops; // Return fetched crops
     } catch (error) {
       console.error("Error fetching crops:", error);
-      setAlertMessage("Error", "Could not fetch crops, please try again later.");
+      setAlertMessage("Error, Could not fetch crops, please try again later.");
       setAlertVisible(true);
       return []; // Return an empty array on error
     }
@@ -110,7 +110,7 @@ function CartScreen() {
   const fetchCarts = async () => {
     // Ensure userId is present before making the fetch call
     if (!userId) {
-      setAlertMessage("User ID is not available", "Please log in to access your cart.");
+      setAlertMessage("User ID is not available, Please log in to access your cart.");
       setAlertVisible(true);
       return [];
     }
@@ -146,7 +146,7 @@ function CartScreen() {
       return flattenedCarts;
     } catch (error) {
       console.error("Error fetching carts:", error);
-      setAlertMessage("Error", "Could not fetch carts, please try again later.");
+      setAlertMessage("Error, Could not fetch carts, please try again later.");
       setAlertVisible(true);
       return [];
     }
@@ -210,7 +210,7 @@ function CartScreen() {
 
       } catch (error) {
         console.error("Error initializing data:", error);
-        setAlertMessage("Error", "Failed to initialize cart data. Please try again later.");
+        setAlertMessage("Error, Failed to initialize cart data. Please try again later.");
         setAlertVisible(true);
       }
     } else {
@@ -268,7 +268,7 @@ function CartScreen() {
       }
     } catch (error) {
       console.error('Error updating cart:', error);
-      setAlertMessage("Error", "Could not update cart, please try again.");
+      setAlertMessage("Error, Could not update cart, please try again.");
       setAlertVisible(true);
     }
   };
@@ -289,7 +289,7 @@ function CartScreen() {
       }
     } catch (error) {
       console.error('Error updating cart:', error);
-      setAlertMessage("Error", "Could not delete cart, please try again.");
+      setAlertMessage("Error, Could not delete cart, please try again.");
       setAlertVisible(true);
     }
   };
@@ -538,7 +538,7 @@ function CartScreen() {
     );
 
     if (selectedItems.length === 0) {
-      setAlertMessage("No items selected", "Please select items to proceed to checkout.");
+      setAlertMessage("No items selected, Please select items to proceed to checkout.");
       setAlertVisible(true);
     } else {
       navigation.navigate("CheckOutScreen", { items: selectedItems, user: userData, order_type: 'normal', cart_type: 'cart' });

@@ -230,13 +230,13 @@ function CheckOutScreen() {
         navigation.navigate("Orders", { screen: "To Confirm" })
       } else {
         console.error('Failed to place order:', response.statusText);
-        alertMessage('Failed to place order. Please try again.');
-        alertVisible(true);
+        setAlertMessagelert('Failed to place order. Please try again.');
+        setAlertVisiblee(true);
       }
     } catch (error) {
       console.error('Error placing order:', error);
-      alertMessage('Network error. Please try again later.');
-      alertVisible(true);
+      setAlertMessage('Network error. Please try again later.');
+      setAlertVisible(true);
     } finally {
       setModalVisible(false);
     }

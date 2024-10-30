@@ -175,7 +175,7 @@ function AddAnotherBid({ route, navigation }) {
           setAlertVisible(true);
           return;
         } else {
-          setAlertMessage('Success!', 'Bid Successfully Added');
+          setAlertMessage('Success!, Bid Successfully Added');
           setAlertVisible(true);
           navigation.navigate("My Bids");
         }

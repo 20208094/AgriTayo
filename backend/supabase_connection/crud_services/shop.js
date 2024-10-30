@@ -138,6 +138,7 @@ async function addShop(req, res) {
 
 // Update a shop
 async function updateShop(req, res) {
+    console.log("Updating shop")
     try {
         const { id } = req.params;
         if (!id) {
