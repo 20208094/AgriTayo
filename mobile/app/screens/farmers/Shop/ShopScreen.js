@@ -12,6 +12,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 import { ScrollView } from "react-native-gesture-handler";
+import NavigationbarComponent from "../../../components/NavigationbarComponent";
 
 function ShopScreen({ navigation }) {
   const [shopData, setShopData] = useState(null);
@@ -185,6 +186,7 @@ function ShopScreen({ navigation }) {
 
   return (
     <SafeAreaView className="bg-white flex-1">
+      
       {/* Header Section */}
       <ScrollView>
         <View className="flex-row items-center justify-between p-4">
@@ -337,6 +339,7 @@ function ShopScreen({ navigation }) {
           </View>
         </View>
       </ScrollView>
+      <NavigationbarComponent/>
     </SafeAreaView>
   );
 }

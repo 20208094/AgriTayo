@@ -7,7 +7,7 @@ const GoBack = ({navigation}) => {
       className="absolute top-4 left-4"
       onPress={() => navigation.goBack()} // Navigate back on press
     >
-      <Ionicons name="arrow-back-outline" size={24} color="#50d71e" />
+      <Ionicons name="arrow-back-outline" size={24} color="#00b251" />
     </TouchableOpacity>
   );
 };

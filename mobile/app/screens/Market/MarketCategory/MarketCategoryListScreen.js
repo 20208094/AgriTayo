@@ -75,7 +75,7 @@ function MarketCategoryListScreen() {
 
   return (
     <>
-    <SafeAreaView className="p-4 bg-gray-200">
+    <SafeAreaView className="flex-1 p-4 bg-gray-200">
       <ScrollView>
         <View className="flex-col">
           {items.map((item) => (

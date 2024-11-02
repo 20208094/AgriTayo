@@ -11,6 +11,7 @@ import {
 import pic from "../../assets/emailotp.png";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 import { io } from 'socket.io-client';
+import GoBack from "../../components/GoBack";
 
 function OTPScreen({ route, navigation }) {
   const { formData, phone } = route.params;
@@ -143,15 +144,15 @@ function OTPScreen({ route, navigation }) {
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
       <View className="flex-1 justify-center items-center p-6">
+      <GoBack navigation={navigation}/>
         <Image source={pic} className="w-3/4 h-1/4 mb-6" resizeMode="contain" />
-
         <Text className="text-3xl font-bold mb-4 text-gray-800 text-center">
           Verify Your Phone Number
         </Text>
 
         <View className="mb-6">
           <Text className="text-gray-600 text-center">
-            A 6-digit code has been sent to {formData.phone_number}
+            A 6-digit code has been sent to {phone}
           </Text>
         </View>
 

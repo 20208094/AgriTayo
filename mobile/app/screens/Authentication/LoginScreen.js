@@ -16,7 +16,7 @@ function LoginScreen({ navigation, fetchUserSession }) {
 
   useEffect(() => {
     if (formData.phone_number && !phone_regex.test(formData.phone_number)) {
-      setPhoneError("Invalid phone number format. Please use +639 or 09 followed by 9 digits.");
+      setPhoneError("Invalid phone number format. Please use 09 followed by 9 digits.");
     } else {
       setPhoneError("");
     }
@@ -98,7 +98,7 @@ function LoginScreen({ navigation, fetchUserSession }) {
 
         if (!response.ok) {
           const errorData = await response.json();
-          setPhoneError(errorData.error || "Login failed. Please try again.");
+          setPasswordError(errorData.error || "Login failed. Please try again.");
           console.log("Login failed:", errorData);
           return;
         }

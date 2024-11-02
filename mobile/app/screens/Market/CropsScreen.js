@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import logo from '../../assets/logo.png'; // Placeholder image
 import { REACT_NATIVE_API_KEY } from '@env';
+import NavigationbarComponent from '../../components/NavigationbarComponent';
 
 // Category Card Component
 const MarketCategoryCard = ({ cropCategory }) => {
@@ -71,6 +72,7 @@ function CropsScreen() {
   );
 
   return (
+    <>
     <ScrollView contentContainerStyle={{ paddingHorizontal: 10, paddingBottom: 20 }}>
       <View className="flex-row flex-wrap justify-between">
         {categories.map((category) => (
@@ -80,6 +82,8 @@ function CropsScreen() {
         ))}
       </View>
     </ScrollView>
+    <NavigationbarComponent/>
+    </>
   );
 }
 

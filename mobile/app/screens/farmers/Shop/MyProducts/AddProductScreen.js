@@ -16,7 +16,7 @@ import * as ImagePicker from "expo-image-picker";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-function AddProductScreen({navigation}) {
+function AddProductScreen({ navigation }) {
   const [categories, setCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
   const [metricSystem, setMetricSystem] = useState([]);
@@ -39,10 +39,14 @@ function AddProductScreen({navigation}) {
   const [isClickedMetricSystem, setIsClickedMetricSystem] = useState(false);
   const [isClickedSubCategory, setIsclickedSubCategory] = useState(false);
 
-  const [selectedMetricSystem, setSelectedMetricSystem] = useState("Select Crop Metric");
-  const [selectedCategory, setSelectedCategory] = useState("Select Crop Category");
-  const [selectedSubCategory, setSelectedSubCategory] =
-    useState("Select Crop Sub Category");
+  const [selectedMetricSystem, setSelectedMetricSystem] =
+    useState("Select Crop Metric");
+  const [selectedCategory, setSelectedCategory] = useState(
+    "Select Crop Category"
+  );
+  const [selectedSubCategory, setSelectedSubCategory] = useState(
+    "Select Crop Sub Category"
+  );
   const [selectedCategoryId, setSelectedCategoryId] = useState(null);
   const [selectedSubCategoryId, setSelectedSubCategoryId] = useState(null);
   const [selectedMetricSystemId, setSelectedMetricSystemId] = useState(null);
@@ -75,7 +79,9 @@ function AddProductScreen({navigation}) {
   const selectImageFromGallery = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
-      setAlertMessage("Sorry, we need camera roll permissions to make this work!");
+      setAlertMessage(
+        "Sorry, we need camera roll permissions to make this work!"
+      );
       setAlertVisible(true);
       return;
     }
@@ -136,7 +142,6 @@ function AddProductScreen({navigation}) {
     } catch (error) {
       setAlertMessage(`Error fetching crop subcategories: ${error.message}`);
       setAlertVisible(true);
-
     }
   };
 
@@ -173,15 +178,12 @@ function AddProductScreen({navigation}) {
     } catch (error) {
       setAlertMessage(`Error fetching metric systems: ${error.message}`);
       setAlertVisible(true);
-
     }
   };
 
   // for crop size
   const [isClickedCropSize, setIsClickedCropSize] = useState(false);
-  const [selectedCropSize, setSelectedCropSize] = useState(
-    "Select Crop Size"
-  );
+  const [selectedCropSize, setSelectedCropSize] = useState("Select Crop Size");
   const [selectedCropSizeId, setSelectedCropSizeId] = useState(null);
   const handleCropSizeSelect = (cropSize) => {
     setSelectedCropSize(cropSize.crop_size_name);
@@ -278,14 +280,12 @@ function AddProductScreen({navigation}) {
 
   // for crop size
   const [isClickedCropClass, setIsClickedCropClass] = useState(false);
-  const [selectedCropClass, setSelectedCropClass] = useState(
-    "Select Crop Size"
-  );
+  const [selectedCropClass, setSelectedCropClass] =
+    useState("Select Crop Size");
   const handleCropClassSelect = (cropClass) => {
     setSelectedCropClass(cropClass.crop_class_name);
     setIsClickedCropClass(false);
   };
-
 
   const handleAddProduct = async () => {
     if (
@@ -347,14 +347,16 @@ function AddProductScreen({navigation}) {
         console.log("Response data: ", responseData);
         setAlertMessage("Product added successfully!");
         setAlertVisible(true);
-        navigation.navigate('My Products')
+        navigation.navigate("My Products");
       } else {
         console.error("Error adding product: ", responseText);
         setAlertMessage("Failed to add product. Please try again.");
         setAlertVisible(true);
       }
     } catch (error) {
-      setAlertMessage(`An error occurred while adding the product: ${error.message}`);
+      setAlertMessage(
+        `An error occurred while adding the product: ${error.message}`
+      );
       setAlertVisible(true);
     } finally {
       setLoading(false);
@@ -367,9 +369,7 @@ function AddProductScreen({navigation}) {
         <View className="bg-white p-4 rounded-lg shadow-md">
           {/* Variety Selector */}
           <View className="mb-4">
-            <Text className="text-base text-gray-700">
-              Crop Variety
-            </Text>
+            <Text className="text-base text-gray-700">Crop Variety</Text>
             <TouchableOpacity
               className="flex-row items-center border border-gray-300 p-2 rounded-lg"
               onPress={() => setIsClickedCropVariety(!isClickedCropVariety)}
@@ -410,15 +410,13 @@ function AddProductScreen({navigation}) {
               value={cropDescription}
               onChangeText={setCropDescription}
               multiline
-                numberOfLines={3}
+              numberOfLines={3}
             />
           </View>
 
           {/* Category Selector */}
           <View className="mb-4">
-            <Text className="text-base text-gray-700">
-              Crop Category
-            </Text>
+            <Text className="text-base text-gray-700">Crop Category</Text>
             <TouchableOpacity
               className="flex-row items-center border border-gray-300 p-2 rounded-lg"
               onPress={() => setIsClickedCategory(!isClickedCategory)}
@@ -486,9 +484,7 @@ function AddProductScreen({navigation}) {
 
           {/* Crop SIze */}
           <View className="mb-4">
-            <Text className="text-base text-gray-700">
-              Crop Size
-            </Text>
+            <Text className="text-base text-gray-700">Crop Size</Text>
             <TouchableOpacity
               className="flex-row items-center border border-gray-300 p-2 rounded-lg"
               onPress={() => setIsClickedCropSize(!isClickedCropSize)}
@@ -511,9 +507,7 @@ function AddProductScreen({navigation}) {
                     className="p-2"
                     onPress={() => handleCropSizeSelect(cropSize)}
                   >
-                    <Text className="text-base">
-                      {cropSize.crop_size_name}
-                    </Text>
+                    <Text className="text-base">{cropSize.crop_size_name}</Text>
                   </TouchableOpacity>
                 ))}
               </View>
@@ -532,8 +526,8 @@ function AddProductScreen({navigation}) {
             />
           </View>
 
-           {/* Metric System Selector */}
-           <View className="mb-4">
+          {/* Metric System Selector */}
+          <View className="mb-4">
             <Text className="text-base text-gray-700">Crop Metric</Text>
             <TouchableOpacity
               className="flex-row items-center border border-gray-300 p-2 rounded-lg"
@@ -568,9 +562,7 @@ function AddProductScreen({navigation}) {
 
           {/* Crop Class */}
           <View className="mb-4">
-            <Text className="text-base text-gray-700">
-              Crop Class
-            </Text>
+            <Text className="text-base text-gray-700">Crop Class</Text>
             <TouchableOpacity
               className="flex-row items-center border border-gray-300 p-2 rounded-lg"
               onPress={() => setIsClickedCropClass(!isClickedCropClass)}
@@ -680,7 +672,9 @@ function AddProductScreen({navigation}) {
               className="mb-4 p-4 bg-[#00B251] rounded-lg"
               onPress={selectImageFromGallery}
             >
-              <Text className="text-white text-center">Choose from Gallery</Text>
+              <Text className="text-white text-center">
+                Choose from Gallery
+              </Text>
             </TouchableOpacity>
             <TouchableOpacity
               className="p-4 bg-red-500 rounded-lg"

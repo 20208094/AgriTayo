@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { FontAwesome } from "@expo/vector-icons";
+import GoBack from "../../components/GoBack";
 
 function RegisterScreenBuyers({ navigation }) {
   const [firstName, setFirstName] = useState("");
@@ -175,9 +176,6 @@ function RegisterScreenBuyers({ navigation }) {
   return (
     <SafeAreaView className="flex-1">
       <ScrollView contentContainerStyle={{ padding: 16 }}>
-        <Text className="text-3xl font-bold mt-6 mb-6 text-[#00B251] text-center">
-          Register
-        </Text>
         <View className="w-full max-w-md mx-auto">
           {/* First Name */}
           <Text className="text-sm mb-2 text-gray-800">
@@ -287,11 +285,11 @@ function RegisterScreenBuyers({ navigation }) {
           />
           {/*Secondary Phone Number*/}
           <Text className="text-sm mb-2 text-gray-800">
-            Phone Number:
-              <Text className="text-sm w-4/5 text-red-500 mb-4">
-                Optional but you can't recover your account if you leave it empty.
-              </Text>
+            Alternative Phone Number: (Optional)
           </Text>
+          <Text className="text-sm w-4/5 text-red-500 mb-4">
+                but you can't recover your account if you leave it empty.
+              </Text>
           <TextInput
             className="w-full p-2 mb-4 bg-white rounded-lg shadow-md"
             keyboardType="numeric"

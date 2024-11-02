@@ -16,14 +16,14 @@ async function loginMobile(req, res) {
         }
 
         if (!data || data.length === 0) {
-            return res.status(401).json({ error: 'Invalid email or password' });
+            return res.status(401).json({ error: 'Invalid phone number or password' });
         }
 
         const user = data[0];
         const isMatch = await bcrypt.compare(password, user.password);
 
         if (!isMatch) {
-            return res.status(401).json({ error: 'Invalid email or password' });
+            return res.status(401).json({ error: 'Invalid phone number or password' });
         }
 
         const userWithoutPassword = { ...user };

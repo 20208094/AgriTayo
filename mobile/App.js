@@ -663,7 +663,7 @@ function App() {
             <Stack.Screen
               name="Register"
               component={RegisterScreenBuyers}
-              options={{ ...screenOptions, headerShown: false }}
+              options={{ ...screenOptions}}
             />
             <Stack.Screen
               name="OTP Screen"

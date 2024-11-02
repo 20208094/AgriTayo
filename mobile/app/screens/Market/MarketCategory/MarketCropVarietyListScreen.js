@@ -11,6 +11,7 @@ import {
 import { useNavigation, useRoute } from "@react-navigation/native";
 import placeholderimg from "../../../assets/placeholder.png";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
+import NavigationbarComponent from "../../../components/NavigationbarComponent";
 
 function MarketVarietyListScreen() {
   const [items, setItems] = useState([]);
@@ -73,6 +74,7 @@ function MarketVarietyListScreen() {
   }
 
   return (
+    <>
     <SafeAreaView className="flex-1 p-4 bg-gray-200">
       <ScrollView>
         <View className="flex-col">
@@ -111,6 +113,8 @@ function MarketVarietyListScreen() {
         </View>
       </ScrollView>
     </SafeAreaView>
+    <NavigationbarComponent/>
+    </>
   );
 }
 
