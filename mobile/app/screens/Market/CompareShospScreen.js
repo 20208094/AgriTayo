@@ -18,8 +18,7 @@ function CompareShopsScreen({ route }) {
   const [filteredData, setFilteredData] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [shopData, setShopData] = useState(null);
-  const [alertVisible, setAlertVisible] = useState(false);
-  const [alertMessage, setAlertMessage] = useState("");
+
 
   const fetchCrops = async () => {
     try {
@@ -139,8 +138,7 @@ function CompareShopsScreen({ route }) {
         setShopData(shop);
       }
     } catch (error) {
-      setAlertMessage(`Failed to load shop data: ${error.message}`);
-      setAlertVisible(true);
+      alert(`Failed to load shop data: ${error.message}`);
     } finally {
       setLoading(false);
     }
@@ -305,11 +303,11 @@ function CompareShopsScreen({ route }) {
             ) : (
               <Text className="text-center text-gray-500">No filtered data</Text>
             )}
-            
+
           </View>
         </View>
       </ScrollView>
-      <NavigationbarComponent/>
+      <NavigationbarComponent />
       {shopData && (
         <TouchableOpacity
           className="absolute flex-row items-center bottom-5 right-5 bg-[#00B251] rounded-full p-4 shadow-lg"

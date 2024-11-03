@@ -10,6 +10,9 @@ const ShippingScreen = ({ orders, orderProducts }) => {
   const [cancelOrderVisible, setCancelOrderVisible] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+
   const navigation = useNavigation();
 
   const formatDate = (dateString) => {
@@ -64,7 +67,7 @@ const ShippingScreen = ({ orders, orderProducts }) => {
   const submitRejectOrder = () => {
     setCancelOrderVisible(false);
     if (selectedOrder) {
-      let updatedOrder = { ...selectedOrder, reject_reason: rejectReason, status_id: 9};
+      let updatedOrder = { ...selectedOrder, reject_reason: rejectReason, status_id: 9 };
       handleUpdateOrder(updatedOrder, () => {
         navigation.navigate("Sales History", { screen: "Rejected" });
       });
@@ -88,7 +91,7 @@ const ShippingScreen = ({ orders, orderProducts }) => {
         return_date: order.return_date,
         completed_date: order.completed_date,
       };
-  
+
       try {
         const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/orderStatus/${order.order_id}`, {
           method: 'PUT',
@@ -98,7 +101,7 @@ const ShippingScreen = ({ orders, orderProducts }) => {
           },
           body: JSON.stringify(bodyData),
         });
-  
+
         if (response.ok) {
           // Execute the onSuccess callback if provided
           if (onSuccess) {
@@ -107,13 +110,15 @@ const ShippingScreen = ({ orders, orderProducts }) => {
         } else {
           console.error("Failed to update order:", response.statusText);
         }
-        
+
       } catch (error) {
         console.error('Error updating order:', error);
-        Alert.alert('Error', 'Network request failed. Please check your connection.');
+        setAlertMessage('Network request failed. Please check your connection.');
+        setAlertVisible(true);
       }
     } else {
-      Alert.alert('Error', 'Message or image is required.');
+      setAlertMessage('Message or image is required.');
+      setAlertVisible(true);
     }
   };
 
@@ -260,6 +265,26 @@ const ShippingScreen = ({ orders, orderProducts }) => {
                 <Text className="text-black">Cancel</Text>
               </TouchableOpacity>
             </View>
+          </View>
+        </View>
+      </Modal>
+      {/* Alert Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={alertVisible}
+        onRequestClose={() => setAlertVisible(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black/50 bg-opacity-50">
+          <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
+            <Text className="text-lg font-semibold text-gray-900 mb-4">{alertMessage}</Text>
+            <TouchableOpacity
+              className="mt-4 p-2 bg-[#00B251] rounded-lg flex-row justify-center items-center"
+              onPress={() => setAlertVisible(false)}
+            >
+              <Ionicons name="checkmark-circle-outline" size={24} color="white" />
+              <Text className="text-lg text-white ml-2">OK</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>

@@ -21,7 +21,10 @@ function OrderProductsPage() {
     });
     const [isEdit, setIsEdit] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
-    const [filterType, setFilterType] = useState(''); // New state for filter type
+    const [filterType, setFilterType] = useState('');
+    const [editModalOpen, setEditModalOpen] = useState(false);
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+    const [deleteId, setDeleteId] = useState(null);
 
     useEffect(() => {
         fetchOrderProducts();
@@ -139,15 +142,7 @@ function OrderProductsPage() {
                 throw new Error('Network response was not ok');
             }
             fetchOrderProducts();
-            setFormData({
-                order_id: '',
-                order_prod_crop_id: '',
-                order_prod_total_weight: '',
-                order_prod_total_price: '',
-                order_prod_user_id: '',
-                order_prod_metric_system_id: ''
-            });
-            setIsEdit(false);
+            resetForm();
         } catch (error) {
             console.error('Error submitting form:', error);
         }
@@ -156,11 +151,12 @@ function OrderProductsPage() {
     const handleEdit = (orderProduct) => {
         setFormData(orderProduct);
         setIsEdit(true);
+        setEditModalOpen(true);
     };
 
-    const handleDelete = async (id) => {
+    const handleDelete = async () => {
         try {
-            const response = await fetch(`/api/order_products/${id}`, {
+            const response = await fetch(`/api/order_products/${deleteId}`, {
                 method: 'DELETE',
                 headers: {
                     'x-api-key': API_KEY,
@@ -170,6 +166,7 @@ function OrderProductsPage() {
                 throw new Error('Network response was not ok');
             }
             fetchOrderProducts();
+            setDeleteModalOpen(false);
         } catch (error) {
             console.error('Error deleting order product:', error);
         }
@@ -180,7 +177,6 @@ function OrderProductsPage() {
         const userName = users.find(user => user.user_id === orderProduct.order_prod_user_id);
         const userFullName = userName ? `${userName.firstname} ${userName.lastname}`.toLowerCase() : '';
 
-        // Check filter type
         if (filterType === 'crop' && cropName) {
             return cropName.includes(searchTerm.toLowerCase());
         } else if (filterType === 'user' && userFullName) {
@@ -250,93 +246,108 @@ function OrderProductsPage() {
         doc.save('order_products.pdf');
     };
 
-    return (
-        <div style={{ padding: '50px' }}>
-            <h1 style={{ marginBottom: '20px' }}>Order Products Management</h1>
+    const resetForm = () => {
+        setFormData({
+            order_id: '',
+            order_prod_crop_id: '',
+            order_prod_total_weight: '',
+            order_prod_total_price: '',
+            order_prod_user_id: '',
+            order_prod_metric_system_id: ''
+        });
+        setIsEdit(false);
+        setEditModalOpen(false);
+    };
 
-            <form onSubmit={handleSubmit} style={{ marginBottom: '20px' }}>
-                <select
-                    name="order_id"
-                    value={formData.order_id}
-                    onChange={handleInputChange}
-                    style={{ marginRight: '10px', padding: '5px' }}
-                    required
-                >
-                    <option value="">Select Order</option>
-                    {orders.map((order) => (
-                        <option key={order.order_id} value={order.order_id}>
-                            {order.order_id}
-                        </option>
-                    ))}
-                </select>
-                <select
-                    name="order_prod_crop_id"
-                    value={formData.order_prod_crop_id}
-                    onChange={handleInputChange}
-                    style={{ marginRight: '10px', padding: '5px' }}
-                    required
-                >
-                    <option value="">Select Crop</option>
-                    {crops.map((crop) => (
-                        <option key={crop.crop_id} value={crop.crop_id}>
-                            {crop.crop_name}
-                        </option>
-                    ))}
-                </select>
-                <input
-                    type="text"
-                    name="order_prod_total_weight"
-                    value={formData.order_prod_total_weight}
-                    onChange={handleInputChange}
-                    placeholder="Order Product Total Weight"
-                    style={{ marginRight: '10px', padding: '5px' }}
-                    required
-                />
-                <input
-                    type="text"
-                    name="order_prod_total_price"
-                    value={formData.order_prod_total_price}
-                    onChange={handleInputChange}
-                    placeholder="Order Product Total Price"
-                    style={{ marginRight: '10px', padding: '5px' }}
-                    required
-                />
-                <select
-                    name="order_prod_user_id"
-                    value={formData.order_prod_user_id}
-                    onChange={handleInputChange}
-                    style={{ marginRight: '10px', padding: '5px' }}
-                    required
-                >
-                    <option value="">Select User</option>
-                    {users.map((user) => (
-                        <option key={user.user_id} value={user.user_id}>
-                            {user.firstname} {user.lastname}
-                        </option>
-                    ))}
-                </select>
-                <select
-                    name="order_prod_metric_system_id"
-                    value={formData.order_prod_metric_system_id}
-                    onChange={handleInputChange}
-                    style={{ marginRight: '10px', padding: '5px' }}
-                    required
-                >
-                    <option value="">Select Metric System</option>
-                    {metricSystems.map((metricSystem) => (
-                        <option key={metricSystem.metric_system_id} value={metricSystem.metric_system_id}>
-                            {metricSystem.metric_system_name}
-                        </option>
-                    ))}
-                </select>
-                <button type="submit" style={{ padding: '5px' }}>{isEdit ? 'Update' : 'Create'}</button>
+    return (
+        <div className="container mx-auto p-5">
+            <h1 className="text-3xl font-semibold mb-6 text-center text-[#00B251]">Order Products Management</h1>
+
+            <form onSubmit={handleSubmit} className="mb-5">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <select
+                        name="order_id"
+                        value={formData.order_id}
+                        onChange={handleInputChange}
+                        className="p-2 border border-gray-300 rounded"
+                        required
+                    >
+                        <option value="">Select Order</option>
+                        {orders.map((order) => (
+                            <option key={order.order_id} value={order.order_id}>
+                                {order.order_id}
+                            </option>
+                        ))}
+                    </select>
+                    <select
+                        name="order_prod_crop_id"
+                        value={formData.order_prod_crop_id}
+                        onChange={handleInputChange}
+                        className="p-2 border border-gray-300 rounded"
+                        required
+                    >
+                        <option value="">Select Crop</option>
+                        {crops.map((crop) => (
+                            <option key={crop.crop_id} value={crop.crop_id}>
+                                {crop.crop_name}
+                            </option>
+                        ))}
+                    </select>
+                    <input
+                        type="text"
+                        name="order_prod_total_weight"
+                        value={formData.order_prod_total_weight}
+                        onChange={handleInputChange}
+                        placeholder="Order Product Total Weight"
+                        className="p-2 border border-gray-300 rounded"
+                        required
+                    />
+                    <input
+                        type="text"
+                        name="order_prod_total_price"
+                        value={formData.order_prod_total_price}
+                        onChange={handleInputChange}
+                        placeholder="Order Product Total Price"
+                        className="p-2 border border-gray-300 rounded"
+                        required
+                    />
+                    <select
+                        name="order_prod_user_id"
+                        value={formData.order_prod_user_id}
+                        onChange={handleInputChange}
+                        className="p-2 border border-gray-300 rounded"
+                        required
+                    >
+                        <option value="">Select User</option>
+                        {users.map((user) => (
+                            <option key={user.user_id} value={user.user_id}>
+                                {user.firstname} {user.lastname}
+                            </option>
+                        ))}
+                    </select>
+                    <select
+                        name="order_prod_metric_system_id"
+                        value={formData.order_prod_metric_system_id}
+                        onChange={handleInputChange}
+                        className="p-2 border border-gray-300 rounded"
+                        required
+                    >
+                        <option value="">Select Metric System</option>
+                        {metricSystems.map((metricSystem) => (
+                            <option key={metricSystem.metric_system_id} value={metricSystem.metric_system_id}>
+                                {metricSystem.metric_system_name}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+                <button type="submit" className="bg-green-600 text-white p-2 rounded mt-4">{isEdit ? 'Update' : 'Create'}</button>
             </form>
 
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
+            <div className="flex mb-5">
                 <select
                     value={filterType}
                     onChange={(e) => setFilterType(e.target.value)}
-                    style={{ marginRight: '10px', padding: '5px' }}
+                    className="p-2 border border-gray-300 rounded mr-2"
                 >
                     <option value="">Select Filter Type</option>
                     <option value="crop">Crop Name</option>
@@ -349,42 +360,147 @@ function OrderProductsPage() {
                     placeholder="Search Order Products"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    style={{ marginRight: '10px', padding: '5px' }}
+                    className="p-2 border border-gray-300 rounded mr-2"
                 />
-                <button onClick={exportToPDF} style={{ padding: '5px' }}>Export to PDF</button>
+                <button onClick={exportToPDF} className="bg-green-600 text-white p-2 rounded">Export to PDF</button>
             </div>
 
-            <table style={{ border: '1px solid black', width: '100%', borderCollapse: 'collapse' }}>
-                <thead>
+            <table className="min-w-full border border-gray-300 rounded-lg overflow-hidden">
+                <thead className="bg-green-600 text-white">
                     <tr>
-                        <th style={{ border: '1px solid black', padding: '8px' }}>ID</th>
-                        <th style={{ border: '1px solid black', padding: '8px' }}>Order ID</th>
-                        <th style={{ border: '1px solid black', padding: '8px' }}>Product Crop Name</th>
-                        <th style={{ border: '1px solid black', padding: '8px' }}>Total Weight</th>
-                        <th style={{ border: '1px solid black', padding: '8px' }}>Total Price</th>
-                        <th style={{ border: '1px solid black', padding: '8px' }}>User Name</th>
-                        <th style={{ border: '1px solid black', padding: '8px' }}>Metric System Name</th>
-                        <th style={{ border: '1px solid black', padding: '8px' }}>Actions</th>
+                        <th className="border border-gray-300 p-2">ID</th>
+                        <th className="border border-gray-300 p-2">Order ID</th>
+                        <th className="border border-gray-300 p-2">Product Crop Name</th>
+                        <th className="border border-gray-300 p-2">Total Weight</th>
+                        <th className="border border-gray-300 p-2">Total Price</th>
+                        <th className="border border-gray-300 p-2">User Name</th>
+                        <th className="border border-gray-300 p-2">Metric System Name</th>
+                        <th className="border border-gray-300 p-2">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     {filteredOrderProducts.map((orderProduct) => (
-                        <tr key={orderProduct.order_prod_id}>
-                            <td style={{ border: '1px solid black', padding: '8px' }}>{orderProduct.order_prod_id}</td>
-                            <td style={{ border: '1px solid black', padding: '8px' }}>{orderProduct.order_id}</td>
-                            <td style={{ border: '1px solid black', padding: '8px' }}>{crops.find(crop => crop.crop_id === orderProduct.order_prod_crop_id)?.crop_name}</td>
-                            <td style={{ border: '1px solid black', padding: '8px' }}>{orderProduct.order_prod_total_weight}</td>
-                            <td style={{ border: '1px solid black', padding: '8px' }}>{orderProduct.order_prod_total_price}</td>
-                            <td style={{ border: '1px solid black', padding: '8px' }}>{users.find(user => user.user_id === orderProduct.order_prod_user_id)?.firstname} {users.find(user => user.user_id === orderProduct.order_prod_user_id)?.lastname}</td>
-                            <td style={{ border: '1px solid black', padding: '8px' }}>{metricSystems.find(metricSystem => metricSystem.metric_system_id === orderProduct.order_prod_metric_system_id)?.metric_system_name}</td>
-                            <td style={{ border: '1px solid black', padding: '8px' }}>
-                                <button onClick={() => handleEdit(orderProduct)}>Edit</button>
-                                <button onClick={() => handleDelete(orderProduct.order_prod_id)}>Delete</button>
+                        <tr key={orderProduct.order_prod_id} className="hover:bg-gray-100">
+                            <td className="border border-gray-300 p-2">{orderProduct.order_prod_id}</td>
+                            <td className="border border-gray-300 p-2">{orderProduct.order_id}</td>
+                            <td className="border border-gray-300 p-2">{crops.find(crop => crop.crop_id === orderProduct.order_prod_crop_id)?.crop_name}</td>
+                            <td className="border border-gray-300 p-2">{orderProduct.order_prod_total_weight}</td>
+                            <td className="border border-gray-300 p-2">{orderProduct.order_prod_total_price}</td>
+                            <td className="border border-gray-300 p-2">{users.find(user => user.user_id === orderProduct.order_prod_user_id)?.firstname} {users.find(user => user.user_id === orderProduct.order_prod_user_id)?.lastname}</td>
+                            <td className="border border-gray-300 p-2">{metricSystems.find(metricSystem => metricSystem.metric_system_id === orderProduct.order_prod_metric_system_id)?.metric_system_name}</td>
+                            <td className="border border-gray-300 p-2">
+                                <button onClick={() => handleEdit(orderProduct)} className="bg-green-600 text-white p-2 rounded mr-2">Edit</button>
+                                <button onClick={() => { setDeleteId(orderProduct.order_prod_id); setDeleteModalOpen(true); }} className="bg-red-500 text-white p-2 rounded">Delete</button>
                             </td>
                         </tr>
                     ))}
                 </tbody>
             </table>
+
+            {/* Edit Modal */}
+            {editModalOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+                    <div className="bg-white rounded-lg p-5 shadow-lg w-full max-w-md">
+                        <h2 className="text-lg font-bold mb-4">Edit Order Product</h2>
+                        <form onSubmit={handleSubmit}>
+                            <div className="grid grid-cols-1 gap-4">
+                                <select
+                                    name="order_id"
+                                    value={formData.order_id}
+                                    onChange={handleInputChange}
+                                    className="p-2 border border-gray-300 rounded"
+                                    required
+                                >
+                                    <option value="">Select Order</option>
+                                    {orders.map((order) => (
+                                        <option key={order.order_id} value={order.order_id}>
+                                            {order.order_id}
+                                        </option>
+                                    ))}
+                                </select>
+                                <select
+                                    name="order_prod_crop_id"
+                                    value={formData.order_prod_crop_id}
+                                    onChange={handleInputChange}
+                                    className="p-2 border border-gray-300 rounded"
+                                    required
+                                >
+                                    <option value="">Select Crop</option>
+                                    {crops.map((crop) => (
+                                        <option key={crop.crop_id} value={crop.crop_id}>
+                                            {crop.crop_name}
+                                        </option>
+                                    ))}
+                                </select>
+                                <input
+                                    type="text"
+                                    name="order_prod_total_weight"
+                                    value={formData.order_prod_total_weight}
+                                    onChange={handleInputChange}
+                                    placeholder="Order Product Total Weight"
+                                    className="p-2 border border-gray-300 rounded"
+                                    required
+                                />
+                                <input
+                                    type="text"
+                                    name="order_prod_total_price"
+                                    value={formData.order_prod_total_price}
+                                    onChange={handleInputChange}
+                                    placeholder="Order Product Total Price"
+                                    className="p-2 border border-gray-300 rounded"
+                                    required
+                                />
+                                <select
+                                    name="order_prod_user_id"
+                                    value={formData.order_prod_user_id}
+                                    onChange={handleInputChange}
+                                    className="p-2 border border-gray-300 rounded"
+                                    required
+                                >
+                                    <option value="">Select User</option>
+                                    {users.map((user) => (
+                                        <option key={user.user_id} value={user.user_id}>
+                                            {user.firstname} {user.lastname}
+                                        </option>
+                                    ))}
+                                </select>
+                                <select
+                                    name="order_prod_metric_system_id"
+                                    value={formData.order_prod_metric_system_id}
+                                    onChange={handleInputChange}
+                                    className="p-2 border border-gray-300 rounded"
+                                    required
+                                >
+                                    <option value="">Select Metric System</option>
+                                    {metricSystems.map((metricSystem) => (
+                                        <option key={metricSystem.metric_system_id} value={metricSystem.metric_system_id}>
+                                            {metricSystem.metric_system_name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="flex justify-end mt-4">
+                                <button type="button" onClick={resetForm} className="bg-gray-400 text-white p-2 rounded mr-2">Cancel</button>
+                                <button type="submit" className="bg-green-600 text-white p-2 rounded">Update</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Delete Modal */}
+            {deleteModalOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+                    <div className="bg-white rounded-lg p-5 shadow-lg w-full max-w-md">
+                        <h2 className="text-lg font-bold mb-4">Delete Order Product</h2>
+                        <p>Are you sure you want to delete this order product?</p>
+                        <div className="flex justify-end mt-4">
+                            <button type="button" onClick={() => setDeleteModalOpen(false)} className="bg-gray-400 text-white p-2 rounded mr-2">Cancel</button>
+                            <button onClick={handleDelete} className="bg-red-500 text-white p-2 rounded">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

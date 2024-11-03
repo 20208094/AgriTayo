@@ -18,6 +18,8 @@ const ForReturnScreen = ({ orders, orderProducts }) => {
   const [receivedConfirmationVisible, setReceivedConfirmationVisible] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [actionType, setActionType] = useState(null); // To determine if we are accepting or rejecting a return
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
 
   const navigation = useNavigation();
 
@@ -90,14 +92,17 @@ const ForReturnScreen = ({ orders, orderProducts }) => {
           }
         } else {
           console.error("Failed to update order:", response.statusText);
-          Alert.alert("Error", "Failed to update order. Please try again.");
+          setAlertMessage("Failed to update order. Please try again.");
+          setAlertVisible(true);
         }
       } catch (error) {
         console.error("Error updating order:", error);
-        Alert.alert("Error", "Network request failed. Please check your connection.");
+        setAlertMessage("Network request failed. Please check your connection.");
+        setAlertVisible(true);
       }
     } else {
-      Alert.alert("Error", "Order data is required for the update.");
+      setAlertMessage("Order data is required for the update.");
+      setAlertVisible(true);
     }
   };
 
@@ -123,7 +128,8 @@ const ForReturnScreen = ({ orders, orderProducts }) => {
       let updatedOrder = { ...selectedOrder, status_id: 6 };
       
       await handleUpdateOrder(updatedOrder, () => {
-        Alert.alert("Success", "The item has been marked as received.");
+        setAlertMessage("Success, The item has been marked as received.");
+        setAlertVisible(true);
         navigation.navigate("Sales History", { screen: "Returned" });
       });
     } else {
@@ -327,6 +333,26 @@ const ForReturnScreen = ({ orders, orderProducts }) => {
                 <Text className="text-black">Cancel</Text>
               </TouchableOpacity>
             </View>
+          </View>
+        </View>
+      </Modal>
+      {/* Alert Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={alertVisible}
+        onRequestClose={() => setAlertVisible(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black/50 bg-opacity-50">
+          <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
+            <Text className="text-lg font-semibold text-gray-900 mb-4">{alertMessage}</Text>
+            <TouchableOpacity
+              className="mt-4 p-2 bg-[#00B251] rounded-lg flex-row justify-center items-center"
+              onPress={() => setAlertVisible(false)}
+            >
+              <Ionicons name="checkmark-circle-outline" size={24} color="white" />
+              <Text className="text-lg text-white ml-2">OK</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>

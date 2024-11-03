@@ -50,8 +50,6 @@ function FeaturedProductScreen({ route }) {
   const [modalVisible, setModalVisible] = useState(false);
   const [currentSort, setCurrentSort] = useState({ method: 'price', order: 'asc' });
   const [shopData, setShopData] = useState(null);
-  const [alertVisible, setAlertVisible] = useState(false);
-  const [alertMessage, setAlertMessage] = useState("");
 
   const API_KEY = REACT_NATIVE_API_KEY;
 
@@ -207,8 +205,7 @@ function FeaturedProductScreen({ route }) {
         setShopData(shop);
       }
     } catch (error) {
-      setAlertMessage(`Failed to load shop data: ${error.message}`);
-      setAlertVisible(true);
+      alert(`Failed to load shop data: ${error.message}`);
     } finally {
       setLoading(false);
     }

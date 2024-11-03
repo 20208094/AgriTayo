@@ -1,19 +1,21 @@
 import React, { useState, useEffect } from 'react';
 
-// API key (replace with your environment variable or API key as needed)
 const API_KEY = import.meta.env.VITE_API_KEY;
 
 function MetricSystemPage() {
   const [metricSystems, setMetricSystems] = useState([]);
-  const [filteredMetricSystems, setFilteredMetricSystems] = useState([]); // State for filtered data
+  const [filteredMetricSystems, setFilteredMetricSystems] = useState([]);
   const [formData, setFormData] = useState({
     metric_system_name: '',
     metric_val_kilogram: '',
     metric_val_gram: '',
-    metric_val_pounds: ''
+    metric_val_pounds: '',
   });
   const [isEdit, setIsEdit] = useState(false);
-  const [searchTerm, setSearchTerm] = useState(''); // State for search input
+  const [searchTerm, setSearchTerm] = useState('');
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedMetricId, setSelectedMetricId] = useState(null);
 
   useEffect(() => {
     fetchMetricSystems();
@@ -26,12 +28,10 @@ function MetricSystemPage() {
           'x-api-key': API_KEY,
         },
       });
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
+      if (!response.ok) throw new Error('Network response was not ok');
       const data = await response.json();
       setMetricSystems(data);
-      setFilteredMetricSystems(data); // Initialize filtered list
+      setFilteredMetricSystems(data);
     } catch (error) {
       console.error('Error fetching metric systems:', error);
     }
@@ -43,16 +43,14 @@ function MetricSystemPage() {
   };
 
   const handleSearchChange = (e) => {
-    const { value } = e.target;
+    const value = e.target.value;
     setSearchTerm(value);
-
-    // Filter metric systems based on the search term
     const filtered = metricSystems.filter(
-      (metricSystem) =>
-        metricSystem.metric_system_name.toLowerCase().includes(value.toLowerCase()) ||
-        metricSystem.metric_val_kilogram.toString().includes(value) ||
-        metricSystem.metric_val_gram.toString().includes(value) ||
-        metricSystem.metric_val_pounds.toString().includes(value)
+      (metric) =>
+        metric.metric_system_name.toLowerCase().includes(value.toLowerCase()) ||
+        metric.metric_val_kilogram.toString().includes(value) ||
+        metric.metric_val_gram.toString().includes(value) ||
+        metric.metric_val_pounds.toString().includes(value)
     );
     setFilteredMetricSystems(filtered);
   };
@@ -69,127 +67,197 @@ function MetricSystemPage() {
           'Content-Type': 'application/json',
           'x-api-key': API_KEY,
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(formData),
       });
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
+      if (!response.ok) throw new Error('Network response was not ok');
       fetchMetricSystems();
       setFormData({
         metric_system_name: '',
         metric_val_kilogram: '',
         metric_val_gram: '',
-        metric_val_pounds: ''
+        metric_val_pounds: '',
       });
       setIsEdit(false);
+      setShowEditModal(false);
     } catch (error) {
       console.error('Error submitting form:', error);
     }
   };
 
-  const handleEdit = (metricSystem) => {
-    setFormData(metricSystem);
+  const handleEdit = (metric) => {
+    setFormData(metric);
     setIsEdit(true);
+    setShowEditModal(true);
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async () => {
     try {
-      const response = await fetch(`/api/metric_systems/${id}`, {
+      const response = await fetch(`/api/metric_systems/${selectedMetricId}`, {
         method: 'DELETE',
         headers: {
           'x-api-key': API_KEY,
         },
       });
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
+      if (!response.ok) throw new Error('Network response was not ok');
       fetchMetricSystems();
+      setShowDeleteModal(false);
     } catch (error) {
       console.error('Error deleting metric system:', error);
     }
   };
 
   return (
-    <div style={{ padding: '50px' }}>
-      <h1>Metric Systems Management</h1>
+    <div className="p-8">
+      <h1 className="text-3xl font-semibold mb-6 text-center text-[#00B251]">Metric Systems Management</h1>
 
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          name="metric_system_name"
-          value={formData.metric_system_name}
-          onChange={handleInputChange}
-          placeholder="Metric System Name"
-          required
-        />
-        <input
-          type="number"
-          step="0.0001"
-          name="metric_val_kilogram"
-          value={formData.metric_val_kilogram}
-          onChange={handleInputChange}
-          placeholder="Kilogram Value"
-          required
-        />
-        <input
-          type="number"
-          step="0.0001"
-          name="metric_val_gram"
-          value={formData.metric_val_gram}
-          onChange={handleInputChange}
-          placeholder="Gram Value"
-          required
-        />
-        <input
-          type="number"
-          step="0.0001"
-          name="metric_val_pounds"
-          value={formData.metric_val_pounds}
-          onChange={handleInputChange}
-          placeholder="Pounds Value"
-          required
-        />
-        <button type="submit">{isEdit ? 'Update' : 'Create'}</button>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <input
+            type="text"
+            name="metric_system_name"
+            value={formData.metric_system_name}
+            onChange={handleInputChange}
+            placeholder="Metric System Name"
+            required
+            className="border p-2 w-full rounded-md"
+          />
+          <input
+            type="number"
+            step="0.0001"
+            name="metric_val_kilogram"
+            value={formData.metric_val_kilogram}
+            onChange={handleInputChange}
+            placeholder="Kilogram Value"
+            required
+            className="border p-2 w-full rounded-md"
+          />
+          <input
+            type="number"
+            step="0.0001"
+            name="metric_val_gram"
+            value={formData.metric_val_gram}
+            onChange={handleInputChange}
+            placeholder="Gram Value"
+            required
+            className="border p-2 w-full rounded-md"
+          />
+          <input
+            type="number"
+            step="0.0001"
+            name="metric_val_pounds"
+            value={formData.metric_val_pounds}
+            onChange={handleInputChange}
+            placeholder="Pounds Value"
+            required
+            className="border p-2 w-full rounded-md"
+          />
+        </div>
+        <button type="submit" className="bg-[#00B251] text-white py-2 px-4 rounded-md mt-4">
+          {isEdit ? 'Update' : 'Create'}
+        </button>
       </form>
 
-      <div style={{ display: 'flex', alignItems: 'center', padding: '10px' }}>
-      <input
-        type="text"
-        value={searchTerm}
-        onChange={handleSearchChange}
-        placeholder="Search for metric system"
-        className="form-control"
-        style={{ marginBottom: '20px', width: '300px' }}
-      />
+      <div className="flex items-center mt-6">
+        <input
+          type="text"
+          placeholder="Search for metric system"
+          value={searchTerm}
+          onChange={handleSearchChange}
+          className="border p-2 rounded-md w-full md:w-1/2"
+        />
       </div>
 
-      <table style={{ border: '1px solid black', width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
-        <thead>
+      <table className="min-w-full mt-8 border border-gray-300 rounded-md overflow-hidden">
+        <thead className="bg-[#00B251] text-white">
           <tr>
-            <th style={{ border: '1px solid black', padding: '8px' }}>ID</th>
-            <th style={{ border: '1px solid black', padding: '8px' }}>Name</th>
-            <th style={{ border: '1px solid black', padding: '8px' }}>Kilogram Value</th>
-            <th style={{ border: '1px solid black', padding: '8px' }}>Gram Value</th>
-            <th style={{ border: '1px solid black', padding: '8px' }}>Pounds Value</th>
-            <th style={{ border: '1px solid black', padding: '8px' }}>Actions</th>
+            <th className="p-2 border">ID</th>
+            <th className="p-2 border">Name</th>
+            <th className="p-2 border">Kilogram</th>
+            <th className="p-2 border">Gram</th>
+            <th className="p-2 border">Pounds</th>
+            <th className="p-2 border">Actions</th>
           </tr>
         </thead>
         <tbody>
-          {filteredMetricSystems.map((metricSystem) => (
-            <tr key={metricSystem.metric_system_id}>
-              <td style={{ border: '1px solid black', padding: '8px' }}>{metricSystem.metric_system_id}</td>
-              <td style={{ border: '1px solid black', padding: '8px' }}>{metricSystem.metric_system_name}</td>
-              <td style={{ border: '1px solid black', padding: '8px' }}>{metricSystem.metric_val_kilogram}</td>
-              <td style={{ border: '1px solid black', padding: '8px' }}>{metricSystem.metric_val_gram}</td>
-              <td style={{ border: '1px solid black', padding: '8px' }}>{metricSystem.metric_val_pounds}</td>
-              <td style={{ border: '1px solid black', padding: '8px' }}>
-                <button onClick={() => handleEdit(metricSystem)}>Edit</button>
-                <button onClick={() => handleDelete(metricSystem.metric_system_id)}>Delete</button>
+          {filteredMetricSystems.map((metric) => (
+            <tr key={metric.metric_system_id} className="text-center">
+              <td className="p-2 border">{metric.metric_system_id}</td>
+              <td className="p-2 border">{metric.metric_system_name}</td>
+              <td className="p-2 border">{metric.metric_val_kilogram}</td>
+              <td className="p-2 border">{metric.metric_val_gram}</td>
+              <td className="p-2 border">{metric.metric_val_pounds}</td>
+              <td className="p-2 border">
+                <button onClick={() => handleEdit(metric)} className="bg-[#00B251] text-white py-1 px-3 rounded-md mx-1">Edit</button>
+                <button onClick={() => { setSelectedMetricId(metric.metric_system_id); setShowDeleteModal(true); }} className="bg-red-500 text-white py-1 px-3 rounded-md mx-1">Delete</button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
+
+      {showEditModal && (
+        <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
+          <div className="bg-white rounded-lg p-8 w-11/12 md:w-1/2 lg:w-1/3">
+            <h2 className="text-2xl font-bold mb-4">Edit Metric System</h2>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <input
+                type="text"
+                name="metric_system_name"
+                value={formData.metric_system_name}
+                onChange={handleInputChange}
+                placeholder="Metric System Name"
+                required
+                className="border p-2 w-full rounded-md"
+              />
+              <input
+                type="number"
+                step="0.0001"
+                name="metric_val_kilogram"
+                value={formData.metric_val_kilogram}
+                onChange={handleInputChange}
+                placeholder="Kilogram Value"
+                required
+                className="border p-2 w-full rounded-md"
+              />
+              <input
+                type="number"
+                step="0.0001"
+                name="metric_val_gram"
+                value={formData.metric_val_gram}
+                onChange={handleInputChange}
+                placeholder="Gram Value"
+                required
+                className="border p-2 w-full rounded-md"
+              />
+              <input
+                type="number"
+                step="0.0001"
+                name="metric_val_pounds"
+                value={formData.metric_val_pounds}
+                onChange={handleInputChange}
+                placeholder="Pounds Value"
+                required
+                className="border p-2 w-full rounded-md"
+              />
+              <button type="submit" className="bg-[#00B251] text-white py-2 px-4 rounded-md">Save Changes</button>
+            </form>
+            <button onClick={() => setShowEditModal(false)} className="bg-gray-300 text-gray-700 py-2 px-4 rounded-md mt-4">Cancel</button>
+          </div>
+        </div>
+      )}
+
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
+          <div className="bg-white rounded-lg p-8 w-11/12 md:w-1/2 lg:w-1/3">
+            <h2 className="text-2xl font-bold mb-4">Confirm Deletion</h2>
+            <p>Are you sure you want to delete this metric system?</p>
+            <div className="flex justify-end mt-6">
+              <button onClick={handleDelete} className="bg-[#00B251] text-white py-2 px-4 rounded-md mr-2">Confirm</button>
+              <button onClick={() => setShowDeleteModal(false)} className="bg-gray-300 text-gray-700 py-2 px-4 rounded-md">Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

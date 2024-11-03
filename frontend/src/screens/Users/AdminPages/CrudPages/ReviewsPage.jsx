@@ -234,7 +234,7 @@ function ReviewsPage() {
 
     return (
         <div className="p-6 max-w-7xl mx-auto">
-            <h1 className="text-3xl font-bold mb-6">Reviews Management</h1>
+            <h1 className="text-3xl font-semibold mb-6 text-center text-[#00B251]">Reviews Management</h1>
 
             {/* Form Section */}
             <form className="mb-10 p-6 bg-white shadow-lg rounded-lg" onSubmit={handleSubmit}>

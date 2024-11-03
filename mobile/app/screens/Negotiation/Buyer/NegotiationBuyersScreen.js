@@ -14,6 +14,7 @@ import { styled } from "nativewind";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Ionicons } from "@expo/vector-icons";
 
 const StyledSafeAreaView = styled(SafeAreaView);
 const StyledText = styled(Text);
@@ -33,6 +34,9 @@ function NegotiationBuyerScreen({ navigation, route }) {
   const { product } = route.params;
   const toggleSwitch = () => setIsChecked(!isChecked);
   const [userData, setUserData] = useState([]);
+
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
 
   const getAsyncUserData = async () => {
     setLoading(true);
@@ -100,12 +104,14 @@ function NegotiationBuyerScreen({ navigation, route }) {
         const errorResponse = await response.text(); // Capture the response body
         console.error('Failed to place negotiation. Status:', response.status, 'Status Text:', response.statusText);
         console.error('Error response from server:', errorResponse);
-        alert('Failed to place negotiation. Please try again.');
+        setAlertMessage('Failed to place negotiation. Please try again.');
+        setAlertVisible(true);
       }
     } catch (error) {
       // Log the full error object for better debugging
       console.error('Error placing negotiation:', error);
-      alert('Network error. Please try again later.');
+      setAlertMessage('Network error. Please try again later.');
+      setAlertVisible(true);
     } finally {
       console.log('Finished handling negotiation bid, closing confirmation modal.');
       setConfirmationModalVisible(false); // Close the confirmation modal after request
@@ -288,6 +294,26 @@ function NegotiationBuyerScreen({ navigation, route }) {
           </StyledView>
         </StyledView>
       </StyledModal>
+      {/* Alert Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={alertVisible}
+        onRequestClose={() => setAlertVisible(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black/50 bg-opacity-50">
+          <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
+            <Text className="text-lg font-semibold text-gray-900 mb-4">{alertMessage}</Text>
+            <TouchableOpacity
+              className="mt-4 p-2 bg-[#00B251] rounded-lg flex-row justify-center items-center"
+              onPress={() => setAlertVisible(false)}
+            >
+              <Ionicons name="checkmark-circle-outline" size={24} color="white" />
+              <Text className="text-lg text-white ml-2">OK</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </StyledSafeAreaView>
   );
 }
