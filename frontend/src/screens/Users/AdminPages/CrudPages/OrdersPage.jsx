@@ -20,6 +20,7 @@ function OrdersPage() {
     });
     const [isEdit, setIsEdit] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
+    const [selectedStatus, setSelectedStatus] = useState(''); // New state for status filter
     const [showEditModal, setShowEditModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [orderToDelete, setOrderToDelete] = useState(null);
@@ -33,15 +34,16 @@ function OrdersPage() {
 
     useEffect(() => {
         setFilteredOrders(
-            orders.filter(order =>
-                order.total_price.toString().includes(searchTerm) ||
+            orders.filter(order => 
+                (order.total_price.toString().includes(searchTerm) ||
                 order.total_weight.toString().includes(searchTerm) ||
                 statuses.find(status => status.order_status_id === order.status_id)?.order_status_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 users.find(user => user.user_id === order.user_id)?.firstname.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                users.find(user => user.user_id === order.user_id)?.lastname.toLowerCase().includes(searchTerm.toLowerCase())
+                users.find(user => user.user_id === order.user_id)?.lastname.toLowerCase().includes(searchTerm.toLowerCase())) &&
+                (selectedStatus === '' || order.status_id === parseInt(selectedStatus)) // Filter by selected status
             )
         );
-    }, [orders, searchTerm]);
+    }, [orders, searchTerm, selectedStatus]);
 
     const fetchOrders = async () => {
         try {
@@ -96,6 +98,10 @@ function OrdersPage() {
         setFormData({ ...formData, [name]: value });
     };
 
+    const handleStatusFilterChange = (e) => {
+        setSelectedStatus(e.target.value); // Update selected status filter
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (isEdit) {
@@ -107,7 +113,7 @@ function OrdersPage() {
 
     const handleCreate = async () => {
         try {
-            const response = await fetch('/api/orders', {
+            await fetch('/api/orders', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -124,7 +130,7 @@ function OrdersPage() {
 
     const handleUpdate = async () => {
         try {
-            const response = await fetch(`/api/orders/${formData.order_id}`, {
+            await fetch(`/api/orders/${formData.order_id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -148,7 +154,7 @@ function OrdersPage() {
 
     const handleDelete = async () => {
         try {
-            const response = await fetch(`/api/orders/${orderToDelete}`, {
+            await fetch(`/api/orders/${orderToDelete}`, {
                 method: 'DELETE',
                 headers: { 'x-api-key': API_KEY }
             });
@@ -188,33 +194,36 @@ function OrdersPage() {
             <h1 className="text-3xl font-semibold mb-6 text-center text-[#00B251]">Orders Management</h1>
 
             <form onSubmit={handleSubmit} className="mb-6 flex flex-wrap gap-4">
-                {/* Form inputs for Create/Update Order */}
                 <input type="text" name="total_price" value={formData.total_price} onChange={handleInputChange} placeholder="Total Price" className="p-2 border rounded w-full md:w-1/3" required />
                 <input type="text" name="total_weight" value={formData.total_weight} onChange={handleInputChange} placeholder="Total Weight" className="p-2 border rounded w-full md:w-1/3" />
-
+                
                 <select name="status_id" value={formData.status_id} onChange={handleInputChange} className="p-2 border rounded w-full md:w-1/3" required>
                     <option value="">Select Status</option>
                     {statuses.map((status) => <option key={status.order_status_id} value={status.order_status_id}>{status.order_status_name}</option>)}
                 </select>
-
+                
                 <select name="user_id" value={formData.user_id} onChange={handleInputChange} className="p-2 border rounded w-full md:w-1/3" required>
                     <option value="">Select User</option>
                     {users.map((user) => <option key={user.user_id} value={user.user_id}>{user.firstname} {user.lastname}</option>)}
                 </select>
-
+                
                 <select name="order_metric_system_id" value={formData.order_metric_system_id} onChange={handleInputChange} className="p-2 border rounded w-full md:w-1/3" required>
                     <option value="">Select Metric System</option>
                     {metricSystems.map((metric) => <option key={metric.metric_system_id} value={metric.metric_system_id}>{metric.metric_system_name}</option>)}
                 </select>
-
+                
                 <button type="submit" className="p-2 w-full md:w-1/3 bg-[#00B251] text-white rounded">
                     {isEdit ? 'Update Order' : 'Create Order'}
                 </button>
             </form>
 
-            {/* Search and PDF Export */}
+            {/* Status Filter and Search */}
             <div className="flex justify-between items-center mb-4">
                 <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search Orders" className="p-2 border rounded w-full md:w-1/3" />
+                <select onChange={handleStatusFilterChange} value={selectedStatus} className="p-2 border rounded w-full md:w-1/3">
+                    <option value="">All Statuses</option>
+                    {statuses.map((status) => <option key={status.order_status_id} value={status.order_status_id}>{status.order_status_name}</option>)}
+                </select>
                 <button onClick={exportToPDF} className="p-2 bg-[#00B251] text-white rounded ml-2">Export to PDF</button>
             </div>
 

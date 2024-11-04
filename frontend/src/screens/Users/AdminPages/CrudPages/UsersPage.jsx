@@ -25,6 +25,9 @@ function UsersPage() {
 
     const [searchQuery, setSearchQuery] = useState('');
     const [filteredUsers, setFilteredUsers] = useState([]);
+    const [genderFilter, setGenderFilter] = useState('');
+    const [userTypeFilter, setUserTypeFilter] = useState('');
+    const [verifiedFilter, setVerifiedFilter] = useState('');
     const [isEdit, setIsEdit] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -37,11 +40,15 @@ function UsersPage() {
 
     useEffect(() => {
         setFilteredUsers(
-            users.filter(user =>
-                `${user.firstname} ${user.lastname}`.toLowerCase().includes(searchQuery.toLowerCase())
-            )
+            users.filter(user => {
+                const fullNameMatches = `${user.firstname} ${user.lastname}`.toLowerCase().includes(searchQuery.toLowerCase());
+                const genderMatches = genderFilter ? user.gender === genderFilter : true;
+                const userTypeMatches = userTypeFilter ? user.user_type_id === parseInt(userTypeFilter) : true;
+                const verifiedMatches = verifiedFilter !== '' ? user.verified === (verifiedFilter === 'true') : true;
+                return fullNameMatches && genderMatches && userTypeMatches && verifiedMatches;
+            })
         );
-    }, [searchQuery, users]);
+    }, [searchQuery, users, genderFilter, userTypeFilter, verifiedFilter]);
 
     const fetchUsers = async () => {
         try {
@@ -222,20 +229,49 @@ function UsersPage() {
                 </button>
             </form>
 
-            <div className="flex items-center mb-4">
+            {/* Filters */}
+            <div className="flex flex-wrap items-center mb-4 gap-4">
                 <input
                     type="text"
                     placeholder="Search users"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="p-2 border border-gray-300 rounded flex-1 mr-4"
+                    className="p-2 border border-gray-300 rounded flex-1"
                 />
+                <select
+                    value={genderFilter}
+                    onChange={(e) => setGenderFilter(e.target.value)}
+                    className="p-2 border border-gray-300 rounded"
+                >
+                    <option value="">All Genders</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                </select>
+                <select
+                    value={userTypeFilter}
+                    onChange={(e) => setUserTypeFilter(e.target.value)}
+                    className="p-2 border border-gray-300 rounded"
+                >
+                    <option value="">All User Types</option>
+                    <option value="1">Admin</option>
+                    <option value="2">Seller</option>
+                    <option value="3">Buyer</option>
+                </select>
+                <select
+                    value={verifiedFilter}
+                    onChange={(e) => setVerifiedFilter(e.target.value)}
+                    className="p-2 border border-gray-300 rounded"
+                >
+                    <option value="">All Verified Status</option>
+                    <option value="true">Yes</option>
+                    <option value="false">No</option>
+                </select>
                 <button onClick={generatePDF} className="bg-green-600 text-white py-2 px-4 rounded">
                     Export to PDF
                 </button>
             </div>
 
-            <div className="flex-1 ">
+            <div className="flex-1">
                 <table className="w-full border border-gray-200 text-left">
                     <thead className="bg-green-600 text-white">
                         <tr>
@@ -275,7 +311,7 @@ function UsersPage() {
                                             setSelectedUserId(user.user_id);
                                             setShowDeleteModal(true);
                                         }}
-                                        className="bg-red-500 text-white px-2.5 py-1 rounded "
+                                        className="bg-red-500 text-white px-2.5 py-1 rounded"
                                     >
                                         Delete
                                     </button>
@@ -330,9 +366,8 @@ function UsersPage() {
                             </label>
                             <input type="file" name="image" onChange={handleFileChange} className="p-2 border border-gray-300 rounded" />
                             <button type="submit" className="bg-green-600 text-white py-2 px-4 rounded">Update</button>
-                            <button onClick={() => setShowEditModal(false)} className="bg-red-500 text-white py-2 px-4 rounded ">Cancel</button>
+                            <button onClick={() => setShowEditModal(false)} className="bg-red-500 text-white py-2 px-4 rounded">Cancel</button>
                         </form>
-
                     </div>
                 </div>
             )}

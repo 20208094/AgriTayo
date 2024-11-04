@@ -1,3 +1,4 @@
+// CropsPage.jsx
 import React, { useState, useEffect } from 'react';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
@@ -25,8 +26,12 @@ function CropsPage() {
   const [metricSystems, setMetricSystems] = useState([]);
   const [isEdit, setIsEdit] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [cropToDelete, setCropToDelete] = useState(null);
+
 
   useEffect(() => {
     fetchCrops();
@@ -36,15 +41,11 @@ function CropsPage() {
   }, []);
 
   const fetchCrops = async () => {
+    // Fetch crops and handle API errors
     try {
       const response = await fetch('/api/crops', {
-        headers: {
-          'x-api-key': API_KEY,
-        },
+        headers: { 'x-api-key': API_KEY },
       });
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
       const data = await response.json();
       setCrops(data);
     } catch (error) {
@@ -55,13 +56,8 @@ function CropsPage() {
   const fetchCategories = async () => {
     try {
       const response = await fetch('/api/crop_categories', {
-        headers: {
-          'x-api-key': API_KEY,
-        },
+        headers: { 'x-api-key': API_KEY },
       });
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
       const data = await response.json();
       setCategories(data);
     } catch (error) {
@@ -72,13 +68,8 @@ function CropsPage() {
   const fetchShops = async () => {
     try {
       const response = await fetch('/api/shops', {
-        headers: {
-          'x-api-key': API_KEY,
-        },
+        headers: { 'x-api-key': API_KEY },
       });
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
       const data = await response.json();
       setShops(data);
     } catch (error) {
@@ -89,13 +80,8 @@ function CropsPage() {
   const fetchMetricSystems = async () => {
     try {
       const response = await fetch('/api/metric_systems', {
-        headers: {
-          'x-api-key': API_KEY,
-        },
+        headers: { 'x-api-key': API_KEY },
       });
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
       const data = await response.json();
       setMetricSystems(data);
     } catch (error) {
@@ -111,11 +97,9 @@ function CropsPage() {
     });
   };
 
-  const handleSubmit = async (e) => {
+  const handleCreateSubmit = async (e) => {
     e.preventDefault();
-    const url = isEdit ? `/api/crops/${formData.crop_id}` : '/api/crops';
-    const method = isEdit ? 'PUT' : 'POST';
-
+    const url = '/api/crops';
     const dataToSend = new FormData();
     for (const key in formData) {
       dataToSend.append(key, formData[key]);
@@ -123,18 +107,37 @@ function CropsPage() {
 
     try {
       const response = await fetch(url, {
-        method: method,
-        headers: {
-          'x-api-key': API_KEY,
-        },
+        method: 'POST',
+        headers: { 'x-api-key': API_KEY },
         body: dataToSend
       });
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
+      if (!response.ok) throw new Error('Network response was not ok');
       fetchCrops();
       resetForm();
-      setIsEdit(false);
+      setIsAddModalOpen(false);
+    } catch (error) {
+      console.error('Error submitting form:', error);
+    }
+  };
+
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    const url = `/api/crops/${formData.crop_id}`;
+    const dataToSend = new FormData();
+    for (const key in formData) {
+      dataToSend.append(key, formData[key]);
+    }
+
+    try {
+      const response = await fetch(url, {
+        method: 'PUT',
+        headers: { 'x-api-key': API_KEY },
+        body: dataToSend
+      });
+      if (!response.ok) throw new Error('Network response was not ok');
+      fetchCrops();
+      resetForm();
+      setIsEditModalOpen(false);
     } catch (error) {
       console.error('Error submitting form:', error);
     }
@@ -158,36 +161,42 @@ function CropsPage() {
 
   const handleEdit = (crop) => {
     setFormData(crop);
+    setIsEditModalOpen(true);
     setIsEdit(true);
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = (id) => {
+    setCropToDelete(id); // Store only the crop ID to delete
+    setIsDeleteModalOpen(true);
+  };
+  
+  const confirmDelete = async () => {
+    if (!cropToDelete) return;
+  
     try {
-      const response = await fetch(`/api/crops/${id}`, {
+      const response = await fetch(`/api/crops/${cropToDelete}`, { // Use cropToDelete directly
         method: 'DELETE',
-        headers: {
-          'x-api-key': API_KEY,
-        },
+        headers: { 'x-api-key': API_KEY },
       });
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
+      if (!response.ok) throw new Error('Network response was not ok');
       fetchCrops();
     } catch (error) {
       console.error('Error deleting crop:', error);
+    } finally {
+      setIsDeleteModalOpen(false);
+      setCropToDelete(null);
     }
   };
+  
 
-  // Filter logic for both search term and category
   const filteredCrops = crops.filter(crop =>
     (crop.crop_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       crop.crop_description.toLowerCase().includes(searchTerm.toLowerCase())) &&
     (selectedCategory === '' || crop.category_id === selectedCategory)
   );
-  //pdf table design
+
   const exportToPDF = () => {
     const doc = new jsPDF('landscape');
-
     const logoWidth = 50;
     const logoHeight = 50;
     const marginBelowLogo = 5;
@@ -226,180 +235,223 @@ function CropsPage() {
   };
 
 
+
   return (
-    <div style={{ padding: '50px' }}>
-      <h1>Crops Management</h1>
-
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          name="crop_name"
-          value={formData.crop_name}
-          onChange={handleInputChange}
-          placeholder="Crop Name"
-          required
-        />
-        <input
-          type="text"
-          name="crop_description"
-          value={formData.crop_description}
-          onChange={handleInputChange}
-          placeholder="Crop Description"
-        />
-        <select
-          name="category_id"
-          value={formData.category_id}
-          onChange={handleInputChange}
-          required
-        >
-          <option value="">Select Category</option>
-          {categories.map((category) => (
-            <option key={category.crop_category_id} value={category.crop_category_id}>
-              {category.crop_category_name}
-            </option>
-          ))}
-        </select>
-        <select
-          name="shop_id"
-          value={formData.shop_id}
-          onChange={handleInputChange}
-          required
-        >
-          <option value="">Select Shop</option>
-          {shops.map((shop) => (
-            <option key={shop.shop_id} value={shop.shop_id}>
-              {shop.shop_name}
-            </option>
-          ))}
-        </select>
-        <input
-          type="file"
-          name="image"
-          onChange={handleInputChange}
-          accept="image/*"
-          required
-        />
-        <input
-          type="number"
-          step="0.01"
-          name="crop_rating"
-          value={formData.crop_rating}
-          onChange={handleInputChange}
-          placeholder="Crop Rating"
-        />
-        <input
-          type="number"
-          step="0.01"
-          name="crop_price"
-          value={formData.crop_price}
-          onChange={handleInputChange}
-          placeholder="Crop Price"
-          required
-        />
-        <input
-          type="number"
-          name="crop_quantity"
-          value={formData.crop_quantity}
-          onChange={handleInputChange}
-          placeholder="Crop Quantity"
-        />
-        <input
-          type="number"
-          step="0.0001"
-          name="crop_weight"
-          value={formData.crop_weight}
-          onChange={handleInputChange}
-          placeholder="Crop Weight"
-        />
-        <select
-          name="metric_system_id"
-          value={formData.metric_system_id}
-          onChange={handleInputChange}
-          required
-        >
-          <option value="">Select Metric System</option>
-          {metricSystems.map((metric) => (
-            <option key={metric.metric_system_id} value={metric.metric_system_id}>
-              {metric.metric_system_name}
-            </option>
-          ))}
-        </select>
-        <button type="submit">{isEdit ? 'Update' : 'Create'}</button>
-      </form>
-
-      {/* New Category Filter Dropdown */}
-      <div>
-        <label htmlFor="categoryFilter">Filter by Category: </label>
-        <select
-          id="categoryFilter"
-          value={selectedCategory}
-          onChange={(e) => setSelectedCategory(e.target.value)}
-        >
-          <option value="">All Categories</option>
-          {categories.map(category => (
-            <option key={category.crop_category_id} value={category.crop_category_id}>
-              {category.crop_category_name}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
+    <div className="p-8">
+      <h1 className="text-2xl font-bold text-center text-[#00B251]">Crops Management</h1>
+      <div className="flex justify-between my-4">
         <input
           type="text"
           placeholder="Search Crops"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          style={{ margin: '20px 0', padding: '5px' }}
+          className="p-2 border rounded w-full sm:w-1/2"
         />
-        <button onClick={exportToPDF}>Export to PDF</button>
+        <button
+          onClick={() => setIsAddModalOpen(true)}
+          className="bg-[#00B251] text-white p-2 ml-4 rounded"
+        >
+          Add Crop
+        </button>
+        <button onClick={exportToPDF} className="bg-[#00B251] text-white p-2 ml-4 rounded">
+          Export to PDF
+        </button>
       </div>
 
-      <table style={{ border: '1px solid black', width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
-        <thead>
+      {/* Crops Table */}
+      <table className="min-w-full bg-white border border-gray-300 mt-4">
+        <thead className="bg-[#00B251] text-white">
           <tr>
-            <th style={{ border: '1px solid black', padding: '8px' }}>ID</th>
-            <th style={{ border: '1px solid black', padding: '8px' }}>Name</th>
-            <th style={{ border: '1px solid black', padding: '8px' }}>Description</th>
-            <th style={{ border: '1px solid black', padding: '8px' }}>Category</th>
-            <th style={{ border: '1px solid black', padding: '8px' }}>Shop</th>
-            <th style={{ border: '1px solid black', padding: '8px' }}>Image</th>
-            <th style={{ border: '1px solid black', padding: '8px' }}>Rating</th>
-            <th style={{ border: '1px solid black', padding: '8px' }}>Price</th>
-            <th style={{ border: '1px solid black', padding: '8px' }}>Quantity</th>
-            <th style={{ border: '1px solid black', padding: '8px' }}>Weight</th>
-            <th style={{ border: '1px solid black', padding: '8px' }}>Metric System</th>
-            <th style={{ border: '1px solid black', padding: '8px' }}>Actions</th>
+            {['ID', 'Name', 'Description', 'Category', 'Shop', 'Image', 'Rating', 'Price', 'Quantity', 'Weight', 'Metric System', 'Actions'].map((header) => (
+              <th key={header} className="p-2 text-center">{header}</th>
+            ))}
           </tr>
         </thead>
         <tbody>
           {filteredCrops.map((crop) => (
-            <tr key={crop.crop_id}>
-              <td style={{ border: '1px solid black', padding: '8px' }}>{crop.crop_id}</td>
-              <td style={{ border: '1px solid black', padding: '8px' }}>{crop.crop_name}</td>
-              <td style={{ border: '1px solid black', padding: '8px' }}>{crop.crop_description}</td>
-              <td style={{ border: '1px solid black', padding: '8px' }}>
+            <tr key={crop.crop_id} className="text-center border-b hover:bg-gray-100">
+              <td className="p-2">{crop.crop_id}</td>
+              <td className="p-2">{crop.crop_name}</td>
+              <td className="p-2">{crop.crop_description}</td>
+              <td className="p-2">
                 {categories.find(category => category.crop_category_id === crop.category_id)?.crop_category_name || 'N/A'}
               </td>
-              <td style={{ border: '1px solid black', padding: '8px' }}>
+              <td className="p-2">
                 {shops.find(shop => shop.shop_id === crop.shop_id)?.shop_name || 'N/A'}
               </td>
-              <td style={{ border: '1px solid black', padding: '8px' }}>{crop.crop_image}</td>
-              <td style={{ border: '1px solid black', padding: '8px' }}>{crop.crop_rating}</td>
-              <td style={{ border: '1px solid black', padding: '8px' }}>{crop.crop_price}</td>
-              <td style={{ border: '1px solid black', padding: '8px' }}>{crop.crop_quantity}</td>
-              <td style={{ border: '1px solid black', padding: '8px' }}>{crop.crop_weight}</td>
-              <td style={{ border: '1px solid black', padding: '8px' }}>
+              <td className="p-2">{crop.crop_image}</td>
+              <td className="p-2">{crop.crop_rating}</td>
+              <td className="p-2">{crop.crop_price}</td>
+              <td className="p-2">{crop.crop_quantity}</td>
+              <td className="p-2">{crop.crop_weight}</td>
+              <td className="p-2">
                 {metricSystems.find(metric => metric.metric_system_id === crop.metric_system_id)?.metric_system_name || 'N/A'}
               </td>
-              <td style={{ border: '1px solid black', padding: '8px' }}>
-                <button onClick={() => handleEdit(crop)}>Edit</button>
-                <button onClick={() => handleDelete(crop.crop_id)}>Delete</button>
+              <td className="p-2 flex justify-center gap-2">
+                <button onClick={() => handleEdit(crop)} className="bg-[#00B251] text-white px-3 py-1 rounded">
+                  Edit
+                </button>
+                <button onClick={() => handleDelete(crop.crop_id)} className="bg-red-500 text-white px-3 py-1 rounded">
+                  Delete
+                </button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
+
+      {/* Modal for Adding/Editing */}
+      {isAddModalOpen || isEditModalOpen ? (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+          <div className="bg-white p-8 rounded shadow-lg w-11/12 sm:w-1/2 lg:w-1/3">
+            <h2 className="text-xl font-bold mb-4 text-[#00B251]">{isEdit ? 'Edit Crop' : 'Add Crop'}</h2>
+            <form onSubmit={isEdit ? handleEditSubmit : handleCreateSubmit}>
+              <input
+                type="text"
+                name="crop_name"
+                value={formData.crop_name}
+                onChange={handleInputChange}
+                placeholder="Crop Name"
+                required
+                className="p-2 border rounded mb-2 w-full"
+              />
+              <input
+                type="text"
+                name="crop_description"
+                value={formData.crop_description}
+                onChange={handleInputChange}
+                placeholder="Crop Description"
+                className="p-2 border rounded mb-2 w-full"
+              />
+              <select
+                name="category_id"
+                value={formData.category_id}
+                onChange={handleInputChange}
+                required
+                className="p-2 border rounded mb-2 w-full"
+              >
+                <option value="">Select Category</option>
+                {categories.map(category => (
+                  <option key={category.crop_category_id} value={category.crop_category_id}>
+                    {category.crop_category_name}
+                  </option>
+                ))}
+              </select>
+              <select
+                name="shop_id"
+                value={formData.shop_id}
+                onChange={handleInputChange}
+                required
+                className="p-2 border rounded mb-2 w-full"
+              >
+                <option value="">Select Shop</option>
+                {shops.map(shop => (
+                  <option key={shop.shop_id} value={shop.shop_id}>
+                    {shop.shop_name}
+                  </option>
+                ))}
+              </select>
+              <input
+                type="file"
+                name="image"
+                onChange={handleInputChange}
+                accept="image/*"
+                required={!isEdit}
+                className="p-2 border rounded mb-2 w-full"
+              />
+              <input
+                type="number"
+                step="0.01"
+                name="crop_rating"
+                value={formData.crop_rating}
+                onChange={handleInputChange}
+                placeholder="Crop Rating"
+                className="p-2 border rounded mb-2 w-full"
+              />
+              <input
+                type="number"
+                step="0.01"
+                name="crop_price"
+                value={formData.crop_price}
+                onChange={handleInputChange}
+                placeholder="Crop Price"
+                required
+                className="p-2 border rounded mb-2 w-full"
+              />
+              <input
+                type="number"
+                name="crop_quantity"
+                value={formData.crop_quantity}
+                onChange={handleInputChange}
+                placeholder="Crop Quantity"
+                className="p-2 border rounded mb-2 w-full"
+              />
+              <input
+                type="number"
+                step="0.0001"
+                name="crop_weight"
+                value={formData.crop_weight}
+                onChange={handleInputChange}
+                placeholder="Crop Weight"
+                className="p-2 border rounded mb-2 w-full"
+              />
+              <select
+                name="metric_system_id"
+                value={formData.metric_system_id}
+                onChange={handleInputChange}
+                required
+                className="p-2 border rounded mb-4 w-full"
+              >
+                <option value="">Select Metric System</option>
+                {metricSystems.map(metric => (
+                  <option key={metric.metric_system_id} value={metric.metric_system_id}>
+                    {metric.metric_system_name}
+                  </option>
+                ))}
+              </select>
+              <div className="flex justify-between">
+                <button
+                  type="button"
+                  onClick={() => { resetForm(); setIsEditModalOpen(false); setIsAddModalOpen(false); }}
+                  className="bg-gray-400 text-white p-2 rounded w-full mr-2"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="bg-[#00B251] text-white p-2 rounded w-full"
+                >
+                  {isEdit ? 'Update' : 'Create'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      ) : null}
+
+      {isDeleteModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+          <div className="bg-white p-8 rounded shadow-lg w-11/12 sm:w-1/2 lg:w-1/3">
+            <h2 className="text-xl font-bold mb-4 text-[#00B251]">Confirm Delete</h2>
+            <p>Are you sure you want to delete this crop?</p>
+            <div className="flex justify-between mt-4">
+              <button
+                onClick={() => setIsDeleteModalOpen(false)}
+                className="bg-gray-400 text-white p-2 rounded w-full mr-2"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="bg-red-500 text-white p-2 rounded w-full"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
