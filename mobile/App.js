@@ -66,6 +66,9 @@ import WonBidScreen from "./app/screens/Bidding/WonBidScreen";
 import AddAnotherBid from "./app/screens/Bidding/AddAnotherBidScreen";
 import CropsScreen from "./app/screens/Market/CropsScreen";
 import MarketVarietyListScreen from "./app/screens/Market/MarketCategory/MarketCropVarietyListScreen";
+import LostPhoneNumberScreen from "./app/screens/Authentication/LostPhoneNumberScreen";
+import LostPhoneNumberOTPScreen from "./app/screens/Authentication/LostPhoneNumberOTPScreen";
+import NewPhoneNumberScreen from "./app/screens/Authentication/NewPhoneNumberScreen";
 // for farmers
 import ShopScreen from "./app/screens/farmers/Shop/ShopScreen";
 import ViewShopScreen from "./app/screens/farmers/Shop/ViewShopScreen";
@@ -688,6 +691,21 @@ function App() {
             <Stack.Screen
               name="New Password"
               component={NewPasswordScreen}
+              options={{ ...screenOptions, headerShown: false }}
+            />
+            <Stack.Screen
+              name="Lost Phone Number"
+              component={LostPhoneNumberScreen}
+              options={{ ...screenOptions, headerShown: false }}
+            />
+            <Stack.Screen
+              name="Lost Phone Number OTP"
+              component={LostPhoneNumberOTPScreen}
+              options={{ ...screenOptions, headerShown: false }}
+            />
+            <Stack.Screen
+              name="New Phone Number"
+              component={NewPhoneNumberScreen}
               options={{ ...screenOptions, headerShown: false }}
             />
           </>

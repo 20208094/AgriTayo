@@ -39,6 +39,7 @@ async function addUser(req, res) {
                 lastname,
                 email,
                 password,
+                secondary_phone_number,
                 phone_number,
                 gender,
                 birthday,
@@ -88,6 +89,7 @@ async function addUser(req, res) {
                     email: getSingleValue(email),
                     password: hashedPassword,
                     phone_number: getSingleValue(phone_number),
+                    secondary_phone_number: getSingleValue(secondary_phone_number),
                     gender: genderValue,
                     birthday: getSingleValue(birthday),
                     user_type_id: userTypeId,
@@ -282,7 +284,59 @@ async function changePassword(req, res) {
 const getSingleValue = (value) => Array.isArray(value) ? value[0] : value;
 }
 
+async function changePhoneNumber(req, res) {
+    try {
+        const { secondary_phone_number } = req.params;
 
+        if (!secondary_phone_number) {
+            return res.status(400).json({ error: 'Secondary Phone Number is required for update' });
+        }
+
+        const form = new formidable.IncomingForm({ multiples: true });
+
+        form.parse(req, async (err, fields, files) => {
+            if (err) {
+                console.error('Formidable error:', err);
+                return res.status(500).json({ error: 'Form parsing error' });
+            }
+
+            const {
+                pass,
+                phone_number
+            } = fields;
+
+            console.log(pass, phone_number)
+
+            const passwordString = getSingleValue(pass);
+            if (passwordString && typeof passwordString !== 'string') return res.status(400).json({ error: 'Invalid password type' });
+
+            const updateData = {
+                phone_number: getSingleValue(phone_number),
+            }
+
+            updateData.password = await bcrypt.hash(passwordString, 10);
+
+            const { data, error } = await supabase
+                .from('users')
+                .update(updateData)
+                .eq('secondary_phone_number', secondary_phone_number);
+
+            if (error) {
+                console.error('Supabase query failed:', error.message);
+                return res.status(500).json({ error: 'Internal server error' });
+            }
+
+            console.log('User updated successfully:', data);
+            res.status(200).json({ message: 'User updated successfully', data });
+        });
+    } catch (err) {
+        console.error('Error executing updateUser process:', err.message);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+    
+// Helper function to get single value from array
+const getSingleValue = (value) => Array.isArray(value) ? value[0] : value;
+}
 
 async function deleteUser(req, res) {
     try {
@@ -339,5 +393,6 @@ module.exports = {
     addUser,
     updateUser,
     deleteUser,
-    changePassword
+    changePassword,
+    changePhoneNumber,
 };

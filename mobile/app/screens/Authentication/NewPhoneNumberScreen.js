@@ -3,23 +3,25 @@ import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { styled } from "nativewind";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
+import GoBack from "../../components/GoBack";
 
-function NewPasswordScreen({ navigation, route }) {
+function NewPhoneNumberScreen({ navigation, route }) {
 
-  const {phoneNumber} = route.params
+  const {secondaryPhoneNumber} = route.params
 
   const [newPassword, setNewPassword] = useState('')
   const [loading, setLoading] = useState(false)
 
-  console.log(phoneNumber)
+  console.log(secondaryPhoneNumber)
 
-  const handleNewPassword = async() => {
+  const handleNewPhoneNumber = async() => {
     const formData = new FormData();
-    formData.append("pass", newPassword)
+    formData.append("phone_number", secondaryPhoneNumber)
+    formData.append('pass', newPassword)
 
       setLoading(true);
       try {
-        const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/changePassword/${phoneNumber}`, {
+        const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/changePhoneNumber/${secondaryPhoneNumber}`, {
           method: "PUT",
           headers: {
             "x-api-key": REACT_NATIVE_API_KEY,
@@ -29,16 +31,16 @@ function NewPasswordScreen({ navigation, route }) {
 
         if (response.ok) {
           const data = await response.json();
-          console.log("Successfully Updated Password")
-          Alert.alert("Success!", "Successfully Updated Password")
+          console.log("Successfully Updated Phone Number and Password", data)
+          Alert.alert("Success!", "Successfully Added Phone Number and Password")
           navigation.navigate("Login");
         } else {
           const errorData = await response.json();
-          console.error("Updating new password failed:", errorData);
-          alert("Updating the New Password Failed. Please Try Again");
+          console.error("Adding new phone number and password failed:", errorData);
+          alert("Adding New Phone Number Failed. Please Try Again");
         }
       } catch (error) {
-        console.error("Error during updating the new password:", error);
+        console.error("Error during adding new phone number and password:", error);
         alert("An error occurred. Please try again.");
       } finally {
         setLoading(false);
@@ -47,6 +49,7 @@ function NewPasswordScreen({ navigation, route }) {
 
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
+      <GoBack navigation={navigation}/>
       <View className="flex-1 justify-center items-center px-5">
         <View className="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
           <Text className="text-2xl font-bold text-green-700 mb-4 text-center">
@@ -54,7 +57,7 @@ function NewPasswordScreen({ navigation, route }) {
           </Text>
           <TextInput
             className="border border-gray-300 rounded-lg px-4 py-2 mb-4"
-            placeholder="Password"
+            placeholder="New Password"
             secureTextEntry={true}
             autoCapitalize="none"
             autoCorrect={false}
@@ -65,16 +68,16 @@ function NewPasswordScreen({ navigation, route }) {
             onPress={() => {
               Alert.alert(
                 "Confirm New Password",
-                "Do you really want to update this password?",
+                "Do you really want to add this new password?",
                 [
                   {
                     text: "No",
-                    onPress: () => console.log("New Password Updated"),
+                    onPress: () => console.log("New Password Added"),
                     style: "cancel",
                   },
                   {
                     text: "Yes",
-                    onPress: handleNewPassword,
+                    onPress: handleNewPhoneNumber,
                   },
                 ],
                 { cancelable: false }
@@ -90,4 +93,4 @@ function NewPasswordScreen({ navigation, route }) {
   );
 }
 
-export default styled(NewPasswordScreen);
+export default styled(NewPhoneNumberScreen);

@@ -2,7 +2,7 @@ const supabase = require('../db');
 const bcrypt = require('bcryptjs');
 
 async function register(req, res) {
-    const { firstname, middlename, lastname, email, password, phone_number, gender, birthday, user_type_id, verified } = req.body;
+    const { firstname, middlename, lastname, email, password, secondary_phone_number, phone_number, gender, birthday, user_type_id, verified } = req.body;
 
     try {
         const hashedPassword = await bcrypt.hash(password, 10);

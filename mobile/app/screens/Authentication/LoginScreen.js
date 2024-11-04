@@ -161,6 +161,10 @@ function LoginScreen({ navigation, fetchUserSession }) {
       <TouchableOpacity onPress={() => navigation.navigate("Forgot Password")}>
         <Text className="text-green-500 mt-4">Forgot Password? Click Here</Text>
       </TouchableOpacity>
+
+      <TouchableOpacity onPress={() => navigation.navigate("Lost Phone Number")}>
+        <Text className="text-green-500 mt-4">Lost Phone Number? Click Here</Text>
+      </TouchableOpacity>
     </View>
   );
 }

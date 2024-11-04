@@ -12,8 +12,8 @@ import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 import { io } from 'socket.io-client';
 import GoBack from "../../components/GoBack";
 
-function ChangePasswordOTPSCreen({ navigation, route }) {
-  const {phoneNumber} = route.params
+function LostPhoneNumberOTPScreen({ navigation, route }) {
+  const {secondaryPhoneNumber} = route.params
 
   const [generatedCode, setGeneratedCode] = useState("");
 
@@ -32,7 +32,7 @@ function ChangePasswordOTPSCreen({ navigation, route }) {
     console.log("Generated OTP code:", code); // For debugging, remove in production
     const title = 'AgriTayo'
     const message = `Your OTP code is: ${code}`
-    const phone_number = phoneNumber
+    const phone_number = secondaryPhoneNumber
     socket.emit('sms sender', {
       title,
       message,
@@ -64,7 +64,7 @@ function ChangePasswordOTPSCreen({ navigation, route }) {
     } else if (otpString !== generatedCode) {
       setOtpError("Invalid OTP. Please try again.");
     }else {
-      navigation.navigate('New Password', {phoneNumber})
+      navigation.navigate('New Phone Number', {secondaryPhoneNumber})
     }
   };
 
@@ -127,7 +127,7 @@ function ChangePasswordOTPSCreen({ navigation, route }) {
 
       <View className="mb-6">
         <Text className="text-gray-600 text-center">
-          A 6-digit code has been sent to {phoneNumber}
+          A 6-digit code has been sent to {secondaryPhoneNumber}
         </Text>
       </View>
 
@@ -175,4 +175,4 @@ function ChangePasswordOTPSCreen({ navigation, route }) {
 );
 }
 
-export default ChangePasswordOTPSCreen;
+export default LostPhoneNumberOTPScreen;
