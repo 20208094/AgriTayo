@@ -39,14 +39,14 @@ function RegisterScreenBuyers({ navigation }) {
 
   const firstname_regex = /^[A-Za-z\s]{2,}$/;
   const lastname_regex = /^[A-Za-z\s]{2,}$/;
-  const password_regex = /^[A-Za-z\d@.#$!%*?&^]{8,30}$/;
+  const password_regex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,30}$/;
   const phone_regex = /^(?:\+63|0)?9\d{9}$/;
 
   // Real-time validation handlers
   const validateFirstName = (text) => {
     setFirstName(text);
     if (!firstname_regex.test(text)) {
-      setFirstNameError("Invalid First Name. Please try again.");
+      setFirstNameError("Invalid First Name. Please enter atleast 2 letters.");
     } else {
       setFirstNameError("");
     }
@@ -55,7 +55,7 @@ function RegisterScreenBuyers({ navigation }) {
   const validateLastName = (text) => {
     setLastName(text);
     if (!lastname_regex.test(text)) {
-      setLastNameError("Invalid Last Name. Please try again.");
+      setLastNameError("Invalid Last Name. Please enter atleast 2 letters.");
     } else {
       setLastNameError("");
     }
@@ -64,7 +64,7 @@ function RegisterScreenBuyers({ navigation }) {
   const validatePassword = (text) => {
     setPassword(text);
     if (!password_regex.test(text)) {
-      setPasswordError("Invalid Password. Please try again.");
+      setPasswordError("Invalid Password. Please enter 8-30 characters, including letters and numbers.");
     } else {
       setPasswordError("");
     }
@@ -73,7 +73,7 @@ function RegisterScreenBuyers({ navigation }) {
   const validatePhone = (text) => {
     setPhone(text);
     if (!phone_regex.test(text)) {
-      setPhoneError("Invalid Phone Number. Please try again.");
+      setPhoneError("Invalid phone number format. Please use 09 followed by 9 digits.");
     } else {
       setPhoneError("");
     }

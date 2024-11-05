@@ -8,6 +8,7 @@ import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import LogoutModal from "../Authentication/LogoutModal";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from '@env';
 import { styled } from "nativewind";
+import LoadingAnimation from "../../components/LoadingAnimation";
 
 function ProfileScreen({ fetchUserSession }) {
   const navigation = useNavigation();
@@ -126,7 +127,7 @@ function ProfileScreen({ fetchUserSession }) {
   }, [orders, userData]);
 
   if (loading) {
-    return <Text>Loading...</Text>;
+    return <LoadingAnimation />;
   }
 
   return (

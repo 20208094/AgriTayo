@@ -10,6 +10,7 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage"; // Import AsyncStorage
 import Reports from "../../../../components/Reports";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env"; // Import API constants
+import LoadingAnimation from "../../../../components/LoadingAnimation";
 
 function SoldOutScreen({ navigation }) {
   const [soldOutItems, setSoldOutItems] = useState([]); // State to hold sold-out items
@@ -111,7 +112,7 @@ function SoldOutScreen({ navigation }) {
   }, []);
 
   if (loading) {
-    return <Text>Loading...</Text>;
+    return <LoadingAnimation />;
   }
 
   return (

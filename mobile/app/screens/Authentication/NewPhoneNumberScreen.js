@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { styled } from "nativewind";
@@ -10,15 +10,39 @@ function NewPhoneNumberScreen({ navigation, route }) {
   const {secondaryPhoneNumber} = route.params
 
   const [newPassword, setNewPassword] = useState('')
+  const [passwordError, setPasswordError] = useState("");
   const [loading, setLoading] = useState(false)
 
   console.log(secondaryPhoneNumber)
 
+  const password_regex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,30}$/;
+
+  useEffect(() => {
+    if (newPassword && !password_regex.test(newPassword)) {
+      setPasswordError("Invalid Password. Please enter 8-30 characters, including letters and numbers.");
+    } else {
+      setPasswordError("");
+    }
+  }, [newPassword]);
+
   const handleNewPhoneNumber = async() => {
+    setPasswordError("");
+
+    let hasError = false;
+
+    if (!newPassword) {
+      setPasswordError("Enter your password");
+      hasError = true;
+    } else if (!password_regex.test(newPassword)) {
+      setPasswordError("Invalid Password. Please enter 8-30 characters, including letters and numbers.");
+      return;
+    }
+    
     const formData = new FormData();
     formData.append("phone_number", secondaryPhoneNumber)
     formData.append('pass', newPassword)
 
+    if (!hasError && !passwordError) {
       setLoading(true);
       try {
         const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/changePhoneNumber/${secondaryPhoneNumber}`, {
@@ -46,6 +70,7 @@ function NewPhoneNumberScreen({ navigation, route }) {
         setLoading(false);
       }
     }
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
@@ -64,6 +89,9 @@ function NewPhoneNumberScreen({ navigation, route }) {
             value={newPassword}
             onChangeText={setNewPassword}
           />
+          {passwordError ? (
+        <Text className="w-4/5 text-red-500 mb-4">{passwordError}</Text>
+      ) : null}
           <TouchableOpacity
             onPress={() => {
               Alert.alert(

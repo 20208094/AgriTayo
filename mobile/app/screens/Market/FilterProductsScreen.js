@@ -3,6 +3,7 @@ import { View, Text, SafeAreaView, TouchableOpacity, ScrollView, Modal, TextInpu
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
 import { useNavigation, useRoute, useFocusEffect } from "@react-navigation/native";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
+import LoadingAnimation from '../../components/LoadingAnimation';
 
 function FilterProductsScreen(route) {
   const navigation = useNavigation();
@@ -346,7 +347,7 @@ function FilterProductsScreen(route) {
   );
 
   if (loading) {
-    return <Text>Loading...</Text>;
+    return <LoadingAnimation />;
   }
 
   return (
