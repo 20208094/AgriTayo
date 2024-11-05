@@ -364,12 +364,12 @@ function AddProductScreen({ navigation }) {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-100">
-      <ScrollView className="flex-1 p-4">
-        <View className="bg-white p-4 rounded-lg shadow-md">
+    <SafeAreaView className="bg-gray-100 flex-1">
+      <ScrollView contentContainerStyle={{ paddingBottom: 80 }}>
+        <View className="p-4">
           {/* Variety Selector */}
-          <View className="mb-4">
-            <Text className="text-base text-gray-700">Crop Variety</Text>
+        
+            <Text className="text-lg font-semibold mb-1">Crop Variety</Text>
             <TouchableOpacity
               className="flex-row items-center border border-gray-300 p-2 rounded-lg"
               onPress={() => setIsClickedCropVariety(!isClickedCropVariety)}
@@ -399,7 +399,6 @@ function AddProductScreen({ navigation }) {
                 ))}
               </View>
             )}
-          </View>
 
           {/* Crop Description */}
           <View className="mb-4">
@@ -630,7 +629,7 @@ function AddProductScreen({ navigation }) {
                 >
                   <Text className="text-white text-center">Remove Image</Text>
                 </TouchableOpacity>
-              </View>
+            </View>
             )}
           </View>
 
