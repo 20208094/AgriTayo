@@ -1,4 +1,3 @@
-// CropsPage.jsx
 import React, { useState, useEffect } from 'react';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
@@ -27,11 +26,13 @@ function CropsPage() {
   const [isEdit, setIsEdit] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedShop, setSelectedShop] = useState('');
+  const [selectedRatingRange, setSelectedRatingRange] = useState('');
+  const [selectedMetricSystem, setSelectedMetricSystem] = useState('');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [cropToDelete, setCropToDelete] = useState(null);
-
 
   useEffect(() => {
     fetchCrops();
@@ -41,7 +42,6 @@ function CropsPage() {
   }, []);
 
   const fetchCrops = async () => {
-    // Fetch crops and handle API errors
     try {
       const response = await fetch('/api/crops', {
         headers: { 'x-api-key': API_KEY },
@@ -166,15 +166,15 @@ function CropsPage() {
   };
 
   const handleDelete = (id) => {
-    setCropToDelete(id); // Store only the crop ID to delete
+    setCropToDelete(id);
     setIsDeleteModalOpen(true);
   };
-  
+
   const confirmDelete = async () => {
     if (!cropToDelete) return;
-  
+
     try {
-      const response = await fetch(`/api/crops/${cropToDelete}`, { // Use cropToDelete directly
+      const response = await fetch(`/api/crops/${cropToDelete}`, {
         method: 'DELETE',
         headers: { 'x-api-key': API_KEY },
       });
@@ -187,13 +187,34 @@ function CropsPage() {
       setCropToDelete(null);
     }
   };
-  
 
-  const filteredCrops = crops.filter(crop =>
-    (crop.crop_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      crop.crop_description.toLowerCase().includes(searchTerm.toLowerCase())) &&
-    (selectedCategory === '' || crop.category_id === selectedCategory)
-  );
+  const getRatingRange = (rating) => {
+    if (rating >= 0 && rating <= 1) return '0-1';
+    if (rating >= 2 && rating <= 3) return '2-3';
+    if (rating >= 4 && rating <= 5) return '4-5';
+    if (rating >= 6 && rating <= 7) return '6-7';
+    if (rating >= 8 && rating <= 9) return '8-9';
+    return '';
+  };
+
+  const filteredCrops = crops.filter((crop) => {
+    const matchesSearch = crop.crop_name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategory
+      ? crop.category_id === parseInt(selectedCategory)
+      : true;
+    const matchesShop = selectedShop ? crop.shop_id === parseInt(selectedShop) : true;
+    const matchesRating = selectedRatingRange
+      ? (() => {
+        const [min, max] = selectedRatingRange.split('-').map(Number);
+        return crop.crop_rating >= min && crop.crop_rating <= max;
+      })()
+      : true;
+    const matchesMetricSystem = selectedMetricSystem
+      ? crop.metric_system_id === parseInt(selectedMetricSystem)
+      : true;
+    return matchesSearch && matchesCategory && matchesShop && matchesRating && matchesMetricSystem;
+  });
+
 
   const exportToPDF = () => {
     const doc = new jsPDF('landscape');
@@ -234,8 +255,6 @@ function CropsPage() {
     doc.save('crops_list.pdf');
   };
 
-
-
   return (
     <div className="p-8">
       <h1 className="text-2xl font-bold text-center text-[#00B251]">Crops Management</h1>
@@ -256,6 +275,61 @@ function CropsPage() {
         <button onClick={exportToPDF} className="bg-[#00B251] text-white p-2 ml-4 rounded">
           Export to PDF
         </button>
+      </div>
+
+      {/* Filters */}
+      <div className="flex flex-wrap gap-4 my-4">
+        <select
+          value={selectedCategory}
+          onChange={(e) => setSelectedCategory(e.target.value)}
+          className="p-2 border rounded w-full sm:w-1/4"
+        >
+          <option value="">All Categories</option>
+          {categories.map(category => (
+            <option key={category.crop_category_id} value={category.crop_category_id}>
+              {category.crop_category_name}
+            </option>
+          ))}
+        </select>
+
+        <select
+          value={selectedShop}
+          onChange={(e) => setSelectedShop(e.target.value)}
+          className="p-2 border rounded w-full sm:w-1/4"
+        >
+          <option value="">All Shops</option>
+          {shops.map(shop => (
+            <option key={shop.shop_id} value={shop.shop_id}>
+              {shop.shop_name}
+            </option>
+          ))}
+        </select>
+
+        <select
+          value={selectedRatingRange}
+          onChange={(e) => setSelectedRatingRange(e.target.value)}
+          className="p-2 border rounded w-full sm:w-1/4"
+        >
+          <option value="">All Ratings</option>
+          <option value="0-1">0 - 1</option>
+          <option value="2-3">2 - 3</option>
+          <option value="4-5">4 - 5</option>
+          <option value="6-7">6 - 7</option>
+          <option value="8-9">8 - 9</option>
+        </select>
+
+        <select
+          value={selectedMetricSystem}
+          onChange={(e) => setSelectedMetricSystem(e.target.value)}
+          className="p-2 border rounded w-full sm:w-1/4"
+        >
+          <option value="">All Metric Systems</option>
+          {metricSystems.map(metric => (
+            <option key={metric.metric_system_id} value={metric.metric_system_id}>
+              {metric.metric_system_name}
+            </option>
+          ))}
+        </select>
       </div>
 
       {/* Crops Table */}
@@ -429,29 +503,23 @@ function CropsPage() {
         </div>
       ) : null}
 
+      {/* Modal for Delete Confirmation */}
       {isDeleteModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white p-8 rounded shadow-lg w-11/12 sm:w-1/2 lg:w-1/3">
-            <h2 className="text-xl font-bold mb-4 text-[#00B251]">Confirm Delete</h2>
-            <p>Are you sure you want to delete this crop?</p>
-            <div className="flex justify-between mt-4">
-              <button
-                onClick={() => setIsDeleteModalOpen(false)}
-                className="bg-gray-400 text-white p-2 rounded w-full mr-2"
-              >
+          <div className="bg-white p-8 rounded shadow-lg w-1/2 sm:w-1/3">
+            <h2 className="text-xl font-bold text-center text-red-500 mb-4">Delete Crop</h2>
+            <p className="text-center mb-4">Are you sure you want to delete this crop?</p>
+            <div className="flex justify-between">
+              <button onClick={() => setIsDeleteModalOpen(false)} className="bg-gray-400 text-white p-2 rounded w-full mr-2">
                 Cancel
               </button>
-              <button
-                onClick={confirmDelete}
-                className="bg-red-500 text-white p-2 rounded w-full"
-              >
+              <button onClick={confirmDelete} className="bg-red-500 text-white p-2 rounded w-full">
                 Delete
               </button>
             </div>
           </div>
         </div>
       )}
-
     </div>
   );
 }

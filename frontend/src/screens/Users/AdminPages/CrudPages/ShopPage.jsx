@@ -1,4 +1,3 @@
-// ShopPage.jsx
 import React, { useState, useEffect } from 'react';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
@@ -9,15 +8,33 @@ const API_KEY = import.meta.env.VITE_API_KEY;
 function ShopsPage() {
     const [shops, setShops] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
+    const [filter, setFilter] = useState({
+        delivery: '',
+        pickup: '',
+        gcash: '',
+        cod: '',
+        bank: '',
+        submitLater: ''
+    });
     const [formData, setFormData] = useState({
         shop_id: '',
         shop_name: '',
         shop_address: '',
-        latitude: '',
-        longitude: '',
         shop_description: '',
         user_id: '',
-        image: null,
+        shop_image_url: null,
+        delivery: false,
+        pickup: false,
+        delivery_price: '',
+        pickup_price: '',
+        gcash: false,
+        cod: false,
+        bank: false,
+        shop_number: '',
+        submit_later: false,
+        tin_number: '',
+        bir_image_url: null,
+        pickup_address: '',
     });
     const [isEdit, setIsEdit] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -44,12 +61,16 @@ function ShopsPage() {
     };
 
     const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value });
+        const { name, value, type, checked } = e.target;
+        setFormData({
+            ...formData,
+            [name]: type === 'checkbox' ? checked : value,
+        });
     };
 
     const handleFileChange = (e) => {
-        setFormData({ ...formData, image: e.target.files[0] });
+        const { name, files } = e.target;
+        setFormData({ ...formData, [name]: files[0] });
     };
 
     const handleCreateShop = () => {
@@ -57,11 +78,21 @@ function ShopsPage() {
             shop_id: '',
             shop_name: '',
             shop_address: '',
-            latitude: '',
-            longitude: '',
             shop_description: '',
             user_id: '',
-            image: null,
+            shop_image_url: null,
+            delivery: false,
+            pickup: false,
+            delivery_price: '',
+            pickup_price: '',
+            gcash: false,
+            cod: false,
+            bank: false,
+            shop_number: '',
+            submit_later: false,
+            tin_number: '',
+            bir_image_url: null,
+            pickup_address: '',
         });
         setIsEdit(false);
         setIsModalOpen(true);
@@ -72,11 +103,21 @@ function ShopsPage() {
             shop_id: shop.shop_id,
             shop_name: shop.shop_name,
             shop_address: shop.shop_address,
-            latitude: shop.latitude,
-            longitude: shop.longitude,
             shop_description: shop.shop_description,
             user_id: shop.user_id,
-            image: null,
+            shop_image_url: shop.shop_image_url,
+            delivery: shop.delivery,
+            pickup: shop.pickup,
+            delivery_price: shop.delivery_price,
+            pickup_price: shop.pickup_price,
+            gcash: shop.gcash,
+            cod: shop.cod,
+            bank: shop.bank,
+            shop_number: shop.shop_number,
+            submit_later: shop.submit_later,
+            tin_number: shop.tin_number,
+            bir_image_url: shop.bir_image_url,
+            pickup_address: shop.pickup_address,
         });
         setIsEdit(true);
         setIsModalOpen(true);
@@ -93,13 +134,9 @@ function ShopsPage() {
         const method = isEdit ? 'PUT' : 'POST';
 
         const formPayload = new FormData();
-        formPayload.append('shop_name', formData.shop_name);
-        formPayload.append('shop_address', formData.shop_address);
-        formPayload.append('latitude', formData.latitude);
-        formPayload.append('longitude', formData.longitude);
-        formPayload.append('shop_description', formData.shop_description);
-        formPayload.append('user_id', formData.user_id);
-        if (formData.image) formPayload.append('image', formData.image);
+        for (const key in formData) {
+            formPayload.append(key, formData[key]);
+        }
 
         try {
             const response = await fetch(url, {
@@ -129,38 +166,62 @@ function ShopsPage() {
         }
     };
 
+    const handleFilterChange = (e) => {
+        setFilter({
+            ...filter,
+            [e.target.name]: e.target.value
+        });
+    };
+
+    const filteredShops = shops.filter((shop) => {
+        const matchesDelivery = filter.delivery === '' || (filter.delivery === 'Yes' && shop.delivery) || (filter.delivery === 'No' && !shop.delivery);
+        const matchesPickup = filter.pickup === '' || (filter.pickup === 'Yes' && shop.pickup) || (filter.pickup === 'No' && !shop.pickup);
+        const matchesGcash = filter.gcash === '' || (filter.gcash === 'Yes' && shop.gcash) || (filter.gcash === 'No' && !shop.gcash);
+        const matchesCod = filter.cod === '' || (filter.cod === 'Yes' && shop.cod) || (filter.cod === 'No' && !shop.cod);
+        const matchesBank = filter.bank === '' || (filter.bank === 'Yes' && shop.bank) || (filter.bank === 'No' && !shop.bank);
+        const matchesSubmitLater = filter.submitLater === '' || (filter.submitLater === 'Yes' && shop.submit_later) || (filter.submitLater === 'No' && !shop.submit_later);
+
+        const matchesSearch = shop.shop_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            shop.shop_address.toLowerCase().includes(searchTerm.toLowerCase());
+
+        return matchesDelivery && matchesPickup && matchesGcash && matchesCod && matchesBank && matchesSubmitLater && matchesSearch;
+    });
+
     const exportToPDF = () => {
         const doc = new jsPDF('landscape');
-        const filteredShops = shops.filter((shop) =>
-            shop.shop_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            shop.shop_address.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-
         doc.addImage(MainLogo, 'PNG', 135, 10, 50, 50);
         doc.text("List of Shops", 160, 70, { align: "center" });
-
         doc.autoTable({
             startY: 80,
-            head: [['ID', 'Shop Name', 'Address', 'Latitude', 'Longitude', 'Description', 'User ID']],
+            head: [['ID', 'Shop Name', 'Address', 'Description', 'User ID', 'Delivery', 'Pickup', 'Delivery Price', 'Pickup Price', 'GCash', 'COD', 'Bank', 'Shop Number', 'Submit Later', 'TIN Number', 'Pickup Address']],
             body: filteredShops.map(shop => [
                 shop.shop_id,
                 shop.shop_name,
                 shop.shop_address,
-                shop.latitude,
-                shop.longitude,
                 shop.shop_description,
                 shop.user_id,
+                shop.delivery ? 'Yes' : 'No',
+                shop.pickup ? 'Yes' : 'No',
+                shop.delivery_price,
+                shop.pickup_price,
+                shop.gcash ? 'Yes' : 'No',
+                shop.cod ? 'Yes' : 'No',
+                shop.bank ? 'Yes' : 'No',
+                shop.shop_number,
+                shop.submit_later ? 'Yes' : 'No',
+                shop.tin_number,
+                shop.pickup_address,
             ]),
             headStyles: { fillColor: [0, 178, 81] },
         });
-        doc.save('shops.pdf');
+        doc.save('filtered_shops.pdf');
     };
 
     return (
         <div className="p-10">
             <h1 className="text-3xl font-bold mb-5 text-center text-green-600">Shop Management</h1>
-            
-            <div className="mb-4 flex justify-between">
+
+            <div className="mb-4 flex flex-wrap justify-between">
                 <input
                     type="text"
                     value={searchTerm}
@@ -170,9 +231,21 @@ function ShopsPage() {
                 />
                 <button onClick={exportToPDF} className="ml-2 px-4 py-2 bg-green-600 text-white rounded-md">Export to PDF</button>
                 <button onClick={handleCreateShop} className="px-4 py-2 bg-green-600 text-white rounded-md">Add Shop</button>
-            </div>
 
-            {/* Table */}
+                {['delivery', 'pickup', 'gcash', 'cod', 'bank', 'submitLater'].map((filterKey) => (
+                    <select
+                        key={filterKey}
+                        name={filterKey}
+                        value={filter[filterKey]}
+                        onChange={handleFilterChange}
+                        className="p-2 border rounded-md mt-2 md:mt-0"
+                    >
+                        <option value="">{filterKey.charAt(0).toUpperCase() + filterKey.slice(1)}</option>
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                    </select>
+                ))}
+            </div>
             <div className="overflow-x-auto">
                 <table className="min-w-full bg-white">
                     <thead>
@@ -180,70 +253,117 @@ function ShopsPage() {
                             <th className="py-2 px-4">ID</th>
                             <th className="py-2 px-4">Shop Name</th>
                             <th className="py-2 px-4">Address</th>
-                            <th className="py-2 px-4">Latitude</th>
-                            <th className="py-2 px-4">Longitude</th>
                             <th className="py-2 px-4">Description</th>
                             <th className="py-2 px-4">User ID</th>
-                            <th className="py-2 px-4">Image</th>
+                            <th className="py-2 px-4">Delivery</th>
+                            <th className="py-2 px-4">Pickup</th>
+                            <th className="py-2 px-4">Delivery Price</th>
+                            <th className="py-2 px-4">Pickup Price</th>
+                            <th className="py-2 px-4">GCash</th>
+                            <th className="py-2 px-4">COD</th>
+                            <th className="py-2 px-4">Bank</th>
+                            <th className="py-2 px-4">Shop Number</th>
+                            <th className="py-2 px-4">Submit Later</th>
+                            <th className="py-2 px-4">TIN Number</th>
+                            <th className="py-2 px-4">Pickup Address</th>
+                            <th className="py-2 px-4">BIR Image</th>
+                            <th className="py-2 px-4">Shop Image</th>
                             <th className="py-2 px-4">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {shops.filter((shop) => shop.shop_name.toLowerCase().includes(searchTerm.toLowerCase())).map((shop) => (
-                            <tr key={shop.shop_id} className="border-b">
-                                <td className="py-2 px-4">{shop.shop_id}</td>
-                                <td className="py-2 px-4">{shop.shop_name}</td>
-                                <td className="py-2 px-4">{shop.shop_address}</td>
-                                <td className="py-2 px-4">{shop.latitude}</td>
-                                <td className="py-2 px-4">{shop.longitude}</td>
-                                <td className="py-2 px-4">{shop.shop_description}</td>
-                                <td className="py-2 px-4">{shop.user_id}</td>
-                                <td className="py-2 px-4">
+                        {filteredShops.map((shop) => (
+                            <tr key={shop.shop_id}>
+                                <td className="border px-4 py-2">{shop.shop_id}</td>
+                                <td className="border px-4 py-2">{shop.shop_name}</td>
+                                <td className="border px-4 py-2">{shop.shop_address}</td>
+                                <td className="border px-4 py-2">{shop.shop_description}</td>
+                                <td className="border px-4 py-2">{shop.user_id}</td>
+                                <td className="border px-4 py-2">{shop.delivery ? 'Yes' : 'No'}</td>
+                                <td className="border px-4 py-2">{shop.pickup ? 'Yes' : 'No'}</td>
+                                <td className="border px-4 py-2">{shop.delivery_price}</td>
+                                <td className="border px-4 py-2">{shop.pickup_price}</td>
+                                <td className="border px-4 py-2">{shop.gcash ? 'Yes' : 'No'}</td>
+                                <td className="border px-4 py-2">{shop.cod ? 'Yes' : 'No'}</td>
+                                <td className="border px-4 py-2">{shop.bank ? 'Yes' : 'No'}</td>
+                                <td className="border px-4 py-2">{shop.shop_number}</td>
+                                <td className="border px-4 py-2">{shop.submit_later ? 'Yes' : 'No'}</td>
+                                <td className="border px-4 py-2">{shop.tin_number}</td>
+                                <td className="border px-4 py-2">{shop.pickup_address}</td>
+                                <td className="border py-2 px-4">
+                                    {shop.bir_image_url && (
+                                        <img src={shop.bir_image_url} alt={shop.shop_name} className="w-20 h-auto" />
+                                    )}
+                                </td>
+                                <td className="border py-2 px-4">
                                     {shop.shop_image_url && (
                                         <img src={shop.shop_image_url} alt={shop.shop_name} className="w-20 h-auto" />
                                     )}
                                 </td>
-                                <td className="py-2 px-4 space-x-2">
-                                    <button onClick={() => handleEdit(shop)} className="px-3 py-1 bg-green-600 text-white rounded-md">Edit</button>
-                                    <button onClick={() => handleDeleteClick(shop)} className="px-3 py-1 bg-red-500 text-white rounded-md">Delete</button>
+                                <td className="border py-2 px-4 space-y-2">
+                                    <button onClick={() => handleEdit(shop)} className="flex items-center justify-center px-5 py-1 bg-green-600 text-white rounded-md">Edit</button>
+                                    <button onClick={() => handleDeleteClick(shop)} className="flex items-center justify-center px-2.5 py-1 bg-red-500 text-white rounded-md">Delete</button>
                                 </td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
+
             </div>
 
-            {/* Create/Edit Modal */}
             {isModalOpen && (
-                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-                    <div className="bg-white p-6 rounded-md w-96">
-                        <h2 className="text-2xl font-semibold mb-4">{isEdit ? 'Edit Shop' : 'Create Shop'}</h2>
-                        <form onSubmit={handleSubmit} encType="multipart/form-data">
-                            <input type="hidden" name="shop_id" value={formData.shop_id} />
-                            <input type="text" name="shop_name" value={formData.shop_name} onChange={handleInputChange} placeholder="Shop Name" required className="w-full mb-2 p-2 border rounded-md" />
-                            <input type="text" name="shop_address" value={formData.shop_address} onChange={handleInputChange} placeholder="Shop Address" required className="w-full mb-2 p-2 border rounded-md" />
-                            <input type="number" name="latitude" value={formData.latitude} onChange={handleInputChange} placeholder="Latitude" step="any" required className="w-full mb-2 p-2 border rounded-md" />
-                            <input type="number" name="longitude" value={formData.longitude} onChange={handleInputChange} placeholder="Longitude" step="any" required className="w-full mb-2 p-2 border rounded-md" />
-                            <textarea name="shop_description" value={formData.shop_description} onChange={handleInputChange} placeholder="Shop Description" required className="w-full mb-2 p-2 border rounded-md" />
-                            <input type="number" name="user_id" value={formData.user_id} onChange={handleInputChange} placeholder="User ID" required className="w-full mb-2 p-2 border rounded-md" />
-                            <input type="file" name="image" onChange={handleFileChange} className="w-full mb-4 p-2 border rounded-md" />
-                            <div className="flex justify-end space-x-2">
-                                <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md">Cancel</button>
-                                <button type="submit" className="px-4 py-2 bg-green-600 text-white rounded-md">{isEdit ? 'Update' : 'Create'}</button>
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                    <form onSubmit={handleSubmit} className="bg-white p-6 rounded-md w-full max-w-lg space-y-4">
+                        <h2 className="text-2xl font-bold text-center mb-4 text-green-600">{isEdit ? 'Edit Shop' : 'Add Shop'}</h2>
+                        <div className="grid grid-cols-2 gap-4">
+                            {Object.keys(formData).map((field) => (
+                                field !== 'shop_id' && !['shop_image_url', 'bir_image_url'].includes(field) && (
+                                    <div key={field} className="flex flex-col">
+                                        <label htmlFor={field} className="text-sm font-semibold text-gray-700">{field.replace('_', ' ').toUpperCase()}</label>
+                                        <input
+                                            type={typeof formData[field] === 'boolean' ? 'checkbox' : 'text'}
+                                            name={field}
+                                            value={formData[field] || ''}
+                                            onChange={handleInputChange}
+                                            className="p-2 border rounded-md"
+                                            checked={typeof formData[field] === 'boolean' ? formData[field] : undefined}
+                                        />
+                                    </div>
+                                )
+                            ))}
+                            <div className="flex flex-col col-span-2">
+                                <label className="text-sm font-semibold text-gray-700">Shop Image</label>
+                                <input
+                                    type="file"
+                                    name="shop_image_url"
+                                    onChange={handleFileChange}
+                                    className="p-2 border rounded-md"
+                                />
                             </div>
-                        </form>
-                    </div>
+                            <div className="flex flex-col col-span-2">
+                                <label className="text-sm font-semibold text-gray-700">BIR Image</label>
+                                <input
+                                    type="file"
+                                    name="bir_image_url"
+                                    onChange={handleFileChange}
+                                    className="p-2 border rounded-md"
+                                />
+                            </div>
+                        </div>
+                        <div className="flex justify-end space-x-2 mt-4">
+                            <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 bg-gray-500 text-white rounded-md">Cancel</button>
+                            <button type="submit" className="px-4 py-2 bg-green-600 text-white rounded-md">{isEdit ? 'Update' : 'Create'}</button>
+                        </div>
+                    </form>
                 </div>
             )}
 
-            {/* Delete Confirmation Modal */}
             {isDeleteModalOpen && (
-                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-                    <div className="bg-white p-6 rounded-md w-96">
-                        <h2 className="text-2xl font-semibold mb-4">Confirm Delete</h2>
-                        <p>Are you sure you want to delete <strong>{shopToDelete.shop_name}</strong>?</p>
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                    <div className="bg-white p-6 rounded-md">
+                        <p>Are you sure you want to delete this shop?</p>
                         <div className="flex justify-end space-x-2 mt-4">
-                            <button onClick={() => setIsDeleteModalOpen(false)} className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md">Cancel</button>
+                            <button onClick={() => setIsDeleteModalOpen(false)} className="px-4 py-2 bg-gray-500 text-white rounded-md">Cancel</button>
                             <button onClick={handleDelete} className="px-4 py-2 bg-red-600 text-white rounded-md">Delete</button>
                         </div>
                     </div>

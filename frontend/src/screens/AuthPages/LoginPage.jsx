@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-
 const API_KEY = import.meta.env.VITE_API_KEY;
 
 function LoginPage() {
     const [formData, setFormData] = useState({
-        email: '',
+        phone_number: '',
         password: ''
     });
     const [error, setError] = useState('');
@@ -59,15 +58,22 @@ function LoginPage() {
                     'Content-Type': 'application/json',
                     'x-api-key': API_KEY
                 },
-                body: JSON.stringify(formData)
+                body: JSON.stringify({
+                    phone_number: formData.phone_number, // sending phone_number in place of email
+                    password: formData.password
+                })
             });
+
             if (!response.ok) {
                 const errorData = await response.json();
-                setError(errorData.error);
+                setError(errorData.error || 'Invalid phone number or password.');
                 return;
             }
+
             const data = await response.json();
             localStorage.setItem('token', data.token);
+
+            // Navigate based on user type
             if (data.user.user_type_id === 1) {
                 navigate('/admin/dashboard');
             } else if (data.user.user_type_id === 2) {
@@ -76,6 +82,7 @@ function LoginPage() {
                 navigate('/buyer/dashboard');
             }
             window.location.reload();
+
         } catch (error) {
             console.error('Error during login:', error);
             setError('An error occurred. Please try again.');
@@ -96,12 +103,12 @@ function LoginPage() {
                 {error && <p className="error-message">{error}</p>}
                 <form onSubmit={handleSubmit}>
                     <div>
-                        <label>Email:</label>
+                        <label>Phone Number:</label>
                         <input
-                            type="email"
-                            name="email"
+                            type="text"
+                            name="phone_number"
                             className="login-input"
-                            value={formData.email}
+                            value={formData.phone_number}
                             onChange={handleInputChange}
                             required
                         />

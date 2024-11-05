@@ -2,13 +2,15 @@ const supabase = require('../db');
 const bcrypt = require('bcryptjs');
 
 async function login(req, res) {
-    const { email, password } = req.body;
+    // Extract phone_number and password from the request body
+    const { phone_number, password } = req.body;
 
     try {
+        // Modify the Supabase query to match by phone_number instead of email
         const { data, error } = await supabase
             .from('users')
             .select('*')
-            .eq('email', email);
+            .eq('phone_number', phone_number);
 
         if (error) {
             console.error('Supabase query failed:', error.message);
@@ -16,14 +18,14 @@ async function login(req, res) {
         }
 
         if (!data || data.length === 0) {
-            return res.status(401).json({ error: 'Invalid email or password' });
+            return res.status(401).json({ error: 'Invalid phone number or password' });
         }
 
         const user = data[0];
         const isMatch = await bcrypt.compare(password, user.password);
 
         if (!isMatch) {
-            return res.status(401).json({ error: 'Invalid email or password' });
+            return res.status(401).json({ error: 'Invalid phone number or password' });
         }
 
         const userWithoutPassword = { ...user };
