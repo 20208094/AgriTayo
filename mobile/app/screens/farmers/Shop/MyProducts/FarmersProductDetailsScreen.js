@@ -14,6 +14,7 @@ import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import * as ImagePicker from "expo-image-picker";
 import * as MediaLibrary from "expo-media-library";
+import LoadingAnimation from "../../../../components/LoadingAnimation";
 
 function FarmersProductDetailScreen({ route, navigation }) {
   const { liveItem, reviewingItem, violationItem, delistedItem } = route.params;
@@ -356,7 +357,7 @@ function FarmersProductDetailScreen({ route, navigation }) {
   };
 
   if (loading) {
-    return <Text>Loading...</Text>;
+    return <LoadingAnimation />;
   }
 
   return (

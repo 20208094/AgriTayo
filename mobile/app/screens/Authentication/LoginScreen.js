@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { View, TextInput, Text, TouchableOpacity } from "react-native";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
+import LoadingAnimation from "../../components/LoadingAnimation";
 
 function LoginScreen({ navigation, fetchUserSession }) {
   const [formData, setFormData] = useState({
@@ -11,7 +12,7 @@ function LoginScreen({ navigation, fetchUserSession }) {
   const [passwordError, setPasswordError] = useState("");
   const [loading, setLoading] = useState(true);
 
-  const password_regex = /^[A-Za-z\d@.#$!%*?&^]{8,30}$/;
+  const password_regex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,30}$/;
   const phone_regex = /^(?:\+63|0)9\d{2}[-\s]?\d{3}[-\s]?\d{4}$/;
 
   useEffect(() => {
@@ -22,7 +23,7 @@ function LoginScreen({ navigation, fetchUserSession }) {
     }
 
     if (formData.password && !password_regex.test(formData.password)) {
-      setPasswordError("Invalid Password. Please enter at least 8 characters in your password.");
+      setPasswordError("Invalid Password. Please enter 8-30 characters, including letters and numbers.");
     } else {
       setPasswordError("");
     }
@@ -113,7 +114,7 @@ function LoginScreen({ navigation, fetchUserSession }) {
   };
 
   if (loading) {
-    return <Text>Loading...</Text>;
+    return <LoadingAnimation />;
   }
 
   return (

@@ -6,6 +6,7 @@ import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 import NavigationbarComponent from '../../components/NavigationbarComponent';
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import LoadingAnimation from '../../components/LoadingAnimation';
 
 function CompareShopsScreen({ route }) {
   const navigation = useNavigation();
@@ -195,7 +196,7 @@ function CompareShopsScreen({ route }) {
   };
 
   if (loading) {
-    return <Text>Loading...</Text>;
+    return <LoadingAnimation />;
   }
 
   return (

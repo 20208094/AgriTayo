@@ -11,6 +11,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage"; // Import 
 import Reports from "../../../../components/Reports";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env"; // Import API constants
 import { useFocusEffect } from "@react-navigation/native";
+import LoadingAnimation from "../../../../components/LoadingAnimation";
 
 function LiveScreen({ navigation }) {
   const [liveItems, setLiveItems] = useState([]); // State to hold live items
@@ -111,7 +112,7 @@ function LiveScreen({ navigation }) {
   );
 
   if (loading) {
-    return <Text>Loading...</Text>;
+    return <LoadingAnimation />;
   }
   return (
     <SafeAreaView className="flex-1 bg-gray-100">

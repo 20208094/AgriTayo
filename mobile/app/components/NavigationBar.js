@@ -31,7 +31,7 @@ const NavigationBar = () => {
   const [menuVisible, setMenuVisible] = useState(false);
   const [animation] = useState(new Animated.Value(0));
   const [loading, setLoading] = useState(true);
-  const [shop_id, setShopId] = useState([])
+  const [shop_id, setShopId] = useState([]);
 
   const [shopData, setShopData] = useState(null);
 
@@ -67,7 +67,11 @@ const NavigationBar = () => {
           if (storedShopData) {
             const parsedData = JSON.parse(storedData);
             setShopData(Array.isArray(parsedData) ? parsedData[0] : parsedData);
-            setShopId(Array.isArray(parsedData.shop_id) ? parsedData[0].shop_id: parsedData.shop_id)
+            setShopId(
+              Array.isArray(parsedData.shop_id)
+                ? parsedData[0].shop_id
+                : parsedData.shop_id
+            );
           }
         } else {
         }
@@ -236,7 +240,9 @@ const NavigationBar = () => {
                   </TouchableOpacity>
                   <TouchableOpacity
                     className="items-center bg-white border-2 border-slate-500 rounded-xl px-2 py-1 mx-2 mb-2 w-36"
-                    onPress={() => navigation.navigate("Seller Negotiation List")}
+                    onPress={() =>
+                      navigation.navigate("Seller Negotiation List")
+                    }
                   >
                     <Icon name="storefront-outline" size={30} color="#00B251" />
                     <Text className="text-center">Shop Negotiations</Text>
@@ -250,14 +256,20 @@ const NavigationBar = () => {
                   </TouchableOpacity>
                   <TouchableOpacity
                     className="items-center bg-white border-2 border-slate-500 rounded-xl px-2 py-1 mx-2 mb-2 w-36"
-                    onPress={() => navigation.navigate("Sales History", { screen: "Completed" })}
+                    onPress={() =>
+                      navigation.navigate("Sales History", {
+                        screen: "Completed",
+                      })
+                    }
                   >
                     <Icon name="storefront-outline" size={30} color="#00B251" />
                     <Text className="text-center">Shop Orders</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     className="items-center bg-white border-2 border-slate-500 rounded-xl px-2 py-1 mx-2 mb-2 w-36"
-                    onPress={() => navigation.navigate('Seller Shop', {shop_id})}
+                    onPress={() =>
+                      navigation.navigate("Seller Shop", { shop_id })
+                    }
                   >
                     <Icon name="storefront-outline" size={30} color="#00B251" />
                     <Text className="text-center">Shop View</Text>

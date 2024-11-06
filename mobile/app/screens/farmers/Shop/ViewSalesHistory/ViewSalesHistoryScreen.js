@@ -12,6 +12,8 @@ import ShippingScreen from "./OrderCategories/ShippingScreen";
 import ToConfirmScreen from "./OrderCategories/ToConfirmScreen";
 import ToRateScreen from "./OrderCategories/ToRateScreen";
 
+import LoadingAnimation from "../../../../components/LoadingAnimation";
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from '@env';
 import { View, Text } from "react-native";
@@ -117,7 +119,7 @@ function ViewSalesHistoryScreen({ route }) {
   }, [shopData]);
 
   if (loading) {
-    return <Text>Loading...</Text>;
+    return <LoadingAnimation />;
   }
 
   return (

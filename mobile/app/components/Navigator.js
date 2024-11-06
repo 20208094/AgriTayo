@@ -5,6 +5,7 @@ import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from '@env';
 import LoginScreen from "../screens/Authentication/LoginScreen";
 import NavigationBar from "../components/NavigationBar"; // Import your NavigationBar
 import HomePageScreen from "../screens/Home/HomePageScreen";
+import LoadingAnimation from "./LoadingAnimation";
 
 const Navigator = ({ fetchUserSession, navigation }) => {
   const [loading, setLoading] = useState(true);
@@ -30,10 +31,7 @@ const Navigator = ({ fetchUserSession, navigation }) => {
   }, [fetchUserSession, navigation]);
 
   if (loading) {
-    return (
-      <View>
-      </View>
-    ); 
+    return <LoadingAnimation />;
   }
 
   return null;

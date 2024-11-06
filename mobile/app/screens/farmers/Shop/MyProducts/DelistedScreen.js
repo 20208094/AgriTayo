@@ -11,6 +11,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage"; // Import 
 import Reports from "../../../../components/Reports";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env"; // Import API constants
 import placeholderimg from "../../../../assets/placeholder.png";
+import LoadingAnimation from "../../../../components/LoadingAnimation";
 
 function DelistedScreen({ navigation }) {
   const [delistedItems, setDelistedItems] = useState([]); // State to hold delisted items
@@ -113,7 +114,7 @@ function DelistedScreen({ navigation }) {
   }, []);
 
   if (loading) {
-    return <Text>Loading...</Text>;
+    return <LoadingAnimation />;
   }
 
   return (
