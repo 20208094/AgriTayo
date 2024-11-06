@@ -19,28 +19,31 @@ function RegisterScreenBuyers({ navigation }) {
   const [lastName, setLastName] = useState("");
   const [birthDay, setBirthDay] = useState("");
   const [gender, setGender] = useState("");
-  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [phone, setPhone] = useState("");
   const [secondaryPhoneNumber, setSecondaryPhoneNumber] = useState('')
 
   const [firstNameError, setFirstNameError] = useState("");
+  const [middleNameError, setMiddleNameError] = useState("")
   const [lastNameError, setLastNameError] = useState("");
   const [birthDayError, setBirthDayError] = useState("");
   const [genderError, setGenderError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [confirmPasswordError, setConfirmPasswordError] = useState("");
   const [phoneError, setPhoneError] = useState("");
+  const [secondaryPhoneNumberError, setSecondaryPhoneNumberError] = useState('')
 
   const [loading, setLoading] = useState(false);
 
   const [modalVisible, setModalVisible] = useState(false);
 
   const firstname_regex = /^[A-Za-z\s]{2,}$/;
+  const middlename_regex = /^[A-Za-z\s]{2,}$/;
   const lastname_regex = /^[A-Za-z\s]{2,}$/;
   const password_regex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,30}$/;
   const phone_regex = /^(?:\+63|0)?9\d{9}$/;
+  const secondaryPhone_regex = /^(?:\+63|0)?9\d{9}$/;
 
   // Real-time validation handlers
   const validateFirstName = (text) => {
@@ -51,6 +54,15 @@ function RegisterScreenBuyers({ navigation }) {
       setFirstNameError("");
     }
   };
+
+  const validateMiddleName = (text) => {
+    setMiddleName(text);
+    if (!middlename_regex.test(text)){
+      setMiddleNameError("Invalid Middle Name. Please enter atleast 2 letters.")
+    }else{
+      setMiddleNameError("")
+    }
+  }
 
   const validateLastName = (text) => {
     setLastName(text);
@@ -79,6 +91,15 @@ function RegisterScreenBuyers({ navigation }) {
     }
   };
 
+  const validateSecondaryPhone = (text) => {
+    setSecondaryPhoneNumber(text);
+    if (!secondaryPhone_regex.test(text)) {
+      setSecondaryPhoneNumberError("Invalid alternative phone number format. Please use 09 followed by 9 digits.");
+    } else {
+      setSecondaryPhoneNumberError("");
+    }
+  };
+
   const handleRegister = async () => {
     const formData = new FormData();
     formData.append("firstname", firstName);
@@ -86,7 +107,6 @@ function RegisterScreenBuyers({ navigation }) {
     formData.append("lastname", lastName);
     formData.append("birthday", birthDay);
     formData.append("gender", gender);
-    formData.append("email", email);
     formData.append("password", password);
     formData.append("phone_number", phone);
     formData.append("secondary_phone_number", secondaryPhoneNumber);
@@ -188,20 +208,25 @@ function RegisterScreenBuyers({ navigation }) {
           </Text>
           <TextInput
             className="w-full p-2 mb-4 bg-white rounded-lg shadow-md"
-            placeholder="First Name"
+            placeholder="Rafael Martin"
             value={firstName}
             onChangeText={validateFirstName} // Real-time validation
           />
 
           {/* Middle Name */}
           <Text className="text-sm mb-2 text-gray-800">
-            Middle Name: (Optional)
+            Middle Name: (Optional) {" "}
+            {middleNameError ? (
+              <Text className="text-sm w-4/5 text-red-500 mb-4">
+                {middleNameError}
+              </Text>
+            ) : null}
           </Text>
           <TextInput
             className="w-full p-2 mb-4 bg-white rounded-lg shadow-md"
-            placeholder="Middle Name"
+            placeholder="Emperador"
             value={middleName}
-            onChangeText={setMiddleName}
+            onChangeText={validateMiddleName} // Real-time validation
           />
 
           {/* Last Name */}
@@ -215,7 +240,7 @@ function RegisterScreenBuyers({ navigation }) {
           </Text>
           <TextInput
             className="w-full p-2 mb-4 bg-white rounded-lg shadow-md"
-            placeholder="Last Name"
+            placeholder="Aquino"
             value={lastName}
             onChangeText={validateLastName} // Real-time validation
           />
@@ -279,33 +304,26 @@ function RegisterScreenBuyers({ navigation }) {
           <TextInput
             className="w-full p-2 mb-4 bg-white rounded-lg shadow-md"
             keyboardType="numeric"
-            placeholder="Phone Number"
+            placeholder="09123456789"
             value={phone}
             onChangeText={validatePhone} // Real-time validation
           />
           {/*Secondary Phone Number*/}
           <Text className="text-sm mb-2 text-gray-800">
-            Alternative Phone Number: (Optional)
-          </Text>
-          <Text className="text-sm w-4/5 text-red-500 mb-4">
-                but you can't recover your account if you leave it empty.
+            Alternative Phone Number: (Optional){" "}
+            {secondaryPhoneNumberError ? (
+              <Text className="text-sm w-4/5 text-red-500 mb-4">
+                {secondaryPhoneNumberError}
               </Text>
+            ) : null}
+          </Text>
           <TextInput
             className="w-full p-2 mb-4 bg-white rounded-lg shadow-md"
             keyboardType="numeric"
-            placeholder="Phone Number"
+            placeholder="09123456789"
             value={secondaryPhoneNumber}
-            onChangeText={setSecondaryPhoneNumber}
+            onChangeText={validateSecondaryPhone} // Real-time validation
           />
-          {/* Email */}
-          <Text className="text-sm mb-2 text-gray-800">Email: (Optional)</Text>
-          <TextInput
-            className="w-full p-2 mb-4 bg-white rounded-lg shadow-md"
-            placeholder="Email"
-            value={email}
-            onChangeText={setEmail}
-          />
-
           {/* Password */}
           <Text className="text-sm mb-2 text-gray-800">
             Password: <Text className="text-red-500 text-sm">*</Text>{" "}
@@ -317,7 +335,7 @@ function RegisterScreenBuyers({ navigation }) {
           </Text>
           <TextInput
             className="w-full p-2 mb-4 bg-white rounded-lg shadow-md"
-            placeholder="Password"
+            placeholder="•••••••"
             secureTextEntry
             value={password}
             onChangeText={validatePassword} // Real-time validation
@@ -334,7 +352,7 @@ function RegisterScreenBuyers({ navigation }) {
           </Text>
           <TextInput
             className="w-full p-2 mb-4 bg-white rounded-lg shadow-md"
-            placeholder="Confirm Password"
+            placeholder="•••••••"
             secureTextEntry
             value={confirmPassword}
             onChangeText={(text) => {

@@ -16,20 +16,6 @@ function LoginScreen({ navigation, fetchUserSession }) {
   const phone_regex = /^(?:\+63|0)9\d{2}[-\s]?\d{3}[-\s]?\d{4}$/;
 
   useEffect(() => {
-    if (formData.phone_number && !phone_regex.test(formData.phone_number)) {
-      setPhoneError("Invalid phone number format. Please use 09 followed by 9 digits.");
-    } else {
-      setPhoneError("");
-    }
-
-    if (formData.password && !password_regex.test(formData.password)) {
-      setPasswordError("Invalid Password. Please enter 8-30 characters, including letters and numbers.");
-    } else {
-      setPasswordError("");
-    }
-  }, [formData.phone_number, formData.password]);
-
-  useEffect(() => {
     const fetchUserSession = async () => {
       console.log("came to session...");
       try {
@@ -75,9 +61,16 @@ function LoginScreen({ navigation, fetchUserSession }) {
     if (!formData.phone_number) {
       setPhoneError("Enter your phone number");
       hasError = true;
+    }else if(!phone_regex.test(formData.phone_number)) {
+      setPhoneError("Invalid phone number format. Please use 09 followed by 9 digits.");
+      hasError = true;
     }
+
     if (!formData.password) {
       setPasswordError("Enter your password");
+      hasError = true;
+    }else if (!password_regex.test(formData.password)){
+      setPasswordError("Invalid Password. Please enter 8-30 characters, including letters and numbers.");
       hasError = true;
     }
 

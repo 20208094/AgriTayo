@@ -12,14 +12,6 @@ function ForgotPasswordScreen({ navigation }) {
   const [phoneNumbersList, setPhoneNumbersList] = useState([]);
 
   useEffect(() => {
-    if (phoneNumber && !phone_regex.test(phoneNumber)) {
-      setPhoneError("Invalid phone number format. Please use 09 followed by 9 digits.");
-    } else {
-      setPhoneError("");
-    }
-  }, [phoneNumber]);
-
-  useEffect(() => {
     const fetchPhoneNumbers = async () => {
       try {
         const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/users`, {

@@ -13,14 +13,6 @@ function LostPhoneNumberScreen({ navigation }) {
   const [phoneNumbersList, setPhoneNumbersList] = useState([]);
 
   useEffect(() => {
-    if (secondaryPhoneNumber && !phone_regex.test(secondaryPhoneNumber)) {
-      setPhoneError("Invalid phone number format. Please use 09 followed by 9 digits.");
-    } else {
-      setPhoneError("");
-    }
-  }, [secondaryPhoneNumber]);
-
-  useEffect(() => {
     const fetchPhoneNumbers = async () => {
       try {
         const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/users`, {
@@ -65,7 +57,7 @@ function LostPhoneNumberScreen({ navigation }) {
       <View className="flex-1 justify-center items-center px-5">
         <View className="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
           <Text className="text-2xl font-bold text-green-700 mb-4 text-center">
-            Enter Your Secondary Phone Number
+            Enter Your Alternative Phone Number
           </Text>
           <TextInput
             className="border border-gray-300 rounded-lg px-4 py-2 mb-4"
@@ -108,9 +100,7 @@ function LostPhoneNumberScreen({ navigation }) {
             </TouchableOpacity>
           </View>
           <Text className="text-green-500 text-center mt-4">
-            If you didn't put a secondary number during registration, please
-            contact the admin using this email (AgriTayo@gmail.com) and send
-            your information.
+          If you did not provide an alternative phone number during registration, please contact the admin at this email (AgriTayo@gmail.com) and send your information.
           </Text>
         </View>
       </View>
