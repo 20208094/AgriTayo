@@ -57,6 +57,8 @@ function AdminSidebar() {
                 {/* <DropdownItem to="/admin/carts" icon={FaShoppingCart} text="Cart" /> */}
                 {/* <DropdownItem to="/admin/cart_products" icon={FaShoppingCart} text="Cart Products" /> */}
                 <DropdownItem to="/admin/crop_category" icon={FaTag} text="Crop Category" />
+                <DropdownItem to="/admin/crop_sub_category" icon={FaTag} text="Crop Subcategory" />
+                <DropdownItem to="/admin/crop_variety" icon={FaTag} text="Crop Variety" />
                 <DropdownItem to="/admin/metric_system" icon={FaTasks} text="Metric System" />
                 <DropdownItem to="/admin/crops" icon={FaCheckCircle} text="Crops" />
                 {/* <DropdownItem to="/admin/order_status" icon={FaShippingFast} text="Order Status" /> */}

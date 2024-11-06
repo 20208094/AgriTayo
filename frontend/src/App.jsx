@@ -32,10 +32,11 @@ import NewUsersAnalyticsPage from './screens/Users/AdminPages/AdminDashboard/New
 import OrdersAnalyticsPage from './screens/Users/AdminPages/AdminDashboard/OrdersAnalyticsPage';
 import IndividualCropPriceChangesPage from './screens/Users/AdminPages/AdminDashboard/IndividualCropPriceChangesAnalyticsPage';
 import ProfitAnalyticsPage from './screens/Users/AdminPages/AdminDashboard/ProfitAnalyticsPage';
-
+import CropSubCategoryPageCRUD from './screens/Users/AdminPages/CrudPages/CropSubCategoryPageCRUD';
 import SellerDashboardPage from './screens/Users/SellerPages/SellerDashboard';
 import BuyerDashboardPage from './screens/Users/BuyerPages/BuyerDashboard';
-
+import CropVarietyPageCRUD
+ from './screens/Users/AdminPages/CrudPages/CropVarietyPageCRUD';
 // for market
 import CropCategoryPage from './screens/Market/CropCategoryPage';
 import CropSubCategoryPage from './screens/Market/CropSubCategoryPage';
@@ -218,6 +219,8 @@ function Layout({ userType, userId, refreshProfile, setRefreshProfile }) {
             <Route path="users" element={<UsersPage />} />
             <Route path="shops" element={<ShopPage />} />
             <Route path="crop_category" element={<CropCategoryPageCRUD />} />
+            <Route path="crop_sub_category" element={<CropSubCategoryPageCRUD />} />
+            <Route path="crop_variety" element={<CropVarietyPageCRUD />} />
             <Route path="metric_system" element={<MetricSystemPage />} />
             <Route path="crops" element={<CropsPage />} />
             <Route path="order_status" element={<OrderStatusPage />} />

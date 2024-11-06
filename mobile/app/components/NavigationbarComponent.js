@@ -88,7 +88,7 @@ const NavigationbarComponent = () => {
   return (
     <View className="">
       {/* Bottom Navigation Bar */}
-      <View className="absolute bottom-0 left-0 right-0 h-13 flex-row items-center bg-white border-t border-gray-300 shadow-md">
+      <View className="absolute bottom-0 left-0 right-0 h-12 flex-row items-center bg-white border-t border-gray-300 shadow-md">
         <TouchableOpacity onPress={() => navigation.navigate("Home")} className="items-center w-1/5">
           <Icon name="home-outline" size={25} color="gray" />
           <Text className="text-xs text-gray-600 w-full text-center">Home</Text>
