@@ -7,6 +7,7 @@ import {
   Text,
   Image,
   Alert,
+  Modal,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { MaterialIcons } from "@expo/vector-icons"; // Import icon
@@ -17,7 +18,7 @@ import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 import { ScrollView } from "react-native-gesture-handler";
 import Ionicons from "react-native-vector-icons/Ionicons";
 
-function AddBidScreen({navigation}) {
+function AddBidScreen({ navigation }) {
   // for inputs
   const [shopData, setShopData] = useState(null);
   const [bidCreationDate, setBidCreationDate] = useState("");
@@ -30,6 +31,9 @@ function AddBidScreen({navigation}) {
   const [numberOfBids, setNumberOfBids] = useState(0);
   const [metricSystem, setMetricSystem] = useState([])
   const [loading, setLoading] = useState(false);
+
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
 
   // for end date
   const [endDate, setEndDate] = useState("");
@@ -202,10 +206,10 @@ function AddBidScreen({navigation}) {
 
   const selectImage = async (source) => {
     if (!hasPermission) {
-      Alert.alert(
-        "Permission Denied",
-        "You need to grant access to the media library to select images."
+      setAlertMessage(
+        "Permission Denied, You need to grant access to the media library to select images."
       );
+      setAlertVisible(true);
       return;
     }
 
@@ -245,9 +249,10 @@ function AddBidScreen({navigation}) {
       !selectedSubCategoryId ||
       !selectedMetricSystemId ||
       !bidMinimumIncrement ||
-      !bidStartingPrice 
+      !bidStartingPrice
     ) {
-      alert("Please fill in all the required fields.");
+      setAlertMessage("Please fill in all the required fields.");
+      setAlertVisible(true);
       return;
     }
 
@@ -292,11 +297,13 @@ function AddBidScreen({navigation}) {
       if (response.ok) {
         const responseData = JSON.parse(responseText);
         console.log("Response data: ", responseData);
-        alert("Bidding added successfully!");
+        setAlertMessage("Bidding added successfully!");
+        setAlertVisible(true);
         navigation.navigate("Bidding");
       } else {
         console.error("Error adding bidding: ", responseText);
-        alert("Failed to add bidding. Please try again.");
+        setAlertMessage("Failed to add bidding. Please try again.");
+        setAlertVisible(true);
       }
     } catch (error) {
       alert(`An error occurred while adding the product: ${error.message}`);
@@ -319,7 +326,7 @@ function AddBidScreen({navigation}) {
               onChangeText={setBidName}
             />
           </View>
-  
+
           {/* Product Description */}
           <View className="mb-4">
             <Text className="text-base text-gray-700">Product Description</Text>
@@ -331,7 +338,7 @@ function AddBidScreen({navigation}) {
               onChangeText={setBidDescription}
             />
           </View>
-  
+
           {/* Crop Category Selector */}
           <View className="mb-4">
             <Text className="text-base text-gray-700">Select Crop Category</Text>
@@ -358,7 +365,7 @@ function AddBidScreen({navigation}) {
               </View>
             )}
           </View>
-  
+
           {/* Sub Category Selector */}
           <View className="mb-4">
             <Text className="text-base text-gray-700">Select Sub Category</Text>
@@ -387,7 +394,7 @@ function AddBidScreen({navigation}) {
               </View>
             )}
           </View>
-  
+
           {/* Image Upload */}
           <View className="mb-4">
             <Text className='text-base text-gray-700'>Select Image</Text>
@@ -413,7 +420,7 @@ function AddBidScreen({navigation}) {
               </View>
             )}
           </View>
-  
+
           {/* Bidding End Date */}
           <View className="mb-4">
             <Text className="text-base text-gray-700">Bidding End Date</Text>
@@ -422,9 +429,9 @@ function AddBidScreen({navigation}) {
               className="w-full p-3  bg-white rounded-lg shadow-md"
             >
               <View className='border border-gray-300 rounded-lg p-2'>
-              <Text className="text-gray-800">
-                {formattedDate || "Select Date"}
-              </Text>
+                <Text className="text-gray-800">
+                  {formattedDate || "Select Date"}
+                </Text>
               </View>
             </TouchableOpacity>
             {show && (
@@ -438,7 +445,7 @@ function AddBidScreen({navigation}) {
               />
             )}
           </View>
-  
+
           {/* Bidding Price */}
           <View className="mb-4">
             <Text className="text-base text-gray-700">Bidding Starting Price</Text>
@@ -450,7 +457,7 @@ function AddBidScreen({navigation}) {
               onChangeText={setBidStartingPrice}
             />
           </View>
-  
+
           {/* Minimum Bid Increment */}
           <View className="mb-4">
             <Text className="text-base text-gray-700">Enter Minimum Bid</Text>
@@ -462,7 +469,7 @@ function AddBidScreen({navigation}) {
               onChangeText={setBidMinimumIcrement}
             />
           </View>
-  
+
           {/* Metric Selector */}
           <View className="mb-4">
             <Text className="text-base text-gray-700">Select Metric</Text>
@@ -489,7 +496,7 @@ function AddBidScreen({navigation}) {
               </View>
             )}
           </View>
-  
+
           {/* Add Bid Button */}
           <TouchableOpacity
             className="bg-green-600 p-4 rounded-lg flex items-center mt-4"
@@ -516,8 +523,28 @@ function AddBidScreen({navigation}) {
           </TouchableOpacity>
         </View>
       </ScrollView>
+      {/* Alert Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={alertVisible}
+        onRequestClose={() => setAlertVisible(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black/50 bg-opacity-50">
+          <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
+            <Text className="text-lg font-semibold text-gray-900 mb-4">{alertMessage}</Text>
+            <TouchableOpacity
+              className="mt-4 p-2 bg-[#00B251] rounded-lg flex-row justify-center items-center"
+              onPress={() => setAlertVisible(false)}
+            >
+              <Ionicons name="checkmark-circle-outline" size={24} color="white" />
+              <Text className="text-lg text-white ml-2">OK</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
-  );  
+  );
 }
 
 export default AddBidScreen;

@@ -13,6 +13,9 @@ const ToRateScreen = ({ orders, orderProducts }) => {
   const [reviewText, setReviewText] = useState('');
   const [images, setImages] = useState([]);
 
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+
   const navigation = useNavigation();
 
   const formatDate = (dateString) => {
@@ -55,7 +58,7 @@ const ToRateScreen = ({ orders, orderProducts }) => {
     console.log("Rating:", rating);
     console.log("Review Text:", reviewText);
     console.log("Images:", images);
-    
+
     // Reset state after submission
     setRating(0);
     setReviewText('');
@@ -67,7 +70,8 @@ const ToRateScreen = ({ orders, orderProducts }) => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
     if (permissionResult.granted === false) {
-      alert("Permission to access camera roll is required!");
+      setAlertMessage("Permission to access camera roll is required!");
+      setAlertVisible(true);
       return;
     }
 
@@ -148,77 +152,97 @@ const ToRateScreen = ({ orders, orderProducts }) => {
       </ScrollView>
 
       {/* Rating Modal */}
-<Modal
-  visible={modalVisible}
-  transparent={true}
-  animationType="slide"
-  onRequestClose={() => setModalVisible(false)}
->
-  <View className="flex-1 justify-center items-center bg-black/50">
-    <View className="bg-white p-6 rounded-lg w-11/12 max-w-md shadow-lg">
-      <Text className="text-lg font-bold mb-4 text-center text-[#00B251]">Rate Your Product</Text>
-      <Text className="text-md font-semibold">Rating:</Text>
-      <Slider
-        minimumValue={0}
-        maximumValue={5}
-        step={1}
-        value={rating}
-        onValueChange={(value) => setRating(value)}
-        style={{ marginVertical: 10 }}
-      />
-      <Text className="text-md font-semibold text-center">Your Rating: {rating}</Text>
-      <Text className="mt-4 text-md font-semibold">Review:</Text>
-      <TextInput
-        multiline
-        numberOfLines={4}
-        placeholder="Write your review here..."
-        value={reviewText}
-        onChangeText={setReviewText}
-        className="border border-gray-300 rounded p-2 mb-4"
-        style={{ height: 80 }} // Set a fixed height for better appearance
-      />
-      <Text className="mt-4 text-md font-semibold">Upload Images (up to 3):</Text>
-      <TouchableOpacity 
-        className="bg-[#00B251] p-2 rounded-lg mt-2 mb-4" 
-        onPress={selectImages}
+      <Modal
+        visible={modalVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setModalVisible(false)}
       >
-        <Text className="text-white text-center font-semibold">Select Images</Text>
-      </TouchableOpacity>
-      {/* Display selected images */}
-      <View className="flex-row mt-2">
-  {images.map((uri, index) => (
-    <View key={index} className="relative mr-2">
-      <Image 
-        source={{ uri }} 
-        style={{ width: 70, height: 70, borderRadius: 5 }} 
-      />
-      <TouchableOpacity 
-        className="absolute top-0 right-0 bg-red-500 rounded-full w-6 h-6 justify-center items-center" 
-        onPress={() => setImages(prevImages => prevImages.filter((_, i) => i !== index))}
-      >
-        <Text className="text-white text-xs font-bold">X</Text>
-      </TouchableOpacity>
-    </View>
-  ))}
-</View>
-      <View className="flex-row justify-end mt-4">
-        <TouchableOpacity
-          className="bg-green-500 p-2 rounded-lg mr-2"
-          onPress={submitRating}
-        >
-          <Text className="text-white font-semibold">Submit</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          className="bg-gray-300 p-2 rounded-lg"
-          onPress={() => setModalVisible(false)}
-        >
-          <Text className="text-black font-semibold">Cancel</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  </View>
-</Modal>
+        <View className="flex-1 justify-center items-center bg-black/50">
+          <View className="bg-white p-6 rounded-lg w-11/12 max-w-md shadow-lg">
+            <Text className="text-lg font-bold mb-4 text-center text-[#00B251]">Rate Your Product</Text>
+            <Text className="text-md font-semibold">Rating:</Text>
+            <Slider
+              minimumValue={0}
+              maximumValue={5}
+              step={1}
+              value={rating}
+              onValueChange={(value) => setRating(value)}
+              style={{ marginVertical: 10 }}
+            />
+            <Text className="text-md font-semibold text-center">Your Rating: {rating}</Text>
+            <Text className="mt-4 text-md font-semibold">Review:</Text>
+            <TextInput
+              multiline
+              numberOfLines={4}
+              placeholder="Write your review here..."
+              value={reviewText}
+              onChangeText={setReviewText}
+              className="border border-gray-300 rounded p-2 mb-4"
+              style={{ height: 80 }} // Set a fixed height for better appearance
+            />
+            <Text className="mt-4 text-md font-semibold">Upload Images (up to 3):</Text>
+            <TouchableOpacity
+              className="bg-[#00B251] p-2 rounded-lg mt-2 mb-4"
+              onPress={selectImages}
+            >
+              <Text className="text-white text-center font-semibold">Select Images</Text>
+            </TouchableOpacity>
+            {/* Display selected images */}
+            <View className="flex-row mt-2">
+              {images.map((uri, index) => (
+                <View key={index} className="relative mr-2">
+                  <Image
+                    source={{ uri }}
+                    style={{ width: 70, height: 70, borderRadius: 5 }}
+                  />
+                  <TouchableOpacity
+                    className="absolute top-0 right-0 bg-red-500 rounded-full w-6 h-6 justify-center items-center"
+                    onPress={() => setImages(prevImages => prevImages.filter((_, i) => i !== index))}
+                  >
+                    <Text className="text-white text-xs font-bold">X</Text>
+                  </TouchableOpacity>
+                </View>
+              ))}
+            </View>
+            <View className="flex-row justify-end mt-4">
+              <TouchableOpacity
+                className="bg-green-500 p-2 rounded-lg mr-2"
+                onPress={submitRating}
+              >
+                <Text className="text-white font-semibold">Submit</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                className="bg-gray-300 p-2 rounded-lg"
+                onPress={() => setModalVisible(false)}
+              >
+                <Text className="text-black font-semibold">Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
 
+      {/* Alert Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={alertVisible}
+        onRequestClose={() => setAlertVisible(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black/50 bg-opacity-50">
+          <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
+            <Text className="text-lg font-semibold text-gray-900 mb-4">{alertMessage}</Text>
+            <TouchableOpacity
+              className="mt-4 p-2 bg-[#00B251] rounded-lg flex-row justify-center items-center"
+              onPress={() => setAlertVisible(false)}
+            >
+              <Ionicons name="checkmark-circle-outline" size={24} color="white" />
+              <Text className="text-lg text-white ml-2">OK</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };

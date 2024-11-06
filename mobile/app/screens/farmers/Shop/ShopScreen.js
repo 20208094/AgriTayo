@@ -241,7 +241,7 @@ function ShopScreen({ navigation }) {
         </Modal>
 
         {/* Banner Placeholder */}
-        <View className="bg-[#00B251] w-full h-20 mt-2 mb-4" />
+        <View className="bg-[#00B251] w-full h-1 mt-2 mb-4" />
 
         {/* Order Status Section */}
         <View className="flex-row justify-between px-6 mb-3">

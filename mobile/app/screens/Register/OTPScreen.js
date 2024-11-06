@@ -7,11 +7,13 @@ import {
   TouchableOpacity,
   SafeAreaView,
   Alert,
+  Modal,
 } from "react-native";
 import pic from "../../assets/emailotp.png";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 import { io } from 'socket.io-client';
 import GoBack from "../../components/GoBack";
+import { Ionicons } from "@expo/vector-icons";
 
 function OTPScreen({ route, navigation }) {
   const { formData, phone } = route.params;
@@ -24,6 +26,10 @@ function OTPScreen({ route, navigation }) {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [otpError, setOtpError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+
 
   const inputRefs = useRef([]);
 
@@ -78,16 +84,19 @@ function OTPScreen({ route, navigation }) {
         if (response.ok) {
           const data = await response.json();
           console.log("Successfully Registered")
-          Alert.alert("Success!", "Successfully Registered")
+          setAlertMessage("Success!, Successfully Registered")
+          setAlertVisible(true);
           navigation.navigate("Login");
         } else {
           const errorData = await response.json();
           console.error("Registration failed:", errorData);
-          alert("Registration Failed. Please Try Again");
+          setAlertMessage("Registration Failed. Please Try Again");
+          setAlertVisible(true);
         }
       } catch (error) {
         console.error("Error during registration:", error);
-        alert("An error occurred. Please try again.");
+        setAlertMessage("An error occurred. Please try again.");
+        setAlertVisible(true);
       } finally {
         setLoading(false);
       }
@@ -196,6 +205,27 @@ function OTPScreen({ route, navigation }) {
           <Text className="text-white text-center text-lg">Verify</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Alert Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={alertVisible}
+        onRequestClose={() => setAlertVisible(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black/50 bg-opacity-50">
+          <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
+            <Text className="text-lg font-semibold text-gray-900 mb-4">{alertMessage}</Text>
+            <TouchableOpacity
+              className="mt-4 p-2 bg-[#00B251] rounded-lg flex-row justify-center items-center"
+              onPress={() => setAlertVisible(false)}
+            >
+              <Ionicons name="checkmark-circle-outline" size={24} color="white" />
+              <Text className="text-lg text-white ml-2">OK</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }

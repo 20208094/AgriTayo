@@ -8,6 +8,7 @@ import {
   TextInput,
   TouchableOpacity,
   Alert,
+  Modal,
 } from "react-native";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 import Ionicons from "react-native-vector-icons/Ionicons";
@@ -26,6 +27,9 @@ function FarmersProductDetailScreen({ route, navigation }) {
   const [cropVarieties, setCropVarieties] = useState([]);
   const [cropMetrics, setCropMetrics] = useState([]);
 
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+
   // for user inputs
   const [cropDescription, setCropDescription] = useState(
     product.crop_description
@@ -41,7 +45,8 @@ function FarmersProductDetailScreen({ route, navigation }) {
   const handleImagePick = async () => {
     const { status } = await MediaLibrary.requestPermissionsAsync();
     if (status !== "granted") {
-      Alert.alert("Permission to access camera roll denied");
+      setAlertMessage("Permission to access camera roll denied");
+      setAlertVisible(true);
       return;
     }
 
@@ -341,7 +346,8 @@ function FarmersProductDetailScreen({ route, navigation }) {
 
       const updatedProduct = await response.json();
       console.log("Updated Product:", updatedProduct);
-      Alert.alert("Success!", "Product Updated Successfully");
+      setAlertMessage("Success!, Product Updated Successfully");
+      setAlertVisible(true);
       navigation.navigate("My Products");
 
     } catch (error) {
@@ -605,6 +611,26 @@ function FarmersProductDetailScreen({ route, navigation }) {
           <Text className="text-center text-gray-600">No item available</Text>
         )}
       </ScrollView>
+      {/* Alert Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={alertVisible}
+        onRequestClose={() => setAlertVisible(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black/50 bg-opacity-50">
+          <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
+            <Text className="text-lg font-semibold text-gray-900 mb-4">{alertMessage}</Text>
+            <TouchableOpacity
+              className="mt-4 p-2 bg-[#00B251] rounded-lg flex-row justify-center items-center"
+              onPress={() => setAlertVisible(false)}
+            >
+              <Ionicons name="checkmark-circle-outline" size={24} color="white" />
+              <Text className="text-lg text-white ml-2">OK</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }

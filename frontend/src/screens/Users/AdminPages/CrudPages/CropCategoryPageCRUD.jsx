@@ -15,6 +15,9 @@ function CropCategoryPageCRUD() {
     image: null
   });
   const [isEdit, setIsEdit] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedCategoryId, setSelectedCategoryId] = useState(null);
 
   useEffect(() => {
     fetchCategories();
@@ -77,6 +80,7 @@ function CropCategoryPageCRUD() {
         image: null
       });
       setIsEdit(false);
+      setShowEditModal(false);
     } catch (error) {
       console.error('Error submitting form:', error);
     }
@@ -84,17 +88,18 @@ function CropCategoryPageCRUD() {
 
   const handleEdit = (category) => {
     setFormData({
-      crop_category_id: category.crop_category_id, // Set ID for edit
+      crop_category_id: category.crop_category_id,
       crop_category_name: category.crop_category_name,
       crop_category_description: category.crop_category_description,
       image: null
     });
     setIsEdit(true);
+    setShowEditModal(true);
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async () => {
     try {
-      const response = await fetch(`/api/crop_categories/${id}`, {
+      const response = await fetch(`/api/crop_categories/${selectedCategoryId}`, {
         method: 'DELETE',
         headers: {
           'x-api-key': API_KEY,
@@ -104,6 +109,7 @@ function CropCategoryPageCRUD() {
         throw new Error('Network response was not ok');
       }
       fetchCategories();
+      setShowDeleteModal(false);
     } catch (error) {
       console.error('Error deleting crop category:', error);
     }
@@ -118,119 +124,164 @@ function CropCategoryPageCRUD() {
     category.crop_category_description.toLowerCase().includes(searchQuery)
   );
 
-  //pdf table design
   const exportToPDF = () => {
     const doc = new jsPDF('landscape');
-
     const logoWidth = 50;
-    const logoHeight = 50; 
-    const marginBelowLogo = 5; 
+    const logoHeight = 50;
+    const marginBelowLogo = 5;
     const textMargin = 5;
-
     const pageWidth = doc.internal.pageSize.getWidth();
-    const xPosition = (pageWidth - logoWidth) / 2; 
-    doc.addImage(MainLogo, 'PNG', xPosition, 10, logoWidth, logoHeight); 
+    const xPosition = (pageWidth - logoWidth) / 2;
+    doc.addImage(MainLogo, 'PNG', xPosition, 10, logoWidth, logoHeight);
+    const textYPosition = 10 + logoHeight + textMargin;
+    doc.text("Crop Categories List", xPosition + logoWidth / 2, textYPosition, { align: "center" });
 
-    const textYPosition = 10 + logoHeight + textMargin; 
-    doc.text("Crop Categories List", xPosition + logoWidth / 2, textYPosition, { align: "center" }); 
-
-    const tableStartY = textYPosition + marginBelowLogo + 5; 
-
+    const tableStartY = textYPosition + marginBelowLogo + 5;
     const tableData = filteredCategories.map(category => [
-        category.crop_category_id,
-        category.crop_category_name,
-        category.crop_category_description
+      category.crop_category_id,
+      category.crop_category_name,
+      category.crop_category_description
     ]);
-
     doc.autoTable({
-        startY: tableStartY, 
-        head: [['ID', 'Category Name', 'Description']],
-        body: tableData,
-        headStyles: {
-          fillColor: [0, 128, 0] , halign: 'center', valign: 'middle'
-        },
+      startY: tableStartY,
+      head: [['ID', 'Category Name', 'Description']],
+      body: tableData,
+      headStyles: {
+        fillColor: [0, 128, 0], halign: 'center', valign: 'middle'
+      },
     });
     doc.save('crop_categories_list.pdf');
-};
-
+  };
 
   return (
-    <div style={{ padding: '50px' }}>
-      <h1>Crop Categories Management</h1>
+    <div className="p-8">
+      <h1 className="text-3xl font-semibold mb-6 text-center text-[#00B251]">Crop Categories Management</h1>
 
-      <form onSubmit={handleSubmit} encType="multipart/form-data">
-        <input
-          type="hidden"
-          name="crop_category_id"
-          value={formData.crop_category_id} // Add hidden field for ID
-        />
-        <input
-          type="text"
-          name="crop_category_name"
-          value={formData.crop_category_name}
-          onChange={handleInputChange}
-          placeholder="Crop Category Name"
-          required
-        />
-        <input
-          type="text"
-          name="crop_category_description"
-          value={formData.crop_category_description}
-          onChange={handleInputChange}
-          placeholder="Crop Category Description"
-        />
-        <input
-          type="file"
-          name="image"
-          onChange={handleImageChange}
-        />
-        <button type="submit">{isEdit ? 'Update' : 'Create'}</button>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <input type="hidden" name="crop_category_id" value={formData.crop_category_id} />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <input
+            type="text"
+            name="crop_category_name"
+            value={formData.crop_category_name}
+            onChange={handleInputChange}
+            placeholder="Crop Category Name"
+            required
+            className="border p-2 w-full rounded-md"
+          />
+          <input
+            type="text"
+            name="crop_category_description"
+            value={formData.crop_category_description}
+            onChange={handleInputChange}
+            placeholder="Crop Category Description"
+            className="border p-2 w-full rounded-md"
+          />
+          <input
+            type="file"
+            name="image"
+            onChange={handleImageChange}
+            className="border p-2 w-full rounded-md"
+          />
+        </div>
+        <div>
+          <button type="submit" className="bg-[#00B251] text-white py-2 px-4 rounded-md mt-4">{isEdit ? 'Update' : 'Create'}</button>
+        </div>
       </form>
 
-      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
+      <div className="flex items-center mt-6">
         <input
           type="text"
           placeholder="Search..."
           value={searchQuery}
           onChange={handleSearchChange}
-          style={{ padding: '8px', width: '300px' }}
+          className="border p-2 rounded-md w-1/2"
         />
-        <button onClick={exportToPDF} style={{ marginLeft: '20px', padding: '8px' }}>Export to PDF</button>
+        <button onClick={exportToPDF} className="bg-[#00B251] text-white py-2 px-4 rounded-md ml-4">Export to PDF</button>
       </div>
 
-      <table style={{ border: '1px solid black', width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
-        <thead>
+      <table className="min-w-full mt-8 border border-gray-300 rounded-md overflow-hidden">
+        <thead className="bg-[#00B251] text-white">
           <tr>
-            <th style={{ border: '1px solid black', padding: '8px' }}>ID</th>
-            <th style={{ border: '1px solid black', padding: '8px' }}>Category Name</th>
-            <th style={{ border: '1px solid black', padding: '8px' }}>Description</th>
-            <th style={{ border: '1px solid black', padding: '8px' }}>Image</th>
-            <th style={{ border: '1px solid black', padding: '8px' }}>Actions</th>
+            <th className="p-2 border">ID</th>
+            <th className="p-2 border">Category Name</th>
+            <th className="p-2 border">Description</th>
+            <th className="p-2 border">Image</th>
+            <th className="p-2 border">Actions</th>
           </tr>
         </thead>
         <tbody>
           {filteredCategories.map((category) => (
-            <tr key={category.crop_category_id}>
-              <td style={{ border: '1px solid black', padding: '8px' }}>{category.crop_category_id}</td>
-              <td style={{ border: '1px solid black', padding: '8px' }}>{category.crop_category_name}</td>
-              <td style={{ border: '1px solid black', padding: '8px' }}>{category.crop_category_description}</td>
-              <td style={{ border: '1px solid black', padding: '8px' }}>
+            <tr key={category.crop_category_id} className="text-center">
+              <td className="p-2 border">{category.crop_category_id}</td>
+              <td className="p-2 border">{category.crop_category_name}</td>
+              <td className="p-2 border">{category.crop_category_description}</td>
+              <td className="p-2 border">
                 {category.crop_category_image_url && (
                   <img
                     src={category.crop_category_image_url}
                     alt={category.crop_category_name}
-                    style={{ width: '100px', height: 'auto' }}
+                    className="w-20 h-auto mx-auto"
                   />
                 )}
               </td>
-              <td style={{ border: '1px solid black', padding: '8px' }}>
-                <button onClick={() => handleEdit(category)}>Edit</button>
-                <button onClick={() => handleDelete(category.crop_category_id)}>Delete</button>
+              <td className="p-2 border">
+                <button onClick={() => handleEdit(category)} className="bg-[#00B251] text-white py-1 px-3 rounded-md mx-1">Edit</button>
+                <button onClick={() => { setSelectedCategoryId(category.crop_category_id); setShowDeleteModal(true); }} className="bg-red-500 text-white py-1 px-3 rounded-md mx-1">Delete</button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
+
+      {showEditModal && (
+        <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
+          <div className="bg-white rounded-lg p-8 w-11/12 md:w-1/2 lg:w-1/3">
+            <h2 className="text-2xl font-bold mb-4">Edit Category</h2>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <input type="hidden" name="crop_category_id" value={formData.crop_category_id} />
+              <input
+                type="text"
+                name="crop_category_name"
+                value={formData.crop_category_name}
+                onChange={handleInputChange}
+                placeholder="Crop Category Name"
+                required
+                className="border p-2 w-full rounded-md"
+              />
+              <input
+                type="text"
+                name="crop_category_description"
+                value={formData.crop_category_description}
+                onChange={handleInputChange}
+                placeholder="Crop Category Description"
+                className="border p-2 w-full rounded-md"
+              />
+              <input
+                type="file"
+                name="image"
+                onChange={handleImageChange}
+                className="border p-2 w-full rounded-md"
+              />
+              <button type="submit" className="bg-[#00B251] text-white py-2 px-4 rounded-md">Save Changes</button>
+            </form>
+            <button onClick={() => setShowEditModal(false)} className="bg-gray-300 text-gray-700 py-2 px-4 rounded-md mt-4">Cancel</button>
+          </div>
+        </div>
+      )}
+
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
+          <div className="bg-white rounded-lg p-8 w-11/12 md:w-1/2 lg:w-1/3">
+            <h2 className="text-2xl font-bold mb-4">Confirm Deletion</h2>
+            <p>Are you sure you want to delete this category?</p>
+            <div className="flex justify-end mt-6">
+              <button onClick={handleDelete} className="bg-[#00B251] text-white py-2 px-4 rounded-md mr-2">Confirm</button>
+              <button onClick={() => setShowDeleteModal(false)} className="bg-gray-300 text-gray-700 py-2 px-4 rounded-md">Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

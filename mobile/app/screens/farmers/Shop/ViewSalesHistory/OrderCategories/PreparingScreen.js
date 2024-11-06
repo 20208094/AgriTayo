@@ -10,6 +10,8 @@ const PreparingScreen = ({ orders, orderProducts }) => {
   const [confirmationVisible, setConfirmationVisible] = useState(false);
   const [rejectReasonVisible, setRejectReasonVisible] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
   const navigation = useNavigation();
 
   const formatDate = (dateString) => {
@@ -63,7 +65,8 @@ const PreparingScreen = ({ orders, orderProducts }) => {
 
   const submitRejectOrder = () => {
     if (rejectReason.trim() === "") {
-      alert("Please enter a rejection reason.");
+      setAlertMessage("Please enter a rejection reason.");
+      setAlertVisible(true);
       return;
     }
     const updatedOrder = { ...selectedOrder, status_id: 9, reject_reason: rejectReason }; // Status 9 is rejected
@@ -247,6 +250,26 @@ const PreparingScreen = ({ orders, orderProducts }) => {
                 <Text className="text-gray-800">Cancel</Text>
               </TouchableOpacity>
             </View>
+          </View>
+        </View>
+      </Modal>
+      {/* Alert Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={alertVisible}
+        onRequestClose={() => setAlertVisible(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black/50 bg-opacity-50">
+          <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
+            <Text className="text-lg font-semibold text-gray-900 mb-4">{alertMessage}</Text>
+            <TouchableOpacity
+              className="mt-4 p-2 bg-[#00B251] rounded-lg flex-row justify-center items-center"
+              onPress={() => setAlertVisible(false)}
+            >
+              <Ionicons name="checkmark-circle-outline" size={24} color="white" />
+              <Text className="text-lg text-white ml-2">OK</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>
