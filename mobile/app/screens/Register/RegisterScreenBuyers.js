@@ -57,9 +57,9 @@ function RegisterScreenBuyers({ navigation }) {
 
   const validateMiddleName = (text) => {
     setMiddleName(text);
-    if (!middlename_regex.test(text)){
+    if (!middlename_regex.test(text)) {
       setMiddleNameError("Invalid Middle Name. Please enter atleast 2 letters.")
-    }else{
+    } else {
       setMiddleNameError("")
     }
   }
@@ -125,6 +125,10 @@ function RegisterScreenBuyers({ navigation }) {
   const [show, setShow] = useState(false);
   const [date, setDate] = useState(new Date());
   const [formattedDate, setFormattedDate] = useState("");
+
+  // Calculate the date that is 18 years prior to today
+  const today = new Date();
+  const eighteenYearsAgo = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
 
   const handleDateChange = (event, selectedDate) => {
     if (event.type === "set") {
@@ -245,7 +249,7 @@ function RegisterScreenBuyers({ navigation }) {
             onChangeText={validateLastName} // Real-time validation
           />
 
-          {/* Birthday */}
+
           <Text className="text-sm mb-2 text-gray-800">
             Birthday: <Text className="text-red-500 text-sm">*</Text>{" "}
             {birthDayError ? (
@@ -268,7 +272,7 @@ function RegisterScreenBuyers({ navigation }) {
               mode="date"
               display="default"
               onChange={handleDateChange}
-              maximumDate={new Date()}
+              maximumDate={eighteenYearsAgo} // Restrict selection to dates 18 years ago or earlier
             />
           )}
           {/* Gender */}

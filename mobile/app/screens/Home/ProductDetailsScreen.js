@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { View, Image, Text, ScrollView, TouchableOpacity, Modal, Pressable } from "react-native";
 import { FontAwesome } from '@expo/vector-icons';
+import { FontAwesome5 } from '@expo/vector-icons';
 import { styled } from "nativewind";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -388,7 +389,7 @@ function ProductDetailsScreen({ navigation, route }) {
                   className="bg-white border border-green-600 px-2.5 md:px-3 py-1 rounded-md items-center flex-row"
                   onPress={handleNegotiatePress}
                 >
-                  <FontAwesome name="balance-scale" size={14} color="#00B251" />
+                  <FontAwesome5 name="handshake" size={14} color="#00B251" />
                   <Text className="text-green-600 ml-1 text-xs md:text-sm">Negotiate</Text>
                 </TouchableOpacity>
 
@@ -447,7 +448,7 @@ function ProductDetailsScreen({ navigation, route }) {
             className="flex-1 flex-row items-center justify-center bg-white border border-green-600 rounded-lg"
             onPress={handleNegotiatePress}
           >
-            <FontAwesome name="balance-scale" size={20} color="#00B251" />
+            <FontAwesome5 name="handshake" size={20} color="#00B251" />
           </TouchableOpacity>
 
           {/* Separator */}
