@@ -62,7 +62,7 @@ function ForgotPasswordScreen({ navigation }) {
           </Text>
           <TextInput
             className="border border-gray-300 rounded-lg px-4 py-2 mb-4"
-            placeholder="Phone Number"
+            placeholder="09123456789"
             keyboardType="phone-pad"
             autoCapitalize="none"
             autoCorrect={false}

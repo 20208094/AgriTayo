@@ -61,7 +61,7 @@ function LostPhoneNumberScreen({ navigation }) {
           </Text>
           <TextInput
             className="border border-gray-300 rounded-lg px-4 py-2 mb-4"
-            placeholder="Enter Secondary Phone Number"
+            placeholder="09123456789"
             keyboardType="numeric"
             value={secondaryPhoneNumber}
             onChangeText={setSecondaryPhoneNumber}

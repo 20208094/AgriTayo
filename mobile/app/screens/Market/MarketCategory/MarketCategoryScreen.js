@@ -25,7 +25,7 @@ const CategoryItemCard = ({ item }) => {
         <Text className="text-sm text-gray-600 mt-1">Class: {item.crop_class}</Text>
         <Text className="text-sm text-gray-600 mt-1">{item.crop_description}</Text>
         <Text className="text-base font-bold text-green-600 mt-2">₱ {item.crop_price}</Text>
-        <Text className="text-sm text-gray-600">⭐ {item.crop_rating}</Text>
+        {/* <Text className="text-sm text-gray-600">⭐ {item.crop_rating}</Text> */}
       </View>
     </TouchableOpacity>
   );
@@ -46,6 +46,7 @@ function MarketCategoryScreen({ route }) {
   const [openDropdown, setOpenDropdown] = useState({});
   const [selectedSubCategories, setSelectedSubCategories] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [metricSystem, setMetricSystem] = useState([]);
 
   const API_KEY = REACT_NATIVE_API_KEY;
 
@@ -105,6 +106,25 @@ function MarketCategoryScreen({ route }) {
       setSubCategories(data);
     } catch (error) {
       console.error("Error fetching crop sub-categories:", error);
+    }
+  };
+
+  const fetchMetricSystem = async () => {
+    try {
+      const response = await fetch(
+        `${REACT_NATIVE_API_BASE_URL}/api/metric_systems`,
+        {
+          headers: {
+            "x-api-key": API_KEY,
+          },
+        }
+      );
+      if (!response.ok) throw new Error("Network response was not ok");
+
+      const data = await response.json();
+      setMetricSystem(data);
+    } catch (error) {
+      alert(`Error fetching metric systems: ${error.message}`);
     }
   };
 
@@ -168,6 +188,7 @@ function MarketCategoryScreen({ route }) {
   useEffect(() => {
     fetchCategories();
     fetchSubCategories();
+    fetchMetricSystem();
 
     if (!searchResults && selectedSubCategories.length === 0 && !selectedItemId) {
       fetchAllCrops();
