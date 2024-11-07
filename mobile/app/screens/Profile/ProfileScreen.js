@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { View, Image, Text, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Icon } from "react-native-elements";
+import { FontAwesome5 } from '@expo/vector-icons';
 import { ScrollView } from "react-native-gesture-handler";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
@@ -189,7 +190,7 @@ function ProfileScreen({ fetchUserSession }) {
           <View className="bg-white rounded-lg shadow p-4 space-y-4">
             <TouchableOpacity className="flex-row items-center justify-between" onPress={() => navigation.navigate("View Profile", { userData })}>
               <View className="flex-row items-center">
-                <Icon name="user" type="font-awesome" size={20} color="#00B251" />
+                <Icon name="user" type="font-awesome" size={20} color="#00B251"/>
                 <Text className="text-gray-800 font-semibold ml-4"> View Profile</Text>
               </View>
               <Icon name="chevron-right" type="font-awesome" size={20} color="gray" />
@@ -203,14 +204,14 @@ function ProfileScreen({ fetchUserSession }) {
             </TouchableOpacity> */}
             <TouchableOpacity className="flex-row items-center justify-between" onPress={() => navigation.navigate("Buyer Negotiation List", { userData })}>
               <View className="flex-row items-center">
-                <Icon name="address-book" type="font-awesome" size={20} color="#00B251" />
+              <FontAwesome5 name="handshake" size={14} color="#00B251" />
                 <Text className="text-gray-800 font-semibold ml-4">My Negotiations</Text>
               </View>
               <Icon name="chevron-right" type="font-awesome" size={20} color="gray" />
             </TouchableOpacity>
             <TouchableOpacity className="flex-row items-center justify-between" onPress={() => navigation.navigate("My Bids", { userData })}>
               <View className="flex-row items-center">
-                <Icon name="address-book" type="font-awesome" size={20} color="#00B251" />
+              <FontAwesome5 name="comment-dollar"  size={20} color="#00B251" />
                 <Text className="text-gray-800 font-semibold ml-4">My Bids</Text>
               </View>
               <Icon name="chevron-right" type="font-awesome" size={20} color="gray" />

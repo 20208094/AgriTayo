@@ -35,7 +35,6 @@ function AddProductScreen({ navigation }) {
   const [availability, setAvailability] = useState("");
   const [availabilityMessage, setAvailabilityMessage] = useState(null);
   const [shopId, setShopId] = useState("");
-  const [cropRating, setCropRating] = useState("");
 
   const [isClickedCategory, setIsClickedCategory] = useState(false);
   const [isClickedMetricSystem, setIsClickedMetricSystem] = useState(false);
@@ -361,7 +360,6 @@ function AddProductScreen({ navigation }) {
         type: "image/jpeg",
       });
     }
-    formData.append("crop_rating", parseFloat(cropRating || 0));
     formData.append("crop_price", parseFloat(cropPrice));
     formData.append("crop_quantity", parseInt(cropQuantity));
     formData.append("metric_system_id", selectedMetricSystemId);

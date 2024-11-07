@@ -180,11 +180,7 @@ function ViolationScreen({ navigation }) {
                   ₱{violationItem.crop_price}
                 </Text>
               </View>
-              <View className="flex-row justify-between items-center mt-1">
-                <Text className="text-xs font-medium text-green-600">
-                  Rating: <Text className="text-yellow-500">⭐{violationItem.crop_rating || 'N/A'}</Text>
-                </Text>
-              </View>
+              
             </View>
           </TouchableOpacity>
         ))}
