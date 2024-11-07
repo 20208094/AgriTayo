@@ -26,7 +26,7 @@ function ViewProfileScreen({ route, navigation }) {
   const [birthday, setBirthday] = useState(userData.birthday);
   const [gender, setGender] = useState(userData.gender);
   const [phone, setPhone] = useState(userData.phone_number);
-  const [secondPhone, setSecondPhone] = useState(userData.secondary_phone_number);
+  const [secondaryPhoneNumber, setSecondaryPhoneNumber] = useState(userData.secondary_phone_number);
   const [profileImage, setProfileImage] = useState(userData.user_image_url);
   const [modalVisible, setModalVisible] = useState(false);
   const [alertVisible, setAlertVisible] = useState(false);
@@ -40,7 +40,7 @@ function ViewProfileScreen({ route, navigation }) {
     middleName: "",
     lastName: "",
     phone: "",
-    secondPhone: "",
+    secondaryPhoneNumber: "",
     birthday: "",
     gender: "",
   });
@@ -81,8 +81,8 @@ function ViewProfileScreen({ route, navigation }) {
     }
 
     // Secondary Phone validation
-    if (secondPhone && !secondaryPhone_regex.test(secondPhone)) {
-      updatedErrors.secondPhone = "* Please enter a valid phone number";
+    if (secondaryPhoneNumber && !secondaryPhone_regex.test(secondaryPhoneNumber)) {
+      updatedErrors.secondaryPhoneNumber = "* Please enter a valid phone number";
       valid = false;
     }
 
@@ -137,7 +137,7 @@ function ViewProfileScreen({ route, navigation }) {
     formData.append('middlename', middleName);
     formData.append('lastname', lastName);
     formData.append('phone_number', phone);
-    formData.append('secondary_phone_number', secondPhone);
+    formData.append('secondary_phone_number', secondaryPhoneNumber);
     formData.append('gender', gender);
     formData.append('birthday', birthday);
 
@@ -171,7 +171,7 @@ function ViewProfileScreen({ route, navigation }) {
           middlename: middleName,
           lastname: lastName,
           phone_number: phone,
-          secondary_phone_number: secondPhone,
+          secondary_phone_number: secondaryPhoneNumber,
           gender: gender,
           birthday: birthday,
           user_image_url: profileImage,
@@ -195,9 +195,6 @@ function ViewProfileScreen({ route, navigation }) {
     { label: "Others", value: "Others" },
   ];
   
-  const [show, setShow] = useState(false);
-  const [date, setDate] = useState(new Date());
-  const [formattedDate, setFormattedDate] = useState("");
 
   const today = new Date();
   const eighteenYearsAgo = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
@@ -241,7 +238,7 @@ function ViewProfileScreen({ route, navigation }) {
           />
 
           {/* Middle Name */}
-          <Text className="text-sm mb-2 text-gray-800">Middle Name: (optional)
+          <Text className="text-sm mb-2 text-gray-800">Middle Name:
             {" "} {errors.middleName ? <Text className="text-red-500 text-xs mb-4">{errors.middleName}</Text> : null}
           </Text>
           <TextInput
@@ -313,17 +310,19 @@ function ViewProfileScreen({ route, navigation }) {
             onChangeText={setPhone}
             className="w-full p-2 mb-4 bg-white rounded-lg shadow-md text-gray-800"
             placeholder="09123456789"
+            keyboardType="numeric" 
           />
 
           {/* Alternative Phone Number */}
-          <Text className="text-sm mb-2 text-gray-800">Alternative Phone Number: (Optional)
-            {" "} {errors.secondPhone ? <Text className="text-red-500 text-xs mb-4">{errors.secondPhone}</Text> : null}
+          <Text className="text-sm mb-2 text-gray-800">Alternative Phone Number:
+            {" "} {errors.secondaryPhoneNumber ? <Text className="text-red-500 text-xs mb-4">{errors.secondaryPhoneNumber}</Text> : null}
           </Text>
           <TextInput
-            value={secondPhone}
-            onChangeText={setSecondPhone}
+            value={secondaryPhoneNumber}
+            onChangeText={setSecondaryPhoneNumber}
             className="w-full p-2 mb-4 bg-white rounded-lg shadow-md text-gray-800"
             placeholder="09123456789"
+            keyboardType="numeric" 
           />
 
 

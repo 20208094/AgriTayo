@@ -50,6 +50,7 @@ async function addShop(req, res) {
             const cod = getSingleValue(fields.cod);
             const bank = getSingleValue(fields.bank);
             const shop_number = getSingleValue(fields.shop_number);
+            const secondary_shop_number = getSingleValue(fields.secondary_shop_number);
             const submit_later = getSingleValue(fields.submit_later);
             const tin_number = getSingleValue(fields.tin_number);
             const pickup_address = getSingleValue(fields.pickup_address);
@@ -103,6 +104,7 @@ async function addShop(req, res) {
                     cod: cod,
                     bank: bank,
                     shop_number: shop_number,
+                    secondary_shop_number: secondary_shop_number,
                     submit_later: submit_later,
                     tin_number: tin_number,
                     bir_image_url: bir_image_url,
@@ -165,6 +167,7 @@ async function updateShop(req, res) {
             const cod = getSingleValue(fields.cod);
             const bank = getSingleValue(fields.bank);
             const shop_number = getSingleValue(fields.shop_number);
+            const secondary_shop_number = getSingleValue(fields.secondary_shop_number);
             const submit_later = getSingleValue(fields.submit_later);
             const tin_number = getSingleValue(fields.tin_number);
             const pickup_address = getSingleValue(fields.pickup_address);
@@ -274,6 +277,7 @@ async function updateShop(req, res) {
                 cod: cod,
                 bank: bank,
                 shop_number: shop_number,
+                secondary_shop_number: secondary_shop_number,
                 submit_later: submit_later,
                 tin_number: tin_number,
                 bir_image_url: bir_image_url,

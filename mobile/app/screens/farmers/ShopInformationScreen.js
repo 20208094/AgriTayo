@@ -32,6 +32,7 @@ function ShopInformationScreen({ route, navigation }) {
   const [isCheckedGcash, setIsCheckedGcash] = useState(false);
   const [isCheckedBankTransfer, setIsCheckedBankTransfer] = useState(false);
   const [shopNumber, setShopNumber] = useState("");
+  const [secondaryShopNumber, setSecondaryShopNumber] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
   const [errors, setErrors] = useState({});
   const [pickupAddress, setPickupAddress] = useState("");
@@ -43,6 +44,7 @@ function ShopInformationScreen({ route, navigation }) {
 
   const shopNameRegex = /^[A-Za-z\s]{2,}$/;
   const addressRegex = /^[A-Za-z0-9\s,'-]{10,}$/;
+  const phone_regex = /^(?:\+63|0)?9\d{9}$/;
 
   const handleInputChange = (field, value) => {
     let error = "";
@@ -78,10 +80,16 @@ function ShopInformationScreen({ route, navigation }) {
         setPickupAreaFee(value);
         break;
       case "shopNumber":
-        if (value.trim() === "") {
-          error = "Shop Number is required.";
+        if (!phone_regex.test(value)) {
+          error = "Invalid phone number format. Please use 09 followed by 9 digits.";
         }
         setShopNumber(value);
+        break;
+      case "secondaryShopNumber":
+        if (!phone_regex.test(value)) {
+          error = "Invalid phone number format. Please use 09 followed by 9 digits.";
+        }
+        setSecondaryShopNumber(value);
         break;
       default:
         break;
@@ -111,8 +119,6 @@ function ShopInformationScreen({ route, navigation }) {
     }
   };
 
- 
-
   const handleSubmit = () => {
     let hasError = false;
     if (!shopImage) {
@@ -131,12 +137,18 @@ function ShopInformationScreen({ route, navigation }) {
       setErrors((prev) => ({ ...prev, shopNumber: "Shop number is required." }));
       hasError = true;
     }
-
+    if (!isCheckedDelivery && !isCheckedPickup) {
+      setErrors((prev) => ({ ...prev, shippingOption: "Shipping options is required, Please select a shipping option (Delivery or Pickup)." }));
+      hasError = true;
+    }
+    if (!isCheckedCod && !isCheckedGcash && !isCheckedBankTransfer) {
+      setErrors((prev) => ({ ...prev, PaymentMethod: "Payment method is required" }));
+      hasError = true;
+    }
     if (hasError) {
       setAlertMessage("Sorry,  Please fill up the forms before continuing.");
       setAlertVisible(true);
       return;
-
     }
 
     const shopData = {
@@ -153,6 +165,7 @@ function ShopInformationScreen({ route, navigation }) {
       cod: isCheckedCod,
       bank: isCheckedBankTransfer,
       shop_number: shopNumber,
+      secondary_shop_number: secondaryShopNumber,
       pickup_address: pickupAddress,
     };
 
@@ -163,7 +176,6 @@ function ShopInformationScreen({ route, navigation }) {
       shopData,
     });
   };
-
 
   return (
     <SafeAreaView className="flex-1 bg-white" edges={['bottom', 'left', 'right']}>
@@ -181,7 +193,7 @@ function ShopInformationScreen({ route, navigation }) {
         <View className="items-center mb-8 mt-4">
           <View className="relative w-28 h-28 rounded-full border-4 border-green-500 shadow-lg bg-white">
             <Image
-              source={shopImage ? { uri: shopImage } : placeholderlogo}
+              source={shopImage ? { uri: shopImage } : null}
               className="w-full h-full rounded-full"
             />
             <TouchableOpacity
@@ -190,11 +202,10 @@ function ShopInformationScreen({ route, navigation }) {
             >
               <Ionicons name="pencil" size={20} color="white" />
             </TouchableOpacity>
-            {errors.shopImage && (
-              <Text className="text-red-500 mb-2">{errors.shopImage}</Text>
-            )}
           </View>
-
+          {errors.shopImage && (
+            <Text className="text-red-500 mb-2">{errors.shopImage}</Text>
+          )}
         </View>
 
         {/* Shop Name */}
@@ -208,7 +219,7 @@ function ShopInformationScreen({ route, navigation }) {
             value={shopName}
             onChangeText={(value) => handleInputChange('shopName', value)}
             className="w-full p-2 mb-4 bg-white rounded-lg shadow-md text-gray-800"
-            placeholder="Enter your Shop Name"
+            placeholder="e.g., AgriTayo Shop"
           />
 
           {/* Shop Address */}
@@ -221,7 +232,7 @@ function ShopInformationScreen({ route, navigation }) {
             value={shopAddress}
             onChangeText={(value) => handleInputChange('shopAddress', value)}
             className="w-full p-2 mb-4 bg-white rounded-lg shadow-md text-gray-800"
-            placeholder="Enter Shop Address"
+            placeholder="e.g., #24 Roman Ayson Sepic Road Campo Filipino Baguio City"
           />
 
           {/* Shop Description */}
@@ -230,21 +241,44 @@ function ShopInformationScreen({ route, navigation }) {
             value={shopDescription}
             onChangeText={setShopDescription}
             className="w-full p-2 mb-4 bg-white rounded-lg shadow-md text-gray-800"
-            placeholder="Enter shop description (optional)"
+            placeholder="e.g., Flowers, Potted Plants (optional)"
           />
 
           {/* Shop Number */}
-          <Text className="text-sm mb-2 text-[#00B251]">Shop Number: <Text className="text-red-500 text-sm">*</Text></Text>
+          <Text className="text-sm mb-2 text-[#00B251]">Shop Phone Number: <Text className="text-red-500 text-sm">*</Text>
+            {errors.shopNumber && (
+              <Text className="text-red-500 mb-2">{errors.shopNumber}</Text>
+            )}
+          </Text>
           <TextInput
             value={shopNumber}
             onChangeText={(value) => handleInputChange('shopNumber', value)}
             className="w-full p-2 mb-4 bg-white rounded-lg shadow-md text-gray-800"
-            placeholder="Enter your Shop Number"
+            placeholder="e.g., 09123456789"
+            keyboardType="numeric" 
+          />
+
+          {/* Seecondary Shop Number */}
+          <Text className="text-sm mb-2 text-[#00B251]">Secondary Shop Phone Number: (optional)
+            {errors.secondaryShopNumber && (
+              <Text className="text-red-500 mb-2">{errors.secondaryShopNumber}</Text>
+            )}
+          </Text>
+          <TextInput
+            value={secondaryShopNumber}
+            onChangeText={(value) => handleInputChange('secondaryShopNumber', value)}
+            className="w-full p-2 mb-4 bg-white rounded-lg shadow-md text-gray-800"
+            placeholder="e.g., 09123456789"
+            keyboardType="numeric" 
           />
 
           {/* Delivery Checkbox */}
           <Text className="text-orange-500 text-sm">NOTE: AgriTayo will not handle shipping and payment, this will only serve as away to inform the buyer for your available shipping and payment option.</Text>
-          <Text className="text-sm mb-2 text-[#00B251]">Shipping Options: <Text className="text-red-500 text-sm">*</Text></Text>
+          <Text className="text-sm mb-2 text-[#00B251]">Shipping Options: <Text className="text-red-500 text-sm">*</Text>
+            {errors.shippingOption && (
+              <Text className="text-red-500 mb-2">{errors.shippingOption}</Text>
+            )}
+          </Text>
           <View className="flex-row items-center mb-4">
             <TouchableOpacity
               className="mr-2"
@@ -313,7 +347,10 @@ function ShopInformationScreen({ route, navigation }) {
           )}
 
           {/* COD Checkbox */}
-          <Text className="text-sm mb-2 text-[#00B251]">Payment Methods:</Text>
+          <Text className="text-sm mb-2 text-[#00B251]">Payment Methods: <Text className="text-red-500 text-sm">*</Text>
+            {errors.PaymentMethod && (
+              <Text className="text-red-500 mb-2">{errors.PaymentMethod}</Text>
+            )}</Text>
           <View className="flex-row items-center mb-4">
             <TouchableOpacity
               className="mr-2"
