@@ -25,8 +25,8 @@ function ViewProfileScreen({ route, navigation }) {
   const [lastName, setLastName] = useState(userData.lastname);
   const [birthday, setBirthday] = useState(userData.birthday);
   const [gender, setGender] = useState(userData.gender);
-  const [email, setEmail] = useState(userData.email);
   const [phone, setPhone] = useState(userData.phone_number);
+  const [secondPhone, setSecondPhone] = useState(userData.secondary_phone_number);
   const [profileImage, setProfileImage] = useState(userData.user_image_url);
   const [modalVisible, setModalVisible] = useState(false);
   const [alertVisible, setAlertVisible] = useState(false);
@@ -39,16 +39,17 @@ function ViewProfileScreen({ route, navigation }) {
     firstName: "",
     middleName: "",
     lastName: "",
-    email: "",
     phone: "",
+    secondPhone: "",
     birthday: "",
     gender: "",
   });
 
   // RegEx for validation
   const nameRegex = /^[a-zA-Z\s]+$/;
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const middlename_regex = /^([A-Za-z\s]{1,})?$/
   const phoneRegex = /^(09|\+639)\d{9}$/; // Matches Philippine phone number
+  const secondaryPhone_regex = /^(?:\+63|0)?9\d{9}$/;
 
   // Validation function
   const validateFields = () => {
@@ -62,7 +63,7 @@ function ViewProfileScreen({ route, navigation }) {
     }
 
     // Middle Name validation
-    if (!middleName || !nameRegex.test(middleName)) {
+    if (middleName && !middlename_regex.test(middleName)) {
       updatedErrors.middleName = "* Please enter a valid middle name";
       valid = false;
     }
@@ -73,17 +74,18 @@ function ViewProfileScreen({ route, navigation }) {
       valid = false;
     }
 
-    // Email validation
-    if (!email || !emailRegex.test(email)) {
-      updatedErrors.email = "* Please enter a valid email address";
-      valid = false;
-    }
-
     // Phone validation
     if (!phone || !phoneRegex.test(phone)) {
       updatedErrors.phone = "* Please enter a valid phone number";
       valid = false;
     }
+
+    // Secondary Phone validation
+    if (secondPhone && !secondaryPhone_regex.test(secondPhone)) {
+      updatedErrors.secondPhone = "* Please enter a valid phone number";
+      valid = false;
+    }
+
 
     // Birthday validation
     if (!birthday) {
@@ -134,8 +136,8 @@ function ViewProfileScreen({ route, navigation }) {
     formData.append('firstname', firstName);
     formData.append('middlename', middleName);
     formData.append('lastname', lastName);
-    formData.append('email', email);
     formData.append('phone_number', phone);
+    formData.append('secondary_phone_number', secondPhone);
     formData.append('gender', gender);
     formData.append('birthday', birthday);
 
@@ -168,8 +170,8 @@ function ViewProfileScreen({ route, navigation }) {
           firstname: firstName,
           middlename: middleName,
           lastname: lastName,
-          email: email,
           phone_number: phone,
+          secondary_phone_number: secondPhone,
           gender: gender,
           birthday: birthday,
           user_image_url: profileImage,
@@ -192,7 +194,14 @@ function ViewProfileScreen({ route, navigation }) {
     { label: "Female", value: "Female" },
     { label: "Others", value: "Others" },
   ];
+  
+  const [show, setShow] = useState(false);
+  const [date, setDate] = useState(new Date());
+  const [formattedDate, setFormattedDate] = useState("");
 
+  const today = new Date();
+  const eighteenYearsAgo = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
+  
   const handleDateChange = (event, selectedDate) => {
     setShowDatePicker(false);
     if (selectedDate) {
@@ -232,7 +241,7 @@ function ViewProfileScreen({ route, navigation }) {
           />
 
           {/* Middle Name */}
-          <Text className="text-sm mb-2 text-gray-800">Middle Name:
+          <Text className="text-sm mb-2 text-gray-800">Middle Name: (optional)
             {" "} {errors.middleName ? <Text className="text-red-500 text-xs mb-4">{errors.middleName}</Text> : null}
           </Text>
           <TextInput
@@ -269,6 +278,7 @@ function ViewProfileScreen({ route, navigation }) {
               mode="date"
               display="default"
               onChange={handleDateChange}
+              maximumDate={eighteenYearsAgo}
             />
           )}
 
@@ -295,24 +305,25 @@ function ViewProfileScreen({ route, navigation }) {
           </View>
 
           {/* Phone Number */}
-          <Text className="text-sm mb-2 text-gray-800">Phone:
+          <Text className="text-sm mb-2 text-gray-800">Phone Number:
             {" "} {errors.phone ? <Text className="text-red-500 text-xs mb-4">{errors.phone}</Text> : null}
           </Text>
           <TextInput
             value={phone}
             onChangeText={setPhone}
             className="w-full p-2 mb-4 bg-white rounded-lg shadow-md text-gray-800"
-            placeholder="091234567890"
+            placeholder="09123456789"
           />
 
-          {/* Email */}
-          <Text className="text-sm mb-2 text-gray-800">Email:
-            {" "} {errors.email ? <Text className="text-red-500 text-xs mb-4">{errors.email}</Text> : null}
+          {/* Alternative Phone Number */}
+          <Text className="text-sm mb-2 text-gray-800">Alternative Phone Number: (Optional)
+            {" "} {errors.secondPhone ? <Text className="text-red-500 text-xs mb-4">{errors.secondPhone}</Text> : null}
           </Text>
           <TextInput
-            value={email}
-            onChangeText={setEmail}
+            value={secondPhone}
+            onChangeText={setSecondPhone}
             className="w-full p-2 mb-4 bg-white rounded-lg shadow-md text-gray-800"
+            placeholder="09123456789"
           />
 
 
@@ -358,8 +369,8 @@ function ViewProfileScreen({ route, navigation }) {
         </View>
       </Modal>
 
-       {/* Alert Modal */}
-       <Modal
+      {/* Alert Modal */}
+      <Modal
         animationType="fade"
         transparent={true}
         visible={alertVisible}

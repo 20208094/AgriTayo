@@ -143,7 +143,6 @@ function ProfileScreen({ fetchUserSession }) {
               <Text className="text-2xl font-bold mt-4 text-black">
                 {userData.firstname} {userData.lastname}
               </Text>
-              <Text className="text-black">{userData.email}</Text>
               <Text className="text-black">{userData.phone}</Text>
             </View>
           </View>

@@ -39,7 +39,7 @@ function RegisterScreenBuyers({ navigation }) {
   const [modalVisible, setModalVisible] = useState(false);
 
   const firstname_regex = /^[A-Za-z\s]{2,}$/;
-  const middlename_regex = /^[A-Za-z\s]{2,}$/;
+  const middlename_regex = /^[A-Za-z\s]{1,}$/;
   const lastname_regex = /^[A-Za-z\s]{2,}$/;
   const password_regex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,30}$/;
   const phone_regex = /^(?:\+63|0)?9\d{9}$/;
@@ -249,7 +249,7 @@ function RegisterScreenBuyers({ navigation }) {
             onChangeText={validateLastName} // Real-time validation
           />
 
-
+          {/* Brithday */}
           <Text className="text-sm mb-2 text-gray-800">
             Birthday: <Text className="text-red-500 text-sm">*</Text>{" "}
             {birthDayError ? (

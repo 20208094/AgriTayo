@@ -454,7 +454,7 @@ function FilterProductsScreen(route) {
 
           {/* Quantity Selection */}
           <View className="">
-            <Text className="mb-2 text-lg font-semibold">How Much Would You Like to Buy?</Text>
+            <Text className="mb-2 text-lg font-semibold">How Many Would You Like to Buy?</Text>
             <View className="flex-row justify-around">
               {quantities.map((qty) => (
                 <TouchableOpacity
