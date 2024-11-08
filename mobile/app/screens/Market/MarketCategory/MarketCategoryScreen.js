@@ -21,6 +21,7 @@ const CategoryItemCard = ({ item }) => {
       />
       <View className="p-4">
         <Text className="text-lg font-semibold text-gray-800">{item.crop_name}</Text>
+        <Text className="text-sm text-gray-600 mt-1">Shop: {item.shop_name}</Text>
         <Text className="text-sm text-gray-600 mt-1">Size: {item.size.crop_size_name}</Text>
         <Text className="text-sm text-gray-600 mt-1">Class: {item.crop_class}</Text>
         <Text className="text-sm text-gray-600 mt-1">{item.crop_description}</Text>
@@ -220,7 +221,7 @@ function MarketCategoryScreen({ route }) {
     const name = crop.crop_name?.toLowerCase() || "";
     const description = crop.crop_description?.toLowerCase() || "";
     const price = crop.crop_price?.toString() || "";
-    const rating = crop.crop_rating?.toString() || "";
+    // const rating = crop.crop_rating?.toString() || "";
     const sizeName = crop.size?.crop_size_name?.toLowerCase() || "";
     const cropClass = crop.crop_class?.toLowerCase() || "";
   
@@ -228,7 +229,7 @@ function MarketCategoryScreen({ route }) {
       name.includes(searchLower) ||
       description.includes(searchLower) ||
       price.includes(searchLower) ||
-      rating.includes(searchLower) ||
+      // rating.includes(searchLower) ||
       cropClass.includes(searchLower) ||
       sizeName.includes(searchLower)
     );

@@ -23,10 +23,11 @@ const CategoryItemCard = ({ item }) => {
       <View className="p-4">
         <Text className="text-lg font-semibold text-gray-800">{item.crop_name}</Text>
         {/* <Text className="text-sm text-gray-600 mt-1">Size: {item.size.crop_size_name}</Text> */}
+        <Text className="text-sm text-gray-600 mt-1">Shop: {item.shop_name}</Text>
         <Text className="text-sm text-gray-600 mt-1">Class: {item.crop_class}</Text>
         <Text className="text-sm text-gray-600 mt-1">{item.crop_description}</Text>
         <Text className="text-base font-bold text-green-600 mt-2">₱ {item.crop_price}</Text>
-        <Text className="text-sm text-gray-600">⭐ {item.crop_rating}</Text>
+        {/* <Text className="text-sm text-gray-600">⭐ {item.crop_rating}</Text> */}
       </View>
     </TouchableOpacity>
   );
@@ -50,6 +51,7 @@ function FeaturedProductScreen({ route }) {
   const [modalVisible, setModalVisible] = useState(false);
   const [currentSort, setCurrentSort] = useState({ method: 'price', order: 'asc' });
   const [shopData, setShopData] = useState(null);
+  const [shops, setShops] = useState([]);
 
   const API_KEY = REACT_NATIVE_API_KEY;
 
@@ -60,6 +62,20 @@ function FeaturedProductScreen({ route }) {
     setLoading(false);
   }, [selectedProduct]);
 
+  const fetchShops = async () => {
+    try {
+      const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/shops`, {
+        headers: {
+          'x-api-key': API_KEY
+        }
+      });
+      const data = await response.json();
+      setShops(data);
+    } catch (error) {
+      console.error('Error fetching shops:', error);
+    }
+  };
+
   const fetchAllCrops = useCallback(async () => {
     try {
       const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crops`, {
@@ -68,14 +84,29 @@ function FeaturedProductScreen({ route }) {
         }
       });
       const data = await response.json();
-      setCrops(data);
+
+      // Combine shop data with crops
+      const cropsWithShops = data.map(crop => {
+        const shop = shops.find(s => s.shop_id === crop.shop_id);
+        return {
+          ...crop,
+          shop_name: shop ? shop.shop_name : "Unknown Shop"
+        };
+      });
+
+      setCrops(cropsWithShops);
     } catch (error) {
       setError(error);
       console.error('Error fetching all crops:', error);
     } finally {
       setLoading(false);
     }
-  }, [API_KEY]);
+  }, [API_KEY, shops]);
+
+  useEffect(() => {
+    fetchShops();   // Fetch shops on initial render
+    fetchAllCrops(); // Then fetch crops with shops combined
+  }, []);
 
   const fetchCategories = async () => {
     try {
@@ -224,37 +255,43 @@ function FeaturedProductScreen({ route }) {
     const name = crop.crop_name?.toLowerCase() || "";
     const description = crop.crop_description?.toLowerCase() || "";
     const price = crop.crop_price?.toString() || "";
-    const rating = crop.crop_rating?.toString() || "";
+    // const rating = crop.crop_rating?.toString() || "";
     const sizeName = crop.size?.crop_size_name?.toLowerCase() || "";
     const cropClass = crop.crop_class?.toLowerCase() || "";
+    const shopName = crop.shop_name?.toLowerCase() || "";
 
     return (
       name.includes(searchLower) ||
       description.includes(searchLower) ||
       price.includes(searchLower) ||
-      rating.includes(searchLower) ||
+      // rating.includes(searchLower) ||
       cropClass.includes(searchLower) ||
-      sizeName.includes(searchLower)
+      sizeName.includes(searchLower) ||
+      shopName.includes(searchLower)
     );
   });
 
   const sortOptions = [
     { method: 'price', iconAsc: 'sort-amount-down-alt', iconDesc: 'sort-amount-up' },
-    { method: 'rating', iconAsc: 'sort-amount-down-alt', iconDesc: 'sort-amount-up' },
-    { method: 'available', iconAsc: 'sort-amount-down-alt', iconDesc: 'sort-amount-up' }
+    // { method: 'rating', iconAsc: 'sort-amount-down-alt', iconDesc: 'sort-amount-up' },
+    { method: 'available', iconAsc: 'sort-amount-down-alt', iconDesc: 'sort-amount-up' },
+    { method: 'shop', iconAsc: 'sort-alpha-down', iconDesc: 'sort-alpha-up' }
   ];
 
   const handleSort = (sortBy, order) => {
     let sortedData;
     if (sortBy === 'price') {
       sortedData = [...crops].sort((a, b) => order === 'asc' ? a.crop_price - b.crop_price : b.crop_price - a.crop_price);
-    } else if (sortBy === 'rating') {
-      sortedData = [...crops].sort((a, b) => order === 'asc' ? a.crop_rating - b.crop_rating : b.crop_rating - a.crop_rating);
+      // } else if (sortBy === 'rating') {
+      //   sortedData = [...crops].sort((a, b) => order === 'asc' ? a.crop_rating - b.crop_rating : b.crop_rating - a.crop_rating);
     } else if (sortBy === 'available') {
       sortedData = [...crops].sort((a, b) => order === 'asc' ? a.crop_quantity - b.crop_quantity : b.crop_quantity - a.crop_quantity);
     } else if (sortBy === 'class') {
       sortedData = [...crops].sort((a, b) => order === 'asc' ? a.crop_class.localeCompare(b.crop_class) : b.crop_class.localeCompare(a.crop_class));
+    } else if (sortBy === 'shop') {
+      sortedData = [...crops].sort((a, b) => order === 'asc' ? a.shop_name.localeCompare(b.shop_name) : b.shop_name.localeCompare(a.shop_name)); // Sort by shop name
     }
+
     setCrops(sortedData);
     setCurrentSort({ method: sortBy, order }); // Update current sorting method
     setModalVisible(false); // Close modal after sorting
@@ -272,40 +309,51 @@ function FeaturedProductScreen({ route }) {
     );
   }
 
+
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
-      <View className="p-4 py-1 flex-row items-center space-x-3 bg-white shadow-sm">
-        <TouchableOpacity
-          className="flex w-10 h-10 items-center justify-center rounded-lg bg-[#00B251] shadow-md"
-          onPress={() => navigation.navigate("Filter Products")}
-        >
-          <Icon name="filter" size={18} color="white" />
-        </TouchableOpacity>
-        <TouchableOpacity
-          className="flex w-10 h-10 items-center justify-center rounded-lg bg-[#00B251] shadow-md"
-          onPress={() => setModalVisible(true)}
-        >
-          <Icon name="sort" size={18} color="white" />
-        </TouchableOpacity>
-        <View className="flex-1 flex-row bg-gray-100 rounded-lg border border-[#00B251] shadow-sm items-center px-2">
-          <Icon name="search" size={16} color="gray" />
-          <TextInput
-            placeholder="Search products..."
-            className="p-2 pl-2 flex-1 text-xs text-gray-700"
-            value={searchQuery}
-            onChangeText={handleSearch}
-          />
+      {loading ? (
+        // Loading spinner
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator size="large" color="#00B251" />
         </View>
-      </View>
+      ) : (
+        // Main content to show when not loading
+        <>
+          <View className="p-4 py-1 flex-row items-center space-x-3 bg-white shadow-sm">
+            <TouchableOpacity
+              className="flex w-10 h-10 items-center justify-center rounded-lg bg-[#00B251] shadow-md"
+              onPress={() => navigation.navigate("Filter Products")}
+            >
+              <Icon name="filter" size={18} color="white" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              className="flex w-10 h-10 items-center justify-center rounded-lg bg-[#00B251] shadow-md"
+              onPress={() => setModalVisible(true)}
+            >
+              <Icon name="sort" size={18} color="white" />
+            </TouchableOpacity>
+            <View className="flex-1 flex-row bg-gray-100 rounded-lg border border-[#00B251] shadow-sm items-center px-2">
+              <Icon name="search" size={16} color="gray" />
+              <TextInput
+                placeholder="Search products or shops..."
+                className="p-2 pl-2 flex-1 text-xs text-gray-700"
+                value={searchQuery}
+                onChangeText={handleSearch}
+              />
+            </View>
+          </View>
 
-      {/* Product List */}
-      <ScrollView className="p-4">
-        <View className="flex-row flex-wrap justify-between">
-          {filteredCrops.map(item => (
-            <CategoryItemCard key={item.crop_id} item={item} />
-          ))}
-        </View>
-      </ScrollView>
+          {/* Product List */}
+          <ScrollView className="p-4">
+            <View className="flex-row flex-wrap justify-between">
+              {filteredCrops.map(item => (
+                <CategoryItemCard key={item.crop_id} item={item} />
+              ))}
+            </View>
+          </ScrollView>
+        </>
+      )}
 
       {shopData && (
         <TouchableOpacity
@@ -316,8 +364,6 @@ function FeaturedProductScreen({ route }) {
           <Text className="text-white ml-2 text-base font-bold">Add Product</Text>
         </TouchableOpacity>
       )}
-
-
 
       {/* Sort Modal */}
       <Modal

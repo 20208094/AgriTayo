@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { View, TextInput, Text, TouchableOpacity } from "react-native";
+import { FontAwesome5 } from "@expo/vector-icons"; // Import FontAwesome5 for icons
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 import LoadingAnimation from "../../components/LoadingAnimation";
 
@@ -11,6 +12,9 @@ function LoginScreen({ navigation, fetchUserSession }) {
   const [phoneError, setPhoneError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [loading, setLoading] = useState(true);
+
+  // New state for toggling password visibility
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
   const password_regex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,30}$/;
   const phone_regex = /^(?:\+63|0)9\d{2}[-\s]?\d{3}[-\s]?\d{4}$/;
@@ -61,7 +65,7 @@ function LoginScreen({ navigation, fetchUserSession }) {
     if (!formData.phone_number) {
       setPhoneError("Enter your phone number");
       hasError = true;
-    }else if(!phone_regex.test(formData.phone_number)) {
+    } else if (!phone_regex.test(formData.phone_number)) {
       setPhoneError("Invalid phone number format. Please use 09 followed by 9 digits.");
       hasError = true;
     }
@@ -69,7 +73,7 @@ function LoginScreen({ navigation, fetchUserSession }) {
     if (!formData.password) {
       setPasswordError("Enter your password");
       hasError = true;
-    }else if (!password_regex.test(formData.password)){
+    } else if (!password_regex.test(formData.password)) {
       setPasswordError("Invalid Password. Please enter 8-30 characters, including letters and numbers.");
       hasError = true;
     }
@@ -125,15 +129,29 @@ function LoginScreen({ navigation, fetchUserSession }) {
       {phoneError ? (
         <Text className="w-4/5 text-red-500 mb-4">{phoneError}</Text>
       ) : null}
-      <TextInput
-        className="w-4/5 p-3 mb-2 bg-white rounded-lg shadow-md"
-        placeholder="Password"
-        secureTextEntry={true}
-        autoCapitalize="none"
-        autoCorrect={false}
-        onChangeText={(value) => handleInputChange("password", value)}
-        value={formData.password}
-      />
+
+      {/* Password input with show/hide icon functionality */}
+      <View className="w-4/5 mb-2 bg-white rounded-lg shadow-md flex-row items-center">
+        <TextInput
+          className="flex-1 p-3"
+          placeholder="Password"
+          secureTextEntry={!isPasswordVisible}
+          autoCapitalize="none"
+          autoCorrect={false}
+          onChangeText={(value) => handleInputChange("password", value)}
+          value={formData.password}
+        />
+        <TouchableOpacity
+          onPress={() => setIsPasswordVisible(!isPasswordVisible)}
+          className="pr-3"
+        >
+          <FontAwesome5
+            name={isPasswordVisible ? "eye-slash" : "eye"}
+            size={20}
+            color="gray"
+          />
+        </TouchableOpacity>
+      </View>
       {passwordError ? (
         <Text className="w-4/5 text-red-500 mb-4">{passwordError}</Text>
       ) : null}

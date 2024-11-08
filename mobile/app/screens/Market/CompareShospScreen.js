@@ -231,7 +231,7 @@ function CompareShopsScreen({ route }) {
         <View className="flex-1 flex-row bg-gray-100 rounded-lg border border-[#00B251] shadow-sm items-center px-2">
           <Icon name="search" size={16} color="gray" />
           <TextInput
-            placeholder="Search products..."
+            placeholder="Search products or shops..."
             className="p-2 pl-2 flex-1 text-xs text-gray-700"
             value={searchQuery}
             onChangeText={handleSearch}
