@@ -288,7 +288,7 @@ function NegotiationBuyerScreen({ navigation, route }) {
             </StyledText>
             <StyledTouchableOpacity
               className="w-full bg-green-600 p-4 rounded-lg"
-              onPress={() => setModalVisible(false)}
+              onPress={() => navigation.navigate("Buyer Negotiation List") && setModalVisible(false)} //nilagyan ko lang ng navigation.navigate("Buyer Negotiation List") para ma redirect sa negotiation list ng buyer
             >
               <StyledText className="text-center text-white font-bold">
                 Okay
