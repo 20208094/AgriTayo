@@ -106,7 +106,7 @@ function EditPhoneNumberScreen({ navigation, route }) {
           if (response.ok) {
             const data = await response.json();
             console.log("Successfully Updated Phone Number:", data);
-            Alert.alert("Success!", "Successfully Added Phone Number");
+            Alert.alert("Success!", "Successfully Updated Phone Number");
             const updatedUserData = {
               ...userData,
               phone_number: newPhone,

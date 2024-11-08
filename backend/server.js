@@ -30,6 +30,7 @@ const {
     changePassword,
     changePhoneNumber,
     editPhoneNumber,
+    editSecondaryPhoneNumber,
     addUser,
     updateUser,
     deleteUser
@@ -297,6 +298,7 @@ app.put('/api/users/:id', updateUser);
 app.put('/api/changePassword/:phone_number', changePassword);
 app.put('/api/changePhoneNumber/:secondary_phone_number', changePhoneNumber);
 app.put('/api/editPhoneNumber/:phone_number', editPhoneNumber);
+app.put('/api/editSecondaryPhoneNumber/:secondary_phone_number', editSecondaryPhoneNumber);
 app.delete('/api/users/:id', deleteUser);
 
 // API routes for addresses

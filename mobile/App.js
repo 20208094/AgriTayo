@@ -69,7 +69,7 @@ import MarketVarietyListScreen from "./app/screens/Market/MarketCategory/MarketC
 import LostPhoneNumberScreen from "./app/screens/Authentication/LostPhoneNumberScreen";
 import LostPhoneNumberOTPScreen from "./app/screens/Authentication/LostPhoneNumberOTPScreen";
 import NewPhoneNumberScreen from "./app/screens/Authentication/NewPhoneNumberScreen";
-import EditPhoneNumberScreen from "./app/screens/Profile/Address/EditPhoneNumberScreen";
+import EditPhoneNumberScreen from "./app/screens/Profile/EditPhoneNumberScreen";
 // for farmers
 import ShopScreen from "./app/screens/farmers/Shop/ShopScreen";
 import ViewShopScreen from "./app/screens/farmers/Shop/ViewShopScreen";
