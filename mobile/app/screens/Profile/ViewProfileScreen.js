@@ -123,7 +123,6 @@ function ViewProfileScreen({ route, navigation }) {
     }
   };
 
-
   // Handle form submission
   const handleSubmit = async () => {
     if (!validateFields()) {
@@ -301,17 +300,26 @@ function ViewProfileScreen({ route, navigation }) {
             ))}
           </View>
 
-          {/* Phone Number */}
-          <Text className="text-sm mb-2 text-gray-800">Phone Number:
-            {" "} {errors.phone ? <Text className="text-red-500 text-xs mb-4">{errors.phone}</Text> : null}
-          </Text>
-          <TextInput
-            value={phone}
-            onChangeText={setPhone}
-            className="w-full p-2 mb-4 bg-white rounded-lg shadow-md text-gray-800"
-            placeholder="09123456789"
-            keyboardType="numeric" 
-          />
+      <View className="relative w-full p-2 mb-4 bg-white rounded-lg shadow-md text-gray-800">
+      {/* Phone Number Text */}
+      <Text className="text-sm mb-2 text-gray-800">
+        Phone Number:
+        {" "}
+        {errors.phone ? (
+          <Text className="text-red-500 text-xs mb-4">{errors.phone}</Text>
+        ) : null}
+      </Text>
+
+      <Text className=''>{phone}</Text>
+
+      {/* Pencil Icon on the Top Right */}
+      <TouchableOpacity 
+        style={{ position: 'absolute', top: 10, right: 10 }}
+        onPress={() => navigation.navigate('Edit Phone Number', {userData, phone})}
+      >
+        <Ionicons name="pencil" size={20} color="gray" />
+      </TouchableOpacity>
+    </View>
 
           {/* Alternative Phone Number */}
           <Text className="text-sm mb-2 text-gray-800">Alternative Phone Number:
