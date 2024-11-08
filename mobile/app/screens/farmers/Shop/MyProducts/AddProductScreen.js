@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import {
   SafeAreaView,
   View,
@@ -28,13 +28,9 @@ function AddProductScreen({ navigation }) {
   const [loading, setLoading] = useState(false);
   const API_KEY = REACT_NATIVE_API_KEY;
 
-  const [cropName, setCropName] = useState("");
   const [cropDescription, setCropDescription] = useState("");
   const [cropPrice, setCropPrice] = useState("");
   const [cropQuantity, setCropQuantity] = useState("");
-  const [availability, setAvailability] = useState("");
-  const [availabilityMessage, setAvailabilityMessage] = useState(null);
-  const [shopId, setShopId] = useState("");
   const [cropRating, setCropRating] = useState("");
 
   const [isClickedCategory, setIsClickedCategory] = useState(false);
@@ -61,27 +57,7 @@ function AddProductScreen({ navigation }) {
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
 
-  
   const [errors, setErrors] = useState({});
-
-  const handleValidation = (field, value) => {
-    let error = "";
-    switch (field) {
-      case "cropPrice":
-        if (!PRICE_REGEX.test(value)) {
-          error = "Enter a valid price (e.g., 100 or 100.00).";
-        }
-        break;
-      case "cropQuantity":
-        if (!PRICE_REGEX.test(value)) {
-          error = "Enter a valid quantity";
-        }
-        break;
-      default:
-        break;
-    }
-    setErrors((prevErrors) => ({ ...prevErrors, [field]: error }));
-  };
 
   const handleMetricSelect = (metric) => {
     setSelectedMetricSystem(metric.metric_system_name);
@@ -246,11 +222,65 @@ function AddProductScreen({ navigation }) {
     "Select Crop Variety"
   );
   const [selectedCropVarietyId, setSelectedCropVarietyId] = useState(null);
+
+  // Handle crop variety selection
   const handleCropVarietySelect = (cropVariety) => {
     setSelectedCropVariety(cropVariety.crop_variety_name);
     setSelectedCropVarietyId(cropVariety.crop_variety_id);
     setIsClickedCropVariety(false);
+
+    // Find and set the category and subcategory based on the selected crop variety
+    const selectedCategory = categories.find(
+      (category) => category.crop_category_id === cropVariety.crop_category_id
+    );
+    const selectedSubCategory = subCategories.find(
+      (subCategory) =>
+        subCategory.crop_sub_category_id === cropVariety.crop_sub_category_id
+    );
+
+    // Update category and subcategory selections
+    if (selectedCategory) {
+      setSelectedCategory(selectedCategory.crop_category_name);
+      setSelectedCategoryId(selectedCategory.crop_category_id);
+      fetchSubCategories(selectedCategory.crop_category_id); // Fetch subcategories based on category
+    }
+
+    if (selectedSubCategory) {
+      setSelectedSubCategory(selectedSubCategory.crop_sub_category_name);
+      setSelectedSubCategoryId(selectedSubCategory.crop_sub_category_id);
+    }
+
+    // Clear any existing errors for these fields
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      selectedCategoryId: "",
+      selectedSubCategoryId: "",
+    }));
   };
+
+  useEffect(() => {
+    // If a crop variety is selected, set the category and subcategory based on that
+    if (selectedCropVariety) {
+      const selectedCategory = categories.find(
+        (category) =>
+          category.crop_category_id === selectedCropVariety.crop_category_id
+      );
+
+      const selectedSubCategory = subCategories.find(
+        (subCategory) =>
+          subCategory.crop_sub_category_id ===
+          selectedCropVariety.crop_sub_category_id
+      );
+
+      if (selectedCategory) {
+        setSelectedCategory(selectedCategory.crop_category_name);
+      }
+
+      if (selectedSubCategory) {
+        setSelectedSubCategory(selectedSubCategory.crop_sub_category_name);
+      }
+    }
+  }, [selectedCropVariety, categories, subCategories]);
 
   // fetching crop variety
   const fetchCropVariety = async () => {
@@ -307,7 +337,7 @@ function AddProductScreen({ navigation }) {
   // for crop size
   const [isClickedCropClass, setIsClickedCropClass] = useState(false);
   const [selectedCropClass, setSelectedCropClass] =
-    useState("Select Crop Size");
+    useState("Select Crop Class");
   const handleCropClassSelect = (cropClass) => {
     setSelectedCropClass(cropClass.crop_class_name);
     setIsClickedCropClass(false);
@@ -328,13 +358,19 @@ function AddProductScreen({ navigation }) {
       errors.cropQuantity = "Enter a valid Quantity";
     }
 
-    if (!cropImage) { errors.cropImage = "Select an image."; }
-    if (!cropDescription) errors.cropDescription = "Crop Description is required.";
-    if (!selectedCategoryId ) errors.selectedCategoryId  = "Select a category.";
-    if (!selectedSubCategoryId) errors.selectedSubCategoryId = "Select a sub-category.";
-    if (!selectedMetricSystemId) errors.selectedMetricSystemId = "Select a metric.";
+    if (!cropImage) {
+      errors.cropImage = "Select an image.";
+    }
+    if (!cropDescription)
+      errors.cropDescription = "Crop Description is required.";
+    if (!selectedCategoryId) errors.selectedCategoryId = "Select a category.";
+    if (!selectedSubCategoryId)
+      errors.selectedSubCategoryId = "Select a sub-category.";
+    if (!selectedMetricSystemId)
+      errors.selectedMetricSystemId = "Select a metric.";
     if (!selectedCropSizeId) errors.selectedCropSizeId = "Select a crop size.";
-    if (!selectedCropVarietyId) errors.selectedCropVarietyId = "Select a crop variety.";
+    if (!selectedCropVarietyId)
+      errors.selectedCropVarietyId = "Select a crop variety.";
     if (!selectedCropClass) errors.selectedCropClass = "Select a crop class.";
 
     // If there are errors, show alert and return without submitting
@@ -344,7 +380,6 @@ function AddProductScreen({ navigation }) {
       setAlertVisible(true);
       return;
     }
-
 
     const formData = new FormData();
     formData.append("crop_name", selectedCropVariety);
@@ -404,15 +439,18 @@ function AddProductScreen({ navigation }) {
     }
   };
 
-
   return (
     <SafeAreaView className="bg-gray-100 flex-1">
       <ScrollView contentContainerStyle={{ paddingBottom: 80 }}>
         <View className="p-4">
           {/* Variety Selector */}
-
-          <Text className="text-sm mb-2 text-gray-800">Crop Variety <Text className="text-red-500 text-sm">*</Text> 
-          {errors.selectedCropVarietyId && <Text className="text-red-600 text-xs">{errors.selectedCropVarietyId}</Text>}
+          <Text className="text-sm mb-2 text-gray-800">
+            Crop Variety <Text className="text-red-500 text-sm">*</Text>
+            {errors.selectedCropVarietyId && (
+              <Text className="text-red-600 text-xs">
+                {errors.selectedCropVarietyId}
+              </Text>
+            )}
           </Text>
           <TouchableOpacity
             className="flex-row items-center w-full p-2 mb-3 bg-white rounded-lg shadow-md"
@@ -446,8 +484,13 @@ function AddProductScreen({ navigation }) {
 
           {/* Crop Description */}
           <View className="mb-4">
-            <Text className="text-sm mb-2 text-gray-800">Crop Description <Text className="text-red-500 text-sm">*</Text>
-            {errors.cropDescription && <Text className="text-red-600 text-xs">{errors.cropDescription}</Text>}
+            <Text className="text-sm mb-2 text-gray-800">
+              Crop Description <Text className="text-red-500 text-sm">*</Text>
+              {errors.cropDescription && (
+                <Text className="text-red-600 text-xs">
+                  {errors.cropDescription}
+                </Text>
+              )}
             </Text>
             <TextInput
               className="w-full p-2  bg-white rounded-lg shadow-md"
@@ -461,11 +504,16 @@ function AddProductScreen({ navigation }) {
 
           {/* Category Selector */}
           <View className="mb-4">
-            <Text className="text-sm mb-2 text-gray-800">Crop Category <Text className="text-red-500 text-sm">*</Text>
-            {errors.selectedCategoryId && <Text className="text-red-600 text-xs">{errors.selectedCategoryId}</Text>}
+            <Text className="text-sm mb-2 text-gray-800">
+              Crop Category <Text className="text-red-500 text-sm">*</Text>
+              {errors.selectedCategoryId && (
+                <Text className="text-red-600 text-xs">
+                  {errors.selectedCategoryId}
+                </Text>
+              )}
             </Text>
             <TouchableOpacity
-              className="flex-row items-center w-full p-2  bg-white rounded-lg shadow-md"
+              className="flex-row items-center w-full p-2 bg-white rounded-lg shadow-md"
               onPress={() => setIsClickedCategory(!isClickedCategory)}
             >
               <Text className="text-base text-gray-700 flex-1">
@@ -497,8 +545,13 @@ function AddProductScreen({ navigation }) {
 
           {/* Sub-Category Selector */}
           <View className="mb-4">
-            <Text className="text-sm mb-2 text-gray-800">Sub-Category  <Text className="text-red-500 text-sm">*</Text>
-            {errors.selectedSubCategoryId && <Text className="text-red-600 text-xs">{errors.selectedSubCategoryId}</Text>}
+            <Text className="text-sm mb-2 text-gray-800">
+              Sub-Category <Text className="text-red-500 text-sm">*</Text>
+              {errors.selectedSubCategoryId && (
+                <Text className="text-red-600 text-xs">
+                  {errors.selectedSubCategoryId}
+                </Text>
+              )}
             </Text>
             <TouchableOpacity
               className="flex-row items-center w-full p-2 bg-white rounded-lg shadow-md"
@@ -533,8 +586,13 @@ function AddProductScreen({ navigation }) {
 
           {/* Crop SIze */}
           <View className="mb-4">
-            <Text className="text-sm mb-2 text-gray-800">Crop Size <Text className="text-red-500 text-sm">*</Text>
-            {errors.selectedCropSizeId && <Text className="text-red-600 text-xs">{errors.selectedCropSizeId}</Text>}
+            <Text className="text-sm mb-2 text-gray-800">
+              Crop Size <Text className="text-red-500 text-sm">*</Text>
+              {errors.selectedCropSizeId && (
+                <Text className="text-red-600 text-xs">
+                  {errors.selectedCropSizeId}
+                </Text>
+              )}
             </Text>
             <TouchableOpacity
               className="flex-row items-center w-full p-2 bg-white rounded-lg shadow-md"
@@ -567,8 +625,11 @@ function AddProductScreen({ navigation }) {
 
           {/* Crop Price */}
           <View className="mb-4">
-            <Text className="text-sm mb-2 text-gray-800">Crop Price <Text className="text-red-500 text-sm">*</Text>
-            {errors.cropPrice && <Text className="text-red-600 text-xs">{errors.cropPrice}</Text>}
+            <Text className="text-sm mb-2 text-gray-800">
+              Crop Price <Text className="text-red-500 text-sm">*</Text>
+              {errors.cropPrice && (
+                <Text className="text-red-600 text-xs">{errors.cropPrice}</Text>
+              )}
             </Text>
             <TextInput
               className="w-full p-2 bg-white rounded-lg shadow-md"
@@ -578,7 +639,10 @@ function AddProductScreen({ navigation }) {
               onChangeText={(text) => {
                 setCropPrice(text);
                 if (!PRICE_REGEX.test(text)) {
-                  setErrors((prev) => ({ ...prev, CropPrice: "Enter a valid price (e.g., 100 or 100.00)." }));
+                  setErrors((prev) => ({
+                    ...prev,
+                    CropPrice: "Enter a valid price (e.g., 100 or 100.00).",
+                  }));
                 } else {
                   setErrors((prev) => ({ ...prev, CropPrice: "" }));
                 }
@@ -588,8 +652,13 @@ function AddProductScreen({ navigation }) {
 
           {/* Metric System Selector */}
           <View className="mb-4">
-            <Text className="text-sm mb-2 text-gray-800">Crop Metric <Text className="text-red-500 text-sm">*</Text>
-            {errors.selectedMetricSystemId && <Text className="text-red-600 text-xs">{errors.selectedMetricSystemId}</Text>}
+            <Text className="text-sm mb-2 text-gray-800">
+              Crop Metric <Text className="text-red-500 text-sm">*</Text>
+              {errors.selectedMetricSystemId && (
+                <Text className="text-red-600 text-xs">
+                  {errors.selectedMetricSystemId}
+                </Text>
+              )}
             </Text>
             <TouchableOpacity
               className="flex-row items-center w-full p-2 bg-white rounded-lg shadow-md"
@@ -624,8 +693,13 @@ function AddProductScreen({ navigation }) {
 
           {/* Crop Class */}
           <View className="mb-4">
-            <Text className="text-sm mb-2 text-gray-800">Crop Class <Text className="text-red-500 text-sm">*</Text>
-            {errors.selectedCropClass && <Text className="text-red-600 text-xs">{errors.selectedCropClass }</Text>}
+            <Text className="text-sm mb-2 text-gray-800">
+              Crop Class <Text className="text-red-500 text-sm">*</Text>
+              {errors.selectedCropClass && (
+                <Text className="text-red-600 text-xs">
+                  {errors.selectedCropClass}
+                </Text>
+              )}
             </Text>
             <TouchableOpacity
               className="flex-row items-center w-full p-2 bg-white rounded-lg shadow-md"
@@ -660,8 +734,13 @@ function AddProductScreen({ navigation }) {
 
           {/* Crop Quantity */}
           <View className="mb-4">
-            <Text className="text-sm mb-2 text-gray-800">Crop Quantity <Text className="text-red-500 text-sm">*</Text>
-            {errors.cropQuantity && <Text className="text-red-600 text-xs">{errors.cropQuantity}</Text>}
+            <Text className="text-sm mb-2 text-gray-800">
+              Crop Quantity <Text className="text-red-500 text-sm">*</Text>
+              {errors.cropQuantity && (
+                <Text className="text-red-600 text-xs">
+                  {errors.cropQuantity}
+                </Text>
+              )}
             </Text>
             <TextInput
               className="w-full p-2 bg-white rounded-lg shadow-md"
@@ -676,7 +755,9 @@ function AddProductScreen({ navigation }) {
           <View className="mb-4">
             <Text className="text-sm mb-2 text-gray-800">
               Upload Crop Image <Text className="text-red-500 text-sm">*</Text>
-              {errors.cropImage && <Text className="text-red-600 text-xs">{errors.cropImage}</Text>}
+              {errors.cropImage && (
+                <Text className="text-red-600 text-xs">{errors.cropImage}</Text>
+              )}
             </Text>
             <TouchableOpacity
               className="border border-dashed border-green-600 rounded-md p-4  flex-row justify-center items-center "
@@ -702,7 +783,10 @@ function AddProductScreen({ navigation }) {
           </View>
 
           {/* Add Product Button */}
-          <TouchableOpacity className="bg-[#00B251] p-4 rounded-lg flex items-center mt-4" onPress={() => setModalVisible1(true)}>
+          <TouchableOpacity
+            className="bg-[#00B251] p-4 rounded-lg flex items-center mt-4"
+            onPress={() => setModalVisible1(true)}
+          >
             <Text className="text-white text-base">Add Product</Text>
           </TouchableOpacity>
 

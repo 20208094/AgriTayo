@@ -247,16 +247,28 @@ function ProductDetailsScreen({ navigation, route }) {
           "x-api-key": REACT_NATIVE_API_KEY,
         },
       });
-      const cropsData = await cropResponse.json();
-      const newCrop = cropsData.filter(crop => crop.crop_id === product.crop_id)
-      const shopData = await shopResponse.json();
-      const combinedData = newCrop.map(crop => {
-        const shopinfo = shopData.find(shop => shop.shop_id === crop.shop_id);
-        return {
-          ...crop,
-          shop: shopinfo ? shopinfo : null
-        };
+      const metricSystemResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/metric_systems`, {
+        headers: {
+          "x-api-key": REACT_NATIVE_API_KEY,
+        },
       });
+      const cropsData = await cropResponse.json();
+    const newCrop = cropsData.filter(crop => crop.crop_id === product.crop_id);
+
+    const shopData = await shopResponse.json();
+    const metricSystemsData = await metricSystemResponse.json();
+
+    // Map through the crops and handle asynchronous logic with Promise.all
+    const combinedData = await Promise.all(newCrop.map(async (crop) => {
+      const shopinfo = shopData.find(shop => shop.shop_id === crop.shop_id);
+      const metricSystem = metricSystemsData.find(ms => ms.metric_system_id === crop.metric_system_id);
+
+      return {
+        ...crop,
+        shop: shopinfo || null,
+        metric_system_symbol: metricSystem ? metricSystem.metric_system_symbol : 'unit'
+      };
+    }));
       setCropData(combinedData);
     } catch (error) {
       console.error("Error fetching shop or related products:", error);
@@ -346,16 +358,15 @@ function ProductDetailsScreen({ navigation, route }) {
               <Text className="text-lg text-[#00B251] font-bold">₱ {displayedProduct.crop_price}</Text>
             </View>
             <Text className="text-base text-[#00B251] mb-2.5 font-bold">Available in stock</Text>
-            <View className="flex-row justify-between items-center mb-2.5">
-              <Text className="text-base text-gray-700">⭐ {displayedProduct.crop_rating} ({displayedProduct.rating_count})</Text>
-              <View className="flex-row items-center mb-2.5">
+            <View className="mb-2.5">
+              <View className="flex-row items-center justify-end mb-2.5">
                 <TouchableOpacity
                   className="border border-green-600 bg-white p-2.5 rounded-lg"
                   onPress={decreaseQuantity}
                 >
                   <Text className="text-lg font-bold text-green-600">-</Text>
                 </TouchableOpacity>
-                <Text className="text-lg mx-2.5">{quantity} pcs</Text>
+                <Text className="text-lg mx-2.5">{quantity} {displayedProduct?.metric_system_symbol || 'unit'}/s</Text>
                 <TouchableOpacity
                   className="border border-green-600 bg-white p-2.5 rounded-lg"
                   onPress={increaseQuantity}
@@ -421,7 +432,7 @@ function ProductDetailsScreen({ navigation, route }) {
                     <View className="p-2.5">
                       <Text className="text-sm font-bold" numberOfLines={1}>{relatedProduct.crop_name}</Text>
                       <Text className="text-sm text-[#00B251] font-bold">₱ {(relatedProduct.crop_price).toFixed(2)} / kg</Text>
-                      <Text className="text-xs">⭐ {relatedProduct.crop_rating || 0}</Text>
+                      {/* <Text className="text-xs">⭐ {relatedProduct.crop_rating || 0}</Text> */}
                       <Text className="text-xs" numberOfLines={1}>Sold by: {relatedProduct.shop_name}</Text>
                     </View>
                   </TouchableOpacity>

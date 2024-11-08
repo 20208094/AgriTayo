@@ -79,7 +79,7 @@ function NewPasswordScreen({ navigation, route }) {
           </Text>
           <TextInput
             className="border border-gray-300 rounded-lg px-4 py-2 mb-4"
-            placeholder="Password"
+            placeholder="•••••••"
             secureTextEntry={true}
             autoCapitalize="none"
             autoCorrect={false}
