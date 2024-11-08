@@ -70,6 +70,8 @@ import LostPhoneNumberScreen from "./app/screens/Authentication/LostPhoneNumberS
 import LostPhoneNumberOTPScreen from "./app/screens/Authentication/LostPhoneNumberOTPScreen";
 import NewPhoneNumberScreen from "./app/screens/Authentication/NewPhoneNumberScreen";
 import EditPhoneNumberScreen from "./app/screens/Profile/EditPhoneNumberScreen";
+import EditSecondaryPhoneNumberScreen from "./app/screens/Profile/EditSecondaryPhoneNumberScreen";
+import OTPOnlyPhoneScreen from "./app/screens/Register/OTPOnlyPhoneScreen";
 // for farmers
 import ShopScreen from "./app/screens/farmers/Shop/ShopScreen";
 import ViewShopScreen from "./app/screens/farmers/Shop/ViewShopScreen";
@@ -604,6 +606,11 @@ function App() {
               options={{ ...screenOptions}}
             />
             <Stack.Screen
+              name="Edit Alternative Phone Number"
+              component={EditSecondaryPhoneNumberScreen}
+              options={{ ...screenOptions}}
+            />
+            <Stack.Screen
               name="Navigator"
               options={{ ...screenOptions, headerShown: false }}
             >
@@ -677,6 +684,11 @@ function App() {
             <Stack.Screen
               name="OTP Screen"
               component={OTPScreen}
+              options={{ ...screenOptions, headerShown: false }}
+            />
+            <Stack.Screen
+              name="OTP Only Phone"
+              component={OTPOnlyPhoneScreen}
               options={{ ...screenOptions, headerShown: false }}
             />
             <Stack.Screen

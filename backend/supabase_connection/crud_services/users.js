@@ -459,8 +459,8 @@ async function editSecondaryPhoneNumber(req, res) {
     try {
         const { secondary_phone_number } = req.params;
 
-        if (!phone_number) {
-            return res.status(400).json({ error: 'Phone Number is required for update' });
+        if (!secondary_phone_number) {
+            return res.status(400).json({ error: 'Alternative Phone Number is required for update' });
         }
 
         const form = new formidable.IncomingForm({ multiples: true });
@@ -478,7 +478,7 @@ async function editSecondaryPhoneNumber(req, res) {
             console.log(edit_secondary_phone_number)
 
             const updateData = {
-                phone_number: getSingleValue(edit_secondary_phone_number),
+                secondary_phone_number: getSingleValue(edit_secondary_phone_number),
             }
 
             console.log(edit_secondary_phone_number, secondary_phone_number)

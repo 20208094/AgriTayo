@@ -334,12 +334,14 @@ function ViewProfileScreen({ route, navigation }) {
       <Text className=''>{secondaryPhoneNumber}</Text>
 
       {/* Pencil Icon on the Top Right */}
-      <TouchableOpacity 
-        style={{ position: 'absolute', top: 10, right: 10 }}
-        onPress={() => navigation.navigate('Edit Alternative Phone Number', {userData, secondaryPhoneNumber})}
-      >
-        <Ionicons name="pencil" size={20} color="gray" />
-      </TouchableOpacity>
+      {secondaryPhoneNumber != null && (      
+  <TouchableOpacity 
+    style={{ position: 'absolute', top: 10, right: 10 }}
+    onPress={() => navigation.navigate('Edit Alternative Phone Number', { secondaryPhoneNumber, userData })}
+  >
+    <Ionicons name="pencil" size={20} color="gray" />
+  </TouchableOpacity>
+)}
     </View>
 
           {/* Alternative Phone Number

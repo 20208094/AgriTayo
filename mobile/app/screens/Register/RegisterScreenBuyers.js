@@ -112,8 +112,11 @@ function RegisterScreenBuyers({ navigation }) {
     formData.append("secondary_phone_number", secondaryPhoneNumber);
     formData.append("user_type_id", "3");
 
-    navigation.navigate("OTP Screen", { formData, phone });
-
+    if(secondaryPhoneNumber){
+      navigation.navigate("OTP Screen", { formData, phone, secondaryPhoneNumber });
+    } else {
+      navigation.navigate("OTP Only Phone", { formData, phone });
+    }
   };
 
   const genderOptions = [

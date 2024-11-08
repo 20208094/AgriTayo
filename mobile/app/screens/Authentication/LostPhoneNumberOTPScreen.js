@@ -17,6 +17,8 @@ function LostPhoneNumberOTPScreen({ navigation, route }) {
 
   const [generatedCode, setGeneratedCode] = useState("");
 
+  const [seconds, setSeconds] = useState(10 * 60);
+
   const socket = io( REACT_NATIVE_API_BASE_URL);
 
   // for validation
@@ -68,34 +70,8 @@ function LostPhoneNumberOTPScreen({ navigation, route }) {
     }
   };
 
-  const [seconds, setSeconds] = useState(10 * 60);
-  const [isResendEnabled, setIsResendEnabled] = useState(false);
-
-  useEffect(() => {
-    let interval = null;
-    if (seconds > 0) {
-      interval = setInterval(() => {
-        setSeconds((prevSeconds) => prevSeconds - 1);
-      }, 1000);
-    } else {
-      setIsResendEnabled(true);
-      clearInterval(interval);
-    }
-    return () => clearInterval(interval);
-  }, [seconds]);
-
-  const formatTime = (seconds) => {
-    const minutes = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${String(minutes).padStart(2, "0")}:${String(secs).padStart(
-      2,
-      "0"
-    )}`;
-  };
-
   const handleResend = () => {
-    setSeconds(10 * 60);
-    setIsResendEnabled(false);
+    generateRandomCode();
   };
 
   const handleChangeText = (index, text) => {
