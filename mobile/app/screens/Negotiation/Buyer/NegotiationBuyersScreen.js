@@ -97,7 +97,7 @@ function NegotiationBuyerScreen({ navigation, route }) {
       if (response.ok) {
         const result = await response.json();
         console.log('Negotiation placed successfully. Response:', result);
-        alert('Negotiation placed successfully!');
+        // alert('Negotiation placed successfully!');
         // Only set modal visible after success
         setModalVisible(true);
       } else {
@@ -160,6 +160,9 @@ function NegotiationBuyerScreen({ navigation, route }) {
         <StyledText className="text-sm text-gray-600">
           Product Price: {product.crop_price}
         </StyledText>
+        <StyledText className="text-sm text-gray-600">
+          Measurement unit: {product.metric_system_symbol}
+        </StyledText>
       </StyledView>
 
       <StyledView className="mb-4">
@@ -174,7 +177,7 @@ function NegotiationBuyerScreen({ navigation, route }) {
           onChangeText={setPrice}
         />
         <StyledText className=" mt-2 text-black ml-1">
-          Enter the Ammount:
+          Enter the Quantity:
         </StyledText>
         <StyledTextInput
           className={`border border-[#00B251] rounded-lg p-3 text-black`}
