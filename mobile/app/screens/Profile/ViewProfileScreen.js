@@ -321,7 +321,28 @@ function ViewProfileScreen({ route, navigation }) {
       </TouchableOpacity>
     </View>
 
-          {/* Alternative Phone Number */}
+    <View className="relative w-full p-2 mb-4 bg-white rounded-lg shadow-md text-gray-800">
+      {/* Phone Number Text */}
+      <Text className="text-sm mb-2 text-gray-800">
+        Alternative Phone Number
+        {" "}
+        {errors.secondaryPhoneNumber ? (
+          <Text className="text-red-500 text-xs mb-4">{errors.secondaryPhoneNumber}</Text>
+        ) : null}
+      </Text>
+
+      <Text className=''>{secondaryPhoneNumber}</Text>
+
+      {/* Pencil Icon on the Top Right */}
+      <TouchableOpacity 
+        style={{ position: 'absolute', top: 10, right: 10 }}
+        onPress={() => navigation.navigate('Edit Alternative Phone Number', {userData, secondaryPhoneNumber})}
+      >
+        <Ionicons name="pencil" size={20} color="gray" />
+      </TouchableOpacity>
+    </View>
+
+          {/* Alternative Phone Number
           <Text className="text-sm mb-2 text-gray-800">Alternative Phone Number:
             {" "} {errors.secondaryPhoneNumber ? <Text className="text-red-500 text-xs mb-4">{errors.secondaryPhoneNumber}</Text> : null}
           </Text>
@@ -331,8 +352,7 @@ function ViewProfileScreen({ route, navigation }) {
             className="w-full p-2 mb-4 bg-white rounded-lg shadow-md text-gray-800"
             placeholder="09123456789"
             keyboardType="numeric" 
-          />
-
+          /> */}
 
           {/* Submit Button */}
           <TouchableOpacity
