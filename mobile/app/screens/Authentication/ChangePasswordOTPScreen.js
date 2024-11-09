@@ -129,10 +129,6 @@ function ChangePasswordOTPSCreen({ navigation, route }) {
         </Text>
       ) : null}
 
-      <Text className="text-gray-600 mb-4">
-        - The OTP will expire in {formatTime(seconds)}
-      </Text>
-
       <View className="flex-row items-center mb-6">
         <Text className="text-gray-600">- Didn’t receive the code? </Text>
         <TouchableOpacity onPress={handleResend}>

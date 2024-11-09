@@ -47,7 +47,9 @@ const {
     getShops,
     addShop,
     updateShop,
-    deleteShop
+    deleteShop,
+    editShopPhoneNumber,
+    editSecondaryShopPhoneNumber
 } = require('./supabase_connection/crud_services/shop');
 
 const {
@@ -312,6 +314,8 @@ app.get('/api/shops', getShops);
 app.post('/api/shops', addShop);
 app.put('/api/shops/:id', updateShop);
 app.delete('/api/shops/:id', deleteShop);
+app.put('/api/editShopPhoneNumber/:shop_number', editShopPhoneNumber);
+app.put('/api/editSecondaryShopPhoneNumber/:secondary_shop_number', editSecondaryShopPhoneNumber);
 
 // API routes for crop categories
 app.get('/api/crop_categories', getCropCategories);

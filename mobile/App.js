@@ -72,6 +72,7 @@ import NewPhoneNumberScreen from "./app/screens/Authentication/NewPhoneNumberScr
 import EditPhoneNumberScreen from "./app/screens/Profile/EditPhoneNumberScreen";
 import EditSecondaryPhoneNumberScreen from "./app/screens/Profile/EditSecondaryPhoneNumberScreen";
 import OTPOnlyPhoneScreen from "./app/screens/Register/OTPOnlyPhoneScreen";
+import ShopOTPScreen from "./app/screens/farmers/ShopOTPScreen";
 // for farmers
 import ShopScreen from "./app/screens/farmers/Shop/ShopScreen";
 import ViewShopScreen from "./app/screens/farmers/Shop/ViewShopScreen";
@@ -91,6 +92,9 @@ import FarmersOrderDetailsScreen from "./app/screens/farmers/Shop/ViewSalesHisto
 import ViewShopDetailsScreen from "./app/screens/farmers/Shop/ViewShopDetailsScreen";
 import AddProductScreen from "./app/screens/farmers/Shop/MyProducts/AddProductScreen";
 import CompletedBidScreen from "./app/screens/farmers/Shop/FarmersBidding/CompletedBidScreen";
+import ShopPhonesOTPScreen from "./app/screens/farmers/ShopPhonesOTPScreen";
+import EditShopPhoneScreen from "./app/screens/farmers/Shop/EditShopPhoneScreen";
+import EditSecondaryShopPhoneScreen from "./app/screens/farmers/Shop/EditSecondaryShopPhoneScreen";
 // for chat
 import ChatScreen from "./app/screens/Chat/ChatScreen";
 import ChatListScreen from "./app/screens/Chat/ChatListScreen";
@@ -369,6 +373,26 @@ function App() {
               name="Shop Information"
               component={ShopInformationScreen}
               options={{ ...screenOptions }}
+            />
+            <Stack.Screen
+              name="Shop Phones OTP"
+              component={ShopPhonesOTPScreen}
+              options={{ ...screenOptions, headerShown: false }}
+            />
+            <Stack.Screen
+              name="Shop OTP"
+              component={ShopOTPScreen}
+              options={{ ...screenOptions, headerShown: false }}
+            />
+            <Stack.Screen
+              name="Edit Shop Phone"
+              component={EditShopPhoneScreen}
+              options={{ ...screenOptions}}
+            />
+            <Stack.Screen
+              name="Edit Alternative Shop Phone"
+              component={EditSecondaryShopPhoneScreen}
+              options={{ ...screenOptions}}
             />
             <Stack.Screen
               name="Business Information"

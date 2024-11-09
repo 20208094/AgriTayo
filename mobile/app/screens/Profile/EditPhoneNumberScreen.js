@@ -182,7 +182,6 @@ function EditPhoneNumberScreen({ navigation, route }) {
                 </Text>
               ) : null}
             </View>
-            <Text>- The OTP will expire in {formatTime(seconds)}</Text>
             <TouchableOpacity onPress={handleResend}>
               <Text className="">Resend OTP</Text>
             </TouchableOpacity>
