@@ -249,7 +249,7 @@ function ReviewsPage() {
                 <div className="fixed inset-0  bg-black bg-opacity-50 flex justify-center items-center z-50">
                     <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
                         <h2 className="text-2xl text-[#00B251] font-semibold">Add Review</h2>
-                        <form className="mb-10" onSubmit={(e) => handleSubmit(e)}>
+                        <form className="space-y-4" onSubmit={(e) => handleSubmit(e)}>
                             <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
                             <p className="text-l font-bold mb-4" style={{ marginTop: '20px',marginBottom: '-20px' }}>Crop Name</p>
                                 <select

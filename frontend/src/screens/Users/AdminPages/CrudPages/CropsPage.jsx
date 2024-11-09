@@ -378,9 +378,9 @@ function CropsPage() {
       {/* Modal for Adding/Editing */}
       {isAddModalOpen || isEditModalOpen ? (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-  <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg max-h-[80vh] overflow-y-auto">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg max-h-[80vh] overflow-y-auto">
             <h2 className="text-xl font-bold mb-4 text-[#00B251]">{isEdit ? 'Edit Crop' : 'Add Crop'}</h2>
-            <form onSubmit={isEdit ? handleEditSubmit : handleCreateSubmit}>
+            <form className="space-y-4" onSubmit={isEdit ? handleEditSubmit : handleCreateSubmit}>
             
             <p className="text-l font-bold mb-4" style={{ marginBottom: '5px' }}>Crop Name</p>
               <input

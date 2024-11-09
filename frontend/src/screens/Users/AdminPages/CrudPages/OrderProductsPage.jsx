@@ -292,7 +292,7 @@ function OrderProductsPage() {
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
                     <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full">
                         <h2 className="text-lg font-semibold mb-4">{isEdit ? 'Edit Order Product' : 'Create Order Product'}</h2>
-                        <form className="mb-10" onSubmit={handleSubmit}>
+                        <form className="space-y-4" onSubmit={handleSubmit}>
                             <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
                                 
                             <p className="text-l font-bold mb-4" style={{ marginTop: '20px',marginBottom: '-20px' }}>Order</p>
