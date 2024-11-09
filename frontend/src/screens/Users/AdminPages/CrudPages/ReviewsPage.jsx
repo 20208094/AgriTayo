@@ -339,12 +339,12 @@ function ReviewsPage() {
                     value={searchTerm}
                     onChange={handleSearchChange}
                     placeholder="Search reviews..."
-                    className="p-3 w-full sm:w-1/4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 mb-4 sm:mb-0"
+                    className="p-3 w-full sm:w-1/3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 mb-4 sm:mb-0"
                 />
 
                 {/* Filter Dropdown for Crops */}
                 <select
-                    className="p-3 w-full sm:w-1/4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 mb-4 sm:mb-0"
+                    className="p-3 w-full sm:w-1/6 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 mb-4 sm:mb-0"
                     onChange={handleFilterChange} // <-- New filter change handler
                 >
                     <option value="">Filter by Crop</option>
@@ -357,7 +357,7 @@ function ReviewsPage() {
 
                 {/* Filter Dropdown for Ratings */}
                 <select
-                    className="p-3 w-full sm:w-1/4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 mb-4 sm:mb-0"
+                    className="p-3 w-full sm:w-1/6 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 mb-4 sm:mb-0"
                     onChange={handleRatingFilterChange} // <-- New rating filter change handler
                 >
                     <option value="">Filter by Rating</option>
