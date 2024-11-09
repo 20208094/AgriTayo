@@ -273,10 +273,10 @@ const ForReturnScreen = ({ orders, orderProducts }) => {
       <Modal
         visible={confirmationVisible}
         transparent={true}
-        animationType="slide"
+        animationType="fade"
         onRequestClose={() => setConfirmationVisible(false)}
       >
-        <View className="flex-1 justify-center items-center bg-black bg-opacity-50">
+        <View className="flex-1 justify-center items-center bg-black/50">
           <View className="bg-white p-6 rounded-lg">
             <Text className="text-lg font-semibold mb-4">
               Confirm {actionType ? "Accept" : "Reject"} Return
@@ -308,10 +308,10 @@ const ForReturnScreen = ({ orders, orderProducts }) => {
       <Modal
         visible={receivedConfirmationVisible}
         transparent={true}
-        animationType="slide"
+        animationType="fade"
         onRequestClose={() => setReceivedConfirmationVisible(false)}
       >
-        <View className="flex-1 justify-center items-center bg-black bg-opacity-50">
+        <View className="flex-1 justify-center items-center bg-black/50">
           <View className="bg-white p-6 rounded-lg">
             <Text className="text-lg font-semibold mb-4">
               Confirm Receipt of Returned Item

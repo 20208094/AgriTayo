@@ -155,7 +155,7 @@ const ToRateScreen = ({ orders, orderProducts }) => {
       <Modal
         visible={modalVisible}
         transparent={true}
-        animationType="slide"
+        animationType="fade"
         onRequestClose={() => setModalVisible(false)}
       >
         <View className="flex-1 justify-center items-center bg-black/50">
@@ -230,7 +230,7 @@ const ToRateScreen = ({ orders, orderProducts }) => {
         visible={alertVisible}
         onRequestClose={() => setAlertVisible(false)}
       >
-        <View className="flex-1 justify-center items-center bg-black/50 bg-opacity-50">
+        <View className="flex-1 justify-center items-center bg-black/50">
           <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
             <Text className="text-lg font-semibold text-gray-900 mb-4">{alertMessage}</Text>
             <TouchableOpacity

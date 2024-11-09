@@ -213,7 +213,7 @@ const PickupScreen = ({ orders, orderProducts }) => {
       <Modal
         visible={confirmationVisible}
         transparent={true}
-        animationType="slide"
+        animationType="fade"
         onRequestClose={() => setConfirmationVisible(false)}
       >
         <View className="flex-1 justify-center items-center bg-black/50">
@@ -242,10 +242,10 @@ const PickupScreen = ({ orders, orderProducts }) => {
       <Modal
         visible={cancelOrderVisible}
         transparent={true}
-        animationType="slide"
+        animationType="fade"
         onRequestClose={() => setCancelOrderVisible(false)}
       >
-        <View className="flex-1 justify-center items-center bg-black bg-opacity-50">
+        <View className="flex-1 justify-center items-center bg-black/50">
           <View className="bg-white p-6 rounded-lg">
             <Text className="text-lg font-semibold mb-4">Cancel Order</Text>
             <Text>Why do you want to cancel the order?</Text>

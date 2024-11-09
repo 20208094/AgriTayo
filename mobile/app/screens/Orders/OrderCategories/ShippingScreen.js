@@ -206,7 +206,7 @@ const ShippingScreen = ({ orders, orderProducts }) => {
       <Modal
         visible={confirmationVisible}
         transparent={true}
-        animationType="slide"
+        animationType="fade"
         onRequestClose={() => setConfirmationVisible(false)}
       >
         <View className="flex-1 justify-center items-center bg-black/50">
@@ -235,7 +235,7 @@ const ShippingScreen = ({ orders, orderProducts }) => {
       <Modal
         visible={returnDetailsVisible}
         transparent={true}
-        animationType="slide"
+        animationType="fade"
         onRequestClose={() => setReturnDetailsVisible(false)}
       >
         <View className="flex-1 justify-center items-center bg-black/50">
