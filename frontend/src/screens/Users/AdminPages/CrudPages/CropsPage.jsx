@@ -258,82 +258,83 @@ function CropsPage() {
   return (
     <div className="p-8">
       <h1 className="text-2xl font-bold text-center text-[#00B251]">Crops Management</h1>
-      <div className="flex justify-between my-4">
-        <input
-          type="text"
-          placeholder="Search Crops"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="p-2 border rounded w-full sm:w-1/2"
-        />
-        <button
+
+      <button
           onClick={() => setIsAddModalOpen(true)}
-          className="bg-[#00B251] text-white p-2 ml-4 rounded"
-        >
-          Add Crop
-        </button>
+          className="p-3 bg-[#00B251] text-white font-semibold rounded-lg shadow-md hover:bg-green-600 transition duration-300 mb-1"
+      >
+        + Crop
+      </button>
+
+        {/* Filters */}
+        <div className="flex gap-4 my-4 flex-nowrap">
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className="p-2 border rounded w-1/8"
+          >
+            <option value="">All Categories</option>
+            {categories.map(category => (
+              <option key={category.crop_category_id} value={category.crop_category_id}>
+                {category.crop_category_name}
+              </option>
+            ))}
+          </select>
+
+          <select
+            value={selectedShop}
+            onChange={(e) => setSelectedShop(e.target.value)}
+            className="p-2 border rounded w-1/12"
+          >
+            <option value="">All Shops</option>
+            {shops.map(shop => (
+              <option key={shop.shop_id} value={shop.shop_id}>
+                {shop.shop_name}
+              </option>
+            ))}
+          </select>
+
+          <select
+            value={selectedRatingRange}
+            onChange={(e) => setSelectedRatingRange(e.target.value)}
+            className="p-2 border rounded w-1/8"
+          >
+            <option value="">All Ratings</option>
+            <option value="0-1">0 - 1</option>
+            <option value="2-3">2 - 3</option>
+            <option value="4-5">4 - 5</option>
+            <option value="6-7">6 - 7</option>
+            <option value="8-9">8 - 9</option>
+          </select>
+
+          <select
+            value={selectedMetricSystem}
+            onChange={(e) => setSelectedMetricSystem(e.target.value)}
+            className="p-2 border rounded w-1/8"
+          >
+            <option value="">All Metric Systems</option>
+            {metricSystems.map(metric => (
+              <option key={metric.metric_system_id} value={metric.metric_system_id}>
+                {metric.metric_system_name}
+              </option>
+            ))}
+          </select>
+
+          <input
+            type="text"
+            placeholder="Search Crops"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="p-2 border rounded w-full sm:w-1/3" // Adjusted width for better alignment
+          />
+
         <button onClick={exportToPDF} className="bg-[#00B251] text-white p-2 ml-4 rounded">
-          Export to PDF
-        </button>
-      </div>
-
-      {/* Filters */}
-      <div className="flex flex-wrap gap-4 my-4">
-        <select
-          value={selectedCategory}
-          onChange={(e) => setSelectedCategory(e.target.value)}
-          className="p-2 border rounded w-full sm:w-1/4"
-        >
-          <option value="">All Categories</option>
-          {categories.map(category => (
-            <option key={category.crop_category_id} value={category.crop_category_id}>
-              {category.crop_category_name}
-            </option>
-          ))}
-        </select>
-
-        <select
-          value={selectedShop}
-          onChange={(e) => setSelectedShop(e.target.value)}
-          className="p-2 border rounded w-full sm:w-1/4"
-        >
-          <option value="">All Shops</option>
-          {shops.map(shop => (
-            <option key={shop.shop_id} value={shop.shop_id}>
-              {shop.shop_name}
-            </option>
-          ))}
-        </select>
-
-        <select
-          value={selectedRatingRange}
-          onChange={(e) => setSelectedRatingRange(e.target.value)}
-          className="p-2 border rounded w-full sm:w-1/4"
-        >
-          <option value="">All Ratings</option>
-          <option value="0-1">0 - 1</option>
-          <option value="2-3">2 - 3</option>
-          <option value="4-5">4 - 5</option>
-          <option value="6-7">6 - 7</option>
-          <option value="8-9">8 - 9</option>
-        </select>
-
-        <select
-          value={selectedMetricSystem}
-          onChange={(e) => setSelectedMetricSystem(e.target.value)}
-          className="p-2 border rounded w-full sm:w-1/4"
-        >
-          <option value="">All Metric Systems</option>
-          {metricSystems.map(metric => (
-            <option key={metric.metric_system_id} value={metric.metric_system_id}>
-              {metric.metric_system_name}
-            </option>
-          ))}
-        </select>
-      </div>
+            Export to PDF
+          </button>
+        </div>
 
       {/* Crops Table */}
-      <table className="min-w-full bg-white border border-gray-300 mt-4">
+      <table className="min-w-full border border-gray-300 rounded-lg overflow-hidden">
         <thead className="bg-[#00B251] text-white">
           <tr>
             {['ID', 'Name', 'Description', 'Category', 'Shop', 'Image', 'Rating', 'Price', 'Quantity', 'Weight', 'Metric System', 'Actions'].map((header) => (
@@ -376,10 +377,12 @@ function CropsPage() {
 
       {/* Modal for Adding/Editing */}
       {isAddModalOpen || isEditModalOpen ? (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white p-8 rounded shadow-lg w-11/12 sm:w-1/2 lg:w-1/3">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+  <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg max-h-[80vh] overflow-y-auto">
             <h2 className="text-xl font-bold mb-4 text-[#00B251]">{isEdit ? 'Edit Crop' : 'Add Crop'}</h2>
             <form onSubmit={isEdit ? handleEditSubmit : handleCreateSubmit}>
+            
+            <p className="text-l font-bold mb-4" style={{ marginBottom: '5px' }}>Crop Name</p>
               <input
                 type="text"
                 name="crop_name"
@@ -389,6 +392,8 @@ function CropsPage() {
                 required
                 className="p-2 border rounded mb-2 w-full"
               />
+
+            <p className="text-l font-bold mb-4" style={{ marginBottom: '5px' }}>Crop Description</p>
               <input
                 type="text"
                 name="crop_description"
@@ -397,6 +402,8 @@ function CropsPage() {
                 placeholder="Crop Description"
                 className="p-2 border rounded mb-2 w-full"
               />
+
+            <p className="text-l font-bold mb-4" style={{ marginBottom: '5px' }}>Crop Category</p>
               <select
                 name="category_id"
                 value={formData.category_id}
@@ -411,6 +418,7 @@ function CropsPage() {
                   </option>
                 ))}
               </select>
+            <p className="text-l font-bold mb-4" style={{ marginBottom: '5px' }}>Shop</p>
               <select
                 name="shop_id"
                 value={formData.shop_id}
@@ -425,6 +433,7 @@ function CropsPage() {
                   </option>
                 ))}
               </select>
+            <p className="text-l font-bold mb-4" style={{ marginBottom: '5px' }}>Crop Image</p>
               <input
                 type="file"
                 name="image"
@@ -433,6 +442,7 @@ function CropsPage() {
                 required={!isEdit}
                 className="p-2 border rounded mb-2 w-full"
               />
+            <p className="text-l font-bold mb-4" style={{ marginBottom: '5px' }}>Rating</p>
               <input
                 type="number"
                 step="0.01"
@@ -442,6 +452,7 @@ function CropsPage() {
                 placeholder="Crop Rating"
                 className="p-2 border rounded mb-2 w-full"
               />
+            <p className="text-l font-bold mb-4" style={{ marginBottom: '5px' }}>Price</p>
               <input
                 type="number"
                 step="0.01"
@@ -452,6 +463,7 @@ function CropsPage() {
                 required
                 className="p-2 border rounded mb-2 w-full"
               />
+            <p className="text-l font-bold mb-4" style={{ marginBottom: '5px' }}>Quantity</p>
               <input
                 type="number"
                 name="crop_quantity"
@@ -460,6 +472,7 @@ function CropsPage() {
                 placeholder="Crop Quantity"
                 className="p-2 border rounded mb-2 w-full"
               />
+            <p className="text-l font-bold mb-4" style={{ marginBottom: '5px' }}>Weight</p>
               <input
                 type="number"
                 step="0.0001"
@@ -469,6 +482,7 @@ function CropsPage() {
                 placeholder="Crop Weight"
                 className="p-2 border rounded mb-2 w-full"
               />
+            <p className="text-l font-bold mb-4" style={{ marginBottom: '5px' }}>Metric System</p>
               <select
                 name="metric_system_id"
                 value={formData.metric_system_id}
@@ -483,22 +497,24 @@ function CropsPage() {
                   </option>
                 ))}
               </select>
-              <div className="flex justify-between">
-                <button
-                  type="button"
-                  onClick={() => { resetForm(); setIsEditModalOpen(false); setIsAddModalOpen(false); }}
-                  className="bg-gray-400 text-white p-2 rounded w-full mr-2"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="bg-[#00B251] text-white p-2 rounded w-full"
-                >
-                  {isEdit ? 'Update' : 'Create'}
-                </button>
-              </div>
             </form>
+
+            <div className="flex justify-end mt-4">
+              <button
+                type="button"
+                onClick={() => { resetForm(); setIsEditModalOpen(false); setIsAddModalOpen(false); }}
+                className="bg-gray-400 text-white p-2 rounded mr-2"
+              >
+                Cancel
+              </button>
+
+              <button
+                  type="submit"
+                 className="bg-green-600 text-white p-2 rounded"
+              >
+                {isEdit ? 'Update' : 'Create'}
+              </button>
+            </div>
           </div>
         </div>
       ) : null}

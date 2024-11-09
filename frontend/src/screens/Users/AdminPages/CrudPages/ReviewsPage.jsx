@@ -17,6 +17,7 @@ function ReviewsPage() {
         review_text: ''
     });
     const [isEdit, setIsEdit] = useState(false);
+    const [createModalOpen, setCreateModalOpen] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [deleteId, setDeleteId] = useState(null);
@@ -127,7 +128,7 @@ function ReviewsPage() {
     const handleCreate = () => {
         setFormData({ crop_id: '', user_id: '', rating: '', review_text: '' });  // Reset form data
         setIsEdit(false);  // Not in edit mode
-        setIsModalOpen(true);  // Open modal for creation
+        setCreateModalOpen(true); // Open the modal
     };
     const handleDelete = async () => {
         try {
@@ -236,62 +237,99 @@ function ReviewsPage() {
         <div className="p-6 max-w-7xl mx-auto">
             <h1 className="text-3xl font-semibold mb-6 text-center text-[#00B251]">Reviews Management</h1>
 
-            {/* Form Section */}
-            <form className="mb-10 p-6 bg-white shadow-lg rounded-lg" onSubmit={handleSubmit}>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <select
-                        name="crop_id"
-                        value={formData.crop_id}
-                        onChange={handleInputChange}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                        required
-                    >
-                        <option value="">Select Crop</option>
-                        {crops.map((crop) => (
-                            <option key={crop.crop_id} value={crop.crop_id}>
-                                {crop.crop_name}
-                            </option>
-                        ))}
-                    </select>
-                    <select
-                        name="user_id"
-                        value={formData.user_id}
-                        onChange={handleInputChange}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                        required
-                    >
-                        <option value="">Select User</option>
-                        {users.map((user) => (
-                            <option key={user.user_id} value={user.user_id}>
-                                {user.firstname} {user.lastname}
-                            </option>
-                        ))}
-                    </select>
-                    <input
-                        type="number"
-                        name="rating"
-                        value={formData.rating}
-                        onChange={handleInputChange}
-                        placeholder="Rating (1-5)"
-                        min="1"
-                        max="5"
-                        step="0.1"
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                        required
-                    />
+            {/* Button */}
+            <button
+                onClick={() => handleCreate(true)}
+                className="p-3 bg-[#00B251] text-white font-semibold rounded-lg shadow-md hover:bg-green-600 transition duration-300 mb-6"
+            >
+                + Review
+            </button>
+
+            {createModalOpen && (
+                <div className="fixed inset-0  bg-black bg-opacity-50 flex justify-center items-center z-50">
+                    <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
+                        <h2 className="text-2xl text-[#00B251] font-semibold">Add Review</h2>
+                        <form className="mb-10" onSubmit={(e) => handleSubmit(e)}>
+                            <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
+                            <p className="text-l font-bold mb-4" style={{ marginTop: '20px',marginBottom: '-20px' }}>Crop Name</p>
+                                <select
+                                    name="crop_id"
+                                    value={formData.crop_id}
+                                    onChange={handleInputChange}
+                                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                                    required
+                                >
+                                    <option value="">Select Crop</option>
+                                    {crops.map((crop) => (
+                                        <option key={crop.crop_id} value={crop.crop_id}>
+                                            {crop.crop_name}
+                                        </option>
+                                    ))}
+                                </select>
+                            <p className="text-l font-bold mb-4" style={{ marginBottom: '-20px' }}>User</p>
+                                <select
+                                    name="user_id"
+                                    value={formData.user_id}
+                                    onChange={handleInputChange}
+                                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                                    required
+                                >
+                                    <option value="">Select User</option>
+                                    {users.map((user) => (
+                                        <option key={user.user_id} value={user.user_id}>
+                                            {user.firstname} {user.lastname}
+                                        </option>
+                                    ))}
+                                </select>
+                            <p className="text-l font-bold mb-4" style={{ marginBottom: '-20px' }}>Rating</p>
+                                <input
+                                    type="number"
+                                    name="rating"
+                                    value={formData.rating}
+                                    onChange={handleInputChange}
+                                    placeholder="Rating (1-5)"
+                                    min="1"
+                                    max="5"
+                                    step="0.1"
+                                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                                    required
+                                />
+                            </div>
+
+                            <p className="text-l font-bold mb-4" style={{ marginTop: '20px',marginBottom: '-20px' }}>Review Text</p>
+                                <textarea
+                                    name="review_text"
+                                    value={formData.review_text}
+                                    onChange={handleInputChange}
+                                    placeholder="Review Text"
+                                    className="w-full mt-6 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                                    required
+                                ></textarea>
+                        </form>
+                        <div className="flex justify-end mt-4">
+                            <button
+                                type="button"
+                                onClick={() => setCreateModalOpen(false)}
+                                className="bg-gray-400 text-white p-2 rounded mr-2"
+                            >
+                                Cancel
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={(e) => {
+                                    handleSubmit(e); 
+                                    setCreateModalOpen(false); 
+                                }}
+                                className="bg-green-600 text-white p-2 rounded"
+                            >
+                                Create
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <textarea
-                    name="review_text"
-                    value={formData.review_text}
-                    onChange={handleInputChange}
-                    placeholder="Review Text"
-                    className="w-full mt-6 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                    required
-                ></textarea>
-                <button type="submit" className="mt-6 w-full p-3 bg-[#00B251] text-white font-semibold rounded-lg shadow-md hover:bg-green-600 transition duration-300">
-                    {'Create'}
-                </button>
-            </form>
+            )}
+
 
             {/* Search, Filter, and Export Section */}
             <div className="flex flex-col sm:flex-row justify-between items-center mb-6">
@@ -336,11 +374,9 @@ function ReviewsPage() {
                 </button>
             </div>
 
-
-
             {/* Table Section */}
             <div className="overflow-x-auto">
-                <table className="table-auto w-full text-left border-collapse border border-gray-300">
+                <table className="min-w-full border border-gray-300 rounded-lg overflow-hidden">
                     <thead className="bg-[#00B251] text-white">
                         <tr>
                             <th className="p-3 border border-gray-300">ID</th>
@@ -361,9 +397,9 @@ function ReviewsPage() {
                                 <td className="p-3 border border-gray-300">{review.rating}</td>
                                 <td className="p-3 border border-gray-300">{review.review_text}</td>
                                 <td className="p-3 border border-gray-300">{new Date(review.review_date).toLocaleString()}</td>
-                                <td className="p-3 border border-gray-300">
-                                    <button onClick={() => handleEdit(review)} className="text-blue-500 hover:underline mr-4">Edit</button>
-                                    <button onClick={() => { setIsDeleteModalOpen(true); setDeleteId(review.review_id); }} className="text-red-500 hover:underline">Delete</button>
+                                <td className="p-2 border border-gray-200 text-center space-x-2">
+                                    <button onClick={() => handleEdit(review)} className="bg-green-600 text-white p-2 rounded mr-2">Edit</button>
+                                    <button onClick={() => { setIsDeleteModalOpen(true); setDeleteId(review.review_id); }} className="bg-red-500 text-white p-2 rounded">Delete</button>
                                 </td>
                             </tr>
                         ))}
@@ -375,14 +411,16 @@ function ReviewsPage() {
             {isModalOpen && (
                 <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex justify-center items-center z-50">
                     <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
-                        <h2 className="text-xl font-bold mb-4">{isEdit ? 'Edit Review' : 'Create Review'}</h2>
+                    <h2 className="text-2xl text-[#00B251] font-semibold">Edit Review</h2>
                         <form onSubmit={handleSubmit}>
                             <div className="grid grid-cols-1 gap-6">
+                                <p className="text-l font-bold mb-4" style={{ marginTop: '20px',marginBottom: '-20px' }}>Crop Name</p>
                                 <select
                                     name="crop_id"
                                     value={formData.crop_id}
                                     onChange={handleInputChange}
                                     className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                                    style={{ marginBottom: '-10px' }}
                                     required
                                 >
                                     <option value="">Select Crop</option>
@@ -392,11 +430,13 @@ function ReviewsPage() {
                                         </option>
                                     ))}
                                 </select>
+                                <p className="text-l font-bold mb-4" style={{ marginBottom: '-20px' }}>User</p>
                                 <select
                                     name="user_id"
                                     value={formData.user_id}
                                     onChange={handleInputChange}
                                     className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                                    style={{ marginBottom: '-10px' }}
                                     required
                                 >
                                     <option value="">Select User</option>
@@ -406,6 +446,7 @@ function ReviewsPage() {
                                         </option>
                                     ))}
                                 </select>
+                                <p className="text-l font-bold mb-4" style={{ marginBottom: '-20px' }}>Rating</p>
                                 <input
                                     type="number"
                                     name="rating"
@@ -416,8 +457,10 @@ function ReviewsPage() {
                                     max="5"
                                     step="0.1"
                                     className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                                    style={{ marginBottom: '-10px' }}
                                     required
                                 />
+                                <p className="text-l font-bold mb-4" style={{ marginBottom: '-20px' }}>Review Text</p>
                                 <textarea
                                     name="review_text"
                                     value={formData.review_text}
@@ -427,16 +470,17 @@ function ReviewsPage() {
                                     required
                                 ></textarea>
                             </div>
-                            <button type="submit" className="mt-6 w-full p-3 bg-[#00B251] text-white font-semibold rounded-lg shadow-md hover:bg-green-600 transition duration-300">
-                                {isEdit ? 'Update' : 'Create'}
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setIsModalOpen(false)}
-                                className="mt-2 w-full p-3 bg-gray-500 text-white font-semibold rounded-lg shadow-md hover:bg-gray-600 transition duration-300"
-                            >
+                            <div className="flex justify-end mt-4">
+                                <button
+                                    type="button"
+                                    onClick={() => setIsModalOpen(false)}
+                                    className="bg-gray-400 text-white p-2 rounded mr-2">
                                 Cancel
-                            </button>
+                                </button>
+                                <button type="submit" className="bg-green-600 text-white p-2 rounded">
+                                    {isEdit ? 'Update' : 'Create'}
+                                </button>
+                            </div>
                         </form>
                     </div>
                 </div>
