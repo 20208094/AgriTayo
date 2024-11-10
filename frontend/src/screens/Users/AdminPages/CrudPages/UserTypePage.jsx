@@ -111,49 +111,82 @@ function UserTypePage() {
     }
   };
 
+  const [isModalOpen, setModalOpen] = useState(false);
+
+  const toggleModal = () => {
+    setModalOpen(!isModalOpen);
+    setFormData({
+      user_type_id: '',
+      user_type_name: '',
+      user_type_description: '',
+    });
+  };
+
+  const onSubmit = (event) => {
+    handleCreate(event);  
+    toggleModal(false);  
+  };
+
   return (
     <div className="p-8">
       <h1 className="text-3xl font-semibold mb-6 text-center text-[#00B251]">User Type Table</h1>
 
-      <form onSubmit={isEdit ? handleUpdate : handleCreate} className="flex flex-col md:flex-row items-center gap-4 mb-8">
-        <input
-          type="text"
-          name="user_type_id"
-          value={formData.user_type_id || ''}
-          onChange={handleInputChange}
-          className="form-control border border-gray-300 rounded p-2 w-full md:w-32"
-          placeholder="ID"
-          required
-          disabled={isEdit}
-        />
-        <input
-          type="text"
-          name="user_type_name"
-          value={formData.user_type_name || ''}
-          onChange={handleInputChange}
-          className="form-control border border-gray-300 rounded p-2 w-full md:w-64"
-          placeholder="Name"
-          required
-        />
-        <input
-          type="text"
-          name="user_type_description"
-          value={formData.user_type_description || ''}
-          onChange={handleInputChange}
-          className="form-control border border-gray-300 rounded p-2 w-full md:w-96"
-          placeholder="Description"
-          required
-        />
-        <button
-          type="button"
-          className="bg-[#00B251] text-white font-bold py-2 px-4 rounded"
-          onClick={() => setShowEditModal(true)}
-        >
-          {isEdit ? 'Update' : 'Create'}
-        </button>
-      </form>
+      <button
+        onClick={toggleModal}
+        className="bg-[#00B251] text-white font-bold py-2 px-4 rounded"
+      >
+       + User Type
+      </button>
 
-      <div className="flex justify-center mb-8">
+      {isModalOpen && (
+       <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
+            <h2 className="text-2xl text-[#00B251] font-semibold">Add User Type</h2>
+
+            <form onSubmit={onSubmit} className="flex flex-col gap-4">
+              <p className="text-l font-bold mb-4" style={{ marginTop: '10px',marginBottom: '-10px' }}>Name</p>
+              <input
+                type="text"
+                name="user_type_name"
+                value={formData.user_type_name || ''}
+                onChange={handleInputChange}
+                className="p-2 border rounded w-full"
+                placeholder="Name"
+                required
+              />
+
+              <p className="text-l font-bold mb-4" style={{ marginBottom: '-10px' }}>Description</p>
+              <input
+                type="text"
+                name="user_type_description"
+                value={formData.user_type_description || ''}
+                onChange={handleInputChange}
+                className="p-2 border rounded w-full"
+                placeholder="Description"
+                required
+              />
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  className="bg-gray-500 text-white px-4 py-2 mr-2 rounded"
+                  onClick={toggleModal}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="bg-[#00B251] text-white px-4 py-2 rounded"
+                >
+                  {isEdit ? 'Update' : 'Create'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      
+      <div className="flex items-center mt-6">
         <input
           type="text"
           value={searchTerm}
@@ -164,7 +197,7 @@ function UserTypePage() {
       </div>
 
       <div className="overflow-x-auto">
-        <table className="min-w-full border border-gray-200">
+        <table className="min-w-full mt-8 border border-gray-300 rounded-md overflow-hidden">
           <thead className="bg-[#00B251] text-white">
             <tr>
               <th className="border border-gray-200 p-4 text-left">ID</th>
@@ -179,7 +212,7 @@ function UserTypePage() {
                 <td className="border border-gray-200 p-4">{type.user_type_id}</td>
                 <td className="border border-gray-200 p-4">{type.user_type_name}</td>
                 <td className="border border-gray-200 p-4">{type.user_type_description}</td>
-                <td className="border border-gray-200 p-4 flex gap-2">
+                <td className="border border-gray-200 p-4 flex justify-center items-center gap-2">
                   <button
                     onClick={() => handleEdit(type)}
                     className="bg-[#00B251] text-white font-semibold py-1 px-2 rounded"

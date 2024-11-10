@@ -18,9 +18,11 @@ function OrdersPage() {
         user_id: '',
         order_metric_system_id: ''
     });
+
     const [isEdit, setIsEdit] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
-    const [selectedStatus, setSelectedStatus] = useState(''); // New state for status filter
+    const [selectedStatus, setSelectedStatus] = useState(''); 
     const [showEditModal, setShowEditModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [orderToDelete, setOrderToDelete] = useState(null);
@@ -189,47 +191,159 @@ function OrdersPage() {
         doc.save('orders.pdf');
     };
 
+    const openModal = () => {
+        setFormData({ total_price: '', total_weight: '', status_id: '', user_id: '', order_metric_system_id: '' }); // Reset formData
+        setIsEdit(false);
+        setIsModalOpen(true);
+    };
+
     return (
         <div className="p-6 bg-gray-100 min-h-screen">
             <h1 className="text-3xl font-semibold mb-6 text-center text-[#00B251]">Orders Management</h1>
 
-            <form onSubmit={handleSubmit} className="mb-6 flex flex-wrap gap-4">
-                <input type="text" name="total_price" value={formData.total_price} onChange={handleInputChange} placeholder="Total Price" className="p-2 border rounded w-full md:w-1/3" required />
-                <input type="text" name="total_weight" value={formData.total_weight} onChange={handleInputChange} placeholder="Total Weight" className="p-2 border rounded w-full md:w-1/3" />
-                
-                <select name="status_id" value={formData.status_id} onChange={handleInputChange} className="p-2 border rounded w-full md:w-1/3" required>
-                    <option value="">Select Status</option>
-                    {statuses.map((status) => <option key={status.order_status_id} value={status.order_status_id}>{status.order_status_name}</option>)}
-                </select>
-                
-                <select name="user_id" value={formData.user_id} onChange={handleInputChange} className="p-2 border rounded w-full md:w-1/3" required>
-                    <option value="">Select User</option>
-                    {users.map((user) => <option key={user.user_id} value={user.user_id}>{user.firstname} {user.lastname}</option>)}
-                </select>
-                
-                <select name="order_metric_system_id" value={formData.order_metric_system_id} onChange={handleInputChange} className="p-2 border rounded w-full md:w-1/3" required>
-                    <option value="">Select Metric System</option>
-                    {metricSystems.map((metric) => <option key={metric.metric_system_id} value={metric.metric_system_id}>{metric.metric_system_name}</option>)}
-                </select>
-                
-                <button type="submit" className="p-2 w-full md:w-1/3 bg-[#00B251] text-white rounded">
-                    {isEdit ? 'Update Order' : 'Create Order'}
-                </button>
-            </form>
+            <button
+                onClick={openModal}
+                className="p-3 bg-[#00B251] text-white font-semibold rounded-lg shadow-md hover:bg-green-600 transition duration-300 mb-6"
+            >
+                + Order
+            </button>
+
+            {/* Modal */}
+            {isModalOpen && (
+                <div className="fixed inset-0  bg-black bg-opacity-50 flex justify-center items-center z-50">
+                    <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
+                        <h2 className="text-2xl text-[#00B251] font-semibold">Create Order</h2>
+                            <form onSubmit={handleSubmit} className="space-y-4">
+                                <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
+                                <p className="text-l font-bold mb-4" style={{ marginTop: '20px',marginBottom: '-20px' }}>Total Price</p>
+                                    <input
+                                    type="text"
+                                    name="total_price"
+                                    value={formData.total_price}
+                                    onChange={handleInputChange}
+                                    placeholder="Total Price"
+                                    className="p-2 border border-gray-300 rounded"
+                                    required
+                                    />
+                                <p className="text-l font-bold mb-4" style={{ marginBottom: '-20px' }}>Total Weight</p>
+                                    <input
+                                    type="text"
+                                    name="total_weight"
+                                    value={formData.total_weight}
+                                    onChange={handleInputChange}
+                                    placeholder="Total Weight"
+                                    className="p-2 border border-gray-300 rounded"
+                                    />
+                                <p className="text-l font-bold mb-4" style={{ marginBottom: '-20px' }}>Order Status</p>
+                                    <select
+                                    name="status_id"
+                                    value={formData.status_id}
+                                    onChange={handleInputChange}
+                                    className="p-2 border border-gray-300 rounded"
+                                    required
+                                    >
+                                    <option value="">Select Status</option>
+                                    {statuses.map((status) => (
+                                        <option key={status.order_status_id} value={status.order_status_id}>
+                                        {status.order_status_name}
+                                        </option>
+                                    ))}
+                                    </select>
+                                <p className="text-l font-bold mb-4" style={{ marginBottom: '-20px' }}>User</p>
+                                    <select
+                                    name="user_id"
+                                    value={formData.user_id}
+                                    onChange={handleInputChange}
+                                    className="p-2 border border-gray-300 rounded"
+                                    required
+                                    >
+                                    <option value="">Select User</option>
+                                    {users.map((user) => (
+                                        <option key={user.user_id} value={user.user_id}>
+                                        {user.firstname} {user.lastname}
+                                        </option>
+                                    ))}
+                                    </select>
+                                <p className="text-l font-bold mb-4" style={{ marginBottom: '-20px' }}>Metric System</p>
+                                    <select
+                                    name="order_metric_system_id"
+                                    value={formData.order_metric_system_id}
+                                    onChange={handleInputChange}
+                                    className="p-2 border border-gray-300 rounded"
+                                    required
+                                    >
+                                    <option value="">Select Metric System</option>
+                                    {metricSystems.map((metric) => (
+                                        <option key={metric.metric_system_id} value={metric.metric_system_id}>
+                                        {metric.metric_system_name}
+                                        </option>
+                                    ))}
+                                    </select>
+                                </div>
+                            </form>
+
+                            <div className="flex justify-end mt-4">
+                                <button
+                                    type="button"
+                                    onClick={() => setIsModalOpen(false)}
+                                    className="bg-gray-400 text-white p-2 rounded mr-2">
+                                    Cancel
+                                </button>
+
+                                <button
+                                    type="button"
+                                    onClick={(e) => {
+                                        handleSubmit(e); 
+                                        setIsModalOpen(false); 
+                                    }}
+                                    className="bg-green-600 text-white p-2 rounded">
+                                        Create
+                                </button>
+                            </div>
+                    </div>
+                </div>
+            )}
+
 
             {/* Status Filter and Search */}
-            <div className="flex justify-between items-center mb-4">
-                <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search Orders" className="p-2 border rounded w-full md:w-1/3" />
-                <select onChange={handleStatusFilterChange} value={selectedStatus} className="p-2 border rounded w-full md:w-1/3">
+            <div className="flex flex-col sm:flex-row sm:space-x-2 items-center mb-6">
+                {/* Search Input */}
+                <input
+                    type="text"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="Search Orders"
+                    className="p-3 w-full sm:w-1/4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 mb-2 sm:mb-0"
+                />
+
+                {/* Status Filter Dropdown */}
+                <select
+                    onChange={handleStatusFilterChange}
+                    value={selectedStatus}
+                    className="p-3 w-full sm:w-1/4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 mb-2 sm:mb-0"
+                >
                     <option value="">All Statuses</option>
-                    {statuses.map((status) => <option key={status.order_status_id} value={status.order_status_id}>{status.order_status_name}</option>)}
+                    {statuses.map((status) => (
+                        <option key={status.order_status_id} value={status.order_status_id}>
+                            {status.order_status_name}
+                        </option>
+                    ))}
                 </select>
-                <button onClick={exportToPDF} className="p-2 bg-[#00B251] text-white rounded ml-2">Export to PDF</button>
+
+                {/* Export to PDF Button */}
+                <button
+                    onClick={exportToPDF}
+                    className="p-3 w-full sm:w-auto bg-[#00B251] text-white font-semibold rounded-lg shadow-md hover:bg-green-600 transition duration-300"
+                >
+                    Export to PDF
+                </button>
             </div>
+
+
 
             {/* Orders Table */}
             <div className="overflow-x-auto">
-                <table className="min-w-full bg-white border border-gray-300">
+                <table className="min-w-full border border-gray-300 rounded-lg overflow-hidden">
                     <thead className="bg-[#00B251] text-white">
                         <tr>
                             <th className="p-2 border border-gray-200">ID</th>
@@ -259,8 +373,8 @@ function OrdersPage() {
                                     {metricSystems.find(metric => metric.metric_system_id === order.order_metric_system_id)?.metric_system_name || 'Unknown'}
                                 </td>
                                 <td className="p-2 border border-gray-200 text-center space-x-2">
-                                    <button onClick={() => handleEdit(order)} className="bg-[#00B251] text-white p-1 rounded">Edit</button>
-                                    <button onClick={() => { setOrderToDelete(order.order_id); setShowDeleteModal(true); }} className="bg-red-500 text-white p-1 rounded">Delete</button>
+                                    <button onClick={() => handleEdit(order)} className="bg-green-600 text-white p-2 rounded mr-2">Edit</button>
+                                    <button onClick={() => { setOrderToDelete(order.order_id); setShowDeleteModal(true); }} className="bg-red-500 text-white p-2 rounded">Delete</button>
                                 </td>
                             </tr>
                         ))}
@@ -274,19 +388,25 @@ function OrdersPage() {
                     <div className="bg-white p-6 rounded shadow-md max-w-md w-full space-y-4">
                         <h2 className="text-2xl text-[#00B251] font-semibold">Edit Order</h2>
                         {/* Form fields in modal */}
+                        <p className="text-l font-bold mb-4" style={{ marginTop: '20px',marginBottom: '-10px' }}>Total Price</p>
                         <input type="text" name="total_price" value={formData.total_price} onChange={handleInputChange} placeholder="Total Price" className="p-2 border rounded w-full" required />
+                        
+                        <p className="text-l font-bold mb-4" style={{ marginTop: '20px',marginBottom: '-10px' }}>Total Weight</p>
                         <input type="text" name="total_weight" value={formData.total_weight} onChange={handleInputChange} placeholder="Total Weight" className="p-2 border rounded w-full" />
                         
+                        <p className="text-l font-bold mb-4" style={{ marginTop: '20px',marginBottom: '-10px' }}>Status</p>
                         <select name="status_id" value={formData.status_id} onChange={handleInputChange} className="p-2 border rounded w-full" required>
                             <option value="">Select Status</option>
                             {statuses.map((status) => <option key={status.order_status_id} value={status.order_status_id}>{status.order_status_name}</option>)}
                         </select>
                         
+                        <p className="text-l font-bold mb-4" style={{ marginTop: '20px',marginBottom: '-10px' }}>User</p>
                         <select name="user_id" value={formData.user_id} onChange={handleInputChange} className="p-2 border rounded w-full" required>
                             <option value="">Select User</option>
                             {users.map((user) => <option key={user.user_id} value={user.user_id}>{user.firstname} {user.lastname}</option>)}
                         </select>
                         
+                        <p className="text-l font-bold mb-4" style={{ marginTop: '20px',marginBottom: '-10px' }}>Metric System</p>
                         <select name="order_metric_system_id" value={formData.order_metric_system_id} onChange={handleInputChange} className="p-2 border rounded w-full" required>
                             <option value="">Select Metric System</option>
                             {metricSystems.map((metric) => <option key={metric.metric_system_id} value={metric.metric_system_id}>{metric.metric_system_name}</option>)}
