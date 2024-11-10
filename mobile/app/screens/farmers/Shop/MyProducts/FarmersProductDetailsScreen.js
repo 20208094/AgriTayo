@@ -308,33 +308,57 @@ function FarmersProductDetailScreen({ route, navigation }) {
     // Append form data fields
     formData.append("crop_name", selectedCropVariety);
     formData.append("crop_id", product.crop_id);
-    formData.append("shop_id", product.shop_id)
+    formData.append("shop_id", product.shop_id);
     formData.append("crop_description", cropDescription);
-    formData.append("crop_image", imageSource ? {
-      uri: imageSource.uri,
-      type: "image/jpeg",
-      name: "product-image.jpg"
-    } : product.crop_image_url);
+    formData.append(
+      "crop_image",
+      imageSource
+        ? {
+            uri: imageSource.uri,
+            type: "image/jpeg",
+            name: "product-image.jpg",
+          }
+        : product.crop_image_url
+    );
     formData.append("crop_price", parseFloat(cropPrice));
     formData.append("crop_quantity", parseInt(cropQuantity));
-    formData.append("crop_category_id", parseInt(selectedCategoryId) || product.category.crop_category_id);
-    formData.append("sub_category_id", parseInt(selectedSubCategoryId) || product.subcategory.crop_sub_category_id);
-    formData.append("crop_size_id", parseInt(selectedCropSizeId) || product.size.crop_size_id);
-    formData.append("crop_variety_id", parseInt(selectedCropVarietyId) || product.variety.crop_variety_id);
-    formData.append("metric_system_id", parseInt(selectedCropMetricId) || product.metric.metric_system_id);
+    formData.append(
+      "crop_category_id",
+      parseInt(selectedCategoryId) || product.category.crop_category_id
+    );
+    formData.append(
+      "sub_category_id",
+      parseInt(selectedSubCategoryId) ||
+        product.subcategory.crop_sub_category_id
+    );
+    formData.append(
+      "crop_size_id",
+      parseInt(selectedCropSizeId) || product.size.crop_size_id
+    );
+    formData.append(
+      "crop_variety_id",
+      parseInt(selectedCropVarietyId) || product.variety.crop_variety_id
+    );
+    formData.append(
+      "metric_system_id",
+      parseInt(selectedCropMetricId) || product.metric.metric_system_id
+    );
     formData.append("crop_class", selectedCropClass);
     formData.append("crop_availability", selectedCropAvailability);
 
     console.log("Form Data:", formData);
 
     try {
-      const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crops/${product.crop_id}`, {
-        method: "PUT",
-        headers: {
-          "x-api-key": REACT_NATIVE_API_KEY,
-        },
-        body: formData,
-      });
+      const response = await fetch(
+        `${REACT_NATIVE_API_BASE_URL}/api/crops/${product.crop_id}`,
+        {
+          method: "PUT",
+          headers: {
+            "x-api-key": REACT_NATIVE_API_KEY,
+          },
+          body: formData,
+        }
+      );
 
       console.log("Response Status:", response.status);
       console.log("Response Headers:", response.headers);
@@ -350,7 +374,6 @@ function FarmersProductDetailScreen({ route, navigation }) {
       setAlertMessage("Success!, Product Updated Successfully");
       setAlertVisible(true);
       navigation.navigate("My Products");
-
     } catch (error) {
       console.error(`Error updating product: ${error.message}`);
     }
@@ -367,7 +390,10 @@ function FarmersProductDetailScreen({ route, navigation }) {
           {product ? (
             <>
               <View className="mb-4">
-                <TouchableOpacity onPress={handleImagePick} className="rounded-lg overflow-hidden shadow">
+                <TouchableOpacity
+                  onPress={handleImagePick}
+                  className="rounded-lg overflow-hidden shadow"
+                >
                   <Image
                     className="w-full h-72 object-cover"
                     source={{ uri: imageSource?.uri || product.crop_image_url }}
@@ -380,7 +406,9 @@ function FarmersProductDetailScreen({ route, navigation }) {
                   className="flex-row items-center w-full p-2 bg-white rounded-lg shadow-md"
                   onPress={() => setIsClickedCropVariety(!isClickedCropVariety)}
                 >
-                  <Text className="flex-1 text-gray-700">{selectedCropVariety}</Text>
+                  <Text className="flex-1 text-gray-700">
+                    {selectedCropVariety}
+                  </Text>
                   <Ionicons name="chevron-down" size={20} color="gray" />
                 </TouchableOpacity>
                 {isClickedCropVariety && (
@@ -391,7 +419,9 @@ function FarmersProductDetailScreen({ route, navigation }) {
                         key={cropVariety.crop_variety_id}
                         onPress={() => handleCropVarietySelect(cropVariety)}
                       >
-                        <Text className="text-gray-600">{cropVariety.crop_variety_name}</Text>
+                        <Text className="text-gray-600">
+                          {cropVariety.crop_variety_name}
+                        </Text>
                       </TouchableOpacity>
                     ))}
                   </View>
@@ -399,7 +429,9 @@ function FarmersProductDetailScreen({ route, navigation }) {
               </View>
 
               <View className="mb-4">
-                <Text className="text-sm mb-2 text-gray-800">Crop Description</Text>
+                <Text className="text-sm mb-2 text-gray-800">
+                  Crop Description
+                </Text>
                 <TextInput
                   className="flex-row items-center w-full p-2 bg-white rounded-lg shadow-md"
                   value={cropDescription}
@@ -410,12 +442,16 @@ function FarmersProductDetailScreen({ route, navigation }) {
               </View>
 
               <View className="mb-4">
-                <Text className="text-sm mb-2 text-gray-800">Crop Category</Text>
+                <Text className="text-sm mb-2 text-gray-800">
+                  Crop Category
+                </Text>
                 <TouchableOpacity
                   className="flex-row items-center w-full p-2 bg-white rounded-lg shadow-md"
                   onPress={() => setIsClickedCategory(!isClickedCategory)}
                 >
-                  <Text className="flex-1 text-gray-700">{selectedCategory}</Text>
+                  <Text className="flex-1 text-gray-700">
+                    {selectedCategory}
+                  </Text>
                   <Ionicons name="chevron-down" size={20} color="gray" />
                 </TouchableOpacity>
                 {isClickedCategory && (
@@ -426,7 +462,9 @@ function FarmersProductDetailScreen({ route, navigation }) {
                         key={category.crop_category_id}
                         onPress={() => handleCategorySelect(category)}
                       >
-                        <Text className="text-gray-600">{category.crop_category_name}</Text>
+                        <Text className="text-gray-600">
+                          {category.crop_category_name}
+                        </Text>
                       </TouchableOpacity>
                     ))}
                   </View>
@@ -434,12 +472,16 @@ function FarmersProductDetailScreen({ route, navigation }) {
               </View>
 
               <View className="mb-4">
-                <Text className="text-sm mb-2 text-gray-800">Crop Sub Category</Text>
+                <Text className="text-sm mb-2 text-gray-800">
+                  Crop Sub Category
+                </Text>
                 <TouchableOpacity
                   className="flex-row items-center w-full p-2 bg-white rounded-lg shadow-md"
                   onPress={() => setIsclickedSubCategory(!isClickedSubCategory)}
                 >
-                  <Text className="flex-1 text-gray-700">{selectedSubCategory}</Text>
+                  <Text className="flex-1 text-gray-700">
+                    {selectedSubCategory}
+                  </Text>
                   <Ionicons name="chevron-down" size={20} color="gray" />
                 </TouchableOpacity>
                 {isClickedSubCategory && (
@@ -450,7 +492,9 @@ function FarmersProductDetailScreen({ route, navigation }) {
                         key={subCategory.crop_sub_category_id}
                         onPress={() => handleSubCategorySelect(subCategory)}
                       >
-                        <Text className="text-gray-600">{subCategory.crop_sub_category_name}</Text>
+                        <Text className="text-gray-600">
+                          {subCategory.crop_sub_category_name}
+                        </Text>
                       </TouchableOpacity>
                     ))}
                   </View>
@@ -463,7 +507,9 @@ function FarmersProductDetailScreen({ route, navigation }) {
                   className="flex-row items-center w-full p-2 bg-white rounded-lg shadow-md"
                   onPress={() => setIsClickedCropSize(!isClickedCropSize)}
                 >
-                  <Text className="flex-1 text-gray-700">{selectedCropSize}</Text>
+                  <Text className="flex-1 text-gray-700">
+                    {selectedCropSize}
+                  </Text>
                   <Ionicons name="chevron-down" size={20} color="gray" />
                 </TouchableOpacity>
                 {isClickedCropSize && (
@@ -474,7 +520,9 @@ function FarmersProductDetailScreen({ route, navigation }) {
                         key={cropSize.crop_size_id}
                         onPress={() => handleCropSizeSelect(cropSize)}
                       >
-                        <Text className="text-gray-600">{cropSize.crop_size_name}</Text>
+                        <Text className="text-gray-600">
+                          {cropSize.crop_size_name}
+                        </Text>
                       </TouchableOpacity>
                     ))}
                   </View>
@@ -497,7 +545,9 @@ function FarmersProductDetailScreen({ route, navigation }) {
                   className="flex-row items-center w-full p-2 bg-white rounded-lg shadow-md"
                   onPress={() => setIsClickedCropMetric(!isClickedCropMetric)}
                 >
-                  <Text className="flex-1 text-gray-700">{selectedCropMetric}</Text>
+                  <Text className="flex-1 text-gray-700">
+                    {selectedCropMetric}
+                  </Text>
                   <Ionicons name="chevron-down" size={20} color="gray" />
                 </TouchableOpacity>
                 {isClickedCropMetric && (
@@ -508,7 +558,9 @@ function FarmersProductDetailScreen({ route, navigation }) {
                         key={cropMetric.metric_system_id}
                         onPress={() => handleCropMetricSelect(cropMetric)}
                       >
-                        <Text className="text-gray-600">{cropMetric.metric_system_name}</Text>
+                        <Text className="text-gray-600">
+                          {cropMetric.metric_system_name}
+                        </Text>
                       </TouchableOpacity>
                     ))}
                   </View>
@@ -521,7 +573,9 @@ function FarmersProductDetailScreen({ route, navigation }) {
                   className="flex-row items-center w-full p-2 bg-white rounded-lg shadow-md"
                   onPress={() => setIsClickedCropClass(!isClickedCropClass)}
                 >
-                  <Text className="flex-1 text-gray-700">{selectedCropClass}</Text>
+                  <Text className="flex-1 text-gray-700">
+                    {selectedCropClass}
+                  </Text>
                   <Ionicons name="chevron-down" size={20} color="gray" />
                 </TouchableOpacity>
                 {isClickedCropClass && (
@@ -532,7 +586,9 @@ function FarmersProductDetailScreen({ route, navigation }) {
                         key={cropClass.crop_class_id}
                         onPress={() => handleCropClassSelect(cropClass)}
                       >
-                        <Text className="text-gray-600">{cropClass.crop_class_name}</Text>
+                        <Text className="text-gray-600">
+                          {cropClass.crop_class_name}
+                        </Text>
                       </TouchableOpacity>
                     ))}
                   </View>
@@ -540,7 +596,9 @@ function FarmersProductDetailScreen({ route, navigation }) {
               </View>
 
               <View className="mb-4">
-                <Text className="text-sm mb-2 text-gray-800">Crop Quantity</Text>
+                <Text className="text-sm mb-2 text-gray-800">
+                  Crop Quantity
+                </Text>
                 <TextInput
                   className="flex-row items-center w-full p-2 bg-white rounded-lg shadow-md"
                   value={cropQuantity}
@@ -550,12 +608,18 @@ function FarmersProductDetailScreen({ route, navigation }) {
               </View>
 
               <View className="mb-4">
-                <Text className="text-sm mb-2 text-gray-800">Crop Availability</Text>
+                <Text className="text-sm mb-2 text-gray-800">
+                  Crop Availability
+                </Text>
                 <TouchableOpacity
                   className="flex-row items-center w-full p-2 bg-white rounded-lg shadow-md"
-                  onPress={() => setIsClickedCropAvailability(!isClickedCropAvailability)}
+                  onPress={() =>
+                    setIsClickedCropAvailability(!isClickedCropAvailability)
+                  }
                 >
-                  <Text className="flex-1 text-gray-700">{selectedCropAvailability}</Text>
+                  <Text className="flex-1 text-gray-700">
+                    {selectedCropAvailability}
+                  </Text>
                   <Ionicons name="chevron-down" size={20} color="gray" />
                 </TouchableOpacity>
                 {isClickedCropAvailability && (
@@ -564,16 +628,23 @@ function FarmersProductDetailScreen({ route, navigation }) {
                       <TouchableOpacity
                         className="py-1"
                         key={availability.crop_availability_id}
-                        onPress={() => handleCropAvailabilitySelect(availability)}
+                        onPress={() =>
+                          handleCropAvailabilitySelect(availability)
+                        }
                       >
-                        <Text className="text-gray-600">{availability.crop_availability_name}</Text>
+                        <Text className="text-gray-600">
+                          {availability.crop_availability_name}
+                        </Text>
                       </TouchableOpacity>
                     ))}
                   </View>
                 )}
               </View>
               {/* Add Product Button */}
-              <TouchableOpacity className="bg-[#00B251] p-4 rounded-lg flex items-center mt-4" onPress={() => setModalVisible(true)}>
+              <TouchableOpacity
+                className="bg-[#00B251] p-4 rounded-lg flex items-center mt-4"
+                onPress={() => setModalVisible(true)}
+              >
                 <Text className="text-white text-base">Submit</Text>
               </TouchableOpacity>
 
@@ -626,12 +697,18 @@ function FarmersProductDetailScreen({ route, navigation }) {
       >
         <View className="flex-1 justify-center items-center bg-black/50 bg-opacity-50">
           <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
-            <Text className="text-lg font-semibold text-gray-900 mb-4">{alertMessage}</Text>
+            <Text className="text-lg font-semibold text-gray-900 mb-4">
+              {alertMessage}
+            </Text>
             <TouchableOpacity
               className="mt-4 p-2 bg-[#00B251] rounded-lg flex-row justify-center items-center"
               onPress={() => setAlertVisible(false)}
             >
-              <Ionicons name="checkmark-circle-outline" size={24} color="white" />
+              <Ionicons
+                name="checkmark-circle-outline"
+                size={24}
+                color="white"
+              />
               <Text className="text-lg text-white ml-2">OK</Text>
             </TouchableOpacity>
           </View>

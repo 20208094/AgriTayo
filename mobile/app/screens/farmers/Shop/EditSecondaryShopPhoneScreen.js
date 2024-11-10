@@ -6,7 +6,7 @@ import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 import { io } from "socket.io-client";
 
 function EditSecondaryShopPhoneScreen({ navigation, route }) {
-  const { userData, shopSecondaryNumber } = route.params;
+  const { shopId, shopSecondaryNumber } = route.params;
   const [newSecondaryPhone, setNewSecondaryPhone] = useState("");
   const [phoneError, setPhoneError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -68,7 +68,7 @@ function EditSecondaryShopPhoneScreen({ navigation, route }) {
         try {
           console.log("Sending request to update alternative phone number...");
           const response = await fetch(
-            `${REACT_NATIVE_API_BASE_URL}/api/editSecondaryShopPhoneNumber/${shopSecondaryNumber}`,
+            `${REACT_NATIVE_API_BASE_URL}/api/editSecondaryShopPhoneNumber/${shopId}`,
             {
               method: "PUT",
               headers: {
@@ -84,7 +84,7 @@ function EditSecondaryShopPhoneScreen({ navigation, route }) {
             const data = await response.json();
             console.log("Successfully Updated Alternative Shop Phone Number:", data);
             Alert.alert("Success!", "Successfully Updated Shop Alternative Phone Number");
-            navigation.navigate("View Shop", { userData });
+            navigation.navigate("View Shop");
           } else {
             const errorData = await response.json();
             console.error("Adding new alternative shop phone number failed:", errorData);

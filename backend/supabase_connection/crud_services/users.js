@@ -407,10 +407,10 @@ const getSingleValue = (value) => Array.isArray(value) ? value[0] : value;
 
 async function editPhoneNumber(req, res) {
     try {
-        const { phone_number } = req.params;
+        const { user_id } = req.params;
 
-        if (!phone_number) {
-            return res.status(400).json({ error: 'Phone Number is required for update' });
+        if (!user_id) {
+            return res.status(400).json({ error: 'User Id is required for update' });
         }
 
         const form = new formidable.IncomingForm({ multiples: true });
@@ -431,12 +431,12 @@ async function editPhoneNumber(req, res) {
                 phone_number: getSingleValue(edit_phone_number),
             }
 
-            console.log(edit_phone_number, phone_number)
+            console.log(edit_phone_number, user_id)
 
             const { data, error } = await supabase
                 .from('users')
                 .update(updateData)
-                .eq('phone_number', phone_number);
+                .eq('user_id', user_id);
 
             if (error) {
                 console.error('Supabase query failed:', error.message);
@@ -457,10 +457,10 @@ const getSingleValue = (value) => Array.isArray(value) ? value[0] : value;
 
 async function editSecondaryPhoneNumber(req, res) {
     try {
-        const { secondary_phone_number } = req.params;
+        const { user_id } = req.params;
 
-        if (!secondary_phone_number) {
-            return res.status(400).json({ error: 'Alternative Phone Number is required for update' });
+        if (!user_id) {
+            return res.status(400).json({ error: 'User Id is required for update' });
         }
 
         const form = new formidable.IncomingForm({ multiples: true });
@@ -481,12 +481,12 @@ async function editSecondaryPhoneNumber(req, res) {
                 secondary_phone_number: getSingleValue(edit_secondary_phone_number),
             }
 
-            console.log(edit_secondary_phone_number, secondary_phone_number)
+            console.log(edit_secondary_phone_number, user_id)
 
             const { data, error } = await supabase
                 .from('users')
                 .update(updateData)
-                .eq('secondary_phone_number', secondary_phone_number);
+                .eq('user_id', user_id);
 
             if (error) {
                 console.error('Supabase query failed:', error.message);

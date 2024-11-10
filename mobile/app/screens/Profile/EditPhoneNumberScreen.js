@@ -69,7 +69,7 @@ function EditPhoneNumberScreen({ navigation, route }) {
         try {
           console.log("Sending request to update phone number...");
           const response = await fetch(
-            `${REACT_NATIVE_API_BASE_URL}/api/editPhoneNumber/${phone}`,
+            `${REACT_NATIVE_API_BASE_URL}/api/editPhoneNumber/${userData.user_id}`,
             {
               method: "PUT",
               headers: {

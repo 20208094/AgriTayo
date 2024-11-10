@@ -4,7 +4,6 @@ import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import * as FileSystem from 'expo-file-system';
 
-
 const Reports = ({ data, dataType }) => {
   const generatePdf = async () => {
     try {

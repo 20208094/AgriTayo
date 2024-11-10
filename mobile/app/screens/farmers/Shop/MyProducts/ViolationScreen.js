@@ -6,12 +6,14 @@ import {
   TouchableOpacity,
   Text,
   View,
+  Alert
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage"; // Import AsyncStorage
 import Reports from "../../../../components/Reports";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env"; // Import API constants
 import placeholderimg from "../../../../assets/placeholder.png";
 import LoadingAnimation from "../../../../components/LoadingAnimation";
+import Ionicons from "react-native-vector-icons/Ionicons";
 
 function ViolationScreen({ navigation }) {
   const [violationItems, setViolationItems] = useState([]); // State to hold violation items
@@ -113,6 +115,43 @@ function ViolationScreen({ navigation }) {
     getAsyncShopData();
   }, []);
 
+  // Function to delete crop
+  const deleteCrop = async (cropId) => {
+    try {
+      const response = await fetch(
+        `${REACT_NATIVE_API_BASE_URL}/api/crops/${cropId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "x-api-key": REACT_NATIVE_API_KEY,
+          },
+        }
+      );
+
+      if (response.ok) {
+        setViolationItems((prevItems) =>
+          prevItems.filter((item) => item.crop_id !== cropId)
+        );
+        Alert.alert("Deleted Successfully!", "Crop Deleted Successfully.");
+      } else {
+        console.error("Failed to delete crop:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error deleting crop:", error);
+    }
+  };
+
+  const confirmDelete = (cropId) => {
+    Alert.alert("Delete Crop", "Are you sure you want to delete this crop?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Delete",
+        style: "destructive",
+        onPress: () => deleteCrop(cropId),
+      },
+    ]);
+  };
+
   if (loading) {
     return <LoadingAnimation />;
   }
@@ -130,6 +169,13 @@ function ViolationScreen({ navigation }) {
             className="bg-white p-4 mb-4 rounded-xl shadow-md flex-row items-center transition-all duration-300 hover:shadow-lg"
             onPress={() => navigation.navigate("Farmers Product Details", { violationItem })}
           >
+            {/* Delete Icon */}
+            <TouchableOpacity
+              style={{ position: "absolute", top: 8, right: 8 }}
+              onPress={() => confirmDelete(violationItem.crop_id)}
+            >
+              <Ionicons name="trash-outline" size={20} color="red" />
+            </TouchableOpacity>
             {/* Crop Image */}
             <Image
               source={{ uri: violationItem.crop_image_url || placeholderimg }}
