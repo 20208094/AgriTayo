@@ -14,6 +14,8 @@ function CropCategoryPageCRUD() {
     crop_category_description: '',
     image: null
   });
+
+  const [isModalOpen, setModalOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -153,41 +155,78 @@ function CropCategoryPageCRUD() {
     doc.save('crop_categories_list.pdf');
   };
 
+  const toggleModal = () => {
+    setModalOpen(!isModalOpen);
+    setFormData({ metric_system_name: '',
+      metric_val_kilogram: '',
+      metric_val_gram: '',
+      metric_val_pounds: '', }); 
+    setIsEdit(false);
+  };
+
+  const onSubmit = (event) => {
+    handleSubmit(event);  
+    setModalOpen(false);  
+  };
+
   return (
     <div className="p-8">
       <h1 className="text-3xl font-semibold mb-6 text-center text-[#00B251]">Crop Categories Management</h1>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input type="hidden" name="crop_category_id" value={formData.crop_category_id} />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <input
-            type="text"
-            name="crop_category_name"
-            value={formData.crop_category_name}
-            onChange={handleInputChange}
-            placeholder="Crop Category Name"
-            required
-            className="border p-2 w-full rounded-md"
-          />
-          <input
-            type="text"
-            name="crop_category_description"
-            value={formData.crop_category_description}
-            onChange={handleInputChange}
-            placeholder="Crop Category Description"
-            className="border p-2 w-full rounded-md"
-          />
-          <input
-            type="file"
-            name="image"
-            onChange={handleImageChange}
-            className="border p-2 w-full rounded-md"
-          />
+      <button onClick={toggleModal} className="bg-[#00B251] text-white py-2 px-4 rounded-md">
+        + Crop Category
+      </button>
+
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
+            <h2 className="text-2xl text-[#00B251] font-semibold">Add Crop Category</h2>
+            {/* Form */}
+            <form onSubmit={onSubmit} className="space-y-4">
+              <input type="hidden" name="crop_category_id" value={formData.crop_category_id} />
+              <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
+                <p className="text-l font-bold mb-4" style={{ marginBottom: '-10px' }}>Category Name</p>
+                <input
+                  type="text"
+                  name="crop_category_name"
+                  value={formData.crop_category_name}
+                  onChange={handleInputChange}
+                  placeholder="Crop Category Name"
+                  required
+                  className="border p-2 w-full rounded-md"
+                />
+                <p className="text-l font-bold mb-4" style={{ marginBottom: '-10px' }}>Category Description</p>
+                <input
+                  type="text"
+                  name="crop_category_description"
+                  value={formData.crop_category_description}
+                  onChange={handleInputChange}
+                  placeholder="Crop Category Description"
+                  className="border p-2 w-full rounded-md"
+                />
+                <p className="text-l font-bold mb-4" style={{ marginBottom: '-10px' }}>Image</p>
+                <input
+                  type="file"
+                  name="image"
+                  onChange={handleImageChange}
+                  className="border p-2 w-full rounded-md"
+                />
+              </div>
+              <div className="flex justify-end mt-4 space-x-1">
+                <button
+                  onClick={toggleModal}
+                  className="bg-gray-400 text-white p-2 rounded-md mt-4"
+                >
+                  Cancel
+                </button>
+                <button type="submit" className="bg-[#00B251] text-white py-2 px-4 rounded-md mt-4">
+                  Create
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
-        <div>
-          <button type="submit" className="bg-[#00B251] text-white py-2 px-4 rounded-md mt-4">{isEdit ? 'Update' : 'Create'}</button>
-        </div>
-      </form>
+      )}
 
       <div className="flex items-center mt-6">
         <input
@@ -235,11 +274,12 @@ function CropCategoryPageCRUD() {
       </table>
 
       {showEditModal && (
-        <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white rounded-lg p-8 w-11/12 md:w-1/2 lg:w-1/3">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
             <h2 className="text-2xl font-bold mb-4">Edit Category</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <input type="hidden" name="crop_category_id" value={formData.crop_category_id} />
+              <p className="text-l font-bold mb-4" style={{ marginBottom: '-10px' }}>Category Name</p>
               <input
                 type="text"
                 name="crop_category_name"
@@ -249,6 +289,7 @@ function CropCategoryPageCRUD() {
                 required
                 className="border p-2 w-full rounded-md"
               />
+              <p className="text-l font-bold mb-4" style={{ marginBottom: '-10px' }}>Category Description</p>
               <input
                 type="text"
                 name="crop_category_description"
@@ -257,15 +298,19 @@ function CropCategoryPageCRUD() {
                 placeholder="Crop Category Description"
                 className="border p-2 w-full rounded-md"
               />
+              <p className="text-l font-bold mb-4" style={{ marginBottom: '-10px' }}>Image</p>
               <input
                 type="file"
                 name="image"
                 onChange={handleImageChange}
                 className="border p-2 w-full rounded-md"
               />
-              <button type="submit" className="bg-[#00B251] text-white py-2 px-4 rounded-md">Save Changes</button>
+              <div className="flex justify-end mt-4 space-x-1">
+              <button onClick={() => setShowEditModal(false)} className="bg-gray-400 text-white p-2 rounded-md mt-4">Cancel</button>
+              <button type="submit" className="bg-[#00B251] text-white py-2 px-4 rounded-md mt-4">Save</button>
+              </div>
             </form>
-            <button onClick={() => setShowEditModal(false)} className="bg-gray-300 text-gray-700 py-2 px-4 rounded-md mt-4">Cancel</button>
+           
           </div>
         </div>
       )}

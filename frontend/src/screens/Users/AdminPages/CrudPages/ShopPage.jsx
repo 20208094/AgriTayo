@@ -220,8 +220,25 @@ function ShopsPage() {
     return (
         <div className="p-10">
             <h1 className="text-3xl font-bold mb-5 text-center text-green-600">Shop Management</h1>
+            <div className="flex flex-wrap gap-4 my-4">
+                <button onClick={handleCreateShop} className="px-4 py-2 bg-green-600 text-white rounded-md">+ Shop</button>
+            </div>
 
-            <div className="mb-4 flex flex-wrap justify-between">
+            <div className="mb-4 flex flex-wrap space-x-2">
+                {['delivery', 'pickup', 'gcash', 'cod', 'bank', 'submitLater'].map(filterKey => (
+                    <select
+                        key={filterKey}
+                        name={filterKey}
+                        value={filter[filterKey]}
+                        onChange={handleFilterChange}
+                        className="p-1 border rounded-md mt-2 md:mt-0"
+                    >
+                        <option value="">{filterKey.charAt(0).toUpperCase() + filterKey.slice(1)}</option>
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                    </select>
+                ))}
+                
                 <input
                     type="text"
                     value={searchTerm}
@@ -230,77 +247,63 @@ function ShopsPage() {
                     className="p-2 border rounded-md w-72"
                 />
                 <button onClick={exportToPDF} className="ml-2 px-4 py-2 bg-green-600 text-white rounded-md">Export to PDF</button>
-                <button onClick={handleCreateShop} className="px-4 py-2 bg-green-600 text-white rounded-md">Add Shop</button>
-
-                {['delivery', 'pickup', 'gcash', 'cod', 'bank', 'submitLater'].map((filterKey) => (
-                    <select
-                        key={filterKey}
-                        name={filterKey}
-                        value={filter[filterKey]}
-                        onChange={handleFilterChange}
-                        className="p-2 border rounded-md mt-2 md:mt-0"
-                    >
-                        <option value="">{filterKey.charAt(0).toUpperCase() + filterKey.slice(1)}</option>
-                        <option value="Yes">Yes</option>
-                        <option value="No">No</option>
-                    </select>
-                ))}
             </div>
+
             <div className="overflow-x-auto">
-                <table className="min-w-full bg-white">
+                <table className="min-w-full table-auto bg-white">
                     <thead>
                         <tr className="bg-green-600 text-white">
-                            <th className="py-2 px-4">ID</th>
-                            <th className="py-2 px-4">Shop Name</th>
-                            <th className="py-2 px-4">Address</th>
-                            <th className="py-2 px-4">Description</th>
-                            <th className="py-2 px-4">User ID</th>
-                            <th className="py-2 px-4">Delivery</th>
-                            <th className="py-2 px-4">Pickup</th>
-                            <th className="py-2 px-4">Delivery Price</th>
-                            <th className="py-2 px-4">Pickup Price</th>
-                            <th className="py-2 px-4">GCash</th>
-                            <th className="py-2 px-4">COD</th>
-                            <th className="py-2 px-4">Bank</th>
-                            <th className="py-2 px-4">Shop Number</th>
-                            <th className="py-2 px-4">Submit Later</th>
-                            <th className="py-2 px-4">TIN Number</th>
-                            <th className="py-2 px-4">Pickup Address</th>
-                            <th className="py-2 px-4">BIR Image</th>
-                            <th className="py-2 px-4">Shop Image</th>
-                            <th className="py-2 px-4">Actions</th>
+                            <th className="py-2 px-4 text-xs sm:text-sm">ID</th>
+                            <th className="py-2 px-4 text-xs sm:text-sm">Shop Name</th>
+                            <th className="py-2 px-4 text-xs sm:text-sm">Address</th>
+                            <th className="py-2 px-4 text-xs sm:text-sm">Description</th>
+                            <th className="py-2 px-4 text-xs sm:text-sm">User ID</th>
+                            <th className="py-2 px-4 text-xs sm:text-sm">Delivery</th>
+                            <th className="py-2 px-4 text-xs sm:text-sm">Pickup</th>
+                            <th className="py-2 px-4 text-xs sm:text-sm">Delivery Price</th>
+                            <th className="py-2 px-4 text-xs sm:text-sm">Pickup Price</th>
+                            <th className="py-2 px-4 text-xs sm:text-sm">GCash</th>
+                            <th className="py-2 px-4 text-xs sm:text-sm">COD</th>
+                            <th className="py-2 px-4 text-xs sm:text-sm">Bank</th>
+                            <th className="py-2 px-4 text-xs sm:text-sm">Shop Number</th>
+                            <th className="py-2 px-4 text-xs sm:text-sm">Submit Later</th>
+                            <th className="py-2 px-4 text-xs sm:text-sm">TIN Number</th>
+                            <th className="py-2 px-4 text-xs sm:text-sm">Pickup Address</th>
+                            <th className="py-2 px-4 text-xs sm:text-sm">BIR Image</th>
+                            <th className="py-2 px-4 text-xs sm:text-sm">Shop Image</th>
+                            <th className="py-2 px-4 text-xs sm:text-sm">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {filteredShops.map((shop) => (
                             <tr key={shop.shop_id}>
-                                <td className="border px-4 py-2">{shop.shop_id}</td>
-                                <td className="border px-4 py-2">{shop.shop_name}</td>
-                                <td className="border px-4 py-2">{shop.shop_address}</td>
-                                <td className="border px-4 py-2">{shop.shop_description}</td>
-                                <td className="border px-4 py-2">{shop.user_id}</td>
-                                <td className="border px-4 py-2">{shop.delivery ? 'Yes' : 'No'}</td>
-                                <td className="border px-4 py-2">{shop.pickup ? 'Yes' : 'No'}</td>
-                                <td className="border px-4 py-2">{shop.delivery_price}</td>
-                                <td className="border px-4 py-2">{shop.pickup_price}</td>
-                                <td className="border px-4 py-2">{shop.gcash ? 'Yes' : 'No'}</td>
-                                <td className="border px-4 py-2">{shop.cod ? 'Yes' : 'No'}</td>
-                                <td className="border px-4 py-2">{shop.bank ? 'Yes' : 'No'}</td>
-                                <td className="border px-4 py-2">{shop.shop_number}</td>
-                                <td className="border px-4 py-2">{shop.submit_later ? 'Yes' : 'No'}</td>
-                                <td className="border px-4 py-2">{shop.tin_number}</td>
-                                <td className="border px-4 py-2">{shop.pickup_address}</td>
-                                <td className="border py-2 px-4">
+                                <td className="border px-4 py-2 text-xs sm:text-sm">{shop.shop_id}</td>
+                                <td className="border px-4 py-2 text-xs sm:text-sm">{shop.shop_name}</td>
+                                <td className="border px-4 py-2 text-xs sm:text-sm">{shop.shop_address}</td>
+                                <td className="border px-4 py-2 text-xs sm:text-sm">{shop.shop_description}</td>
+                                <td className="border px-4 py-2 text-xs sm:text-sm">{shop.user_id}</td>
+                                <td className="border px-4 py-2 text-xs sm:text-sm">{shop.delivery ? 'Yes' : 'No'}</td>
+                                <td className="border px-4 py-2 text-xs sm:text-sm">{shop.pickup ? 'Yes' : 'No'}</td>
+                                <td className="border px-4 py-2 text-xs sm:text-sm">{shop.delivery_price}</td>
+                                <td className="border px-4 py-2 text-xs sm:text-sm">{shop.pickup_price}</td>
+                                <td className="border px-4 py-2 text-xs sm:text-sm">{shop.gcash ? 'Yes' : 'No'}</td>
+                                <td className="border px-4 py-2 text-xs sm:text-sm">{shop.cod ? 'Yes' : 'No'}</td>
+                                <td className="border px-4 py-2 text-xs sm:text-sm">{shop.bank ? 'Yes' : 'No'}</td>
+                                <td className="border px-4 py-2 text-xs sm:text-sm">{shop.shop_number}</td>
+                                <td className="border px-4 py-2 text-xs sm:text-sm">{shop.submit_later ? 'Yes' : 'No'}</td>
+                                <td className="border px-4 py-2 text-xs sm:text-sm">{shop.tin_number}</td>
+                                <td className="border px-4 py-2 text-xs sm:text-sm">{shop.pickup_address}</td>
+                                <td className="border py-2 px-4 text-xs sm:text-sm">
                                     {shop.bir_image_url && (
                                         <img src={shop.bir_image_url} alt={shop.shop_name} className="w-20 h-auto" />
                                     )}
                                 </td>
-                                <td className="border py-2 px-4">
+                                <td className="border py-2 px-4 text-xs sm:text-sm">
                                     {shop.shop_image_url && (
                                         <img src={shop.shop_image_url} alt={shop.shop_name} className="w-20 h-auto" />
                                     )}
                                 </td>
-                                <td className="border py-2 px-4 space-y-2">
+                                <td className="border py-2 px-4 space-y-2 text-xs sm:text-sm">
                                     <button onClick={() => handleEdit(shop)} className="flex items-center justify-center px-5 py-1 bg-green-600 text-white rounded-md">Edit</button>
                                     <button onClick={() => handleDeleteClick(shop)} className="flex items-center justify-center px-2.5 py-1 bg-red-500 text-white rounded-md">Delete</button>
                                 </td>
@@ -308,29 +311,36 @@ function ShopsPage() {
                         ))}
                     </tbody>
                 </table>
-
             </div>
+
 
             {isModalOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
                     <form onSubmit={handleSubmit} className="bg-white p-6 rounded-md w-full max-w-lg space-y-4">
                         <h2 className="text-2xl font-bold text-center mb-4 text-green-600">{isEdit ? 'Edit Shop' : 'Add Shop'}</h2>
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 gap-4">
                             {Object.keys(formData).map((field) => (
                                 field !== 'shop_id' && !['shop_image_url', 'bir_image_url'].includes(field) && (
                                     <div key={field} className="flex flex-col">
                                         <label htmlFor={field} className="text-sm font-semibold text-gray-700">{field.replace('_', ' ').toUpperCase()}</label>
-                                        <input
-                                            type={typeof formData[field] === 'boolean' ? 'checkbox' : 'text'}
-                                            name={field}
-                                            value={formData[field] || ''}
-                                            onChange={handleInputChange}
-                                            className="p-2 border rounded-md"
-                                            checked={typeof formData[field] === 'boolean' ? formData[field] : undefined}
-                                        />
+                                        <div className="flex items-center">
+                                            <input
+                                                type={typeof formData[field] === 'boolean' ? 'checkbox' : 'text'}
+                                                name={field}
+                                                value={formData[field] || ''}
+                                                onChange={handleInputChange}
+                                                className="p-2 border rounded-md"
+                                                checked={typeof formData[field] === 'boolean' ? formData[field] : undefined}
+                                            />
+                                            {typeof formData[field] === 'boolean' && (
+                                                <span className="ml-2">Check to enable</span> // Optional, or remove
+                                            )}
+                                        </div>
                                     </div>
                                 )
                             ))}
+
+
                             <div className="flex flex-col col-span-2">
                                 <label className="text-sm font-semibold text-gray-700">Shop Image</label>
                                 <input
@@ -352,7 +362,7 @@ function ShopsPage() {
                         </div>
                         <div className="flex justify-end space-x-2 mt-4">
                             <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 bg-gray-500 text-white rounded-md">Cancel</button>
-                            <button type="submit" className="px-4 py-2 bg-green-600 text-white rounded-md">{isEdit ? 'Update' : 'Create'}</button>
+                            <button type="submit" className="px-4 py-2 bg-green-600 text-white rounded-md">{isEdit ? 'Save' : 'Create'}</button>
                         </div>
                     </form>
                 </div>

@@ -125,11 +125,13 @@ function ReviewsPage() {
         setIsEdit(true);
         setIsModalOpen(true);
     };
+    
     const handleCreate = () => {
         setFormData({ crop_id: '', user_id: '', rating: '', review_text: '' });  // Reset form data
         setIsEdit(false);  // Not in edit mode
         setCreateModalOpen(true); // Open the modal
     };
+
     const handleDelete = async () => {
         try {
             const response = await fetch(`/api/reviews/${deleteId}`, {
@@ -329,7 +331,6 @@ function ReviewsPage() {
                     </div>
                 </div>
             )}
-
 
             {/* Search, Filter, and Export Section */}
             <div className="flex flex-col sm:flex-row justify-between items-center mb-6">

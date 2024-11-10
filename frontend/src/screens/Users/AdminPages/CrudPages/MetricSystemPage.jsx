@@ -12,13 +12,21 @@ function MetricSystemPage() {
     metric_val_pounds: '',
   });
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
   const [isEdit, setIsEdit] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedMetricId, setSelectedMetricId] = useState(null);
+
+  const openModal = () => {
+    setFormData({ metric_system_name: '',
+      metric_val_kilogram: '',
+      metric_val_gram: '',
+      metric_val_pounds: '', }); 
+    setIsEdit(false);
+    setIsModalOpen(true);
+  };
 
   useEffect(() => {
     fetchMetricSystems();
@@ -207,7 +215,7 @@ function MetricSystemPage() {
                   type="submit"  
                   className="bg-green-600 text-white p-2 rounded"
                 >
-                  {isEdit ? 'Update' : 'Create'}
+                  Create
                 </button>
               </div>
             </form>

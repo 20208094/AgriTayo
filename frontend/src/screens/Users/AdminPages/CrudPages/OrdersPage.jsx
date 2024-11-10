@@ -18,12 +18,11 @@ function OrdersPage() {
         user_id: '',
         order_metric_system_id: ''
     });
+
     const [isEdit, setIsEdit] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const openModal = () => setIsModalOpen(true);
-    const closeModal = () => setIsModalOpen(false);
     const [searchTerm, setSearchTerm] = useState('');
-    const [selectedStatus, setSelectedStatus] = useState(''); // New state for status filter
+    const [selectedStatus, setSelectedStatus] = useState(''); 
     const [showEditModal, setShowEditModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [orderToDelete, setOrderToDelete] = useState(null);
@@ -190,6 +189,12 @@ function OrdersPage() {
             headStyles: { fillColor: [0, 178, 81], halign: 'center', valign: 'middle' },
         });
         doc.save('orders.pdf');
+    };
+
+    const openModal = () => {
+        setFormData({ total_price: '', total_weight: '', status_id: '', user_id: '', order_metric_system_id: '' }); // Reset formData
+        setIsEdit(false);
+        setIsModalOpen(true);
     };
 
     return (

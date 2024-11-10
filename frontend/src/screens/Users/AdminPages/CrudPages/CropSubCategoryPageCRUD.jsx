@@ -195,33 +195,28 @@ function CropSubCategoryPageCRUD() {
     doc.save('crop_sub_categories_list.pdf');
   };
 
+  const openAddModal = () => {
+    resetForm(); // Reset form fields
+    setIsEdit(false); // Ensure it's in create mode
+    setIsAddModalOpen(true); // Open the modal
+  };
+
   return (
     <div className="p-8">
-      <h1 className="text-2xl font-bold text-center text-[#00B251]">Crop Sub-Category Management</h1>
-      <div className="flex justify-between my-4">
-        <input
-          type="text"
-          placeholder="Search Sub-Categories"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="p-2 border rounded w-full sm:w-1/2"
-        />
+      <h1 className="text-2xl font-bold text-center text-[#00B251]">Crop Subcategory Management</h1>
+      <div className="flex flex-wrap gap-4 my-4">
         <button
-          onClick={() => setIsAddModalOpen(true)}
-          className="bg-[#00B251] text-white p-2 ml-4 rounded"
+          onClick={openAddModal}
+          className="bg-[#00B251] text-white p-2 rounded"
         >
-          Add Sub-Category
-        </button>
-        <button onClick={exportToPDF} className="bg-[#00B251] text-white p-2 ml-4 rounded">
-          Export to PDF
+          + Subcategory
         </button>
       </div>
-
       <div className="flex flex-wrap gap-4 my-4">
         <select
           value={selectedCategory}
           onChange={(e) => setSelectedCategory(e.target.value)}
-          className="p-2 border rounded w-full sm:w-1/4"
+          className="p-2 border rounded w-full sm:w-1/6"
         >
           <option value="">All Categories</option>
           {categories.map(category => (
@@ -230,6 +225,18 @@ function CropSubCategoryPageCRUD() {
             </option>
           ))}
         </select>
+
+        <input
+          type="text"
+          placeholder="Search Sub-Categories"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="p-2 border rounded w-full sm:w-1/2"
+        />
+
+        <button onClick={exportToPDF} className="bg-[#00B251] text-white p-2 ml-4 rounded">
+          Export to PDF
+        </button>
       </div>
 
       <table className="min-w-full bg-white border border-gray-300 mt-4">
@@ -269,12 +276,12 @@ function CropSubCategoryPageCRUD() {
 
       {/* Add Sub-Category Modal */}
       {isAddModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-1/2">
-            <h2 className="text-2xl font-bold mb-4 text-[#00B251]">Add Sub-Category</h2>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
+            <h2 className="text-2xl text-[#00B251] font-semibold">Add Crop Subcategory</h2>
             <form onSubmit={handleCreateSubmit} encType="multipart/form-data">
               <div className="mb-4">
-                <label className="block text-gray-700">Sub-Category Name</label>
+              <p className="text-l font-bold mb-4" style={{ marginTop: '20px',marginBottom: '5px' }}>Subcategory Name</p>
                 <input
                   type="text"
                   name="crop_sub_category_name"
@@ -285,7 +292,7 @@ function CropSubCategoryPageCRUD() {
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-gray-700">Description</label>
+              <p className="text-l font-bold mb-4" style={{ marginBottom: '5px' }}>Description</p>
                 <textarea
                   name="crop_sub_category_description"
                   value={formData.crop_sub_category_description}
@@ -295,7 +302,7 @@ function CropSubCategoryPageCRUD() {
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-gray-700">Image</label>
+              <p className="text-l font-bold mb-4" style={{ marginBottom: '5px' }}>Image</p>
                 <input
                   type="file"
                   name="image"
@@ -305,7 +312,7 @@ function CropSubCategoryPageCRUD() {
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-gray-700">Category</label>
+              <p className="text-l font-bold mb-4" style={{ marginBottom: '5px' }}>Category</p>
                 <select
                   name="crop_category_id"
                   value={formData.crop_category_id}
@@ -330,7 +337,7 @@ function CropSubCategoryPageCRUD() {
                   Cancel
                 </button>
                 <button type="submit" className="bg-[#00B251] text-white px-4 py-2 rounded">
-                  Add
+                  Create
                 </button>
               </div>
             </form>
@@ -340,12 +347,12 @@ function CropSubCategoryPageCRUD() {
 
       {/* Edit Sub-Category Modal */}
       {isEditModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-1/2">
-            <h2 className="text-2xl font-bold mb-4 text-[#00B251]">Edit Sub-Category</h2>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
+            <h2 className="text-2xl font-bold mb-4 text-[#00B251]">Edit Subcategory</h2>
             <form onSubmit={handleEditSubmit} encType="multipart/form-data">
               <div className="mb-4">
-                <label className="block text-gray-700">Sub-Category Name</label>
+              <p className="text-l font-bold mb-4" style={{ marginTop: '20px',marginBottom: '5px' }}>Subcategory Name</p>
                 <input
                   type="text"
                   name="crop_sub_category_name"
@@ -356,7 +363,7 @@ function CropSubCategoryPageCRUD() {
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-gray-700">Description</label>
+              <p className="text-l font-bold mb-4" style={{marginBottom: '5px' }}>Description</p>
                 <textarea
                   name="crop_sub_category_description"
                   value={formData.crop_sub_category_description}
@@ -366,7 +373,7 @@ function CropSubCategoryPageCRUD() {
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-gray-700">Image</label>
+              <p className="text-l font-bold mb-4" style={{marginBottom: '5px' }}>Image</p>
                 <input
                   type="file"
                   name="image"
@@ -376,7 +383,7 @@ function CropSubCategoryPageCRUD() {
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-gray-700">Category</label>
+              <p className="text-l font-bold mb-4" style={{marginBottom: '5px' }}>Category</p>
                 <select
                   name="crop_category_id"
                   value={formData.crop_category_id}
