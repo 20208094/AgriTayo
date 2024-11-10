@@ -12,6 +12,7 @@ import {
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { FontAwesome } from "@expo/vector-icons";
 import GoBack from "../../components/GoBack";
+import { FontAwesome5 } from "@expo/vector-icons";
 
 function RegisterScreenBuyers({ navigation }) {
   const [firstName, setFirstName] = useState("");
@@ -32,7 +33,9 @@ function RegisterScreenBuyers({ navigation }) {
   const [passwordError, setPasswordError] = useState("");
   const [confirmPasswordError, setConfirmPasswordError] = useState("");
   const [phoneError, setPhoneError] = useState("");
-  const [secondaryPhoneNumberError, setSecondaryPhoneNumberError] = useState('')
+  const [secondaryPhoneNumberError, setSecondaryPhoneNumberError] = useState('');
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] = useState(false);
 
   const [loading, setLoading] = useState(false);
 
@@ -44,6 +47,9 @@ function RegisterScreenBuyers({ navigation }) {
   const password_regex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,30}$/;
   const phone_regex = /^(?:\+63|0)?9\d{9}$/;
   const secondaryPhone_regex = /^(?:\+63|0)?9\d{9}$/;
+
+  const togglePasswordVisibility = () => setIsPasswordVisible(!isPasswordVisible);
+  const toggleConfirmPasswordVisibility = () => setIsConfirmPasswordVisible(!isConfirmPasswordVisible);
 
   // Real-time validation handlers
   const validateFirstName = (text) => {
@@ -340,13 +346,22 @@ function RegisterScreenBuyers({ navigation }) {
               </Text>
             ) : null}
           </Text>
-          <TextInput
-            className="w-full p-2 mb-4 bg-white rounded-lg shadow-md"
-            placeholder="•••••••"
-            secureTextEntry
-            value={password}
-            onChangeText={validatePassword} // Real-time validation
-          />
+          <View className="flex-row items-center w-full p-2 mb-4 bg-white rounded-lg shadow-md">
+            <TextInput
+              className="flex-1"
+              placeholder="•••••••"
+              secureTextEntry={!isPasswordVisible}
+              value={password}
+              onChangeText={validatePassword}
+            />
+            <TouchableOpacity onPress={togglePasswordVisibility}>
+              <FontAwesome5
+                name={isPasswordVisible ? "eye" : "eye-slash"}
+                size={20}
+                color="gray"
+              />
+            </TouchableOpacity>
+          </View>
 
           {/* Confirm Password */}
           <Text className="text-sm mb-2 text-gray-800">
@@ -357,20 +372,27 @@ function RegisterScreenBuyers({ navigation }) {
               </Text>
             ) : null}
           </Text>
-          <TextInput
-            className="w-full p-2 mb-4 bg-white rounded-lg shadow-md"
-            placeholder="•••••••"
-            secureTextEntry
-            value={confirmPassword}
-            onChangeText={(text) => {
-              setConfirmPassword(text);
-              if (text !== password) {
-                setConfirmPasswordError("Passwords do not match.");
-              } else {
-                setConfirmPasswordError("");
-              }
-            }}
-          />
+          <View className="flex-row items-center w-full p-2 mb-4 bg-white rounded-lg shadow-md">
+            <TextInput
+              className="flex-1"
+              placeholder="•••••••"
+              secureTextEntry={!isConfirmPasswordVisible}
+              value={confirmPassword}
+              onChangeText={(text) => {
+                setConfirmPassword(text);
+                setConfirmPasswordError(
+                  text !== password ? "Passwords do not match." : ""
+                );
+              }}
+            />
+            <TouchableOpacity onPress={toggleConfirmPasswordVisibility}>
+              <FontAwesome5
+                name={isConfirmPasswordVisible ? "eye" : "eye-slash"}
+                size={20}
+                color="gray"
+              />
+            </TouchableOpacity>
+          </View>
 
           {/* Submit Button */}
           <TouchableOpacity
