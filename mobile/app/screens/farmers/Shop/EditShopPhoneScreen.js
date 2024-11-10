@@ -4,11 +4,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { styled } from "nativewind";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 import { io } from "socket.io-client";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import GoBack from "../../../components/GoBack";
 
-function EditSecondaryPhoneNumberScreen({ navigation, route }) {
-  const { userData, secondaryPhoneNumber } = route.params;
-  const [newSecondaryPhone, setNewSecondaryPhone] = useState("");
+function EditShopPhoneScreen({ navigation, route }) {
+  const { userData, shopNumber } = route.params;
+  const [newPhone, setNewPhone] = useState("");
   const [phoneError, setPhoneError] = useState("");
   const [loading, setLoading] = useState(false);
   const [isCLicked, setIsClicked] = useState(false);
@@ -23,15 +23,15 @@ function EditSecondaryPhoneNumberScreen({ navigation, route }) {
   const phone_regex = /^(?:\+63|0)9\d{2}[-\s]?\d{3}[-\s]?\d{4}$/;
 
   useEffect(() => {
-    console.log("New alternative phone input changed:", newSecondaryPhone);
-    if (newSecondaryPhone && !phone_regex.test(newSecondaryPhone)) {
+    console.log("New phone input changed:", newPhone);
+    if (newPhone && !phone_regex.test(newPhone)) {
       setPhoneError(
         "Invalid phone number format. Please use 09 followed by 9 digits."
       );
     } else {
       setPhoneError("");
     }
-  }, [newSecondaryPhone]);
+  }, [newPhone]);
 
   useEffect(() => {
     if (isCLicked) {
@@ -41,13 +41,13 @@ function EditSecondaryPhoneNumberScreen({ navigation, route }) {
         console.log("Generated OTP code:", code); // For debugging
         const title = "AgriTayo";
         const message = `Your OTP code is: ${code}`;
-        const phone_number = newSecondaryPhone;
+        const phone_number = newPhone;
         socket.emit("sms sender", { title, message, phone_number });
       };
 
       generateRandomCode(); // Generate OTP when isCLicked is true
     }
-  }, [isCLicked, newSecondaryPhone]); // Runs when the OTP button is clicked
+  }, [isCLicked, newPhone]); // Runs when the OTP button is clicked
 
   const handleOtp = async () => {
     setOtpError("");
@@ -58,7 +58,7 @@ function EditSecondaryPhoneNumberScreen({ navigation, route }) {
       setOtpError("Invalid OTP. Please try again.");
     } else {
       const formData = new FormData();
-      formData.append("edit_secondary_phone_number", newSecondaryPhone);
+      formData.append("edit_phone_number", newPhone);
 
       console.log("Form data being sent:", formData);
 
@@ -67,9 +67,9 @@ function EditSecondaryPhoneNumberScreen({ navigation, route }) {
       if (!hasError && !otpError) {
         setLoading(true);
         try {
-          console.log("Sending request to update alternative phone number...");
+          console.log("Sending request to update shop phone number...");
           const response = await fetch(
-            `${REACT_NATIVE_API_BASE_URL}/api/editSecondaryPhoneNumber/${secondaryPhoneNumber}`,
+            `${REACT_NATIVE_API_BASE_URL}/api/editShopPhoneNumber/${shopNumber}`,
             {
               method: "PUT",
               headers: {
@@ -83,28 +83,16 @@ function EditSecondaryPhoneNumberScreen({ navigation, route }) {
 
           if (response.ok) {
             const data = await response.json();
-            console.log("Successfully Updated Alternative Phone Number:", data);
-            Alert.alert("Success!", "Successfully Updated Alternative Phone Number");
-            const updatedUserData = {
-                ...userData,
-                secondary_phone_number: newSecondaryPhone,
-              };
-  
-              console.log(updatedUserData);
-  
-              await AsyncStorage.setItem(
-                "userData",
-                JSON.stringify(updatedUserData)
-              );
-              navigation.goBack(updatedUserData);
-            navigation.navigate("View Profile", { userData });
+            console.log("Successfully Updated Shop Phone Number:", data);
+            Alert.alert("Success!", "Successfully Updated Shop Phone Number");
+            navigation.navigate("View Shop", { userData });
           } else {
             const errorData = await response.json();
-            console.error("Adding new alternative phone number failed:", errorData);
-            alert("Adding New Alternative Phone Number Failed. Please Try Again");
+            console.error("Adding new shop phone number failed:", errorData);
+            alert("Adding New Shop Phone Number Failed. Please Try Again");
           }
         } catch (error) {
-          console.error("Error during adding new alternative phone number:", error);
+          console.error("Error during adding new shop phone number:", error);
           alert("An error occurred. Please try again.");
         } finally {
           setLoading(false);
@@ -116,15 +104,15 @@ function EditSecondaryPhoneNumberScreen({ navigation, route }) {
   };
 
   const handleConfirm = () => {
-    console.log("Handling new alternative phone number update");
+    console.log("Handling new shop phone number update");
     setPhoneError("");
 
     let hasError = false;
 
-    if (!newSecondaryPhone) {
-      setPhoneError("Enter your new alternative phone number");
+    if (!newPhone) {
+      setPhoneError("Enter your new phone number");
       hasError = true;
-    } else if (!phone_regex.test(newSecondaryPhone)) {
+    } else if (!phone_regex.test(newPhone)) {
       setPhoneError(
         "Invalid phone number format. Please use 09 followed by 9 digits."
       );
@@ -144,14 +132,14 @@ function EditSecondaryPhoneNumberScreen({ navigation, route }) {
       <View className="flex-1 items-center px-5">
         <View className="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
           <Text className="text-2xl font-bold text-green-700 mb-4 text-center">
-            Alternative Phone Number
+            Shop Phone Number
           </Text>
           <TextInput
             className="border border-gray-300 rounded-lg px-4 py-2 mb-4"
             keyboardType="numeric"
             placeholder="09123456789"
-            value={newSecondaryPhone}
-            onChangeText={setNewSecondaryPhone}
+            value={newPhone}
+            onChangeText={setNewPhone}
           />
           {phoneError ? (
             <Text className="w-4/5 text-red-500 mb-4">{phoneError}</Text>
@@ -192,4 +180,4 @@ function EditSecondaryPhoneNumberScreen({ navigation, route }) {
   );
 }
 
-export default styled(EditSecondaryPhoneNumberScreen);
+export default styled(EditShopPhoneScreen);

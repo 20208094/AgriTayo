@@ -13,8 +13,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { styled } from "nativewind";
 import { Icon } from "react-native-elements";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import * as ImagePicker from 'expo-image-picker';
-import placeholderlogo from "../../assets/logolabel.png"
+import * as ImagePicker from "expo-image-picker";
+import placeholderlogo from "../../assets/logolabel.png";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 
 function ShopInformationScreen({ route, navigation }) {
@@ -37,10 +37,8 @@ function ShopInformationScreen({ route, navigation }) {
   const [errors, setErrors] = useState({});
   const [pickupAddress, setPickupAddress] = useState("");
 
-
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
-
 
   const shopNameRegex = /^[A-Za-z\s]{2,}$/;
   const addressRegex = /^[A-Za-z0-9\s,'-]{10,}$/;
@@ -51,7 +49,8 @@ function ShopInformationScreen({ route, navigation }) {
     switch (field) {
       case "shopName":
         if (!shopNameRegex.test(value)) {
-          error = "Invalid Shop Name. Must be at least 2 characters and letters only.";
+          error =
+            "Invalid Shop Name. Must be at least 2 characters and letters only.";
         }
         setShopName(value);
         break;
@@ -81,13 +80,15 @@ function ShopInformationScreen({ route, navigation }) {
         break;
       case "shopNumber":
         if (!phone_regex.test(value)) {
-          error = "Invalid phone number format. Please use 09 followed by 9 digits.";
+          error =
+            "Invalid phone number format. Please use 09 followed by 9 digits.";
         }
         setShopNumber(value);
         break;
       case "secondaryShopNumber":
         if (!phone_regex.test(value)) {
-          error = "Invalid phone number format. Please use 09 followed by 9 digits.";
+          error =
+            "Invalid phone number format. Please use 09 followed by 9 digits.";
         }
         setSecondaryShopNumber(value);
         break;
@@ -98,20 +99,21 @@ function ShopInformationScreen({ route, navigation }) {
   };
 
   const pickImage = async () => {
-    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    const permissionResult =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permissionResult.granted) {
-      setAlertMessage("Permission Required, Permission to access the gallery is required.");
+      setAlertMessage(
+        "Permission Required, Permission to access the gallery is required."
+      );
       setAlertVisible(true);
       return;
     }
-
 
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       quality: 1,
     });
-
 
     if (!result.canceled) {
       setShopImage(result.assets[0].uri);
@@ -130,19 +132,32 @@ function ShopInformationScreen({ route, navigation }) {
       hasError = true;
     }
     if (!shopAddress) {
-      setErrors((prev) => ({ ...prev, shopAddress: "Shop address is required." }));
+      setErrors((prev) => ({
+        ...prev,
+        shopAddress: "Shop address is required.",
+      }));
       hasError = true;
     }
     if (!shopNumber) {
-      setErrors((prev) => ({ ...prev, shopNumber: "Shop number is required." }));
+      setErrors((prev) => ({
+        ...prev,
+        shopNumber: "Shop number is required.",
+      }));
       hasError = true;
     }
     if (!isCheckedDelivery && !isCheckedPickup) {
-      setErrors((prev) => ({ ...prev, shippingOption: "Shipping options is required, Please select a shipping option (Delivery or Pickup)." }));
+      setErrors((prev) => ({
+        ...prev,
+        shippingOption:
+          "Shipping options is required, Please select a shipping option (Delivery or Pickup).",
+      }));
       hasError = true;
     }
     if (!isCheckedCod && !isCheckedGcash && !isCheckedBankTransfer) {
-      setErrors((prev) => ({ ...prev, PaymentMethod: "Payment method is required" }));
+      setErrors((prev) => ({
+        ...prev,
+        PaymentMethod: "Payment method is required",
+      }));
       hasError = true;
     }
     if (hasError) {
@@ -171,14 +186,31 @@ function ShopInformationScreen({ route, navigation }) {
 
     console.log("shopData being passed:", shopData);
 
-    navigation.navigate("Business Information", {
-      userData,
-      shopData,
-    });
+    // navigation.navigate("Business Information", {
+    //   userData,
+    //   shopData,
+    // });
+    if(secondaryShopNumber){
+      navigation.navigate("Shop Phones OTP", {
+        userData,
+        shopData,
+        shopNumber,
+        secondaryShopNumber
+      });
+    }else{
+      navigation.navigate("Shop OTP", {
+        userData,
+        shopData,
+        shopNumber,
+      });
+    }
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={['bottom', 'left', 'right']}>
+    <SafeAreaView
+      className="flex-1 bg-white"
+      edges={["bottom", "left", "right"]}
+    >
       <ScrollView contentContainerStyle={{ padding: 16 }}>
         <View className="flex-row justify-between items-center">
           <View className="flex-1 border-b-2 border-green-800 pb-2">
@@ -210,33 +242,37 @@ function ShopInformationScreen({ route, navigation }) {
 
         {/* Shop Name */}
         <View className="w-full max-w-md mx-auto">
-          <Text className="text-sm mb-2 text-[#00B251]">Shop Name: <Text className="text-red-500 text-sm">*</Text>
+          <Text className="text-sm mb-2 text-[#00B251]">
+            Shop Name: <Text className="text-red-500 text-sm">*</Text>
             {errors.shopName && (
               <Text className="text-red-500 mb-2">{errors.shopName}</Text>
             )}
           </Text>
           <TextInput
             value={shopName}
-            onChangeText={(value) => handleInputChange('shopName', value)}
+            onChangeText={(value) => handleInputChange("shopName", value)}
             className="w-full p-2 mb-4 bg-white rounded-lg shadow-md text-gray-800"
             placeholder="e.g., AgriTayo Shop"
           />
 
           {/* Shop Address */}
-          <Text className="text-sm mb-2 text-[#00B251]">Address: <Text className="text-red-500 text-sm">*</Text>
+          <Text className="text-sm mb-2 text-[#00B251]">
+            Address: <Text className="text-red-500 text-sm">*</Text>
             {errors.shopAddress && (
               <Text className="text-red-500 mb-2">{errors.shopAddress}</Text>
             )}
           </Text>
           <TextInput
             value={shopAddress}
-            onChangeText={(value) => handleInputChange('shopAddress', value)}
+            onChangeText={(value) => handleInputChange("shopAddress", value)}
             className="w-full p-2 mb-4 bg-white rounded-lg shadow-md text-gray-800"
             placeholder="e.g., #24 Roman Ayson Sepic Road Campo Filipino Baguio City"
           />
 
           {/* Shop Description */}
-          <Text className="text-sm mb-2 text-[#00B251]">Shop Description: </Text>
+          <Text className="text-sm mb-2 text-[#00B251]">
+            Shop Description:{" "}
+          </Text>
           <TextInput
             value={shopDescription}
             onChangeText={setShopDescription}
@@ -245,36 +281,47 @@ function ShopInformationScreen({ route, navigation }) {
           />
 
           {/* Shop Number */}
-          <Text className="text-sm mb-2 text-[#00B251]">Shop Phone Number: <Text className="text-red-500 text-sm">*</Text>
+          <Text className="text-sm mb-2 text-[#00B251]">
+            Shop Phone Number: <Text className="text-red-500 text-sm">*</Text>
             {errors.shopNumber && (
               <Text className="text-red-500 mb-2">{errors.shopNumber}</Text>
             )}
           </Text>
           <TextInput
             value={shopNumber}
-            onChangeText={(value) => handleInputChange('shopNumber', value)}
+            onChangeText={(value) => handleInputChange("shopNumber", value)}
             className="w-full p-2 mb-4 bg-white rounded-lg shadow-md text-gray-800"
             placeholder="e.g., 09123456789"
-            keyboardType="numeric" 
+            keyboardType="numeric"
           />
 
           {/* Seecondary Shop Number */}
-          <Text className="text-sm mb-2 text-[#00B251]">Secondary Shop Phone Number: (optional)
+          <Text className="text-sm mb-2 text-[#00B251]">
+            Secondary Shop Phone Number: (optional)
             {errors.secondaryShopNumber && (
-              <Text className="text-red-500 mb-2">{errors.secondaryShopNumber}</Text>
+              <Text className="text-red-500 mb-2">
+                {errors.secondaryShopNumber}
+              </Text>
             )}
           </Text>
           <TextInput
             value={secondaryShopNumber}
-            onChangeText={(value) => handleInputChange('secondaryShopNumber', value)}
+            onChangeText={(value) =>
+              handleInputChange("secondaryShopNumber", value)
+            }
             className="w-full p-2 mb-4 bg-white rounded-lg shadow-md text-gray-800"
             placeholder="e.g., 09123456789"
-            keyboardType="numeric" 
+            keyboardType="numeric"
           />
 
           {/* Delivery Checkbox */}
-          <Text className="text-orange-500 text-sm">NOTE: AgriTayo will not handle shipping and payment, this will only serve as away to inform the buyer for your available shipping and payment option.</Text>
-          <Text className="text-sm mb-2 text-[#00B251]">Shipping Options: <Text className="text-red-500 text-sm">*</Text>
+          <Text className="text-orange-500 text-sm">
+            NOTE: AgriTayo will not handle shipping and payment, this will only
+            serve as away to inform the buyer for your available shipping and
+            payment option.
+          </Text>
+          <Text className="text-sm mb-2 text-[#00B251]">
+            Shipping Options: <Text className="text-red-500 text-sm">*</Text>
             {errors.shippingOption && (
               <Text className="text-red-500 mb-2">{errors.shippingOption}</Text>
             )}
@@ -300,7 +347,9 @@ function ShopInformationScreen({ route, navigation }) {
 
               <TextInput
                 value={shopDeliveryFee}
-                onChangeText={(value) => handleInputChange('shopDeliveryFee', value)}
+                onChangeText={(value) =>
+                  handleInputChange("shopDeliveryFee", value)
+                }
                 className="w-full p-2 mb-4 bg-white rounded-lg shadow-md text-gray-800"
                 placeholder="Enter delivery fee"
                 keyboardType="numeric"
@@ -326,19 +375,26 @@ function ShopInformationScreen({ route, navigation }) {
           {/* Pickup Fee */}
           {isCheckedPickup && (
             <>
-              <Text className="text-sm mb-2 text-gray-800">Pickup Address:
+              <Text className="text-sm mb-2 text-gray-800">
+                Pickup Address:
               </Text>
               <TextInput
                 value={pickupAddress}
-                onChangeText={(value) => handleInputChange('pickupAddress', value)}
+                onChangeText={(value) =>
+                  handleInputChange("pickupAddress", value)
+                }
                 className="w-full p-2 mb-4 bg-white rounded-lg shadow-md text-gray-800"
                 placeholder="Enter Pickup Address"
               />
 
-              <Text className="text-sm mb-2 text-gray-800">Pickup Area Fee: </Text>
+              <Text className="text-sm mb-2 text-gray-800">
+                Pickup Area Fee:{" "}
+              </Text>
               <TextInput
                 value={pickupAreaFee}
-                onChangeText={(value) => handleInputChange('pickupAreaFee', value)}
+                onChangeText={(value) =>
+                  handleInputChange("pickupAreaFee", value)
+                }
                 className="w-full p-2 mb-4 bg-white rounded-lg shadow-md text-gray-800"
                 placeholder="Enter pickup area fee"
                 keyboardType="numeric"
@@ -347,10 +403,12 @@ function ShopInformationScreen({ route, navigation }) {
           )}
 
           {/* COD Checkbox */}
-          <Text className="text-sm mb-2 text-[#00B251]">Payment Methods: <Text className="text-red-500 text-sm">*</Text>
+          <Text className="text-sm mb-2 text-[#00B251]">
+            Payment Methods: <Text className="text-red-500 text-sm">*</Text>
             {errors.PaymentMethod && (
               <Text className="text-red-500 mb-2">{errors.PaymentMethod}</Text>
-            )}</Text>
+            )}
+          </Text>
           <View className="flex-row items-center mb-4">
             <TouchableOpacity
               className="mr-2"
@@ -387,7 +445,9 @@ function ShopInformationScreen({ route, navigation }) {
               onPress={() => setIsCheckedBankTransfer(!isCheckedBankTransfer)}
             >
               <Ionicons
-                name={isCheckedBankTransfer ? "checkbox-outline" : "square-outline"}
+                name={
+                  isCheckedBankTransfer ? "checkbox-outline" : "square-outline"
+                }
                 size={24}
                 color="green"
               />
@@ -421,7 +481,9 @@ function ShopInformationScreen({ route, navigation }) {
               className="mb-4 p-2 bg-green-600 rounded-lg"
               onPress={pickImage}
             >
-              <Text className="text-white text-center">Choose from Gallery</Text>
+              <Text className="text-white text-center">
+                Choose from Gallery
+              </Text>
             </TouchableOpacity>
             <TouchableOpacity
               className="p-2 bg-gray-400 rounded-lg"
@@ -433,7 +495,6 @@ function ShopInformationScreen({ route, navigation }) {
         </View>
       </Modal>
 
-
       {/* Alert Modal */}
       <Modal
         animationType="fade"
@@ -443,12 +504,18 @@ function ShopInformationScreen({ route, navigation }) {
       >
         <View className="flex-1 justify-center items-center bg-black/50 bg-opacity-50">
           <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
-            <Text className="text-lg font-semibold text-gray-900 mb-4">{alertMessage}</Text>
+            <Text className="text-lg font-semibold text-gray-900 mb-4">
+              {alertMessage}
+            </Text>
             <TouchableOpacity
               className="mt-4 p-2 bg-[#00B251] rounded-lg flex-row justify-center items-center"
               onPress={() => setAlertVisible(false)}
             >
-              <Ionicons name="checkmark-circle-outline" size={24} color="white" />
+              <Ionicons
+                name="checkmark-circle-outline"
+                size={24}
+                color="white"
+              />
               <Text className="text-lg text-white ml-2">OK</Text>
             </TouchableOpacity>
           </View>

@@ -15,8 +15,8 @@ import { io } from 'socket.io-client';
 import GoBack from "../../components/GoBack";
 import { Ionicons } from "@expo/vector-icons";
 
-function OTPOnlyPhoneScreen({ route, navigation }) {
-  const { formData, phone } = route.params;
+function ShopOTPScreen({ route, navigation }) {
+  const { userData, shopData, shopNumber } = route.params;
 
   const [generatedCode, setGeneratedCode] = useState("");
 
@@ -40,7 +40,7 @@ function OTPOnlyPhoneScreen({ route, navigation }) {
     console.log("Generated OTP code:", code); // For debugging, remove in production
     const title = 'AgriTayo'
     const message = `Your OTP code is: ${code}`
-    const phone_number = phone
+    const phone_number = shopNumber
     socket.emit('sms sender', {
       title,
       message,
@@ -72,35 +72,10 @@ function OTPOnlyPhoneScreen({ route, navigation }) {
     } else if (otpString !== generatedCode) {
       setOtpError("Invalid OTP. Please try again.");
     } else {
-      setLoading(true);
-      try {
-        const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/users`, {
-          method: "POST",
-          headers: {
-            "x-api-key": REACT_NATIVE_API_KEY,
-          },
-          body: formData,
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          console.log("Successfully Registered")
-          setAlertMessage("Success!, Successfully Registered")
-          setAlertVisible(true);
-          navigation.navigate("Login");
-        } else {
-          const errorData = await response.json();
-          console.error("Registration failed:", errorData);
-          setAlertMessage("Registration Failed. Please Try Again");
-          setAlertVisible(true);
-        }
-      } catch (error) {
-        console.error("Error during registration:", error);
-        setAlertMessage("An error occurred. Please try again.");
-        setAlertVisible(true);
-      } finally {
-        setLoading(false);
-      }
+        navigation.navigate("Business Information", {
+            userData,
+            shopData,
+          });
     }
   };
 
@@ -136,7 +111,7 @@ function OTPOnlyPhoneScreen({ route, navigation }) {
 
         <View className="mb-6">
           <Text className="text-gray-600 text-center">
-            A 6-digit code has been sent to {phone}
+            A 6-digit code has been sent to {shopNumber}
           </Text>
         </View>
 
@@ -201,4 +176,4 @@ function OTPOnlyPhoneScreen({ route, navigation }) {
   );
 }
 
-export default OTPOnlyPhoneScreen;
+export default ShopOTPScreen;

@@ -302,6 +302,106 @@ async function updateShop(req, res) {
     }
 }
 
+async function editShopPhoneNumber(req, res) {
+    try {
+        const { shop_number } = req.params;
+
+        if (!shop_number) {
+            return res.status(400).json({ error: 'Shop Phone Number is required for update' });
+        }
+
+        const form = new formidable.IncomingForm({ multiples: true });
+
+        form.parse(req, async (err, fields, files) => {
+            if (err) {
+                console.error('Formidable error:', err);
+                return res.status(500).json({ error: 'Form parsing error' });
+            }
+
+            const {
+                edit_phone_number
+            } = fields;
+
+            console.log(edit_phone_number)
+
+            const updateData = {
+                shop_number: getSingleValue(edit_phone_number),
+            }
+
+            console.log(edit_phone_number, shop_number)
+
+            const { data, error } = await supabase
+                .from('shop')
+                .update(updateData)
+                .eq('shop_number', shop_number);
+
+            if (error) {
+                console.error('Supabase query failed:', error.message);
+                return res.status(500).json({ error: 'Internal server error' });
+            }
+
+            console.log('User updated successfully:', data);
+            res.status(200).json({ message: 'Shop updated successfully', data });
+        });
+    } catch (err) {
+        console.error('Error executing updateShop process:', err.message);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+    
+// Helper function to get single value from array
+const getSingleValue = (value) => Array.isArray(value) ? value[0] : value;
+}
+
+async function editSecondaryShopPhoneNumber(req, res) {
+    try {
+        const { secondary_shop_number } = req.params;
+
+        if (!secondary_shop_number) {
+            return res.status(400).json({ error: 'Alternative Shop Phone Number is required for update' });
+        }
+
+        const form = new formidable.IncomingForm({ multiples: true });
+
+        form.parse(req, async (err, fields, files) => {
+            if (err) {
+                console.error('Formidable error:', err);
+                return res.status(500).json({ error: 'Form parsing error' });
+            }
+
+            const {
+                edit_secondary_phone_number
+            } = fields;
+
+            console.log(edit_secondary_phone_number)
+
+            const updateData = {
+                secondary_shop_number: getSingleValue(edit_secondary_phone_number),
+            }
+
+            console.log(edit_secondary_phone_number, secondary_shop_number)
+
+            const { data, error } = await supabase
+                .from('shop')
+                .update(updateData)
+                .eq('secondary_shop_number', secondary_shop_number);
+
+            if (error) {
+                console.error('Supabase query failed:', error.message);
+                return res.status(500).json({ error: 'Internal server error' });
+            }
+
+            console.log('Shop updated successfully:', data);
+            res.status(200).json({ message: 'Shop updated successfully', data });
+        });
+    } catch (err) {
+        console.error('Error executing updateShop process:', err.message);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+    
+// Helper function to get single value from array
+const getSingleValue = (value) => Array.isArray(value) ? value[0] : value;
+}
+
 // Delete a shop
 async function deleteShop(req, res) {
     try {
@@ -331,5 +431,7 @@ module.exports = {
     getShops,
     addShop,
     updateShop,
-    deleteShop
+    deleteShop, 
+    editShopPhoneNumber,
+    editSecondaryShopPhoneNumber
 };

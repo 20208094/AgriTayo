@@ -4,10 +4,9 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { styled } from "nativewind";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 import { io } from "socket.io-client";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
-function EditSecondaryPhoneNumberScreen({ navigation, route }) {
-  const { userData, secondaryPhoneNumber } = route.params;
+function EditSecondaryShopPhoneScreen({ navigation, route }) {
+  const { userData, shopSecondaryNumber } = route.params;
   const [newSecondaryPhone, setNewSecondaryPhone] = useState("");
   const [phoneError, setPhoneError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -69,7 +68,7 @@ function EditSecondaryPhoneNumberScreen({ navigation, route }) {
         try {
           console.log("Sending request to update alternative phone number...");
           const response = await fetch(
-            `${REACT_NATIVE_API_BASE_URL}/api/editSecondaryPhoneNumber/${secondaryPhoneNumber}`,
+            `${REACT_NATIVE_API_BASE_URL}/api/editSecondaryShopPhoneNumber/${shopSecondaryNumber}`,
             {
               method: "PUT",
               headers: {
@@ -83,28 +82,16 @@ function EditSecondaryPhoneNumberScreen({ navigation, route }) {
 
           if (response.ok) {
             const data = await response.json();
-            console.log("Successfully Updated Alternative Phone Number:", data);
-            Alert.alert("Success!", "Successfully Updated Alternative Phone Number");
-            const updatedUserData = {
-                ...userData,
-                secondary_phone_number: newSecondaryPhone,
-              };
-  
-              console.log(updatedUserData);
-  
-              await AsyncStorage.setItem(
-                "userData",
-                JSON.stringify(updatedUserData)
-              );
-              navigation.goBack(updatedUserData);
-            navigation.navigate("View Profile", { userData });
+            console.log("Successfully Updated Alternative Shop Phone Number:", data);
+            Alert.alert("Success!", "Successfully Updated Shop Alternative Phone Number");
+            navigation.navigate("View Shop", { userData });
           } else {
             const errorData = await response.json();
-            console.error("Adding new alternative phone number failed:", errorData);
-            alert("Adding New Alternative Phone Number Failed. Please Try Again");
+            console.error("Adding new alternative shop phone number failed:", errorData);
+            alert("Adding New Alternative Shop Phone Number Failed. Please Try Again");
           }
         } catch (error) {
-          console.error("Error during adding new alternative phone number:", error);
+          console.error("Error during adding new phone alternative phone number:", error);
           alert("An error occurred. Please try again.");
         } finally {
           setLoading(false);
@@ -116,13 +103,13 @@ function EditSecondaryPhoneNumberScreen({ navigation, route }) {
   };
 
   const handleConfirm = () => {
-    console.log("Handling new alternative phone number update");
+    console.log("Handling new alternative shop phone number update");
     setPhoneError("");
 
     let hasError = false;
 
     if (!newSecondaryPhone) {
-      setPhoneError("Enter your new alternative phone number");
+      setPhoneError("Enter your new alternative shop phone number");
       hasError = true;
     } else if (!phone_regex.test(newSecondaryPhone)) {
       setPhoneError(
@@ -144,7 +131,7 @@ function EditSecondaryPhoneNumberScreen({ navigation, route }) {
       <View className="flex-1 items-center px-5">
         <View className="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
           <Text className="text-2xl font-bold text-green-700 mb-4 text-center">
-            Alternative Phone Number
+            Alternative Shop Phone Number
           </Text>
           <TextInput
             className="border border-gray-300 rounded-lg px-4 py-2 mb-4"
@@ -192,4 +179,4 @@ function EditSecondaryPhoneNumberScreen({ navigation, route }) {
   );
 }
 
-export default styled(EditSecondaryPhoneNumberScreen);
+export default styled(EditSecondaryShopPhoneScreen);
