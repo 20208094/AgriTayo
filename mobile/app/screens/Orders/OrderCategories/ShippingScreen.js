@@ -206,7 +206,7 @@ const ShippingScreen = ({ orders, orderProducts }) => {
       <Modal
         visible={confirmationVisible}
         transparent={true}
-        animationType="slide"
+        animationType="fade"
         onRequestClose={() => setConfirmationVisible(false)}
       >
         <View className="flex-1 justify-center items-center bg-black/50">
@@ -235,10 +235,10 @@ const ShippingScreen = ({ orders, orderProducts }) => {
       <Modal
         visible={returnDetailsVisible}
         transparent={true}
-        animationType="slide"
+        animationType="fade"
         onRequestClose={() => setReturnDetailsVisible(false)}
       >
-        <View className="flex-1 justify-center items-center bg-black bg-opacity-50">
+        <View className="flex-1 justify-center items-center bg-black/50">
           <View className="bg-white p-6 rounded-lg">
             <Text className="text-lg font-semibold mb-4">Return Item</Text>
             <Text>Why do you want to return the item?</Text>
@@ -273,7 +273,7 @@ const ShippingScreen = ({ orders, orderProducts }) => {
         visible={alertVisible}
         onRequestClose={() => setAlertVisible(false)}
       >
-        <View className="flex-1 justify-center items-center bg-black/50 bg-opacity-50">
+        <View className="flex-1 justify-center items-center bg-black/50">
           <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
             <Text className="text-lg font-semibold text-gray-900 mb-4">{alertMessage}</Text>
             <TouchableOpacity

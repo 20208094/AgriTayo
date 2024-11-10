@@ -192,10 +192,10 @@ const PreparingScreen = ({ orders, orderProducts }) => {
       <Modal
         visible={confirmationVisible}
         transparent={true}
-        animationType="slide"
+        animationType="fade"
         onRequestClose={() => setConfirmationVisible(false)}
       >
-        <View className="flex-1 justify-center items-center bg-black bg-opacity-50">
+        <View className="flex-1 justify-center items-center bg-black/50">
           <View className="bg-white p-6 rounded-lg">
             <Text className="text-lg font-semibold mb-4">Confirm Accept</Text>
             <Text>
@@ -223,10 +223,10 @@ const PreparingScreen = ({ orders, orderProducts }) => {
       <Modal
         visible={rejectReasonVisible}
         transparent={true}
-        animationType="slide"
+        animationType="fade"
         onRequestClose={() => setRejectReasonVisible(false)}
       >
-        <View className="flex-1 justify-center items-center bg-black bg-opacity-50">
+        <View className="flex-1 justify-center items-center bg-black/50">
           <View className="bg-white p-6 rounded-lg">
             <Text className="text-lg font-semibold mb-4">Reject Order</Text>
             <Text>Why are you rejecting this order?</Text>
