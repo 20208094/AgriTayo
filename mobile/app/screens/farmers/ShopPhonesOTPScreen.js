@@ -93,17 +93,28 @@ function ShopPhonesOTPScreen({ route, navigation }) {
     const otpString = otp.join("");
     const otpString2 = otp2.join("");
 
-    if (otpString.length < 6 && otpString2.length < 6) {
+    // Check if both OTPs have 6 digits
+    if (otpString.length < 6) {
       setOtpError("Enter the 6 digit code");
+    }
+    if (otpString2.length < 6) {
       setOtpError2("Enter the 6 digit code");
-    } else if (otpString !== generatedCode && otpString2 !== generatedCode2) {
+    }
+
+    // Validate each OTP separately and set appropriate error messages
+    if (otpString.length === 6 && otpString !== generatedCode) {
       setOtpError("Invalid OTP. Please try again.");
+    }
+    if (otpString2.length === 6 && otpString2 !== generatedCode2) {
       setOtpError2("Invalid OTP. Please try again.");
-    } else {
-        navigation.navigate("Business Information", {
-            userData,
-            shopData,
-          });
+    }
+
+    // If both OTPs are correct, navigate to the next screen
+    if (otpString === generatedCode && otpString2 === generatedCode2) {
+      navigation.navigate("Business Information", {
+        userData,
+        shopData,
+      });
     }
   };
 
@@ -192,9 +203,9 @@ function ShopPhonesOTPScreen({ route, navigation }) {
         ) : null}
 
         <View className='mb-6'>
-        <Text className="text-gray-600 text-center">
-          Alternative Phone: {secondaryShopNumber}
-        </Text>
+          <Text className="text-gray-600 text-center">
+            Alternative Phone: {secondaryShopNumber}
+          </Text>
         </View>
 
         <View className="flex-row justify-between w-full max-w-xs mb-4">

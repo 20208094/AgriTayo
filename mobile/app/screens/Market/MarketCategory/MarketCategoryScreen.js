@@ -21,6 +21,7 @@ const CategoryItemCard = ({ item }) => {
       />
       <View className="p-4">
         <Text className="text-lg font-semibold text-gray-800">{item.crop_name}</Text>
+        <Text className="text-sm text-gray-600 mt-1">Shop: {item.shop_name}</Text>
         <Text className="text-sm text-gray-600 mt-1">Size: {item.size.crop_size_name}</Text>
         <Text className="text-sm text-gray-600 mt-1">Class: {item.crop_class}</Text>
         <Text className="text-sm text-gray-600 mt-1">{item.crop_description}</Text>
@@ -39,11 +40,7 @@ function MarketCategoryScreen({ route }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [categories, setCategories] = useState([]);
-  const [showCategoriesModal, setShowCategoriesModal] = useState(false);
-  const [selectedCategories, setSelectedCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
-  const [activeSubCategories, setActiveSubCategories] = useState({});
-  const [openDropdown, setOpenDropdown] = useState({});
   const [selectedSubCategories, setSelectedSubCategories] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [metricSystem, setMetricSystem] = useState([]);
@@ -57,24 +54,43 @@ function MarketCategoryScreen({ route }) {
     setLoading(false);
   }, [selectedProduct]);
 
-  const fetchAllCrops = useCallback(async () => {
+  const fetchAllCropsWithShops = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crops`, {
-        headers: {
-          'x-api-key': API_KEY
-        }
+  
+      // Fetch crops data
+      const cropsResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crops`, {
+        headers: { 'x-api-key': API_KEY }
       });
-      
-      const data = await response.json();
-      setCrops(data);
+      const cropsData = await cropsResponse.json();
+  
+      // Fetch all shop data
+      const shopsResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/shops`, {
+        headers: { 'x-api-key': API_KEY }
+      });
+      const shopsData = await shopsResponse.json();
+  
+      // Map shop IDs to shop names
+      const shopMap = shopsData.reduce((acc, shop) => {
+        acc[shop.shop_id] = shop.shop_name;
+        return acc;
+      }, {});
+  
+      // Add shop_name to each crop based on shop_id
+      const cropsWithShops = cropsData.map(crop => ({
+        ...crop,
+        shop_name: shopMap[crop.shop_id] || 'Unknown Shop'
+      }));
+  
+      setCrops(cropsWithShops);
     } catch (error) {
       setError(error);
-      console.error('Error fetching all crops:', error);
+      console.error('Error fetching crops or shops:', error);
     } finally {
       setLoading(false);
     }
   }, [API_KEY]);
+  
 
   const fetchCategories = async () => {
     try {
@@ -189,9 +205,9 @@ function MarketCategoryScreen({ route }) {
     fetchCategories();
     fetchSubCategories();
     fetchMetricSystem();
-
+  
     if (!searchResults && selectedSubCategories.length === 0 && !selectedItemId) {
-      fetchAllCrops();
+      fetchAllCropsWithShops();
     } else if (searchResults) {
       setCrops(searchResults);
     } else if (selectedSubCategories.length > 0) {
@@ -200,6 +216,7 @@ function MarketCategoryScreen({ route }) {
       fetchCrops(selectedItemId);
     }
   }, [searchResults, selectedSubCategories, selectedItemId]);
+  
 
   useEffect(() => {
     if (selectedSubCategories.length > 0) {
@@ -220,7 +237,7 @@ function MarketCategoryScreen({ route }) {
     const name = crop.crop_name?.toLowerCase() || "";
     const description = crop.crop_description?.toLowerCase() || "";
     const price = crop.crop_price?.toString() || "";
-    const rating = crop.crop_rating?.toString() || "";
+    // const rating = crop.crop_rating?.toString() || "";
     const sizeName = crop.size?.crop_size_name?.toLowerCase() || "";
     const cropClass = crop.crop_class?.toLowerCase() || "";
   
@@ -228,7 +245,7 @@ function MarketCategoryScreen({ route }) {
       name.includes(searchLower) ||
       description.includes(searchLower) ||
       price.includes(searchLower) ||
-      rating.includes(searchLower) ||
+      // rating.includes(searchLower) ||
       cropClass.includes(searchLower) ||
       sizeName.includes(searchLower)
     );

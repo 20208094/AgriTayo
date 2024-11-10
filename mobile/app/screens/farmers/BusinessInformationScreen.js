@@ -110,7 +110,7 @@ function BusinessInformationScreen({ navigation, route }) {
       formData.append("shop_description", shopData.shop_description);
       formData.append("shop_address", shopData.shop_address);
       formData.append("shop_number", shopData.shop_number);
-  
+      formData.append("secondary_shop_number", shopData.secondary_shop_number)
       formData.append("delivery", shopData.delivery);
       formData.append("delivery_price", shopData.delivery ? shopData.delivery_price : null);
       formData.append("pickup", shopData.pickup);
@@ -175,7 +175,7 @@ function BusinessInformationScreen({ navigation, route }) {
         }
         setAlertMessage("Success, Shop created successfully!");
         setAlertVisible(true);
-        navigation.pop(3)
+        navigation.pop(4)
       } else {
         setAlertMessage("Error, Failed to create shop");
         setAlertVisible(true);

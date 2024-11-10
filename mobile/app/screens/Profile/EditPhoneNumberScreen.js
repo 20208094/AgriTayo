@@ -142,7 +142,7 @@ function EditPhoneNumberScreen({ navigation, route }) {
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
       <View className="flex-1 items-center px-5">
-        <View className="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
+        <View className="bg-white mb-10 mt-20 p-6 rounded-lg shadow-md w-full max-w-md">
           <Text className="text-2xl font-bold text-green-700 mb-4 text-center">
             Phone Number
           </Text>
@@ -165,30 +165,31 @@ function EditPhoneNumberScreen({ navigation, route }) {
         </View>
         {isCLicked && (
           <>
-            <View className="">
-              <Text className="">Enter your 6 digit code: </Text>
-              <TextInput
-                keyboardType="numeric"
-                value={otp}
-                onChangeText={setOtp}
-                placeholder="123456"
-              />
-              <TouchableOpacity className="" onPress={handleOtp}>
-                <Text className="">Submit</Text>
+            <View className="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
+                <Text className="text-2xl font-bold text-green-700 mb-4 text-center">Enter your 6 digit code: </Text>
+                <TextInput
+                  className="border border-gray-300 rounded-lg px-4 py-2 mb-4"
+                  keyboardType="numeric"
+                  value={otp}
+                  onChangeText={setOtp}
+                  placeholder="123456"
+                />
+                {otpError ? (
+                  <Text className="text-center text w-4/5 text-red-500 mb-4">
+                    {otpError}
+                  </Text>
+                ) : null}
+                <TouchableOpacity className="bg-green-600 px-4 py-2 rounded-lg mb-5" onPress={handleOtp}>
+                  <Text className="text-white font-bold text-center">Submit</Text>
+                </TouchableOpacity>
+              <TouchableOpacity onPress={handleResend}>
+                <Text className="text-center font-bold text-[#00B251]">Resend OTP</Text>
               </TouchableOpacity>
-              {otpError ? (
-                <Text className="text-center text w-4/5 text-red-500 mb-4">
-                  {otpError}
-                </Text>
-              ) : null}
             </View>
-            <TouchableOpacity onPress={handleResend}>
-              <Text className="">Resend OTP</Text>
-            </TouchableOpacity>
           </>
         )}
       </View>
-    </SafeAreaView>
+    </SafeAreaView >
   );
 }
 

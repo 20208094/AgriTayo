@@ -253,22 +253,22 @@ function ProductDetailsScreen({ navigation, route }) {
         },
       });
       const cropsData = await cropResponse.json();
-    const newCrop = cropsData.filter(crop => crop.crop_id === product.crop_id);
+      const newCrop = cropsData.filter(crop => crop.crop_id === product.crop_id);
 
-    const shopData = await shopResponse.json();
-    const metricSystemsData = await metricSystemResponse.json();
+      const shopData = await shopResponse.json();
+      const metricSystemsData = await metricSystemResponse.json();
 
-    // Map through the crops and handle asynchronous logic with Promise.all
-    const combinedData = await Promise.all(newCrop.map(async (crop) => {
-      const shopinfo = shopData.find(shop => shop.shop_id === crop.shop_id);
-      const metricSystem = metricSystemsData.find(ms => ms.metric_system_id === crop.metric_system_id);
+      // Map through the crops and handle asynchronous logic with Promise.all
+      const combinedData = await Promise.all(newCrop.map(async (crop) => {
+        const shopinfo = shopData.find(shop => shop.shop_id === crop.shop_id);
+        const metricSystem = metricSystemsData.find(ms => ms.metric_system_id === crop.metric_system_id);
 
-      return {
-        ...crop,
-        shop: shopinfo || null,
-        metric_system_symbol: metricSystem ? metricSystem.metric_system_symbol : 'unit'
-      };
-    }));
+        return {
+          ...crop,
+          shop: shopinfo || null,
+          metric_system_symbol: metricSystem ? metricSystem.metric_system_symbol : 'unit'
+        };
+      }));
       setCropData(combinedData);
     } catch (error) {
       console.error("Error fetching shop or related products:", error);
@@ -357,6 +357,7 @@ function ProductDetailsScreen({ navigation, route }) {
               <Text className="text-xl font-bold">{displayedProduct.crop_name}</Text>
               <Text className="text-lg text-[#00B251] font-bold">₱ {displayedProduct.crop_price}</Text>
             </View>
+
             <Text className="text-base text-[#00B251] mb-2.5 font-bold">Available in stock</Text>
             <View className="mb-2.5">
               <View className="flex-row items-center justify-end mb-2.5">
@@ -375,7 +376,13 @@ function ProductDetailsScreen({ navigation, route }) {
                 </TouchableOpacity>
               </View>
             </View>
-            <Text className="text-lg font-bold mb-2.5">Description</Text>
+            <View className="flex">
+              <Text className="text-lg font-bold mr-2.5">Class:</Text>
+              <Text className="text-lg text-gray-700">{displayedProduct.crop_class}</Text>
+            </View>
+
+
+            <Text className="text-lg font-bold mr-2.5">Description</Text>
             <Text className="text-base text-gray-700 mb-5">{displayedProduct.crop_description}</Text>
 
             <View className="border border-green-600 flex-row items-center justify-between p-3 rounded-lg mb-5">
@@ -474,7 +481,7 @@ function ProductDetailsScreen({ navigation, route }) {
             <Text className="text-white font-bold text-mg ml-2">Add to Cart</Text>
           </TouchableOpacity>
         </View>
-        
+
         {/* Alert Modal */}
         <Modal
           animationType="fade"
