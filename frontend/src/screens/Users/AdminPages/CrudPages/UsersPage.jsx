@@ -344,7 +344,7 @@ function UsersPage() {
                 <table className="min-w-full border border-gray-300 rounded-lg overflow-hidden">
                     <thead className="bg-green-600 text-white">
                         <tr>
-                            {["ID", "Name", "Email", "Phone", "Gender", "Birthday", "Password", "User Type", "Verified", "Profile Picture", "Actions"].map((header) => (
+                            {["ID", "Name", "Email", "Phone", "Gender", "Birthday", "User Type", "Verified", "Profile Picture", "Actions"].map((header) => (
                                 <th key={header} className="p-1 border-b whitespace-nowrap">{header}</th>
                             ))}
                         </tr>
@@ -358,7 +358,6 @@ function UsersPage() {
                                 <td className="p-1 border-b">{user.phone_number}</td>
                                 <td className="p-1 border-b">{user.gender}</td>
                                 <td className="p-1 border-b">{user.birthday}</td>
-                                <td className="p-1 border-b truncate max-w-[100px]">{user.password}</td>
                                 <td className="p-1 border-b">
                                     {userTypes.find((type) => type.user_type_id === user.user_type_id)?.user_type_name || 'Unknown'}
                                 </td>
