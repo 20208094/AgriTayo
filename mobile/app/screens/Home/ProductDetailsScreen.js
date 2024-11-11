@@ -510,6 +510,7 @@ function ProductDetailsScreen({ navigation, route }) {
           </TouchableOpacity>
         </View>
 
+
         {/* Alert Modal */}
         <Modal
           animationType="fade"

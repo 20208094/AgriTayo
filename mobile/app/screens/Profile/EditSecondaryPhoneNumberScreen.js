@@ -86,17 +86,17 @@ function EditSecondaryPhoneNumberScreen({ navigation, route }) {
             console.log("Successfully Updated Alternative Phone Number:", data);
             Alert.alert("Success!", "Successfully Updated Alternative Phone Number");
             const updatedUserData = {
-                ...userData,
-                secondary_phone_number: newSecondaryPhone,
-              };
-  
-              console.log(updatedUserData);
-  
-              await AsyncStorage.setItem(
-                "userData",
-                JSON.stringify(updatedUserData)
-              );
-              navigation.goBack(updatedUserData);
+              ...userData,
+              secondary_phone_number: newSecondaryPhone,
+            };
+
+            console.log(updatedUserData);
+
+            await AsyncStorage.setItem(
+              "userData",
+              JSON.stringify(updatedUserData)
+            );
+            navigation.goBack(updatedUserData);
             navigation.navigate("View Profile", { userData });
           } else {
             const errorData = await response.json();
@@ -142,7 +142,7 @@ function EditSecondaryPhoneNumberScreen({ navigation, route }) {
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
       <View className="flex-1 items-center px-5">
-        <View className="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
+        <View className="bg-white mb-10 mt-20 p-6 rounded-lg shadow-md w-full max-w-md">
           <Text className="text-2xl font-bold text-green-700 mb-4 text-center">
             Alternative Phone Number
           </Text>
@@ -165,26 +165,28 @@ function EditSecondaryPhoneNumberScreen({ navigation, route }) {
         </View>
         {isCLicked && (
           <>
-            <View className="">
-              <Text className="">Enter your 6 digit code: </Text>
+            <View className="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
+              <Text className="text-2xl font-bold text-green-700 mb-4 text-center">Enter your 6 digit code: </Text>
               <TextInput
+                className="border border-gray-300 rounded-lg px-4 py-2 mb-4"
                 keyboardType="numeric"
                 value={otp}
                 onChangeText={setOtp}
                 placeholder="123456"
               />
-              <TouchableOpacity className="" onPress={handleOtp}>
-                <Text className="">Submit</Text>
-              </TouchableOpacity>
               {otpError ? (
-                <Text className="text-center text w-4/5 text-red-500 mb-4">
+                <Text className="text w-4/5 text-red-500 mb-4">
                   {otpError}
                 </Text>
               ) : null}
+              <TouchableOpacity className="bg-green-600 px-4 py-2 rounded-lg mb-5" onPress={handleOtp}>
+                <Text className="text-white font-bold text-center">Submit</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity onPress={handleResend}>
+                <Text className="text-center font-bold text-[#00B251]">Resend OTP</Text>
+              </TouchableOpacity>
             </View>
-            <TouchableOpacity onPress={handleResend}>
-              <Text className="">Resend OTP</Text>
-            </TouchableOpacity>
           </>
         )}
       </View>
