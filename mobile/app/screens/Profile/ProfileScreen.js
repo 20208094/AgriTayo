@@ -89,11 +89,15 @@ function ProfileScreen({ fetchUserSession }) {
       });
       if (response.ok) {
         const allOrdStat = await response.json();
+        
         const updatedStatuses = allOrdStat.map(status => {
           const totalOrders = orders.filter(order => order.status_id === status.order_status_id && order.user_id === userData.user_id).length;
           return { ...status, totalOrders };
         });
-        setOrderStatuses(updatedStatuses);
+      
+        const sortedStatuses = updatedStatuses.sort((a, b) => a.order_status_id - b.order_status_id);
+      
+        setOrderStatuses(sortedStatuses);
       } else {
         console.error('Failed to fetch order statuses:', response.statusText);
       }

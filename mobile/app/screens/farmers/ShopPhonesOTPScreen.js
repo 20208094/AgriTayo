@@ -17,9 +17,6 @@ import { Ionicons } from "@expo/vector-icons";
 
 function ShopPhonesOTPScreen({ route, navigation }) {
   const { userData, shopData, shopNumber, secondaryShopNumber } = route.params;
-
-  console.log(shopNumber, secondaryShopNumber)
-
   const [generatedCode, setGeneratedCode] = useState("");
   const [generatedCode2, setGeneratedCode2] = useState("");
 
@@ -45,11 +42,11 @@ function ShopPhonesOTPScreen({ route, navigation }) {
 
   const generateRandomCode = () => {
     const code = Math.floor(100000 + Math.random() * 900000).toString();
-    setGeneratedCode(code); // Store generated code in state
-    console.log("Generated OTP code:", code); // For debugging, remove in production
-    setTitle("AgriTayo"),
-      setMessage(`Your OTP code is: ${code}`),
-      setPhone_Number(shopNumber);
+    setGeneratedCode(code);
+    console.log("Generated OTP code:", code);
+    const title = "AgriTayo";
+    const message = `Your OTP code is: ${code}`;
+    const phone_number = shopNumber;
     socket.emit("sms sender", {
       title,
       message,
@@ -59,11 +56,11 @@ function ShopPhonesOTPScreen({ route, navigation }) {
 
   const generateRandomCode2 = () => {
     const code2 = Math.floor(100000 + Math.random() * 900000).toString();
-    setGeneratedCode2(code2); // Store generated code in state
-    console.log("Generated OTP code:", code2); // For debugging, remove in production
-    setTitle("AgriTayo"),
-      setMessage(`Your OTP code is: ${code2}`),
-      setPhone_Number(secondaryShopNumber);
+    setGeneratedCode2(code2);
+    console.log("Generated OTP code:", code2);
+    const title = "AgriTayo";
+    const message = `Your OTP code is: ${code2}`;
+    const phone_number = secondaryShopNumber;
     socket.emit("sms sender", {
       title,
       message,
@@ -100,10 +97,10 @@ function ShopPhonesOTPScreen({ route, navigation }) {
       setOtpError("Invalid OTP. Please try again.");
       setOtpError2("Invalid OTP. Please try again.");
     } else {
-        navigation.navigate("Business Information", {
-            userData,
-            shopData,
-          });
+      navigation.navigate("Business Information", {
+        userData,
+        shopData,
+      });
     }
   };
 
@@ -192,9 +189,9 @@ function ShopPhonesOTPScreen({ route, navigation }) {
         ) : null}
 
         <View className='mb-6'>
-        <Text className="text-gray-600 text-center">
-          Alternative Phone: {secondaryShopNumber}
-        </Text>
+          <Text className="text-gray-600 text-center">
+            Alternative Phone: {secondaryShopNumber}
+          </Text>
         </View>
 
         <View className="flex-row justify-between w-full max-w-xs mb-4">

@@ -357,19 +357,19 @@ function FilterProductsScreen(route) {
           {/* Category Button */}
           <Text className="text-lg font-semibold mb-1">Choose Category:</Text>
           <TouchableOpacity onPress={() => handleOpenModal('category')} className="mb-4 border border-gray-500 rounded-lg p-2 px-4 mx-2 ">
-            <Text className="text-base">{category ? `Category: ${category}` : '-- Select a Category --'}</Text>
+            <Text className="text-base pl-2">{category ? `${category}` : 'No category selected'}</Text>
           </TouchableOpacity>
 
           {/* Subcategory Button */}
           <Text className="text-lg font-semibold mb-1">Choose Subcategory:</Text>
           <TouchableOpacity onPress={() => handleOpenModal('subcategory')} className="mb-4 border border-gray-500 rounded-lg p-2 px-4 mx-2">
-            <Text className="text-base">{subcategory ? `Subcategory: ${subcategory}` : '-- Select a Subcategory --'}</Text>
+            <Text className="text-base pl-2">{subcategory ? `${subcategory}` : 'No subcategory selected'}</Text>
           </TouchableOpacity>
 
           {/* Variety Button */}
           <Text className="text-lg font-semibold mb-1">Choose Variety:</Text>
           <TouchableOpacity onPress={() => handleOpenModal('variety')} className="mb-4 border border-gray-500 rounded-lg p-2 px-4 mx-2">
-            <Text className="text-base">{variety ? `Variety: ${variety}` : '-- Select a Variety --'}</Text>
+            <Text className="text-base pl-2">{variety ? variety : 'No variety selected'}</Text>
           </TouchableOpacity>
 
           {/* Class Selection */}
@@ -418,7 +418,7 @@ function FilterProductsScreen(route) {
 
           {/* Price Range Slider */}
           <View className="mb-4">
-            <Text className="text-lg font-semibold">Choose Preferred Price:</Text>
+            <Text className="text-lg font-semibold mt-3">Choose Preferred Price:</Text>
             {priceRange.length > 0 ? (
               <View className="w-full items-center">
                 <View className="flex-row justify-between w-full items-center">

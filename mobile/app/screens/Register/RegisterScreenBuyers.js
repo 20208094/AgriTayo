@@ -13,6 +13,7 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { FontAwesome } from "@expo/vector-icons";
 import GoBack from "../../components/GoBack";
 import { FontAwesome5 } from "@expo/vector-icons";
+import LoadingAnimation from "../../components/LoadingAnimation";
 
 function RegisterScreenBuyers({ navigation }) {
   const [firstName, setFirstName] = useState("");
@@ -349,7 +350,7 @@ function RegisterScreenBuyers({ navigation }) {
           <View className="flex-row items-center w-full p-2 mb-4 bg-white rounded-lg shadow-md">
             <TextInput
               className="flex-1"
-              placeholder="•••••••"
+              placeholder="e.g., &#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;"
               secureTextEntry={!isPasswordVisible}
               value={password}
               onChangeText={validatePassword}
@@ -375,7 +376,7 @@ function RegisterScreenBuyers({ navigation }) {
           <View className="flex-row items-center w-full p-2 mb-4 bg-white rounded-lg shadow-md">
             <TextInput
               className="flex-1"
-              placeholder="•••••••"
+              placeholder="e.g., &#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;"
               secureTextEntry={!isConfirmPasswordVisible}
               value={confirmPassword}
               onChangeText={(text) => {

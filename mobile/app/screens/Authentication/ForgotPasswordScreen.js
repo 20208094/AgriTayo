@@ -70,9 +70,9 @@ function ForgotPasswordScreen({ navigation }) {
       <View className="flex-1 justify-center items-center px-5">
         <View className="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
           <Text className="text-2xl font-bold text-green-700 mb-4 text-center">
-            Phone Number
+            Forgot Password
           </Text>
-          <Text className="text-base text-gray-600 mb-4 text-center">
+          <Text className="text-base text-gray-600 mb-4">
             Enter your phone number
           </Text>
           <TextInput
@@ -87,32 +87,6 @@ function ForgotPasswordScreen({ navigation }) {
           {phoneError ? (
             <Text className="w-4/5 text-red-500 mb-4">{phoneError}</Text>
           ) : null}
-
-          {/* Password input field with show/hide icon */}
-          <Text className="text-base text-gray-600 mb-4 text-center">
-            Enter your password
-          </Text>
-          <View className="border border-gray-300 rounded-lg flex-row items-center mb-4">
-            <TextInput
-              className="flex-1 px-4 py-2"
-              placeholder="Password"
-              secureTextEntry={!isPasswordVisible}
-              autoCapitalize="none"
-              autoCorrect={false}
-              value={password}
-              onChangeText={setPassword}
-            />
-            <TouchableOpacity
-              onPress={() => setIsPasswordVisible(!isPasswordVisible)}
-              className="pr-3"
-            >
-              <FontAwesome5
-                name={isPasswordVisible ? "eye-slash" : "eye"}
-                size={20}
-                color="gray"
-              />
-            </TouchableOpacity>
-          </View>
 
           <View className="flex-row justify-between">
             <TouchableOpacity

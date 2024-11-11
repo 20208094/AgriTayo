@@ -72,7 +72,7 @@ function CompareShopsScreen({ route }) {
         },
       });
 
-      const crops = await cropsResponse.json();
+      const rawcrops = await cropsResponse.json();
       const categories = await categoryResponse.json();
       const subcategories = await subcategoryResponse.json();
       const varieties = await varietyResponse.json();
@@ -80,6 +80,8 @@ function CompareShopsScreen({ route }) {
       const sizes = await sizeResponse.json();
       const metrics = await metricResponse.json();
       const shops = await shopResponse.json();
+
+      const crops = rawcrops.filter(crop => crop.availability === 'live' && crop.crop_quantity > 0);
 
       const combinedData = crops.map(crop => {
         const categoryData = categories.find(cat => cat.crop_category_id === crop.category_id);
@@ -141,7 +143,6 @@ function CompareShopsScreen({ route }) {
     } catch (error) {
       alert(`Failed to load shop data: ${error.message}`);
     } finally {
-      setLoading(false);
     }
   };
 
@@ -206,15 +207,7 @@ function CompareShopsScreen({ route }) {
         {/* Filter Button */}
         <TouchableOpacity
           className="flex w-10 h-10 items-center justify-center rounded-lg bg-[#00B251] shadow-md"
-          onPress={() => navigation.goBack("Filter Products", {
-            filter_category_id: filter_category_id || null,
-            filter_sub_category_id: filter_sub_category_id || null,
-            filter_variety_id: filter_variety_id || null,
-            filter_class: filter_class || [],
-            filter_size_id: filter_size_id || null,
-            filter_price_range: filter_price_range || [],
-            filter_quantity: filter_quantity || []
-          })}
+          onPress={() => navigation.push("Filter Products", { filter_category_id, filter_sub_category_id, filter_variety_id, filter_class, filter_size_id, filter_price_range, filter_quantity })}
         >
           <Icon name="filter" size={18} color="white" />
         </TouchableOpacity>
@@ -282,29 +275,38 @@ function CompareShopsScreen({ route }) {
       {/* Scrollable Content */}
       <ScrollView className="mt-4">
         <View className="px-4">
-          <Text className="text-lg font-bold text-gray-800 my-3">Filtered Products</Text>
-          <View className="space-y-3">
+          <View className="space-y-3 mb-12">
             {filteredData.length > 0 ? (
-              filteredData.map(crop => (
-                <ShopCard
-                  key={crop.crop_id}
-                  shopName={crop.shop.shop_name}
-                  productName={crop.crop_name}
-                  price={parseFloat(crop.crop_price).toFixed(2)}
-                  available={crop.crop_quantity}
-                  rating={crop.crop_rating}
-                  shopImage={crop.shop.shop_image_url}
-                  metricSymbol={crop.metric.metric_system_symbol}
-                  size={crop.size.crop_size_name}
-                  cropClass={crop.crop_class}
-                  shop_id={crop.shop_id}
-                  cropData={crop}
-                />
+              filteredData.map((crop) => (
+                <React.Fragment key={crop.crop_id}>
+                  <ShopCard
+                    shopName={crop.shop.shop_name}
+                    productName={crop.crop_name}
+                    price={parseFloat(crop.crop_price).toFixed(2)}
+                    available={crop.crop_quantity}
+                    rating={crop.crop_rating}
+                    shopImage={crop.shop.shop_image_url}
+                    metricSymbol={crop.metric.metric_system_symbol}
+                    size={crop.size.crop_size_name}
+                    cropClass={crop.crop_class}
+                    shop_id={crop.shop_id}
+                    cropImage={crop.crop_image_url}
+                    cropDescription={crop.crop_description}
+                    negotiationAllowed={crop.negotiation_allowed}
+                    minimumNegotiation={crop.minimum_negotiation}
+                    cropData={crop}
+                  />
+                  <Text
+                    className="text-center text-xs text-gray-100"
+                    key={`text-${crop.crop_id}`}
+                  >
+                    {crop.crop_id}
+                  </Text>
+                </React.Fragment>
               ))
             ) : (
               <Text className="text-center text-gray-500">No filtered data</Text>
             )}
-
           </View>
         </View>
       </ScrollView>
@@ -322,36 +324,52 @@ function CompareShopsScreen({ route }) {
   );
 }
 
-const ShopCard = ({ shopName, productName, price, available, rating, shopImage, metricSymbol, size, cropClass, shop_id, cropData }) => {
+const ShopCard = ({ shopName = "N/A", productName = "N/A", price = "0.00", available = 0, rating = 0, shopImage = placeholderimg, cropDescription = "", metricSymbol = "", size = "", cropClass = "", cropImage = placeholderimg, shop_id, negotiationAllowed = false, minimumNegotiation = '0', cropData }) => {
   const navigation = useNavigation();
   return (
-    <View className="flex-row border p-2 rounded-md shadow-sm bg-white items-center mb-2">
+    <View className="flex-row p-2 rounded-md shadow-sm bg-white items-center border-green-600 border-2">
       <View className="flex-1 justify-between">
         <Pressable
-          className="flex-1 flex-row items-center ml-2"
+          className="flex-1 flex-row items-center ml-2 border-b border-b-green-600 pb-1 mb-1"
           onPress={() => navigation.navigate('Seller Shop', { shop_id })}
         >
           <View className="w-10 h-10 rounded-full overflow-hidden border border-gray-300">
-            <Image source={{ uri: shopImage }} className="w-full h-full" />
+            <Image source={shopImage ? { uri: shopImage } : placeholderimg} className="w-full h-full" />
           </View>
           <Text className="text-base ml-3 font-semibold text-gray-700">{shopName}</Text>
         </Pressable>
         <Pressable onPress={() => navigation.navigate("Product Details", { product: cropData })}>
           <Text className="text-lg text-center font-extrabold text-[#00B251]">{productName} ({size})</Text>
-          <View className="flex-1 flex-row px-3">
-            <View className="flex-row w-1/2">
-              <View className="ml-2 w-2/5">
+          <View className="flex-1 flex-row">
+            <View className="w-20 h-20 overflow-hidden rounded-lg">
+              <Image source={cropImage ? { uri: cropImage } : placeholderimg} className="w-full h-full" />
+            </View>
+            <View className="flex-row w-2/5">
+              <View className="mx-2">
                 <Text className="text-sm font-bold text-gray-700">Class:</Text>
-                <Text className="text-sm font-bold text-gray-700">Rating:</Text>
                 <Text className="text-sm font-bold text-gray-700">Available:</Text>
+                <Text className="text-sm font-bold text-gray-700">Negotiation:</Text>
+                {negotiationAllowed ?
+                  <Text className="text-sm font-bold text-gray-700">Min Nego:</Text>
+                  : ""}
               </View>
               <View className="w-2/5">
                 <Text className="text-sm text-gray-700">{cropClass}</Text>
-                <Text className="text-sm text-gray-700">{rating}⭐</Text>
                 <Text className="text-sm text-gray-700">{available} {metricSymbol}</Text>
+                {negotiationAllowed ?
+                  <Text className="text-sm text-green-600 font-bold">
+                    Allowed
+                  </Text>
+                  :
+                  <Text className="text-sm text-red-600 font-bold">
+                    Not Allowed
+                  </Text>}
+                {negotiationAllowed ?
+                  <Text className="text-sm text-green-600 font-extrabold">{minimumNegotiation} {metricSymbol}</Text>
+                  : ""}
               </View>
             </View>
-            <View className="justify-center w-1/2">
+            <View className="justify-center w-2/5">
               <Text className="text-2xl text-center font-bold text-[#00B251]"> ₱{price}/{metricSymbol}</Text>
             </View>
           </View>

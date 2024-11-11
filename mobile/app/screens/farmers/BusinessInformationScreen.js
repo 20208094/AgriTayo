@@ -175,7 +175,8 @@ function BusinessInformationScreen({ navigation, route }) {
         }
         setAlertMessage("Success, Shop created successfully!");
         setAlertVisible(true);
-        navigation.pop(3)
+        navigation.pop(4)
+        navigation.navigate("My Shop")
       } else {
         setAlertMessage("Error, Failed to create shop");
         setAlertVisible(true);

@@ -12,6 +12,7 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 import placeholderimg from "../../../assets/placeholder.png";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 import NavigationbarComponent from "../../../components/NavigationbarComponent";
+import LoadingAnimation from "../../../components/LoadingAnimation";
 
 function MarketCategoryListScreen() {
   const [items, setItems] = useState([]);
@@ -57,9 +58,7 @@ function MarketCategoryListScreen() {
 
   if (loading) {
     return (
-      <SafeAreaView className="flex-1 justify-center items-center bg-gray-200 pb-14">
-        <ActivityIndicator size="large" color="#0000ff" />
-      </SafeAreaView>
+      <LoadingAnimation />
     );
   }
 
@@ -75,44 +74,49 @@ function MarketCategoryListScreen() {
 
   return (
     <>
-    <SafeAreaView className="flex-1 p-4 bg-gray-200">
-      <ScrollView>
+      <SafeAreaView className="flex-1 p-4 bg-gray-200">
+        <ScrollView>
         <View className="flex-col">
-          {items.map((item) => (
-            <TouchableOpacity
-              key={item.crop_sub_category_id}
-              onPress={() =>
-                navigation.navigate("Market Variety", {
-                  subcategoryId: item.crop_sub_category_id,
-                })
-              }
-              className="bg-white rounded-lg shadow-md flex-row items-start p-4 mb-4 border border-gray-300"
-              style={{ elevation: 3 }} // Adds shadow effect
-              activeOpacity={0.8} // Provides visual feedback when pressed
-            >
-              <Image
-                source={
-                  item.crop_sub_category_image_url
-                    ? { uri: item.crop_sub_category_image_url }
-                    : placeholderimg
-                }
-                className="w-24 h-24 rounded-lg mr-4"
-                resizeMode="cover"
-              />
-              <View className="flex-1">
-                <Text className="text-lg font-semibold text-gray-800 mb-1">
-                  {item.crop_sub_category_name}
-                </Text>
-                <Text className="text-sm text-gray-600">
-                  {item.crop_sub_category_description}
-                </Text>
-              </View>
-            </TouchableOpacity>
-          ))}
+  {items.length > 0 ? (
+    items.map((item) => (
+      <TouchableOpacity
+        key={item.crop_sub_category_id}
+        onPress={() =>
+          navigation.navigate("Market Variety", {
+            subcategoryId: item.crop_sub_category_id,
+          })
+        }
+        className="bg-white rounded-lg shadow-md flex-row items-start p-4 mb-4 border border-gray-300"
+        style={{ elevation: 3 }} // Adds shadow effect
+        activeOpacity={0.8} // Provides visual feedback when pressed
+      >
+        <Image
+          source={
+            item.crop_sub_category_image_url
+              ? { uri: item.crop_sub_category_image_url }
+              : placeholderimg
+          }
+          className="w-24 h-24 rounded-lg mr-4"
+          resizeMode="cover"
+        />
+        <View className="flex-1">
+          <Text className="text-lg font-semibold text-gray-800 mb-1">
+            {item.crop_sub_category_name}
+          </Text>
+          <Text className="text-sm text-gray-600">
+            {item.crop_sub_category_description}
+          </Text>
         </View>
-      </ScrollView>
-    </SafeAreaView>
-    <NavigationbarComponent/>
+      </TouchableOpacity>
+    ))
+  ) : (
+    <Text className="text-center text-gray-600">No subcategory found</Text>
+  )}
+</View>
+
+        </ScrollView>
+      </SafeAreaView>
+      <NavigationbarComponent />
     </>
   );
 }

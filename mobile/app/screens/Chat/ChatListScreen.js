@@ -179,6 +179,8 @@ const ChatListScreen = () => {
             };
           });
 
+          const filteredChatUsers = chatUsers.filter(user => user.lastMessage !== 'No recent messages');
+
           const uniqueShopIds = Array.from(new Set(
             chats.filter(chat => chat.sender_type === senderType)
               .map(chat => chat.sender_id === senderId && chat.sender_type === senderType && chat.receiver_type === 'Shop' ? chat.receiver_id : chat.sender_id)
@@ -196,12 +198,15 @@ const ChatListScreen = () => {
             };
           });
 
-          setUsers(chatUsers);
+          const filteredChatShops = chatShops.filter(user => user.lastMessage !== 'No recent messages');
+
+
+          setUsers(filteredChatUsers);
           setAllUsers(usersData);
-          setFilteredUsers(chatUsers);
-          setShops(chatShops);
+          setFilteredUsers(filteredChatUsers);
+          setShops(filteredChatShops);
           setAllShops(shopsData);
-          setFilteredShops(chatShops);
+          setFilteredShops(filteredChatShops);
         } else {
           setError('Failed to fetch user/shop data.');
         }
@@ -257,23 +262,23 @@ const ChatListScreen = () => {
 
   return (
     <>
-    {shopData && (
-      <View style={{ flexDirection: 'row' }}>
-        <Button1
-          onPress={() => handleSenderTypeChange('User')}
-          className={senderType === 'User' ? 'bg-[#00B251]' : 'bg-gray-200'}
-        >
-          <ButtonText className={senderType === 'User' ? 'text-white' : 'text-[#00B251]'}>{'Chat as Buyer'}</ButtonText>
-        </Button1>
+      {shopData && (
+        <View style={{ flexDirection: 'row' }}>
+          <Button1
+            onPress={() => handleSenderTypeChange('User')}
+            className={senderType === 'User' ? 'bg-[#00B251]' : 'bg-gray-200'}
+          >
+            <ButtonText className={senderType === 'User' ? 'text-white' : 'text-[#00B251]'}>{'Chat as Buyer'}</ButtonText>
+          </Button1>
 
-        <Button1
-          onPress={() => handleSenderTypeChange('Shop')}
-          className={senderType === 'Shop' ? 'bg-[#00B251]' : 'bg-gray-200'}
-        >
-          <ButtonText className={senderType === 'Shop' ? 'text-white' : 'text-[#00B251]'}>{'Chat as Seller'}</ButtonText>
-        </Button1>
-      </View>
-    )}
+          <Button1
+            onPress={() => handleSenderTypeChange('Shop')}
+            className={senderType === 'Shop' ? 'bg-[#00B251]' : 'bg-gray-200'}
+          >
+            <ButtonText className={senderType === 'Shop' ? 'text-white' : 'text-[#00B251]'}>{'Chat as Seller'}</ButtonText>
+          </Button1>
+        </View>
+      )}
       <Container>
 
         <Header>

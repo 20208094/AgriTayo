@@ -381,7 +381,7 @@ function MarketAnalyticScreen({ route }) {
     const minValue = Math.floor(Math.min(...allValues)) - 2;
     const maxValue = Math.ceil(Math.max(...allValues)) + 2;
     // Determine verticalLabelRotation based on selectedFilter
-    const verticalLabelRotation = ["1 Month", "3 Months", "6 Months", "9 Months", "12 Months"].includes(selectedFilter) ? 90 : 0;
+    const verticalLabelRotation = ["1 Month", "3 Months", "6 Months", "9 Months", "12 Months"].includes(selectedFilter) ? 45 : 0;
 
     return (
       <View className="">

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { View, Image, Text, ScrollView, TouchableOpacity, Modal, Pressable } from "react-native";
 import { FontAwesome } from '@expo/vector-icons';
 import { FontAwesome5 } from '@expo/vector-icons';
@@ -9,6 +9,7 @@ import placeholderimg from '../../assets/placeholder.png';
 import { NotificationIcon, MessagesIcon, MarketIcon } from "../../components/SearchBarC";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 import { Ionicons } from "@expo/vector-icons";
+import LoadingAnimation from "../../components/LoadingAnimation";
 
 function ProductDetailsScreen({ navigation, route }) {
   const { product } = route.params;
@@ -24,6 +25,16 @@ function ProductDetailsScreen({ navigation, route }) {
   const [senderId, setSenderId] = useState(null);
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
+
+  const scrollViewRef = useRef(null);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      if (scrollViewRef.current) {
+        scrollViewRef.current.scrollTo({ y: 0, animated: true });
+      }
+    }, [product])
+  );
 
   const getAsyncUserData = async () => {
     try {
@@ -131,7 +142,6 @@ function ProductDetailsScreen({ navigation, route }) {
       cart_crop_id,
       cart_metric_system_id,
     };
-    console.log('formData :', formData);
 
     try {
       const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/carts`, {
@@ -157,131 +167,111 @@ function ProductDetailsScreen({ navigation, route }) {
     }
   };
 
-  const fetchRelatedProducts = async () => {
-    try {
-      // Fetch related products based on sub_category_id
-      const response = await fetch(
-        `${REACT_NATIVE_API_BASE_URL}/api/crops`,
-        {
-          headers: {
-            "x-api-key": REACT_NATIVE_API_KEY,
-          },
-        }
-      );
-      const data = await response.json();
-
-      // Check if shopData exists and is an array
-      if (displayedProduct && shopData && Array.isArray(shopData)) {
-        const filteredProducts = data.filter(
-          (relatedProduct) => relatedProduct.sub_category_id === displayedProduct.sub_category_id && relatedProduct.crop_id != displayedProduct.crop_id
-        );
-
-        // Map through the related products and add the shop_name where shop_id matches
-        const updatedRelatedProducts = filteredProducts.map((relatedProduct) => {
-          const shop = shopData.find((s) => s && s.shop_id === relatedProduct.shop_id);
-          return {
-            ...relatedProduct,
-            shop_name: shop ? shop.shop_name : 'Unknown Shop',
-          };
-        });
-
-        setRelatedProducts(updatedRelatedProducts);
-      }
-    } catch (error) {
-      console.error("Error fetching related products:", error);
-    }
-  };
-
-  const fetchShopData = async () => {
-    if (!product) return;  // Ensure that the product exists
-
-    try {
-      // Fetch shop data first
-      const shopResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/shops`, {
-        headers: {
-          "x-api-key": REACT_NATIVE_API_KEY,
-        },
-      });
-      const shopData = await shopResponse.json();
-      setShopData(shopData);
-
-      // Fetch related products based on the current product's sub_category_id
-      const relatedProductsResponse = await fetch(
-        `${REACT_NATIVE_API_BASE_URL}/api/crops?sub_category_id=${product.sub_category_id}`,
-        {
-          headers: {
-            "x-api-key": REACT_NATIVE_API_KEY,
-          },
-        }
-      );
-      const relatedProductsData = await relatedProductsResponse.json();
-
-      // Check if shopData exists and is an array
-      if (shopData && Array.isArray(shopData)) {
-        // Update each related product with shop information based on shop_id
-        const updatedProducts = relatedProductsData.map((relatedProduct) => {
-          const shop = shopData.find((s) => s && s.shop_id === relatedProduct.shop_id);
-          return {
-            ...relatedProduct,
-            shop_name: shop ? shop.shop_name : 'Unknown Shop',
-          };
-        });
-        setShopProducts(updatedProducts);
-      }
-    } catch (error) {
-      console.error("Error fetching shop or related products:", error);
-    }
-  };
-
   const fetchCropData = async () => {
+    setLoading(true)
     if (!product) return;
 
     try {
-      const cropResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crops`, {
+      const cropsResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crops`, {
         headers: {
           "x-api-key": REACT_NATIVE_API_KEY,
         },
       });
+
+      const categoryResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_categories`, {
+        headers: {
+          "x-api-key": REACT_NATIVE_API_KEY,
+        },
+      });
+
+      const subcategoryResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_sub_categories`, {
+        headers: {
+          "x-api-key": REACT_NATIVE_API_KEY,
+        },
+      });
+
+      const varietyResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_varieties`, {
+        headers: {
+          "x-api-key": REACT_NATIVE_API_KEY,
+        },
+      });
+
+      const varietySizeResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_variety_sizes`, {
+        headers: {
+          "x-api-key": REACT_NATIVE_API_KEY,
+        },
+      });
+
+      const sizeResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_sizes`, {
+        headers: {
+          "x-api-key": REACT_NATIVE_API_KEY,
+        },
+      });
+
+      const metricResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/metric_systems`, {
+        headers: {
+          "x-api-key": REACT_NATIVE_API_KEY,
+        },
+      });
+
       const shopResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/shops`, {
         headers: {
           "x-api-key": REACT_NATIVE_API_KEY,
         },
       });
-      const metricSystemResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/metric_systems`, {
-        headers: {
-          "x-api-key": REACT_NATIVE_API_KEY,
-        },
+
+      const rawcrops = await cropsResponse.json();
+      const categories = await categoryResponse.json();
+      const subcategories = await subcategoryResponse.json();
+      const varieties = await varietyResponse.json();
+      const variety_sizes = await varietySizeResponse.json();
+      const sizes = await sizeResponse.json();
+      const metrics = await metricResponse.json();
+      const shops = await shopResponse.json();
+
+      const liveCrops = rawcrops.filter(crop => crop.availability === 'live' && crop.crop_quantity > 0 && product.crop_variety_id === crop.crop_variety_id);
+
+      const combinedData = liveCrops.map(crop => {
+        const categoryData = categories.find(cat => cat.crop_category_id === crop.category_id);
+        const subcategoryData = subcategories.find(sub => sub.crop_sub_category_id === crop.sub_category_id);
+        const varietyData = varieties.find(variety => variety.crop_variety_id === crop.crop_variety_id);
+        const sizeData = variety_sizes.find(varSize => varSize.crop_variety_id === crop.crop_variety_id);
+        const actualSize = sizes.find(size => size.crop_size_id === (sizeData ? sizeData.crop_size_id : null));
+        const metricData = metrics.find(metric => metric.metric_system_id === crop.metric_system_id);
+        const shopData = shops.find(shop => shop.shop_id === crop.shop_id);
+
+        return {
+          ...crop,
+          category: categoryData ? categoryData : null,
+          subcategory: subcategoryData ? subcategoryData : null,
+          variety: varietyData ? varietyData : null,
+          size: actualSize ? actualSize : null,
+          metric: metricData ? metricData : null,
+          shop: shopData ? shopData : null
+        };
       });
-      const cropsData = await cropResponse.json();
-    const newCrop = cropsData.filter(crop => crop.crop_id === product.crop_id);
 
-    const shopData = await shopResponse.json();
-    const metricSystemsData = await metricSystemResponse.json();
+      const selectedProduct = combinedData.find(crop => crop.crop_id === product.crop_id);
 
-    // Map through the crops and handle asynchronous logic with Promise.all
-    const combinedData = await Promise.all(newCrop.map(async (crop) => {
-      const shopinfo = shopData.find(shop => shop.shop_id === crop.shop_id);
-      const metricSystem = metricSystemsData.find(ms => ms.metric_system_id === crop.metric_system_id);
+      const relatedProducts = combinedData.filter(
+        (relatedProduct) => relatedProduct.crop_id != product.crop_id
+      );
 
-      return {
-        ...crop,
-        shop: shopinfo || null,
-        metric_system_symbol: metricSystem ? metricSystem.metric_system_symbol : 'unit'
-      };
-    }));
-      setCropData(combinedData);
+      const relatedShopProducts = combinedData.filter(
+        (relatedProduct) => relatedProduct.shop_id === product.shop_id && relatedProduct.crop_id != product.crop_id
+      );
+
+      setCropData(selectedProduct);
+      setRelatedProducts(relatedProducts);
+      setShopProducts(relatedShopProducts);
     } catch (error) {
       console.error("Error fetching shop or related products:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  useEffect(() => {
-    if (cropData && cropData.length > 0) {
-      setLoading(false);
-    }
-  }, [cropData]);
-
-  const displayedProduct = cropData ? cropData[0] : product;
+  const displayedProduct = cropData ? cropData : product;
 
   useFocusEffect(
     React.useCallback(() => {
@@ -289,19 +279,6 @@ function ProductDetailsScreen({ navigation, route }) {
       fetchCropData();
     }, [product])
   );
-
-  useFocusEffect(
-    React.useCallback(() => {
-      fetchShopData();
-    }, [displayedProduct])
-  );
-
-  useFocusEffect(
-    React.useCallback(() => {
-      fetchRelatedProducts();
-    }, [displayedProduct, shopData])
-  );
-
 
   const handleMessageSeller = () => {
     if (!userId || !shopInfo.shop_name) {
@@ -325,16 +302,14 @@ function ProductDetailsScreen({ navigation, route }) {
 
   if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <Text>Loading product...</Text>
-      </View>
+      <LoadingAnimation />
     );
   }
 
   if (!loading) {
     return (
       <View className="flex-1">
-        <ScrollView contentContainerStyle={{ paddingBottom: 80 }} className="bg-white p-2.5">
+        <ScrollView ref={scrollViewRef} contentContainerStyle={{ paddingBottom: 80 }} className="bg-white p-2.5">
           <Modal visible={isModalVisible} transparent={true} animationType="fade">
             <Pressable className="flex-1 bg-black bg-opacity-90 justify-center items-center" onPress={toggleModal}>
               <Image
@@ -353,30 +328,43 @@ function ProductDetailsScreen({ navigation, route }) {
           </TouchableOpacity>
 
           <View className="px-2.5">
-            <View className="flex-row justify-between items-center mb-2.5">
+            <View className="flex-row justify-between items-center mb-1 px-2">
               <Text className="text-xl font-bold">{displayedProduct.crop_name}</Text>
-              <Text className="text-lg text-[#00B251] font-bold">₱ {displayedProduct.crop_price}</Text>
+              <Text className="text-lg text-[#00B251] font-bold pr-3">₱ {displayedProduct.crop_price} {displayedProduct?.metric?.metric_system_symbol || 'unit'}/s</Text>
             </View>
-            <Text className="text-base text-[#00B251] mb-2.5 font-bold">Available in stock</Text>
-            <View className="mb-2.5">
-              <View className="flex-row items-center justify-end mb-2.5">
-                <TouchableOpacity
-                  className="border border-green-600 bg-white p-2.5 rounded-lg"
-                  onPress={decreaseQuantity}
-                >
-                  <Text className="text-lg font-bold text-green-600">-</Text>
-                </TouchableOpacity>
-                <Text className="text-lg mx-2.5">{quantity} {displayedProduct?.metric_system_symbol || 'unit'}/s</Text>
-                <TouchableOpacity
-                  className="border border-green-600 bg-white p-2.5 rounded-lg"
-                  onPress={increaseQuantity}
-                >
-                  <Text className="text-lg font-bold text-green-600">+</Text>
-                </TouchableOpacity>
+            <View className="flex-row w-full px-3">
+              <View className="mx-2 pr-2">
+                <Text className="text-base text-gray-800 mb-1 font-bold">Class:</Text>
+                <Text className="text-base text-gray-800 mb-1 font-bold">Size:</Text>
+                <Text className="text-base text-gray-800 mb-1 font-bold">Stock:</Text>
+              </View>
+              <View className="w-2/5">
+                <Text className="text-base text-gray-700 mb-1 ">{displayedProduct.crop_class}</Text>
+                <Text className="text-base text-gray-700 mb-1 ">{displayedProduct.size.crop_size_name}</Text>
+                <Text className="text-base text-gray-700 mb-1 ">{displayedProduct.crop_quantity} {displayedProduct?.metric?.metric_system_symbol || 'unit'}/s</Text>
+              </View>
+              <View className="mb-2.5 justify-center ml-4">
+                <View className="flex-row items-center justify-end mb-2.5">
+                  <TouchableOpacity
+                    className="border border-green-600 bg-white p-2.5 rounded-lg"
+                    onPress={decreaseQuantity}
+                  >
+                    <Text className="text-lg font-bold text-green-600">-</Text>
+                  </TouchableOpacity>
+                  <Text className="text-lg mx-2.5">{quantity} {displayedProduct?.metric?.metric_system_symbol || 'unit'}/s</Text>
+                  <TouchableOpacity
+                    className="border border-green-600 bg-white p-2.5 rounded-lg"
+                    onPress={increaseQuantity}
+                  >
+                    <Text className="text-lg font-bold text-green-600">+</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             </View>
-            <Text className="text-lg font-bold mb-2.5">Description</Text>
-            <Text className="text-base text-gray-700 mb-5">{displayedProduct.crop_description}</Text>
+            <View className="px-2 mt-1  mb-3 ">
+              <Text className="text-lg font-bold">Description</Text>
+              <Text className="text-base text-gray-700 px-2">{displayedProduct.crop_description}</Text>
+            </View>
 
             <View className="border border-green-600 flex-row items-center justify-between p-3 rounded-lg mb-5">
               <View className="flex-row items-center">
@@ -396,13 +384,23 @@ function ProductDetailsScreen({ navigation, route }) {
               </View>
 
               <View className="space-x-2 gap-2">
-                <TouchableOpacity
-                  className="bg-white border border-green-600 px-2.5 md:px-3 py-1 rounded-md items-center flex-row"
-                  onPress={handleNegotiatePress}
-                >
-                  <FontAwesome5 name="handshake" size={14} color="#00B251" />
-                  <Text className="text-green-600 ml-1 text-xs md:text-sm">Negotiate</Text>
-                </TouchableOpacity>
+                {displayedProduct.negotiation_allowed ? (
+                  <TouchableOpacity
+                    className="bg-white border border-green-600 px-2.5 md:px-3 py-1 rounded-md items-center flex-row"
+                    onPress={handleNegotiatePress}
+                  >
+                    <FontAwesome5 name="handshake" size={14} color="#00B251" />
+                    <Text className="text-green-600 ml-1 text-xs md:text-sm">Negotiate</Text>
+                  </TouchableOpacity>
+                ) : (
+                  <View
+                    className="bg-gray-300 border border-gray-500 px-2.5 md:px-3 py-1 rounded-md items-center flex-row opacity-50"
+                  >
+                    <FontAwesome5 name="handshake" size={14} color="#B0B0B0" />
+                    <Text className="text-gray-700 ml-1 text-xs md:text-sm">Unavailable</Text>
+                  </View>
+                )}
+
 
                 <TouchableOpacity
                   className="bg-[#00B251] px-2.5 md:px-3 py-1 rounded-md items-center flex-row"
@@ -414,32 +412,61 @@ function ProductDetailsScreen({ navigation, route }) {
               </View>
             </View>
 
-
             {/* Display Related Products */}
             <Text className="text-lg font-bold mb-2.5">Related Products</Text>
             <ScrollView horizontal={true} className="mb-2.5">
-              {relatedProducts.map((relatedProduct) => (
-                <View key={relatedProduct.crop_id} className="mr-5">
-                  <TouchableOpacity
-                    onPress={() => navigation.navigate("Product Details", { product: relatedProduct })}
-                    className="w-40 bg-white border border-gray-200 rounded-lg"
-                  >
-                    <Image
-                      source={relatedProduct.crop_image_url ? { uri: relatedProduct.crop_image_url } : placeholderimg}
-                      className="w-full h-28 rounded-t-lg"
-                      resizeMode="cover"
-                    />
-                    <View className="p-2.5">
-                      <Text className="text-sm font-bold" numberOfLines={1}>{relatedProduct.crop_name}</Text>
-                      <Text className="text-sm text-[#00B251] font-bold">₱ {(relatedProduct.crop_price).toFixed(2)} / kg</Text>
-                      {/* <Text className="text-xs">⭐ {relatedProduct.crop_rating || 0}</Text> */}
-                      <Text className="text-xs" numberOfLines={1}>Sold by: {relatedProduct.shop_name}</Text>
-                    </View>
-                  </TouchableOpacity>
-                </View>
-              ))}
+              {relatedProducts.length > 0 ? (
+                relatedProducts.map((relatedProduct) => (
+                  <View key={relatedProduct.crop_id} className="mr-5">
+                    <TouchableOpacity
+                      onPress={() => navigation.navigate("Product Details", { product: relatedProduct })}
+                      className="w-40 bg-white border border-gray-200 rounded-lg"
+                    >
+                      <Image
+                        source={relatedProduct.crop_image_url ? { uri: relatedProduct.crop_image_url } : placeholderimg}
+                        className="w-full h-28 rounded-t-lg"
+                        resizeMode="cover"
+                      />
+                      <View className="p-2.5">
+                        <Text className="text-sm font-bold" numberOfLines={1}>{relatedProduct.crop_name}</Text>
+                        <Text className="text-sm text-[#00B251] font-bold">₱ {(relatedProduct.crop_price).toFixed(2)} /kg</Text>
+                        <Text className="text-xs" numberOfLines={1}>Sold by: {relatedProduct.shop.shop_name}</Text>
+                      </View>
+                    </TouchableOpacity>
+                  </View>
+                ))
+              ) : (
+                <Text className="text-center text-gray-500">No related products based on variety</Text>
+              )}
             </ScrollView>
 
+            {/* Display Related Shop Products */}
+            <Text className="text-lg font-bold mb-2.5">Other Products from the Same Shop</Text>
+            <ScrollView horizontal={true} className="mb-2.5">
+              {shopProducts.length > 0 ? (
+                shopProducts.map((relatedProduct) => (
+                  <View key={relatedProduct.crop_id} className="mr-5">
+                    <TouchableOpacity
+                      onPress={() => navigation.navigate("Product Details", { product: relatedProduct })}
+                      className="w-40 bg-white border border-gray-200 rounded-lg"
+                    >
+                      <Image
+                        source={relatedProduct.crop_image_url ? { uri: relatedProduct.crop_image_url } : placeholderimg}
+                        className="w-full h-28 rounded-t-lg"
+                        resizeMode="cover"
+                      />
+                      <View className="p-2.5">
+                        <Text className="text-sm font-bold" numberOfLines={1}>{relatedProduct.crop_name}</Text>
+                        <Text className="text-sm text-[#00B251] font-bold">₱ {(relatedProduct.crop_price).toFixed(2)} /kg</Text>
+                        <Text className="text-xs" numberOfLines={1}>Sold by: {relatedProduct.shop.shop_name}</Text>
+                      </View>
+                    </TouchableOpacity>
+                  </View>
+                ))
+              ) : (
+                <Text className="text-center text-gray-500">No related products from the same shop.</Text>
+              )}
+            </ScrollView>
           </View>
         </ScrollView>
 
@@ -454,13 +481,21 @@ function ProductDetailsScreen({ navigation, route }) {
 
           {/* Separator */}
           <View className="w-1" />
+          {displayedProduct.negotiation_allowed ? (
+            <TouchableOpacity
+              className="flex-1 flex-row items-center justify-center bg-white border border-green-600 rounded-lg"
+              onPress={handleNegotiatePress}
+            >
+              <FontAwesome5 name="handshake" size={20} color="#00B251" />
+            </TouchableOpacity>
+          ) : (
+            <View
+              className="flex-1 flex-row items-center justify-center bg-gray-300 border border-gray-500 rounded-lg"
+            >
+              <FontAwesome5 name="handshake" size={20} color="gray" />
+            </View>
+          )}
 
-          <TouchableOpacity
-            className="flex-1 flex-row items-center justify-center bg-white border border-green-600 rounded-lg"
-            onPress={handleNegotiatePress}
-          >
-            <FontAwesome5 name="handshake" size={20} color="#00B251" />
-          </TouchableOpacity>
 
           {/* Separator */}
           <View className="w-1" />
@@ -474,7 +509,7 @@ function ProductDetailsScreen({ navigation, route }) {
             <Text className="text-white font-bold text-mg ml-2">Add to Cart</Text>
           </TouchableOpacity>
         </View>
-        
+
         {/* Alert Modal */}
         <Modal
           animationType="fade"

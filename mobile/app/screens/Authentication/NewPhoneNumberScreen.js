@@ -82,7 +82,7 @@ function NewPhoneNumberScreen({ navigation, route }) {
           </Text>
           <TextInput
             className="border border-gray-300 rounded-lg px-4 py-2 mb-4"
-            placeholder="•••••••"
+            placeholder="e.g., &#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;"
             secureTextEntry={true}
             autoCapitalize="none"
             autoCorrect={false}

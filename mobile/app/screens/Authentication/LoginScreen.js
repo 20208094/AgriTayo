@@ -110,6 +110,38 @@ function LoginScreen({ navigation, fetchUserSession }) {
     }
   };
 
+  const handleRegisterNavigate = () => {
+    setPhoneError("");
+    setPasswordError("");
+    setFormData({
+      phone_number: null,
+      password: null,
+    });
+    navigation.navigate("Register");
+  };
+
+  const handleForgotPassNavigate = () => {
+    setPhoneError("");
+    setPasswordError("");
+    setFormData({
+      phone_number: null,
+      password: null,
+    });
+    navigation.navigate("Forgot Password");
+  };
+
+  const handleLostPhoneNavigate = () => {
+    setPhoneError("");
+    setPasswordError("");
+    setFormData({
+      phone_number: null,
+      password: null,
+    });
+    navigation.navigate("Lost Phone Number");
+  };
+  
+  
+
   if (loading) {
     return <LoadingAnimation />;
   }
@@ -164,17 +196,17 @@ function LoginScreen({ navigation, fetchUserSession }) {
       </TouchableOpacity>
 
       <TouchableOpacity
-        onPress={() => navigation.navigate("Register")}
+        onPress={handleRegisterNavigate}
         className="w-4/5 p-3 bg-gray-300 rounded-lg shadow-md"
       >
         <Text className="text-gray-800 text-center text-lg">Register</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => navigation.navigate("Forgot Password")}>
+      <TouchableOpacity onPress={handleForgotPassNavigate}>
         <Text className="text-green-500 mt-4">Forgot Password? Click Here</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => navigation.navigate("Lost Phone Number")}>
+      <TouchableOpacity onPress={handleLostPhoneNavigate}>
         <Text className="text-green-500 mt-4">Lost Phone Number? Click Here</Text>
       </TouchableOpacity>
     </View>

@@ -14,10 +14,10 @@ import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 import { io } from "socket.io-client";
 import GoBack from "../../components/GoBack";
 import { Ionicons } from "@expo/vector-icons";
+import LoadingAnimation from "../../components/LoadingAnimation";
 
 function OTPScreen({ route, navigation }) {
   const { formData, phone, secondaryPhoneNumber } = route.params;
-
   const [generatedCode, setGeneratedCode] = useState("");
   const [generatedCode2, setGeneratedCode2] = useState("");
 
@@ -44,10 +44,10 @@ function OTPScreen({ route, navigation }) {
   const generateRandomCode = () => {
     const code = Math.floor(100000 + Math.random() * 900000).toString();
     setGeneratedCode(code); // Store generated code in state
-    console.log("Generated OTP code:", code); // For debugging, remove in production
-    setTitle("AgriTayo"),
-      setMessage(`Your OTP code is: ${code}`),
-      setPhone_Number(phone);
+    console.log("Generated OTP code1:", code); // For debugging, remove in production
+    const title = "AgriTayo";
+    const message = `Your OTP code is: ${code}`;
+    const phone_number = phone;
     socket.emit("sms sender", {
       title,
       message,
@@ -58,10 +58,10 @@ function OTPScreen({ route, navigation }) {
   const generateRandomCode2 = () => {
     const code2 = Math.floor(100000 + Math.random() * 900000).toString();
     setGeneratedCode2(code2); // Store generated code in state
-    console.log("Generated OTP code:", code2); // For debugging, remove in production
-    setTitle("AgriTayo"),
-      setMessage(`Your OTP code is: ${code2}`),
-      setPhone_Number(secondaryPhoneNumber);
+    console.log("Generated OTP code2:", code2); // For debugging, remove in production
+    const title = "AgriTayo";
+    const message = `Your OTP code is: ${code2}`;
+    const phone_number = secondaryPhoneNumber;
     socket.emit("sms sender", {
       title,
       message,
@@ -71,7 +71,7 @@ function OTPScreen({ route, navigation }) {
 
   useEffect(() => {
     generateRandomCode();
-    generateRandomCode2(); // Generate code on component mount
+    generateRandomCode2();
 
     let interval = null;
     if (seconds > 0) {
@@ -83,7 +83,7 @@ function OTPScreen({ route, navigation }) {
       clearInterval(interval);
     }
     return () => clearInterval(interval);
-  }, []);
+  }, [phone, secondaryPhoneNumber]);
 
   const handleOtp = async () => {
     setOtpError("");
@@ -172,6 +172,10 @@ function OTPScreen({ route, navigation }) {
     }
   };
 
+  if (loading) {
+    return <LoadingAnimation />;
+  }
+
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
       <GoBack navigation={navigation} />
@@ -215,9 +219,9 @@ function OTPScreen({ route, navigation }) {
         ) : null}
 
         <View className='mb-6'>
-        <Text className="text-gray-600 text-center">
-          Alternative Phone: {secondaryPhoneNumber}
-        </Text>
+          <Text className="text-gray-600 text-center">
+            Alternative Phone: {secondaryPhoneNumber}
+          </Text>
         </View>
 
         <View className="flex-row justify-between w-full max-w-xs mb-4">

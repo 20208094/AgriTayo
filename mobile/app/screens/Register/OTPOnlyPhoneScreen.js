@@ -14,13 +14,14 @@ import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 import { io } from 'socket.io-client';
 import GoBack from "../../components/GoBack";
 import { Ionicons } from "@expo/vector-icons";
+import LoadingAnimation from "../../components/LoadingAnimation";
 
 function OTPOnlyPhoneScreen({ route, navigation }) {
   const { formData, phone } = route.params;
 
   const [generatedCode, setGeneratedCode] = useState("");
 
-  const socket = io( REACT_NATIVE_API_BASE_URL);
+  const socket = io(REACT_NATIVE_API_BASE_URL);
 
   // for validation
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
@@ -37,7 +38,6 @@ function OTPOnlyPhoneScreen({ route, navigation }) {
   const generateRandomCode = () => {
     const code = Math.floor(100000 + Math.random() * 900000).toString();
     setGeneratedCode(code); // Store generated code in state
-    console.log("Generated OTP code:", code); // For debugging, remove in production
     const title = 'AgriTayo'
     const message = `Your OTP code is: ${code}`
     const phone_number = phone
@@ -45,7 +45,7 @@ function OTPOnlyPhoneScreen({ route, navigation }) {
       title,
       message,
       phone_number
-  });
+    });
   };
 
   useEffect(() => {
@@ -125,10 +125,14 @@ function OTPOnlyPhoneScreen({ route, navigation }) {
     }
   };
 
+  if (loading) {
+    return <LoadingAnimation />;
+  }
+
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
       <View className="flex-1 justify-center items-center p-6">
-      <GoBack navigation={navigation}/>
+        <GoBack navigation={navigation} />
         <Image source={pic} className="w-3/4 h-1/4 mb-6" resizeMode="contain" />
         <Text className="text-3xl font-bold mb-4 text-gray-800 text-center">
           Verify Your Phone Number

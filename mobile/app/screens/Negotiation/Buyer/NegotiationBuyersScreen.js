@@ -15,6 +15,7 @@ import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from "@expo/vector-icons";
+import placeholderimg from "../../../assets/placeholder.png"
 
 const StyledSafeAreaView = styled(SafeAreaView);
 const StyledText = styled(Text);
@@ -30,11 +31,13 @@ function NegotiationBuyerScreen({ navigation, route }) {
   const [total, setTotal] = useState(0);
   const [modalVisible, setModalVisible] = useState(false);
   const [confirmationModalVisible, setConfirmationModalVisible] = useState(false);
-  const [isChecked, setIsChecked] = useState(false);
+  const [isChecked, setIsChecked] = useState(true);
   const { product } = route.params;
   const toggleSwitch = () => setIsChecked(!isChecked);
   const [userData, setUserData] = useState([]);
 
+  const [quantityError, setQuantityError] = useState("");
+  const [priceError, setPriceError] = useState("");
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
 
@@ -74,6 +77,22 @@ function NegotiationBuyerScreen({ navigation, route }) {
     setTotal((priceNum * amountNum).toFixed(2));
   }, [price, amount]);
 
+  useEffect(() => {
+    if (parseFloat(amount) < product.minimum_negotiation) {
+      setQuantityError(`\nMinimum quantity for negotiation is ${product.minimum_negotiation}`);
+    } else {
+      setQuantityError("");
+    }
+  }, [amount]);
+
+  useEffect(() => {
+    if (parseFloat(price) <= (product.crop_price * 0.7)) {
+      setPriceError(`\nPlease enter a price higher than 70% of the original price.`);
+    } else {
+      setPriceError("");
+    }
+  }, [price]);
+
   const handleSubmit = () => {
     setConfirmationModalVisible(true);
   };
@@ -95,11 +114,8 @@ function NegotiationBuyerScreen({ navigation, route }) {
       console.log('API response status:', response.status);
 
       if (response.ok) {
-        const result = await response.json();
-        console.log('Negotiation placed successfully. Response:', result);
-        // alert('Negotiation placed successfully!');
-        // Only set modal visible after success
-        setModalVisible(true);
+        navigation.pop();
+        navigation.navigate("Buyer Negotiation List")
       } else {
         const errorResponse = await response.text(); // Capture the response body
         console.error('Failed to place negotiation. Status:', response.status, 'Status Text:', response.statusText);
@@ -113,11 +129,10 @@ function NegotiationBuyerScreen({ navigation, route }) {
       setAlertMessage('Network error. Please try again later.');
       setAlertVisible(true);
     } finally {
-      console.log('Finished handling negotiation bid, closing confirmation modal.');
       setConfirmationModalVisible(false); // Close the confirmation modal after request
     }
   };
-  
+
   const handleConfirmYes = () => {
     const negotiationDetails = {
       user_id: userData.user_id,
@@ -144,91 +159,90 @@ function NegotiationBuyerScreen({ navigation, route }) {
   }
 
   return (
-    <StyledSafeAreaView className="flex-1 p-5 bg-white">
+    <StyledSafeAreaView className="flex-1 px-5 py-2 bg-white ">
       {/* Product Info */}
-      <StyledView className="mb-3 items-center">
-        <Image
-          source={{ uri: product.crop_image_url }}
-          className="w-40 h-40"
-        />
-        <StyledText className="text-lg font-bold mt-4 text-black">
-          Product: {product.crop_name}
+      <StyledView className="mx-1 mb-2 p-3 bg-white rounded-lg shadow-lg border border-gray-400">
+        <View className="w-full overflow-hidden rounded-2xl border-2 border-green-600">
+          <Image
+            source={product.crop_image_url ? { uri: product.crop_image_url } : placeholderimg}
+            className="w-full h-40"
+            resizeMode="cover"
+          />
+
+        </View>
+
+        {/* Product Name */}
+        <StyledText className="text-2xl text-center font-extrabold text-[#00b251] tracking-wide mt-1">
+          {product.crop_name}
         </StyledText>
-        <StyledText className="text-sm text-gray-600">
-          Description: {product.crop_description}
-        </StyledText>
-        <StyledText className="text-sm text-gray-600">
-          Product Price: {product.crop_price}
-        </StyledText>
-        <StyledText className="text-sm text-gray-600">
-          Measurement unit: {product.metric_system_symbol}
-        </StyledText>
+
+        {/* Description */}
+        <Text className="text-lg font-semibold text-gray-800 mb-1">Description:</Text>
+        <Text className="text-base text-gray-600 leading-relaxed ml-4">
+          {product.crop_description}
+        </Text>
+
+        {/* Price */}
+        <Text className="text-lg font-semibold text-gray-800 mt-1">Price per Unit:</Text>
+        <Text className="text-lg font-bold text-[#00B251] ml-4">
+          ₱{parseFloat(product.crop_price).toFixed(2)} / {product.metric.metric_system_symbol}
+        </Text>
       </StyledView>
 
-      <StyledView className="mb-4">
-        <StyledText className=" text-black ml-1">
-          Enter the Price:
-        </StyledText>
-        <StyledTextInput
-          className={`border border-[#00B251] rounded-lg p-3 text-black`}
-          keyboardType="numeric"
-          placeholder="₱00.00"
-          value={price}
-          onChangeText={setPrice}
-        />
-        <StyledText className=" mt-2 text-black ml-1">
-          Enter the Quantity:
-        </StyledText>
-        <StyledTextInput
-          className={`border border-[#00B251] rounded-lg p-3 text-black`}
-          keyboardType="numeric"
-          placeholder="0"
-          value={amount}
-          onChangeText={setAmount}
-        />
+      {/* Price and Quantity Input */}
+      <StyledView className="mx-1 mb-2 p-3 py-2 bg-white rounded-lg shadow-lg border border-gray-400">
+        <StyledView className="pb-3 mx-2 border-b-2 border-gray-500">
+          <StyledText className="text-lg font-medium text-gray-800 mb-1">
+            Enter the Price:
+          {priceError ? (
+            <Text className="text-red-500 text-sm mt-2">
+              {priceError}
+            </Text>
+          ) : null}
+          </StyledText>
+          <StyledTextInput
+            className="border-2  text-lg border-[#00B251] rounded-lg p-3 text-gray-600"
+            keyboardType="numeric"
+            placeholder="₱00.00"
+            value={price}
+            onChangeText={setPrice}
+          />
+
+          <StyledText className="text-lg  font-medium text-gray-800 mt-2 mb-1">
+            Enter the Quantity:
+          {quantityError ? (
+            <Text className="text-red-500 text-sm mt-2">
+              {quantityError}
+            </Text>
+          ) : null}
+          </StyledText>
+          <StyledTextInput
+            className="border-2 text-lg border-[#00B251] rounded-lg p-3 text-gray-600"
+            keyboardType="numeric"
+            placeholder="0"
+            value={amount}
+            onChangeText={setAmount}
+          />
+        </StyledView>
+
+        {/* Total Display */}
+        <StyledView className="flex flex-row justify-between items-center bg-[#F7FAFC] px-4 py-3 rounded-lg shadow-sm">
+          <StyledText className="text-xl font-semibold text-gray-800">
+            Total:
+          </StyledText>
+          <StyledText className="text-xl font-bold text-[#00B251]">
+            ₱ {total}
+          </StyledText>
+        </StyledView>
       </StyledView>
 
-      {/* Total */}
-      <StyledText className="text-lg font-bold mb-4 text-black">
-        Total: ₱ {total}
-      </StyledText>
-
-      {/* New Toggle Switch */}
-      <StyledView className="flex-row items-center mb-4">
-        <StyledText className="text-lg font-bold text-black">
-          Open for Negotiation:
-        </StyledText>
-        <StyledText className="text-red-700 font-bold text-base ml-3">
-          No
-        </StyledText>
-        <StyledTouchableOpacity
-          className="relative inline-flex items-center cursor-pointer ml-1"
-          onPress={toggleSwitch}
-        >
-
-          <StyledView
-            className={`relative w-[44px] h-[24px] rounded-full transition-colors duration-300 ${isChecked ? "bg-green-600" : "bg-gray-200"
-              }`}
-          >
-            <StyledView
-              className={`absolute top-[2px] start-[2px] h-[20px] w-[20px] rounded-full transition-transform duration-300 ${isChecked
-                ? "translate-x-[20px] bg-white"
-                : "translate-x-0 bg-gray-400"
-                }`}
-            />
-          </StyledView>
-        </StyledTouchableOpacity>
-        <StyledText className="text-green-700 font-bold text-base ml-1">
-          Yes
-        </StyledText>
-      </StyledView>
 
       {/* Submit Button */}
       <StyledTouchableOpacity
-        className={`rounded-lg p-4 bg-green-600 `}
+        className={`rounded-lg p-3 bg-green-600 `}
         onPress={handleSubmit}
       >
-        <StyledText className="text-center text-white font-bold">
+        <StyledText className="text-center text-xl text-white font-bold">
           Create Negotiation
         </StyledText>
       </StyledTouchableOpacity>
@@ -288,7 +302,7 @@ function NegotiationBuyerScreen({ navigation, route }) {
             </StyledText>
             <StyledTouchableOpacity
               className="w-full bg-green-600 p-4 rounded-lg"
-              onPress={() => navigation.navigate("Buyer Negotiation List") && setModalVisible(false)} //nilagyan ko lang ng navigation.navigate("Buyer Negotiation List") para ma redirect sa negotiation list ng buyer
+              onPress={() => navigation.navigate("Buyer Negotiation List") && setModalVisible(false)}
             >
               <StyledText className="text-center text-white font-bold">
                 Okay

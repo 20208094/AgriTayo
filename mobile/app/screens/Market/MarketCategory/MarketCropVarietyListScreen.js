@@ -12,6 +12,7 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 import placeholderimg from "../../../assets/placeholder.png";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 import NavigationbarComponent from "../../../components/NavigationbarComponent";
+import LoadingAnimation from "../../../components/LoadingAnimation";
 
 function MarketVarietyListScreen() {
   const [items, setItems] = useState([]);
@@ -20,7 +21,6 @@ function MarketVarietyListScreen() {
   const navigation = useNavigation();
   const route = useRoute();
   const { subcategoryId } = route.params;
-  console.log('subcategoryId :', subcategoryId);
   const API_KEY = REACT_NATIVE_API_KEY;
 
   // Fetch crop sub category data from API
@@ -38,7 +38,7 @@ function MarketVarietyListScreen() {
         throw new Error("Network response was not ok");
       }
       const data = await response.json();
-      
+
       const filteredItems = data.filter(
         (item) => item.crop_sub_category_id === subcategoryId
       );
@@ -55,11 +55,21 @@ function MarketVarietyListScreen() {
     fetchCropVarieties();
   }, [subcategoryId]);
 
+  const handleSubmit = (item) => {
+    const filter_category_id = item.crop_category_id;
+    const filter_sub_category_id = item.crop_sub_category_id;
+    const filter_variety_id = item.crop_variety_id;
+    const filter_class = [];
+    const filter_size_id = '';
+    const filter_price_range = [];
+    const filter_quantity = '';
+
+    navigation.navigate("Compare Shops", { filter_category_id, filter_sub_category_id, filter_variety_id, filter_class, filter_size_id, filter_price_range, filter_quantity });
+  };
+
   if (loading) {
     return (
-      <SafeAreaView className="flex-1 justify-center items-center bg-gray-200">
-        <ActivityIndicator size="large" color="#0000ff" />
-      </SafeAreaView>
+      <LoadingAnimation />
     );
   }
 
@@ -75,45 +85,45 @@ function MarketVarietyListScreen() {
 
   return (
     <>
-    <SafeAreaView className="flex-1 p-4 bg-gray-200">
-      <ScrollView>
-        <View className="flex-col">
-          {items.map((item) => (
-            <TouchableOpacity
-              key={item.crop_variety_id}
-              onPress={() =>
-                navigation.navigate("Product List", {
-                  variety: items,
-                  selectedItemId: item.crop_variety_id,
-                })
-              }
-              className="bg-white rounded-lg shadow-md flex-row items-start p-4 mb-4 border border-gray-300"
-              style={{ elevation: 3 }} 
-              activeOpacity={0.8}
-            >
-              <Image
-                source={
-                  item.crop_variety_image_url
-                    ? { uri: item.crop_variety_image_url }
-                    : placeholderimg
-                }
-                className="w-24 h-24 rounded-lg mr-4"
-                resizeMode="cover"
-              />
-              <View className="flex-1">
-                <Text className="text-lg font-semibold text-gray-800 mb-1">
-                  {item.crop_variety_name}
-                </Text>
-                <Text className="text-sm text-gray-600">
-                  {item.crop_variety_description}
-                </Text>
-              </View>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </ScrollView>
-    </SafeAreaView>
-    <NavigationbarComponent/>
+      <SafeAreaView className="flex-1 p-4 bg-gray-200">
+        <ScrollView>
+          <View className="flex-col">
+            {items.length > 0 ? (
+              items.map((item) => (
+                <TouchableOpacity
+                  key={item.crop_variety_id}
+                  onPress={() => handleSubmit(item)}
+                  className="bg-white rounded-lg shadow-md flex-row items-start p-4 mb-4 border border-gray-300"
+                  style={{ elevation: 3 }}
+                  activeOpacity={0.8}
+                >
+                  <Image
+                    source={
+                      item.crop_variety_image_url
+                        ? { uri: item.crop_variety_image_url }
+                        : placeholderimg
+                    }
+                    className="w-24 h-24 rounded-lg mr-4"
+                    resizeMode="cover"
+                  />
+                  <View className="flex-1">
+                    <Text className="text-lg font-semibold text-gray-800 mb-1">
+                      {item.crop_variety_name}
+                    </Text>
+                    <Text className="text-sm text-gray-600">
+                      {item.crop_variety_description}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              ))
+            ) : (
+              <Text className="text-center text-gray-600">No crop variety found</Text>
+            )}
+          </View>
+
+        </ScrollView>
+      </SafeAreaView>
+      <NavigationbarComponent />
     </>
   );
 }

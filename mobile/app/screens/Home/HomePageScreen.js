@@ -58,13 +58,7 @@ const MarketCategoryCard = ({ cropCategory }) => {
 
 function HomePageScreen() {
   const navigation = useNavigation();
-  const [showAgriTutorial, setShowAgriTutorial] = useState(true);
   const [userData, setUserData] = useState('');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filteredCrops, setFilteredCrops] = useState([]);
-  const [crops, setCrops] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [showResults, setShowResults] = useState(false);
   const [categories, setCategories] = useState([]);
 
   const API_KEY = REACT_NATIVE_API_KEY;
@@ -86,63 +80,11 @@ function HomePageScreen() {
     }
   };
 
-  // Fetch categories when screen is focused
   useFocusEffect(
     useCallback(() => {
       fetchCategories();
     }, [])
   );
-
-  // Fetch crops data (from MarketCategoryScreen.js)
-  const fetchCrops = useCallback(async () => {
-    try {
-      setLoading(true);
-      const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crops`, {
-        headers: {
-          'x-api-key': API_KEY
-        }
-      });
-      const data = await response.json();
-      setCrops(data); // Save all crops
-    } catch (error) {
-      console.error("Error fetching crops data:", error);
-    } finally {
-      setLoading(false);
-    }
-  }, [API_KEY]);
-
-  useEffect(() => {
-    fetchCrops();
-  }, [fetchCrops]);
-
-  // Handle search query
-  const handleSearch = (text) => {
-    setSearchQuery(text);
-    if (text) {
-      // Filter crops based on the search query
-      const results = crops.filter((crop) =>
-        crop.crop_name.toLowerCase().includes(text.toLowerCase())
-      );
-      console.log("Filtered results: ", results);  // Debug filtered crops
-      setFilteredCrops(results);
-      setShowResults(true);  // Show search results dropdown
-    } else {
-      setShowResults(false);  // Hide search results when query is empty
-    }
-  };
-
-  // Clear search input and hide results
-  const clearSearch = () => {
-    setSearchQuery('');  // Clear search query
-    setShowResults(false);  // Hide results
-  };
-
-  const handleSearchItemPress = (product) => {
-    setSearchQuery('');
-    setShowResults(false);
-    console.log("Navigating to MarketCategoryScreen with product: ", product); // Debug product navigation
-    navigation.navigate("Product List", { selectedProduct: product });  // Pass product data to MarketCategoryScreen
-  };
 
   const getAsyncUserData = async () => {
     try {
@@ -186,36 +128,6 @@ function HomePageScreen() {
         <Text className="px-4 text-base text-gray-600 mt-2">
           Enjoy our services!
         </Text>
-        {/* <View className="relative mt-4 px-4 mb-4">
-          <View className="flex-row items-center bg-white p-3 rounded-lg shadow-md">
-            <TextInput
-              placeholder="Search crops..."
-              value={searchQuery}
-              onChangeText={handleSearch}
-              className="flex-1 pr-4"
-            />
-            {searchQuery.length > 0 && (
-              <TouchableOpacity onPress={clearSearch} className="ml-2">
-                <Text className="text-gray-500 text-lg">X</Text>
-              </TouchableOpacity>
-            )}
-          </View>
-          {showResults && (
-            <FlatList
-              data={filteredCrops}
-              keyExtractor={(item) => item.crop_id.toString()}
-              renderItem={({ item }) => (
-                <TouchableOpacity
-                  className="bg-gray-100 p-2 border-b border-gray-300"
-                  onPress={() => handleSearchItemPress(item)}
-                >
-                  <Text>{item.crop_name}</Text>
-                </TouchableOpacity>
-              )}
-              style={{ backgroundColor: 'white', marginTop: 5, borderRadius: 5, maxHeight: 150 }}
-            />
-          )}
-        </View> */}
       </View>
 
       {/* Scrollable Content */}
