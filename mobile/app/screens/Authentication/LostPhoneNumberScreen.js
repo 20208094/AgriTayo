@@ -47,7 +47,7 @@ function LostPhoneNumberScreen({ navigation }) {
       navigation.navigate("Lost Phone Number OTP", { secondaryPhoneNumber });
       // Alert.alert("Success!", "Secondary Phone Number Confirmed");
     } else {
-      Alert.alert("Error", "Phone number not found. Please try again.");
+      Alert.alert("", "Phone number not found. Please try again.");
     }
   }
 

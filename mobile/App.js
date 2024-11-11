@@ -585,11 +585,6 @@ function App() {
               options={screenOptions}
             />
             <Stack.Screen
-              name="Biddings"
-              component={BiddingBuyerScreen}
-              options={screenOptions}
-            />
-            <Stack.Screen
               name="Orders"
               component={OrdersScreen}
               options={screenOptions}

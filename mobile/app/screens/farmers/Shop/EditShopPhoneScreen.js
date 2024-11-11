@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, TouchableOpacity, Alert, Modal } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Alert,
+  Modal,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { styled } from "nativewind";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
@@ -20,10 +27,34 @@ function EditShopPhoneScreen({ navigation, route }) {
   const [isResendEnabled, setIsResendEnabled] = useState(false);
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
+  const [isOtpVisible, setIsOtpVisible] = useState(false);
 
   const socket = io(REACT_NATIVE_API_BASE_URL);
 
   const phone_regex = /^(?:\+63|0)9\d{2}[-\s]?\d{3}[-\s]?\d{4}$/;
+
+  const [phoneNumbersList, setPhoneNumbersList] = useState([]);
+
+  useEffect(() => {
+    const fetchPhoneNumbers = async () => {
+      try {
+        const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/shops`, {
+          headers: { "x-api-key": REACT_NATIVE_API_KEY },
+        });
+        if (response.ok) {
+          const data = await response.json();
+          const numbers = data.map((user) => user.shop_number);
+          setPhoneNumbersList(numbers);
+        } else {
+          console.error("Failed to fetch phone numbers");
+        }
+      } catch (error) {
+        console.error("Error fetching phone numbers:", error);
+      }
+    };
+
+    fetchPhoneNumbers();
+  }, []);
 
   useEffect(() => {
     console.log("New phone input changed:", newPhone);
@@ -38,6 +69,10 @@ function EditShopPhoneScreen({ navigation, route }) {
 
   useEffect(() => {
     if (isCLicked) {
+      if (phoneNumbersList.includes(newPhone)) {
+        Alert.alert("", "Shop Phone Number is already registered")
+        setIsClicked(false)
+        } else {
       const generateRandomCode = () => {
         const code = Math.floor(100000 + Math.random() * 900000).toString();
         setGeneratedCode(code);
@@ -49,8 +84,10 @@ function EditShopPhoneScreen({ navigation, route }) {
       };
 
       generateRandomCode(); // Generate OTP when isCLicked is true
+      setIsOtpVisible(true);
     }
-  }, [isCLicked, newPhone]); // Runs when the OTP button is clicked
+  }
+  }, [isCLicked, newPhone, phoneNumbersList]); // Runs when the OTP button is clicked
 
   const handleOtp = async () => {
     setOtpError("");
@@ -89,11 +126,13 @@ function EditShopPhoneScreen({ navigation, route }) {
             console.log("Successfully Updated Shop Phone Number:", data);
             setAlertMessage("Success!, Successfully Updated Shop Phone Number");
             setAlertVisible(true);
-            navigation.navigate("View Shop", { userData });
+            navigation.navigate("View Shop");
           } else {
             const errorData = await response.json();
             console.error("Adding new shop phone number failed:", errorData);
-            setAlertMessage("Adding New Shop Phone Number Failed. Please Try Again");
+            setAlertMessage(
+              "Adding New Shop Phone Number Failed. Please Try Again"
+            );
             setAlertVisible(true);
           }
         } catch (error) {
@@ -157,10 +196,12 @@ function EditShopPhoneScreen({ navigation, route }) {
             <Text className="text-white font-bold text-center">Confirm </Text>
           </TouchableOpacity>
         </View>
-        {isCLicked && (
+        {isOtpVisible && (
           <>
             <View className="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
-              <Text className="text-2xl font-bold text-green-700 mb-4 text-center">Enter your 6 digit code: </Text>
+              <Text className="text-2xl font-bold text-green-700 mb-4 text-center">
+                Enter your 6 digit code:{" "}
+              </Text>
               <TextInput
                 className="border border-gray-300 rounded-lg px-4 py-2 mb-4"
                 keyboardType="numeric"
@@ -169,15 +210,18 @@ function EditShopPhoneScreen({ navigation, route }) {
                 placeholder="123456"
               />
               {otpError ? (
-                <Text className="text w-4/5 text-red-500 mb-4">
-                  {otpError}
-                </Text>
+                <Text className="text w-4/5 text-red-500 mb-4">{otpError}</Text>
               ) : null}
-              <TouchableOpacity className="bg-green-600 px-4 py-2 rounded-lg mb-5" onPress={handleOtp}>
+              <TouchableOpacity
+                className="bg-green-600 px-4 py-2 rounded-lg mb-5"
+                onPress={handleOtp}
+              >
                 <Text className="text-white font-bold text-center">Submit</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={handleResend}>
-                <Text className="text-center font-bold text-[#00B251]">Resend OTP</Text>
+                <Text className="text-center font-bold text-[#00B251]">
+                  Resend OTP
+                </Text>
               </TouchableOpacity>
             </View>
           </>
@@ -192,12 +236,18 @@ function EditShopPhoneScreen({ navigation, route }) {
       >
         <View className="flex-1 justify-center items-center bg-black/50 bg-opacity-50">
           <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
-            <Text className="text-lg font-semibold text-gray-900 mb-4">{alertMessage}</Text>
+            <Text className="text-lg font-semibold text-gray-900 mb-4">
+              {alertMessage}
+            </Text>
             <TouchableOpacity
               className="mt-4 p-2 bg-[#00B251] rounded-lg flex-row justify-center items-center"
               onPress={() => setAlertVisible(false)}
             >
-              <Ionicons name="checkmark-circle-outline" size={24} color="white" />
+              <Ionicons
+                name="checkmark-circle-outline"
+                size={24}
+                color="white"
+              />
               <Text className="text-lg text-white ml-2">OK</Text>
             </TouchableOpacity>
           </View>

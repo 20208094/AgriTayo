@@ -80,6 +80,9 @@ function NewPhoneNumberScreen({ navigation, route }) {
           <Text className="text-2xl font-bold text-green-700 mb-4 text-center">
             Enter Your New Password
           </Text>
+          <Text className="text-md font-semibold text-gray-700 mb-4 text-center">
+            New Phone Number: {secondaryPhoneNumber}
+          </Text>
           <TextInput
             className="border border-gray-300 rounded-lg px-4 py-2 mb-4"
             placeholder="e.g., &#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;"

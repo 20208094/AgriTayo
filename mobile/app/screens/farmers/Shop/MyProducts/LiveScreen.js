@@ -13,11 +13,13 @@ import Reports from "../../../../components/Reports";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env"; // Import API constants
 import { useFocusEffect } from "@react-navigation/native";
 import LoadingAnimation from "../../../../components/LoadingAnimation";
+import GenerateAllReports from "../../../../components/GenerateAllReports";
 import Ionicons from "react-native-vector-icons/Ionicons";
 
 function LiveScreen({ navigation }) {
   const [liveItems, setLiveItems] = useState([]); // State to hold live items
   const [loading, setLoading] = useState(true); // Loading state
+  const [shopId, setShopId] = useState(null);
 
   // Function to fetch shop data
   const getAsyncShopData = async () => {
@@ -26,6 +28,7 @@ function LiveScreen({ navigation }) {
       if (storedData) {
         const parsedData = JSON.parse(storedData);
         const shop = Array.isArray(parsedData) ? parsedData[0] : parsedData;
+        setShopId(shop)
 
         const cropsResponse = await fetch(
           `${REACT_NATIVE_API_BASE_URL}/api/crops`,
@@ -191,6 +194,9 @@ function LiveScreen({ navigation }) {
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
       {/* Header section with Add Product button and Reports */}
+      <View className='text-center mb-4'>
+      <GenerateAllReports shopId={shopId} dataType="Crops Report" />
+      </View>
       <View className="flex-row justify-between items-center px-4 mb-4">
         {/* Add New Product button */}
         <TouchableOpacity

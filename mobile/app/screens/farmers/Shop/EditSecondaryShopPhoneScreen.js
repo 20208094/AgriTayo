@@ -19,10 +19,34 @@ function EditSecondaryShopPhoneScreen({ navigation, route }) {
   const [isResendEnabled, setIsResendEnabled] = useState(false);
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
+  const [isOtpVisible, setIsOtpVisible] = useState(false);
 
   const socket = io(REACT_NATIVE_API_BASE_URL);
 
   const phone_regex = /^(?:\+63|0)9\d{2}[-\s]?\d{3}[-\s]?\d{4}$/;
+
+  const [phoneNumbersList, setPhoneNumbersList] = useState([]);
+
+  useEffect(() => {
+    const fetchPhoneNumbers = async () => {
+      try {
+        const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/shops`, {
+          headers: { "x-api-key": REACT_NATIVE_API_KEY },
+        });
+        if (response.ok) {
+          const data = await response.json();
+          const numbers = data.map((user) => user.secondary_shop_number);
+          setPhoneNumbersList(numbers);
+        } else {
+          console.error("Failed to fetch phone numbers");
+        }
+      } catch (error) {
+        console.error("Error fetching phone numbers:", error);
+      }
+    };
+
+    fetchPhoneNumbers();
+  }, []);
 
   useEffect(() => {
     console.log("New alternative phone input changed:", newSecondaryPhone);
@@ -37,6 +61,10 @@ function EditSecondaryShopPhoneScreen({ navigation, route }) {
 
   useEffect(() => {
     if (isCLicked) {
+      if (phoneNumbersList.includes(newSecondaryPhone)) {
+        Alert.alert("", "Shop Phone Number is already registered")
+        setIsClicked(false)
+        } else {
       const generateRandomCode = () => {
         const code = Math.floor(100000 + Math.random() * 900000).toString();
         setGeneratedCode(code);
@@ -48,8 +76,10 @@ function EditSecondaryShopPhoneScreen({ navigation, route }) {
       };
 
       generateRandomCode(); // Generate OTP when isCLicked is true
+      setIsOtpVisible(true);
     }
-  }, [isCLicked, newSecondaryPhone]); // Runs when the OTP button is clicked
+  }
+  }, [isCLicked, newSecondaryPhone, phoneNumbersList]); // Runs when the OTP button is clicked
 
   const handleOtp = async () => {
     setOtpError("");
@@ -86,11 +116,9 @@ function EditSecondaryShopPhoneScreen({ navigation, route }) {
           if (response.ok) {
             const data = await response.json();
             console.log("Successfully Updated Alternative Shop Phone Number:", data);
-            Alert.alert("Success!", "Successfully Updated Shop Alternative Phone Number");
-            navigation.navigate("View Shop");
             setAlertMessage("Success!, Successfully Updated Shop Alternative Phone Number");
             setAlertVisible(true);
-            navigation.navigate("View Shop", { userData });
+            navigation.navigate("View Shop");
           } else {
             const errorData = await response.json();
             console.error("Adding new alternative shop phone number failed:", errorData);
@@ -158,7 +186,7 @@ function EditSecondaryShopPhoneScreen({ navigation, route }) {
             <Text className="text-white font-bold text-center">Confirm </Text>
           </TouchableOpacity>
         </View>
-        {isCLicked && (
+        {isOtpVisible && (
           <>
             <View className="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
               <Text className="text-2xl font-bold text-green-700 mb-4 text-center">Enter your 6 digit code: </Text>

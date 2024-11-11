@@ -17,8 +17,11 @@ function EditSecondaryPhoneNumberScreen({ navigation, route }) {
   const [generatedCode, setGeneratedCode] = useState("");
   const [seconds, setSeconds] = useState(10 * 60);
   const [isResendEnabled, setIsResendEnabled] = useState(false);
+  const [isOtpVisible, setIsOtpVisible] = useState(false);
 
   const socket = io(REACT_NATIVE_API_BASE_URL);
+
+  const [phoneNumbersList, setPhoneNumbersList] = useState([]);
 
   const phone_regex = /^(?:\+63|0)9\d{2}[-\s]?\d{3}[-\s]?\d{4}$/;
 
@@ -35,6 +38,10 @@ function EditSecondaryPhoneNumberScreen({ navigation, route }) {
 
   useEffect(() => {
     if (isCLicked) {
+      if (phoneNumbersList.includes(newSecondaryPhone)) {
+        Alert.alert("", "Alternative Phone Number is already registered")
+        setIsClicked(false)
+        } else {
       const generateRandomCode = () => {
         const code = Math.floor(100000 + Math.random() * 900000).toString();
         setGeneratedCode(code);
@@ -46,8 +53,31 @@ function EditSecondaryPhoneNumberScreen({ navigation, route }) {
       };
 
       generateRandomCode(); // Generate OTP when isCLicked is true
+      setIsOtpVisible(true);
     }
-  }, [isCLicked, newSecondaryPhone]); // Runs when the OTP button is clicked
+  }
+  }, [isCLicked, newSecondaryPhone, phoneNumbersList]); // Runs when the OTP button is clicked
+
+  useEffect(() => {
+    const fetchPhoneNumbers = async () => {
+      try {
+        const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/users`, {
+          headers: { "x-api-key": REACT_NATIVE_API_KEY },
+        });
+        if (response.ok) {
+          const data = await response.json();
+          const numbers = data.map((user) => user.secondary_phone_number);
+          setPhoneNumbersList(numbers);
+        } else {
+          console.error("Failed to fetch phone numbers");
+        }
+      } catch (error) {
+        console.error("Error fetching phone numbers:", error);
+      }
+    };
+
+    fetchPhoneNumbers();
+  }, []);
 
   const handleOtp = async () => {
     setOtpError("");
@@ -84,7 +114,10 @@ function EditSecondaryPhoneNumberScreen({ navigation, route }) {
           if (response.ok) {
             const data = await response.json();
             console.log("Successfully Updated Alternative Phone Number:", data);
-            Alert.alert("Success!", "Successfully Updated Alternative Phone Number");
+            Alert.alert(
+              "Success!",
+              "Successfully Updated Alternative Phone Number"
+            );
             const updatedUserData = {
               ...userData,
               secondary_phone_number: newSecondaryPhone,
@@ -100,11 +133,19 @@ function EditSecondaryPhoneNumberScreen({ navigation, route }) {
             navigation.navigate("View Profile", { userData });
           } else {
             const errorData = await response.json();
-            console.error("Adding new alternative phone number failed:", errorData);
-            alert("Adding New Alternative Phone Number Failed. Please Try Again");
+            console.error(
+              "Adding new alternative phone number failed:",
+              errorData
+            );
+            alert(
+              "Adding New Alternative Phone Number Failed. Please Try Again"
+            );
           }
         } catch (error) {
-          console.error("Error during adding new alternative phone number:", error);
+          console.error(
+            "Error during adding new alternative phone number:",
+            error
+          );
           alert("An error occurred. Please try again.");
         } finally {
           setLoading(false);
@@ -163,10 +204,12 @@ function EditSecondaryPhoneNumberScreen({ navigation, route }) {
             <Text className="text-white font-bold text-center">Confirm </Text>
           </TouchableOpacity>
         </View>
-        {isCLicked && (
+        {isOtpVisible && (
           <>
             <View className="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
-              <Text className="text-2xl font-bold text-green-700 mb-4 text-center">Enter your 6 digit code: </Text>
+              <Text className="text-2xl font-bold text-green-700 mb-4 text-center">
+                Enter your 6 digit code:{" "}
+              </Text>
               <TextInput
                 className="border border-gray-300 rounded-lg px-4 py-2 mb-4"
                 keyboardType="numeric"
@@ -175,16 +218,19 @@ function EditSecondaryPhoneNumberScreen({ navigation, route }) {
                 placeholder="123456"
               />
               {otpError ? (
-                <Text className="text w-4/5 text-red-500 mb-4">
-                  {otpError}
-                </Text>
+                <Text className="text w-4/5 text-red-500 mb-4">{otpError}</Text>
               ) : null}
-              <TouchableOpacity className="bg-green-600 px-4 py-2 rounded-lg mb-5" onPress={handleOtp}>
+              <TouchableOpacity
+                className="bg-green-600 px-4 py-2 rounded-lg mb-5"
+                onPress={handleOtp}
+              >
                 <Text className="text-white font-bold text-center">Submit</Text>
               </TouchableOpacity>
 
               <TouchableOpacity onPress={handleResend}>
-                <Text className="text-center font-bold text-[#00B251]">Resend OTP</Text>
+                <Text className="text-center font-bold text-[#00B251]">
+                  Resend OTP
+                </Text>
               </TouchableOpacity>
             </View>
           </>

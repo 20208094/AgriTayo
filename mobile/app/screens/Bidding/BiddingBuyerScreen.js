@@ -13,6 +13,7 @@ import {
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
+import NavigationbarComponent from "../../components/NavigationbarComponent";
 
 // Get screen dimensions for responsive design
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
@@ -183,6 +184,7 @@ function BiddingBuyerScreen({ navigation }) {
           />
         ))}
       </ScrollView>
+      
     </SafeAreaView>
   );
 }
