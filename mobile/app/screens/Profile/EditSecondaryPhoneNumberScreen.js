@@ -69,7 +69,7 @@ function EditSecondaryPhoneNumberScreen({ navigation, route }) {
         try {
           console.log("Sending request to update alternative phone number...");
           const response = await fetch(
-            `${REACT_NATIVE_API_BASE_URL}/api/editSecondaryPhoneNumber/${secondaryPhoneNumber}`,
+            `${REACT_NATIVE_API_BASE_URL}/api/editSecondaryPhoneNumber/${userData.user_id}`,
             {
               method: "PUT",
               headers: {

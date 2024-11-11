@@ -6,12 +6,14 @@ import {
   TouchableOpacity,
   Text,
   View,
+  Alert,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage"; // Import AsyncStorage
 import Reports from "../../../../components/Reports";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env"; // Import API constants
 import placeholderimg from "../../../../assets/placeholder.png";
 import LoadingAnimation from "../../../../components/LoadingAnimation";
+import Ionicons from "react-native-vector-icons/Ionicons";
 
 function DelistedScreen({ navigation }) {
   const [delistedItems, setDelistedItems] = useState([]); // State to hold delisted items
@@ -26,47 +28,68 @@ function DelistedScreen({ navigation }) {
         const shop = Array.isArray(parsedData) ? parsedData[0] : parsedData;
 
         // Fetch crops from API
-        const cropsResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crops`, {
-          headers: {
-            "x-api-key": REACT_NATIVE_API_KEY,
-          },
-        });
+        const cropsResponse = await fetch(
+          `${REACT_NATIVE_API_BASE_URL}/api/crops`,
+          {
+            headers: {
+              "x-api-key": REACT_NATIVE_API_KEY,
+            },
+          }
+        );
 
-        const categoryResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_categories`, {
-          headers: {
-            "x-api-key": REACT_NATIVE_API_KEY,
-          },
-        });
+        const categoryResponse = await fetch(
+          `${REACT_NATIVE_API_BASE_URL}/api/crop_categories`,
+          {
+            headers: {
+              "x-api-key": REACT_NATIVE_API_KEY,
+            },
+          }
+        );
 
-        const subcategoryResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_sub_categories`, {
-          headers: {
-            "x-api-key": REACT_NATIVE_API_KEY,
-          },
-        });
+        const subcategoryResponse = await fetch(
+          `${REACT_NATIVE_API_BASE_URL}/api/crop_sub_categories`,
+          {
+            headers: {
+              "x-api-key": REACT_NATIVE_API_KEY,
+            },
+          }
+        );
 
-        const varietyResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_varieties`, {
-          headers: {
-            "x-api-key": REACT_NATIVE_API_KEY,
-          },
-        });
+        const varietyResponse = await fetch(
+          `${REACT_NATIVE_API_BASE_URL}/api/crop_varieties`,
+          {
+            headers: {
+              "x-api-key": REACT_NATIVE_API_KEY,
+            },
+          }
+        );
 
-        const varietySizeResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_variety_sizes`, {
-          headers: {
-            "x-api-key": REACT_NATIVE_API_KEY,
-          },
-        });
+        const varietySizeResponse = await fetch(
+          `${REACT_NATIVE_API_BASE_URL}/api/crop_variety_sizes`,
+          {
+            headers: {
+              "x-api-key": REACT_NATIVE_API_KEY,
+            },
+          }
+        );
 
-        const sizeResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_sizes`, {
-          headers: {
-            "x-api-key": REACT_NATIVE_API_KEY,
-          },
-        });
+        const sizeResponse = await fetch(
+          `${REACT_NATIVE_API_BASE_URL}/api/crop_sizes`,
+          {
+            headers: {
+              "x-api-key": REACT_NATIVE_API_KEY,
+            },
+          }
+        );
 
-        const metricResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/metric_systems`, {
-          headers: {
-            "x-api-key": REACT_NATIVE_API_KEY,
-          },
-        });
+        const metricResponse = await fetch(
+          `${REACT_NATIVE_API_BASE_URL}/api/metric_systems`,
+          {
+            headers: {
+              "x-api-key": REACT_NATIVE_API_KEY,
+            },
+          }
+        );
 
         const crops = await cropsResponse.json();
         const categories = await categoryResponse.json();
@@ -78,17 +101,31 @@ function DelistedScreen({ navigation }) {
 
         // Filter items that are delisted
         const filteredDelistedItems = crops.filter(
-          (crop) => crop.availability === "delisted" && crop.shop_id === shop.shop_id
+          (crop) =>
+            crop.availability === "delisted" && crop.shop_id === shop.shop_id
         );
 
         // Combine data for the UI
         const combinedData = filteredDelistedItems.map((crop) => {
-          const categoryData = categories.find((cat) => cat.crop_category_id === crop.category_id);
-          const subcategoryData = subcategories.find((sub) => sub.crop_sub_category_id === crop.sub_category_id);
-          const varietyData = varieties.find((variety) => variety.crop_variety_id === crop.crop_variety_id);
-          const sizeData = variety_sizes.find((varSize) => varSize.crop_variety_id === crop.crop_variety_id);
-          const actualSize = sizes.find((size) => size.crop_size_id === (sizeData ? sizeData.crop_size_id : null));
-          const metricData = metrics.find((metric) => metric.metric_system_id === crop.metric_system_id);
+          const categoryData = categories.find(
+            (cat) => cat.crop_category_id === crop.category_id
+          );
+          const subcategoryData = subcategories.find(
+            (sub) => sub.crop_sub_category_id === crop.sub_category_id
+          );
+          const varietyData = varieties.find(
+            (variety) => variety.crop_variety_id === crop.crop_variety_id
+          );
+          const sizeData = variety_sizes.find(
+            (varSize) => varSize.crop_variety_id === crop.crop_variety_id
+          );
+          const actualSize = sizes.find(
+            (size) =>
+              size.crop_size_id === (sizeData ? sizeData.crop_size_id : null)
+          );
+          const metricData = metrics.find(
+            (metric) => metric.metric_system_id === crop.metric_system_id
+          );
 
           return {
             ...crop,
@@ -113,13 +150,49 @@ function DelistedScreen({ navigation }) {
     getAsyncShopData();
   }, []);
 
+  // Function to delete crop
+  const deleteCrop = async (cropId) => {
+    try {
+      const response = await fetch(
+        `${REACT_NATIVE_API_BASE_URL}/api/crops/${cropId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "x-api-key": REACT_NATIVE_API_KEY,
+          },
+        }
+      );
+
+      if (response.ok) {
+        setDelistedItems((prevItems) =>
+          prevItems.filter((item) => item.crop_id !== cropId)
+        );
+        Alert.alert("Deleted Successfully!", "Crop Deleted Successfully.");
+      } else {
+        console.error("Failed to delete crop:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error deleting crop:", error);
+    }
+  };
+
+  const confirmDelete = (cropId) => {
+    Alert.alert("Delete Crop", "Are you sure you want to delete this crop?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Delete",
+        style: "destructive",
+        onPress: () => deleteCrop(cropId),
+      },
+    ]);
+  };
+
   if (loading) {
     return <LoadingAnimation />;
   }
 
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
-
       {/* Reports section */}
       <Reports data={delistedItems} dataType="delistedItems" />
 
@@ -129,8 +202,18 @@ function DelistedScreen({ navigation }) {
           <TouchableOpacity
             key={delistedItem.crop_id}
             className="bg-white p-4 mb-4 rounded-xl shadow-md flex-row items-center transition-all duration-300 hover:shadow-lg"
-            onPress={() => navigation.navigate("Farmers Product Details", { delistedItem })}
+            onPress={() =>
+              navigation.navigate("Farmers Product Details", { delistedItem })
+            }
           >
+            {/* Delete Icon */}
+            <TouchableOpacity
+              style={{ position: "absolute", top: 8, right: 8 }}
+              onPress={() => confirmDelete(delistedItem.crop_id)}
+            >
+              <Ionicons name="trash-outline" size={20} color="red" />
+            </TouchableOpacity>
+
             {/* Crop Image */}
             <Image
               source={{ uri: delistedItem.crop_image_url || placeholderimg }}
@@ -149,39 +232,69 @@ function DelistedScreen({ navigation }) {
               {/* Category and Subcategory */}
               <View className="flex-row flex-wrap gap-2 mb-1">
                 <Text className="text-xs font-medium text-red-600">
-                  Reason: <Text className="text-gray-800">{delistedItem.reason || 'Unknown'}</Text>
+                  Reason:{" "}
+                  <Text className="text-gray-800">
+                    {delistedItem.reason || "Unknown"}
+                  </Text>
                 </Text>
                 <Text className="text-xs font-medium text-green-600">
-                  Category: <Text className="text-gray-800">{delistedItem.category ? delistedItem.category.crop_category_name : 'Unknown'}</Text>
+                  Category:{" "}
+                  <Text className="text-gray-800">
+                    {delistedItem.category
+                      ? delistedItem.category.crop_category_name
+                      : "Unknown"}
+                  </Text>
                 </Text>
                 <Text className="text-xs font-medium text-green-600">
-                  Subcategory: <Text className="text-gray-800">{delistedItem.subcategory ? delistedItem.subcategory.crop_sub_category_name : 'Unknown'}</Text>
+                  Subcategory:{" "}
+                  <Text className="text-gray-800">
+                    {delistedItem.subcategory
+                      ? delistedItem.subcategory.crop_sub_category_name
+                      : "Unknown"}
+                  </Text>
                 </Text>
               </View>
 
               {/* Variety, Size, and Class */}
               <View className="flex-row flex-wrap gap-2 mb-1">
                 <Text className="text-xs font-medium text-green-600">
-                  Variety: <Text className="text-gray-800">{delistedItem.variety ? delistedItem.variety.crop_variety_name : 'Unknown'}</Text>
+                  Variety:{" "}
+                  <Text className="text-gray-800">
+                    {delistedItem.variety
+                      ? delistedItem.variety.crop_variety_name
+                      : "Unknown"}
+                  </Text>
                 </Text>
                 <Text className="text-xs font-medium text-green-600">
-                  Size: <Text className="text-gray-800">{delistedItem.size ? delistedItem.size.crop_size_name : 'Unknown'}</Text>
+                  Size:{" "}
+                  <Text className="text-gray-800">
+                    {delistedItem.size
+                      ? delistedItem.size.crop_size_name
+                      : "Unknown"}
+                  </Text>
                 </Text>
                 <Text className="text-xs font-medium text-green-600">
-                  Class: <Text className="text-gray-800">{delistedItem.crop_class || 'Unknown'}</Text>
+                  Class:{" "}
+                  <Text className="text-gray-800">
+                    {delistedItem.crop_class || "Unknown"}
+                  </Text>
                 </Text>
               </View>
 
               {/* Price, Weight */}
               <View className="flex-row justify-between mt-2">
                 <Text className="text-xs font-medium text-green-600">
-                  Weight: <Text className="text-gray-800">{delistedItem.metric ? `${delistedItem.metric.metric_system_name}` : 'Unknown'}</Text>
+                  Weight:{" "}
+                  <Text className="text-gray-800">
+                    {delistedItem.metric
+                      ? `${delistedItem.metric.metric_system_name}`
+                      : "Unknown"}
+                  </Text>
                 </Text>
                 <Text className="text-sm font-semibold text-[#00B251]">
                   ₱{delistedItem.crop_price}
                 </Text>
               </View>
-        
             </View>
           </TouchableOpacity>
         ))}

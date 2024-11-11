@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   Text,
   View,
-  Alert
+  Alert,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage"; // Import AsyncStorage
 import Reports from "../../../../components/Reports";
@@ -148,33 +148,42 @@ function LiveScreen({ navigation }) {
     }, [])
   );
 
-    // Function to delete crop
-    const deleteCrop = async (cropId) => {
-      try {
-        const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crops/${cropId}`, {
-          method: "DELETE",
-          headers: {
-            "x-api-key": REACT_NATIVE_API_KEY,
-          },
-        });
-  
-        if (response.ok) {
-          setLiveItems((prevItems) => prevItems.filter((item) => item.crop_id !== cropId));
-          Alert.alert('Deleted Successfully!', 'Crop Deleted Successfully.')
-        } else {
-          console.error("Failed to delete crop:", response.statusText);
-        }
-      } catch (error) {
-        console.error("Error deleting crop:", error);
-      }
-    };
-  
-    const confirmDelete = (cropId) => {
-      Alert.alert("Delete Crop", "Are you sure you want to delete this crop?", [
-        { text: "Cancel", style: "cancel" },
-        { text: "Delete", style: "destructive", onPress: () => deleteCrop(cropId) },
-      ]);
-    };
+  // Function to delete crop
+  // const deleteCrop = async (cropId) => {
+  //   try {
+  //     const response = await fetch(
+  //       `${REACT_NATIVE_API_BASE_URL}/api/crops/${cropId}`,
+  //       {
+  //         method: "DELETE",
+  //         headers: {
+  //           "x-api-key": REACT_NATIVE_API_KEY,
+  //         },
+  //       }
+  //     );
+
+  //     if (response.ok) {
+  //       setLiveItems((prevItems) =>
+  //         prevItems.filter((item) => item.crop_id !== cropId)
+  //       );
+  //       Alert.alert("Deleted Successfully!", "Crop Deleted Successfully.");
+  //     } else {
+  //       console.error("Failed to delete crop:", response.statusText);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error deleting crop:", error);
+  //   }
+  // };
+
+  // const confirmDelete = (cropId) => {
+  //   Alert.alert("Delete Crop", "Are you sure you want to delete this crop?", [
+  //     { text: "Cancel", style: "cancel" },
+  //     {
+  //       text: "Delete",
+  //       style: "destructive",
+  //       onPress: () => deleteCrop(cropId),
+  //     },
+  //   ]);
+  // };
 
   if (loading) {
     return <LoadingAnimation />;
@@ -207,13 +216,13 @@ function LiveScreen({ navigation }) {
               navigation.navigate("Farmers Product Details", { liveItem })
             }
           >
-            {/* Delete Icon */}
+            {/* Delete Icon
             <TouchableOpacity
               style={{ position: "absolute", top: 8, right: 8 }}
               onPress={() => confirmDelete(liveItem.crop_id)}
             >
               <Ionicons name="trash-outline" size={20} color="red" />
-            </TouchableOpacity>
+            </TouchableOpacity> */}
             {/* Crop Image */}
             <Image
               source={{ uri: liveItem.crop_image_url }}

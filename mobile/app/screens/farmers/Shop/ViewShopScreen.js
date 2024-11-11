@@ -41,7 +41,7 @@ function ViewShopScreen({ navigation }) {
   const [tin, setTin] = useState("");
   const [birCertificate, setBirCertificate] = useState(null);
   const [shopNumber, setShopNumber] = useState("");
-  const[shopSecondaryNumber, setShopSecondaryNumber] = useState('')
+  const [shopSecondaryNumber, setShopSecondaryNumber] = useState("");
   const [errors, setErrors] = useState({});
 
   const [alertVisible, setAlertVisible] = useState(false);
@@ -103,7 +103,7 @@ function ViewShopScreen({ navigation }) {
         setShopNumber(value);
         validateField("shopNumber", value);
         break;
-        case "shopSecondaryNumber":
+      case "shopSecondaryNumber":
         setShopSecondaryNumber(value);
         validateField("shopSecondaryNumber", value);
         break;
@@ -271,7 +271,7 @@ function ViewShopScreen({ navigation }) {
     formData.append("delivery", isCheckedDelivery);
     formData.append("pickup", isCheckedPickup);
     formData.append("delivery_price", shopDeliveryFee);
-    formData.append("delivery_address", pickupAddress);
+    formData.append("pickup_address", pickupAddress);
     formData.append("pickup_price", pickupAreaFee);
     formData.append("gcash", isCheckedGcash);
     formData.append("cod", isCheckedCod);
@@ -292,6 +292,7 @@ function ViewShopScreen({ navigation }) {
     }
 
     formData.append("shop_number", shopNumber);
+    formData.append("secondary_shop_number", shopSecondaryNumber)
 
     console.log("Final FormData before submission:", formData);
 
@@ -404,21 +405,20 @@ function ViewShopScreen({ navigation }) {
 
           {/* Shop Number */}
           <View className="relative w-full p-2 mb-4 bg-white rounded-lg shadow-md text-gray-800">
-          <Text className="text-sm mb-2 text-gray-800">Shop Number:</Text>
-          <Text className=''>{shopNumber}</Text>
+            <Text className="text-sm mb-2 text-gray-800">Shop Number:</Text>
+            <Text className="">{shopNumber}</Text>
 
-          <TouchableOpacity
-                  style={{ position: "absolute", top: 10, right: 10 }}
-                  onPress={() =>
-                    navigation.navigate("Edit Shop Phone", {
-                      shopNumber,
-                      userData,
-                    })
-                  }
-                >
-                  <Ionicons name="pencil" size={20} color="gray" />
-                </TouchableOpacity>
-
+            <TouchableOpacity
+              style={{ position: "absolute", top: 10, right: 10 }}
+              onPress={() =>
+                navigation.navigate("Edit Shop Phone", {
+                  shopNumber,
+                  shopId,
+                })
+              }
+            >
+              <Ionicons name="pencil" size={20} color="gray" />
+            </TouchableOpacity>
           </View>
 
           <View className="relative w-full p-2 mb-4 bg-white rounded-lg shadow-md text-gray-800">
@@ -426,22 +426,17 @@ function ViewShopScreen({ navigation }) {
               Alternative Shop Number:
             </Text>
             <Text className="">{shopSecondaryNumber}</Text>
-
-            {shopSecondaryNumber != null && (
-              <>
-                <TouchableOpacity
-                  style={{ position: "absolute", top: 10, right: 10 }}
-                  onPress={() =>
-                    navigation.navigate("Edit Alternative Shop Phone", {
-                      shopSecondaryNumber,
-                      userData,
-                    })
-                  }
-                >
-                  <Ionicons name="pencil" size={20} color="gray" />
-                </TouchableOpacity>
-              </>
-            )}
+            <TouchableOpacity
+              style={{ position: "absolute", top: 10, right: 10 }}
+              onPress={() =>
+                navigation.navigate("Edit Alternative Shop Phone", {
+                  shopSecondaryNumber,
+                  shopId,
+                })
+              }
+            >
+              <Ionicons name="pencil" size={20} color="gray" />
+            </TouchableOpacity>
           </View>
 
           {/* Shipping Options */}

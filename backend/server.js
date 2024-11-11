@@ -299,8 +299,8 @@ app.post('/api/users', addUser);
 app.put('/api/users/:id', updateUser);
 app.put('/api/changePassword/:phone_number', changePassword);
 app.put('/api/changePhoneNumber/:secondary_phone_number', changePhoneNumber);
-app.put('/api/editPhoneNumber/:phone_number', editPhoneNumber);
-app.put('/api/editSecondaryPhoneNumber/:secondary_phone_number', editSecondaryPhoneNumber);
+app.put('/api/editPhoneNumber/:user_id', editPhoneNumber);
+app.put('/api/editSecondaryPhoneNumber/:user_id', editSecondaryPhoneNumber);
 app.delete('/api/users/:id', deleteUser);
 
 // API routes for addresses
@@ -314,8 +314,8 @@ app.get('/api/shops', getShops);
 app.post('/api/shops', addShop);
 app.put('/api/shops/:id', updateShop);
 app.delete('/api/shops/:id', deleteShop);
-app.put('/api/editShopPhoneNumber/:shop_number', editShopPhoneNumber);
-app.put('/api/editSecondaryShopPhoneNumber/:secondary_shop_number', editSecondaryShopPhoneNumber);
+app.put('/api/editShopPhoneNumber/:shop_id', editShopPhoneNumber);
+app.put('/api/editSecondaryShopPhoneNumber/:shop_id', editSecondaryShopPhoneNumber);
 
 // API routes for crop categories
 app.get('/api/crop_categories', getCropCategories);

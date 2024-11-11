@@ -7,7 +7,7 @@ import { io } from "socket.io-client";
 import GoBack from "../../../components/GoBack";
 
 function EditShopPhoneScreen({ navigation, route }) {
-  const { userData, shopNumber } = route.params;
+  const { shopId, shopNumber } = route.params;
   const [newPhone, setNewPhone] = useState("");
   const [phoneError, setPhoneError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -17,6 +17,7 @@ function EditShopPhoneScreen({ navigation, route }) {
   const [generatedCode, setGeneratedCode] = useState("");
   const [seconds, setSeconds] = useState(10 * 60);
   const [isResendEnabled, setIsResendEnabled] = useState(false);
+
 
   const socket = io(REACT_NATIVE_API_BASE_URL);
 
@@ -69,7 +70,7 @@ function EditShopPhoneScreen({ navigation, route }) {
         try {
           console.log("Sending request to update shop phone number...");
           const response = await fetch(
-            `${REACT_NATIVE_API_BASE_URL}/api/editShopPhoneNumber/${shopNumber}`,
+            `${REACT_NATIVE_API_BASE_URL}/api/editShopPhoneNumber/${shopId}`,
             {
               method: "PUT",
               headers: {
@@ -85,7 +86,7 @@ function EditShopPhoneScreen({ navigation, route }) {
             const data = await response.json();
             console.log("Successfully Updated Shop Phone Number:", data);
             Alert.alert("Success!", "Successfully Updated Shop Phone Number");
-            navigation.navigate("View Shop", { userData });
+            navigation.navigate("View Shop");
           } else {
             const errorData = await response.json();
             console.error("Adding new shop phone number failed:", errorData);
