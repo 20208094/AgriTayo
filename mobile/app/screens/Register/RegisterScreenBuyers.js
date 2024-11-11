@@ -173,17 +173,17 @@ function RegisterScreenBuyers({ navigation }) {
     formData.append("secondary_phone_number", secondaryPhoneNumber);
     formData.append("user_type_id", "3");
 
-    if (phone && secondaryPhoneNumber && phoneNumbersList.includes(phone) && phoneSecondaryNumbersList.includes(secondaryPhoneNumber)) {
+    if (phone && secondaryPhoneNumber && (phoneNumbersList.includes(phone) || phoneSecondaryNumbersList.includes(phone)) && (phoneNumbersList.includes(secondaryPhoneNumber) || phoneSecondaryNumbersList.includes(secondaryPhoneNumber))) {
       Alert.alert("", "Both Phone and Alternative Number are Already Registered");
       return;
     }
 
-    if (phone && phoneNumbersList.includes(phone)) {
+    if (phone && (phoneNumbersList.includes(phone) || phoneSecondaryNumbersList.includes(phone))) {
       Alert.alert("", "Phone Number is Already Registered");
       return;
     }
 
-    if (secondaryPhoneNumber && phoneSecondaryNumbersList.includes(secondaryPhoneNumber)) {
+    if (secondaryPhoneNumber && (phoneSecondaryNumbersList.includes(secondaryPhoneNumber) || phoneNumbersList.includes(secondaryPhoneNumber))) {
       Alert.alert("", "Alternative Phone Number is Already Registered");
       return;
     }

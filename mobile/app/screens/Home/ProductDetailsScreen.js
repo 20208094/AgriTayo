@@ -229,7 +229,9 @@ function ProductDetailsScreen({ navigation, route }) {
       const metrics = await metricResponse.json();
       const shops = await shopResponse.json();
 
-      const liveCrops = rawcrops.filter(crop => crop.availability === 'live' && crop.crop_quantity > 0 && product.crop_variety_id === crop.crop_variety_id);
+      const newProduct = rawcrops.find(crop => crop.crop_id === product.crop_id);
+
+      const liveCrops = rawcrops.filter(crop => crop.availability === 'live' && crop.crop_quantity > 0 && newProduct.crop_variety_id === crop.crop_variety_id);
 
       const combinedData = liveCrops.map(crop => {
         const categoryData = categories.find(cat => cat.crop_category_id === crop.category_id);
@@ -313,7 +315,7 @@ function ProductDetailsScreen({ navigation, route }) {
           <Modal visible={isModalVisible} transparent={true} animationType="fade">
             <Pressable className="flex-1 bg-black bg-opacity-90 justify-center items-center" onPress={toggleModal}>
               <Image
-                source={product.crop_image_url ? { uri: product.crop_image_url } : placeholderimg}
+                source={displayedProduct.crop_image_url ? { uri: displayedProduct.crop_image_url } : placeholderimg}
                 className="w-full h-full"
                 resizeMode="contain"
               />
@@ -322,7 +324,7 @@ function ProductDetailsScreen({ navigation, route }) {
 
           <TouchableOpacity onPress={toggleModal}>
             <Image
-              source={product.crop_image_url ? { uri: product.crop_image_url } : placeholderimg}
+              source={displayedProduct.crop_image_url ? { uri: displayedProduct.crop_image_url } : placeholderimg}
               className="w-full h-80 rounded-lg mb-2.5"
             />
           </TouchableOpacity>

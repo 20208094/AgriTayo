@@ -20,6 +20,7 @@ import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Ionicons } from "@expo/vector-icons";
+import LoadingAnimation from "../../components/LoadingAnimation";
 
 const StyledView = styled(View);
 const StyledText = styled(Text);
@@ -193,7 +194,7 @@ function CartScreen() {
 
           return {
             ...shop,
-            items: items, // Include the items array
+            items: items,
           };
         });
 
@@ -203,10 +204,10 @@ function CartScreen() {
         const sortedShops = filteredShops.map((shop) => ({
           ...shop,
           items: shop.items.sort((a, b) => a.cart_id - b.cart_id)
-      }));
-      
-      setShops(sortedShops);
-      setLoading(false);
+        }));
+
+        setShops(sortedShops);
+        setLoading(false);
 
       } catch (error) {
         console.error("Error initializing data:", error);
@@ -274,6 +275,7 @@ function CartScreen() {
   };
 
   const deleteCartOnBackend = async (cart) => {
+    setLoading(true)
     try {
       const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/carts/${cart.cart_id}`, {
         method: 'DELETE',
@@ -291,6 +293,8 @@ function CartScreen() {
       console.error('Error updating cart:', error);
       setAlertMessage("Error, Could not delete cart, please try again.");
       setAlertVisible(true);
+    } finally {
+      setLoading(false)
     }
   };
 
@@ -445,9 +449,7 @@ function CartScreen() {
 
     if (loading) {
       return (
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <Text>Loading product...</Text>
-        </View>
+        <LoadingAnimation />
       );
     }
 
@@ -483,19 +485,38 @@ function CartScreen() {
                   </StyledView>
                   <StyledText className="text-base text-gray-600">₱ {item.crop_price.toFixed(2)} per {item.metric_system_name}</StyledText>
                 </StyledView>
+
                 <StyledView className="flex-col items-center ml-4">
+                  {/* PLUS BUTTON */}
                   <TouchableOpacity
                     onPress={incrementQuantity}
                     className="bg-[#00b251] justify-center text-center items-center w-7 h-7 rounded-full">
                     <FontAwesome name="plus" size={18} color="white" />
                   </TouchableOpacity>
                   <StyledText className="text-base font-bold text-gray-800 my-1">{item.cart_total_quantity} {item.metric_system_symbol}</StyledText>
-                  <TouchableOpacity
-                    onPress={decrementQuantity}
-                    className="bg-red-500 justify-center items-center w-7 h-7 rounded-full">
-                    <FontAwesome name="minus" size={18} color="white" />
-                  </TouchableOpacity>
+                  {/* MINUS BUTTON */}
+                  {
+                    item.cart_total_quantity > 1 ? (
+                      <TouchableOpacity
+                        onPress={decrementQuantity}
+                        className="bg-red-500 justify-center items-center w-7 h-7 rounded-full">
+                        <FontAwesome name="minus" size={18} color="white" />
+                      </TouchableOpacity>
+                    ) : (
+                      <TouchableOpacity
+                        onPress={deleteItem}
+                        className="bg-red-500 justify-center items-center w-7 h-7 rounded-full">
+                        <FontAwesome name="trash" size={18} color="white" />
+                      </TouchableOpacity>
+                    )
+                  }
+
                 </StyledView>
+
+                <StyledView className="flex-col items-center ml-4">
+                  <FontAwesome name="angle-double-left" size={18} color="black" />
+                </StyledView>
+
               </StyledView>
             </StyledView>
           </TouchableOpacity>
@@ -607,7 +628,7 @@ function CartScreen() {
         </View>
       </Modal>
     </StyledView>
-    
+
   );
 }
 

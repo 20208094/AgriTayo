@@ -38,8 +38,8 @@ function MarketVarietyListScreen() {
         throw new Error("Network response was not ok");
       }
       const data = await response.json();
-
-      const filteredItems = data.filter(
+      const sortedData = data.sort((a, b) => a.crop_variety_id - b.crop_variety_id);
+      const filteredItems = sortedData.filter(
         (item) => item.crop_sub_category_id === subcategoryId
       );
       setItems(filteredItems);
@@ -87,7 +87,7 @@ function MarketVarietyListScreen() {
     <>
       <SafeAreaView className="flex-1 p-4 bg-gray-200">
         <ScrollView>
-          <View className="flex-col">
+          <View className="flex-col pb-10">
             {items.length > 0 ? (
               items.map((item) => (
                 <TouchableOpacity

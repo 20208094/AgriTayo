@@ -74,7 +74,8 @@ function HomePageScreen() {
         throw new Error('Network response was not ok');
       }
       const data = await response.json();
-      setCategories(data);
+      const sortedData = data.sort((a, b) => a.crop_category_id - b.crop_category_id);
+      setCategories(sortedData);
     } catch (error) {
       console.error('Error fetching crop categories:', error);
     }

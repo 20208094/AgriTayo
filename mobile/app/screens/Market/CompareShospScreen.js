@@ -313,7 +313,7 @@ function CompareShopsScreen({ route }) {
       <NavigationbarComponent />
       {shopData && (
         <TouchableOpacity
-          className="absolute flex-row items-center bottom-5 right-5 bg-[#00B251] rounded-full p-4 shadow-lg"
+          className="absolute flex-row items-center bottom-16 right-5 bg-[#00B251] rounded-full p-4 shadow-lg"
           onPress={() => navigation.navigate("Add Product")}
         >
           <Icon name="plus" size={20} color="white" />
