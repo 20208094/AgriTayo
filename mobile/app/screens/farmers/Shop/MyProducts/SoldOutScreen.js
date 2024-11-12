@@ -77,7 +77,7 @@ function SoldOutScreen({ navigation }) {
 
         // Filter sold-out items
         const filteredSoldOutItems = crops.filter(
-          (crop) => crop.crop_quantity === 0 && crop.shop_id === shop.shop_id
+          (crop) => crop.availability === "live" && crop.crop_quantity === 0 && crop.shop_id === shop.shop_id
         );
 
         const combinedData = filteredSoldOutItems.map((crop) => {

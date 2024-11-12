@@ -103,7 +103,7 @@ function LiveScreen({ navigation }) {
 
         const filteredLiveItems = crops.filter(
           (crop) =>
-            crop.availability === "live" && crop.shop_id === shop.shop_id
+            crop.availability === "live" && crop.crop_quantity !== 0 && crop.shop_id === shop.shop_id
         );
 
         const combinedData = filteredLiveItems.map((crop) => {

@@ -24,6 +24,7 @@ function EditPhoneNumberScreen({ navigation, route }) {
   const phone_regex = /^(?:\+63|0)9\d{2}[-\s]?\d{3}[-\s]?\d{4}$/;
 
   const [phoneNumbersList, setPhoneNumbersList] = useState([]);
+  const [phoneNumbers2List, setPhoneNumbers2List] = useState([]);
 
   useEffect(() => {
     console.log("New phone input changed:", newPhone);
@@ -38,7 +39,7 @@ function EditPhoneNumberScreen({ navigation, route }) {
 
   useEffect(() => {
     if (isCLicked) {
-      if (phoneNumbersList.includes(newPhone)) {
+      if (phoneNumbersList.includes(newPhone) || phoneNumbers2List.includes(newPhone)) {
       Alert.alert("", "Phone Number is already registered")
       setIsClicked(false)
       }else {
@@ -56,7 +57,7 @@ function EditPhoneNumberScreen({ navigation, route }) {
       setIsOtpVisible(true);
     }
   }
-  }, [isCLicked, newPhone, phoneNumbersList]); // Runs when the OTP button is clicked
+  }, [isCLicked, newPhone, phoneNumbersList, phoneNumbers2List]); // Runs when the OTP button is clicked
   
 
   useEffect(() => {
@@ -68,7 +69,9 @@ function EditPhoneNumberScreen({ navigation, route }) {
         if (response.ok) {
           const data = await response.json();
           const numbers = data.map((user) => user.phone_number);
+          const numbers2 = data.map((user) => user.secondary_phone_number);
           setPhoneNumbersList(numbers);
+          setPhoneNumbers2List(numbers2);
         } else {
           console.error("Failed to fetch phone numbers");
         }

@@ -18,7 +18,6 @@ const GenerateAllReports = ({ shopId, dataType = "Crops Report" }) => {
     const shop_id = shopId.shop_id; // Access the actual shop_id property
   
     try {
-      console.log("Fetching crops for shop ID:", shop_id);
   
       const response = await fetch(
         `${REACT_NATIVE_API_BASE_URL}/api/crops?shop_id=${shop_id}`,
@@ -31,11 +30,8 @@ const GenerateAllReports = ({ shopId, dataType = "Crops Report" }) => {
   
       const data = await response.json();
   
-      console.log("API response data:", data);
-  
       if (Array.isArray(data)) {
         const filteredData = data.filter(crop => crop.shop_id === shop_id);
-        console.log("Filtered crops for this shop:", filteredData);
         setShopCropsData(filteredData);
       } else {
         Alert.alert("Error", "Unexpected data format received from the API.");
