@@ -23,6 +23,7 @@ function MyBidScreen({ navigation }) {
   const [alertMessage, setAlertMessage] = useState("");
   const [expiredBidData, setExpiredBidData] = useState([]);
   const [wonBidData, setWonBidData] = useState([]);
+  const [checkedOutBidData, setCheckedOutBidData] = useState([]);
   const [currentTab, setCurrentTab] = useState("ongoing");
 
   const fetchUserId = async () => {
@@ -42,8 +43,7 @@ function MyBidScreen({ navigation }) {
 
   const fetchUserBids = async () => {
     if (!userId) return;
-    setLoading(true);
-  
+
     try {
       const response = await fetch(
         `${REACT_NATIVE_API_BASE_URL}/api/userbids`,
@@ -53,19 +53,9 @@ function MyBidScreen({ navigation }) {
           },
         }
       );
-  
+
       if (!response.ok) throw new Error("Error fetching user bids");
-  
-      const userBidData = await response.json();
-  
-      const sortedUserBids = [...userBidData].sort((a, b) => b.user_bid_id - a.user_bid_id);
-  
-      const filteredUserBids = sortedUserBids.filter(
-        (userBid) => userBid.user_id === userId
-      );
-  
-      const userBidIds = filteredUserBids.map(bid => bid.bid_id);
-  
+
       const biddingResponse = await fetch(
         `${REACT_NATIVE_API_BASE_URL}/api/biddings`,
         {
@@ -74,19 +64,29 @@ function MyBidScreen({ navigation }) {
           },
         }
       );
-  
+
       if (!biddingResponse.ok) throw new Error("Error fetching biddings");
-  
+
+      // SAVING DATA
+      const userBidData = await response.json();
       const biddingData = await biddingResponse.json();
-  
+      // sort userbids based on id
+      const sortedUserBids = [...userBidData].sort((a, b) => b.user_bid_id - a.user_bid_id);
+      // filter based on whose logged in
+      const filteredUserBids = sortedUserBids.filter(
+        (userBid) => userBid.user_id === userId
+      );
+      // save all bid id of filtered user bids
+      const userBidIds = filteredUserBids.map(bid => bid.bid_id);
+      // save bid data if user has bid on it
       const filteredBiddingData = biddingData.filter(bid => userBidIds.includes(bid.bid_id));
-  
+
       // Map through each bid and fetch shop data
       const combinedDataReverse = await Promise.all(filteredBiddingData.map(async (userBidReverse) => {
         const relatedBidding = filteredUserBids.filter(
           (bidding) => userBidReverse.bid_id === bidding.bid_id
         );
-  
+
         // Fetch shop data for each bid
         const shopResponse = await fetch(
           `${REACT_NATIVE_API_BASE_URL}/api/shops`,
@@ -96,21 +96,21 @@ function MyBidScreen({ navigation }) {
             },
           }
         );
-  
+
         if (!shopResponse.ok) throw new Error("Error fetching shop data");
-  
+
         const shopData = await shopResponse.json();
-  
+
         // Find the specific shop associated with the bid
         const newShop = shopData.find((shop) => shop.shop_id === userBidReverse.shop_id);
-  
+
         return {
           ...userBidReverse,
           bidding: relatedBidding || {},
           shops: newShop || {},
         };
       }));
-  
+
       // Filter active bids based on end_date
       const activeBids = combinedDataReverse.filter((bid) => {
         if (bid && bid.end_date) {
@@ -120,124 +120,39 @@ function MyBidScreen({ navigation }) {
         }
         return false;
       });
-  
+
+      // Filter finished bids based on end_date
+      const completedBids = combinedDataReverse.filter((bid) => {
+        if (bid && bid.end_date) {
+          const now = new Date();
+          const endDate = new Date(bid.end_date);
+          return endDate < now;
+        }
+        return false;
+      });
+
+      // completed bids that the user won
+      const wonBids = completedBids.filter((bid) =>
+        bid.checked_out !== true && bid.bidding.some((biddingEntry) => biddingEntry.price === bid.bid_current_highest)
+      );
+
+      // completed bids that the user lost
+      const lostBids = completedBids.filter((bid) =>
+        bid.checked_out !== true && bid.bidding.some((biddingEntry) => biddingEntry.price != bid.bid_current_highest)
+      );
+
+      // completed bids that the user lost
+      const checkedoutBids = completedBids.filter((bid) => bid.checked_out === true); 
+
       setMyBidData(activeBids);
+      setWonBidData(wonBids);
+      setExpiredBidData(lostBids);
+      setCheckedOutBidData(checkedoutBids);
     } catch (error) {
       setAlertMessage(`Error: ${error.message}`);
       setAlertVisible(true);
     } finally {
       setLoading(false);
-    }
-  };
-  
-
-  const fetchExpiredBids = async () => {
-    if (!userId) return;
-
-    try {
-      const response = await fetch(
-        `${REACT_NATIVE_API_BASE_URL}/api/userbids`,
-        {
-          headers: {
-            "x-api-key": REACT_NATIVE_API_KEY,
-          },
-        }
-      );
-
-      if (!response.ok) throw new Error("Error fetching user bids");
-
-      const userBidData = await response.json();
-      const filteredUserBids = userBidData.filter(
-        (userBid) => userBid.user_id === userId
-      );
-
-      const biddingResponse = await fetch(
-        `${REACT_NATIVE_API_BASE_URL}/api/biddings`,
-        {
-          headers: {
-            "x-api-key": REACT_NATIVE_API_KEY,
-          },
-        }
-      );
-
-      if (!biddingResponse.ok) throw new Error("Error fetching biddings");
-
-      const biddingData = await biddingResponse.json();
-
-      const combinedData = filteredUserBids.map((userBid) => {
-        const relatedBidding = biddingData.find(
-          (bidding) => bidding.bid_id === userBid.bid_id
-        );
-        return {
-          ...userBid,
-          bidding: relatedBidding || {},
-        };
-      });
-
-      const expiredBids = combinedData.filter((bid) => {
-        if (bid.bidding && bid.bidding.end_date) {
-          const now = new Date();
-          const endDate = new Date(bid.bidding.end_date);
-          return endDate <= now; // Check if the bid has expired
-        }
-        return false;
-      });
-
-      setExpiredBidData(expiredBids);
-    } catch (error) {
-      setAlertMessage(`Error: ${error.message}`);
-      setAlertVisible(true);
-    }
-  };
-
-  const fetchWonBids = async () => {
-    if (!userId) return;
-
-    try {
-      const response = await fetch(
-        `${REACT_NATIVE_API_BASE_URL}/api/userbids`,
-        {
-          headers: {
-            "x-api-key": REACT_NATIVE_API_KEY,
-          },
-        }
-      );
-
-      if (!response.ok) throw new Error("Error fetching user bids");
-
-      const userBidData = await response.json();
-      const filteredUserBids = userBidData.filter(
-        (userBid) => userBid.user_id === userId
-      );
-
-      const biddingResponse = await fetch(
-        `${REACT_NATIVE_API_BASE_URL}/api/biddings`,
-        {
-          headers: {
-            "x-api-key": REACT_NATIVE_API_KEY,
-          },
-        }
-      );
-
-      if (!biddingResponse.ok) throw new Error("Error fetching biddings");
-
-      const biddingData = await biddingResponse.json();
-
-      // Filter to get won bids where user_id in userbids === bid_user_id in bidding
-      const combinedData = filteredUserBids.map((userBid) => {
-        const relatedBidding = biddingData.find(
-          (bidding) => bidding.bid_id === userBid.bid_id && bidding.bid_user_id === userBid.user_id
-        );
-        return {
-          ...userBid,
-          bidding: relatedBidding || {},
-        };
-      }).filter((bid) => bid.bidding && bid.bidding.end_date && new Date(bid.bidding.end_date) < new Date());
-
-      setWonBidData(combinedData);
-    } catch (error) {
-      setAlertMessage(`Error: ${error.message}`);
-      setAlertVisible(true);
     }
   };
 
@@ -249,9 +164,11 @@ function MyBidScreen({ navigation }) {
 
   useFocusEffect(
     useCallback(() => {
-      fetchUserBids();
-      fetchExpiredBids();
-      fetchWonBids()
+      const interval = setInterval(() => {
+        fetchUserBids();
+      }, 1000);
+  
+      return () => clearInterval(interval);
     }, [userId])
   );
 
@@ -320,33 +237,33 @@ function MyBidScreen({ navigation }) {
                   key={myBid.bid_id}
                   className="mb-6 p-6 border border-gray-300 rounded-lg bg-white shadow-md"
                 >
-                  <TouchableOpacity onPress={() => navigation.navigate('My Bid Details', {data: myBid})}>
-                  {/* Bid Content */}
-                  <View className="flex-row items-center mb-2">
-                    {/* Display Image if Available */}
-                    {myBid.bid_image && (
-                      <Image
-                        source={{ uri: myBid.bid_image }}
-                        className="w-24 h-24 rounded-lg mr-4"
-                        resizeMode="cover"
-                      />
-                    )}
-                    <View className="flex-1">
-                      <Text className="text-gray-700 mb-1">
-                        <Text className="font-semibold text-base">Bid Name:</Text>
-                        <Text className="font-bold text-base text-[#00b251]"> {myBid.bid_name}</Text>
-                      </Text>
-                      <Text className="text-gray-700 mb-1">
-                        <Text className="font-semibold text-base">Starting Price:</Text>
-                        <Text className="font-bold text-base text-[#00b251]"> ₱{myBid.bid_starting_price}</Text>
-                      </Text>
-                      <Text className="text-gray-700 mb-1">
-                        <Text className="font-semibold text-base">Current Highest Bid:</Text>
-                        <Text className="font-bold text-base text-[#00b251]"> ₱{myBid.bid_current_highest}</Text>
-                      </Text>
-                      <Countdown endDate={myBid.end_date} />
+                  <TouchableOpacity onPress={() => navigation.navigate('My Bid Details', { data: myBid })}>
+                    {/* Bid Content */}
+                    <View className="flex-row items-center mb-2">
+                      {/* Display Image if Available */}
+                      {myBid.bid_image && (
+                        <Image
+                          source={{ uri: myBid.bid_image }}
+                          className="w-24 h-24 rounded-lg mr-4"
+                          resizeMode="cover"
+                        />
+                      )}
+                      <View className="flex-1">
+                        <Text className="text-gray-700 mb-1">
+                          <Text className="font-semibold text-base">Bid Name:</Text>
+                          <Text className="font-bold text-base text-[#00b251]"> {myBid.bid_name}</Text>
+                        </Text>
+                        <Text className="text-gray-700 mb-1">
+                          <Text className="font-semibold text-base">Starting Price:</Text>
+                          <Text className="font-bold text-base text-[#00b251]"> ₱{myBid.bid_starting_price}</Text>
+                        </Text>
+                        <Text className="text-gray-700 mb-1">
+                          <Text className="font-semibold text-base">Current Highest Bid:</Text>
+                          <Text className="font-bold text-base text-[#00b251]"> ₱{myBid.bid_current_highest}</Text>
+                        </Text>
+                        <Countdown endDate={myBid.end_date} />
+                      </View>
                     </View>
-                  </View>
                   </TouchableOpacity>
                   {/* Add Another Bid Button */}
                   <TouchableOpacity
@@ -363,23 +280,23 @@ function MyBidScreen({ navigation }) {
                   {myBid.bidding.map((userBid) => (
                     <View
                       key={userBid.user_bid_id}
-                      className="mt-1 bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-400"
+                      className="mt-1 bg-white px-4 pb-1 rounded-lg shadow-sm border border-gray-400"
                     >
                       {myBid.bid_current_highest === userBid.price ? (
-                        <View className="flex-row items-center mb-2">
+                        <View className="flex-row items-center mb-1">
                           <Text className="text-lg font-extrabold text-[#00b251]">Your Bid:</Text>
-                          <Text className="text-lg font-extrabold text-[#00b251] ml-2">₱{userBid.price}</Text>
-                          <Text className="text-sm font-semibold text-[#00b251] ml-2">(Current Highest Bid)</Text>
+                          <Text className="text-lg font-extrabold text-[#00b251] ml-1">₱{userBid.price}</Text>
+                          <Text className="text-base font-semibold text-[#00b251] ml-2">(Current Highest Bid)</Text>
                         </View>
                       ) : (
-                        <View className="flex-row items-center mb-2">
-                          <Text className="text-lg font-semibold text-gray-800">Your Bid:</Text>
-                          <Text className="text-lg font-semibold text-gray-800 ml-2">₱{userBid.price}</Text>
+                        <View className="flex-row items-center mb-1">
+                          <Text className="text-base font-semibold text-gray-700">Your Bid:</Text>
+                          <Text className="text-base font-semibold text-gray-700 ml-1">₱{userBid.price}</Text>
                         </View>
                       )}
 
                       <View className="flex-row">
-                        <Ionicons name="calendar" size={20} color="gray" />
+                        <Ionicons name="calendar" size={18} color="gray" />
                         <Text className="text-sm text-gray-600 ml-1">Date Bid: {new Date(userBid.bid_date).toLocaleString()}</Text>
                       </View>
                     </View>
@@ -395,89 +312,169 @@ function MyBidScreen({ navigation }) {
       case "past":
         return (
           <View className="p-4">
-          {expiredBidData.length > 0 ? (
-            expiredBidData.map((expiredBid) => (
-              <View
-                className="mb-4 p-4 border border-gray-300 rounded-lg bg-white"
-                key={expiredBid.user_bid_id}
-              >
-                <View className="flex-row">
-                  {expiredBid.bidding && expiredBid.bidding.bid_image && (
-                    <Image
-                      source={{ uri: expiredBid.bidding.bid_image }}
-                      className="w-24 h-24 rounded-lg mr-4"
-                      resizeMode="cover"
-                    />
-                  )}
-                  <View className="flex-1">
-                    <Text className="text-lg font-semibold text-gray-800">
-                      Price: ₱{expiredBid.price}
-                    </Text>
-                    <Text className="text-sm text-gray-600">
-                      Date Bid: {new Date(expiredBid.bid_date).toLocaleString()}
-                    </Text>
-                    {expiredBid.bidding ? (
-                      <View className="mt-2">
-                        <Text className="font-bold text-[#00b251]">Bidding Info:</Text>
-                        <Text className="text-gray-700">Bid Name: {expiredBid.bidding.bid_name}</Text>
-                        <Text className="text-gray-700">Starting Price: ₱{expiredBid.bidding.bid_starting_price}</Text>
-                        <Text className="text-gray-700">Current Highest Bid: ₱{expiredBid.bidding.bid_current_highest}</Text>
+            {expiredBidData.length > 0 ? (
+              expiredBidData.map((myBid) => (
+                <View
+                  key={myBid.bid_id}
+                  className="mb-6 p-6 border border-gray-300 rounded-lg bg-white shadow-md"
+                >
+                  <TouchableOpacity onPress={() => navigation.navigate('My Bid Details', { data: myBid })}>
+                    {/* Bid Content */}
+                    <View className="flex-row items-center mb-2">
+                      {/* Display Image if Available */}
+                      {myBid.bid_image && (
+                        <Image
+                          source={{ uri: myBid.bid_image }}
+                          className="w-24 h-24 rounded-lg mr-4"
+                          resizeMode="cover"
+                        />
+                      )}
+                      <View className="flex-1">
+                        <Text className="text-gray-700 mb-1">
+                          <Text className="font-semibold text-base">Bid Name:</Text>
+                          <Text className="font-bold text-base text-[#00b251]"> {myBid.bid_name}</Text>
+                        </Text>
+                        <Text className="text-gray-700 mb-1">
+                          <Text className="font-semibold text-base">Starting Price:</Text>
+                          <Text className="font-bold text-base text-[#00b251]"> ₱{myBid.bid_starting_price}</Text>
+                        </Text>
+                        <Text className="text-gray-700 mb-1">
+                          <Text className="font-semibold text-base">Current Highest Bid:</Text>
+                          <Text className="font-bold text-base text-[#00b251]"> ₱{myBid.bid_current_highest}</Text>
+                        </Text>
+                        <Text className="text-gray-700 mb-1">
+                          <Text className="font-bold text-base text-orange-600">Bidding closed—you didn’t win this bid.</Text>
+                        </Text>
                       </View>
-                    ) : (
-                      <Text className="text-red-500">No related bidding information available.</Text>
-                    )}
-                  </View>
+                    </View>
+                  </TouchableOpacity>
+                  {/* User Bids */}
+                  {myBid.bidding.map((userBid) => (
+                    <View
+                      key={userBid.user_bid_id}
+                      className="mt-1 bg-white px-4 pb-1 rounded-lg shadow-sm border border-gray-400"
+                    >
+                      {myBid.bid_current_highest === userBid.price ? (
+                        <View className="flex-row items-center mb-1">
+                          <Text className="text-lg font-extrabold text-[#00b251]">Your Bid:</Text>
+                          <Text className="text-lg font-extrabold text-[#00b251] ml-1">₱{userBid.price}</Text>
+                          <Text className="text-base font-semibold text-[#00b251] ml-2">(Current Highest Bid)</Text>
+                        </View>
+                      ) : (
+                        <View className="flex-row items-center mb-1">
+                          <Text className="text-base font-semibold text-gray-700">Your Bid:</Text>
+                          <Text className="text-base font-semibold text-gray-700 ml-1">₱{userBid.price}</Text>
+                        </View>
+                      )}
+
+                      <View className="flex-row">
+                        <Ionicons name="calendar" size={18} color="gray" />
+                        <Text className="text-sm text-gray-600 ml-1">Date Bid: {new Date(userBid.bid_date).toLocaleString()}</Text>
+                      </View>
+                    </View>
+                  ))}
                 </View>
-              </View>
-            ))
-          ) : (
-            <Text className="text-center text-gray-600">No expired bids found.</Text>
-          )}
-        </View>
+              ))
+            ) : (
+              <Text className="text-center text-gray-600">No active bids found.</Text>
+            )}
+          </View>
         );
 
       case "won":
         return (
           <View className="p-4">
-          {wonBidData.length > 0 ? (
-            wonBidData.map((wonBid) => (
-              <View
-                className="mb-4 p-4 border border-gray-300 rounded-lg bg-white"
-                key={wonBid.user_bid_id}
-              >
-                <View className="flex-row">
-                  {wonBid.bidding && wonBid.bidding.bid_image && (
-                    <Image
-                      source={{ uri: wonBid.bidding.bid_image }}
-                      className="w-24 h-24 rounded-lg mr-4"
-                      resizeMode="cover"
-                    />
-                  )}
-                  <View className="flex-1">
-                    <Text className="text-lg font-semibold text-gray-800">
-                      Price: ₱{wonBid.price}
-                    </Text>
-                    <Text className="text-sm text-gray-600">
-                      Date Bid: {new Date(wonBid.bid_date).toLocaleString()}
-                    </Text>
-                    {wonBid.bidding ? (
-                      <View className="mt-2">
-                        <Text className="font-bold text-[#00b251]">Bidding Info:</Text>
-                        <Text className="text-gray-700">Bid Name: {wonBid.bidding.bid_name}</Text>
-                        <Text className="text-gray-700">Starting Price: ₱{wonBid.bidding.bid_starting_price}</Text>
-                        <Text className="text-gray-700">Current Highest Bid: ₱{wonBid.bidding.bid_current_highest}</Text>
+            {wonBidData.length > 0 ? (
+              wonBidData.map((myBid) => (
+                <View
+                  key={myBid.bid_id}
+                  className="mb-6 p-6 border border-gray-300 rounded-lg bg-white shadow-md"
+                >
+                  <TouchableOpacity onPress={() => navigation.navigate('My Bid Details', { data: myBid })}>
+                    {/* Bid Content */}
+                    <View className="flex-row items-center mb-2">
+                      {/* Display Image if Available */}
+                      {myBid.bid_image && (
+                        <Image
+                          source={{ uri: myBid.bid_image }}
+                          className="w-24 h-24 rounded-lg mr-4"
+                          resizeMode="cover"
+                        />
+                      )}
+                      <View className="flex-1">
+                        <Text className="text-gray-700 mb-1">
+                          <Text className="font-semibold text-base">Bid Name:</Text>
+                          <Text className="font-bold text-base text-[#00b251]"> {myBid.bid_name}</Text>
+                        </Text>
+                        <Text className="text-gray-700 mb-1">
+                          <Text className="font-semibold text-base">Highest Bid:</Text>
+                          <Text className="font-bold text-base text-[#00b251]"> ₱{myBid.bid_current_highest}</Text>
+                        </Text>
+                        <Text className="text-gray-700 mb-1">
+                          <Text className="font-bold text-base text-orange-600">NOTE: Please check out your bid.</Text>
+                        </Text>
                       </View>
-                    ) : (
-                      <Text className="text-red-500">No related bidding information available.</Text>
-                    )}
-                  </View>
+                    </View>
+                  </TouchableOpacity>
+                  {/* Add Another Bid Button */}
+                  <TouchableOpacity
+                    onPress={() =>
+                      navigation.navigate("Add Another Bid", { myBidId: myBid.bid_id })
+                    }
+                    className="flex-row justify-center items-center bg-[#00b251] rounded-lg py-2 mb-2"
+                  >
+                    <Ionicons name="add-circle-outline" size={24} color="white" />
+                    <Text className="ml-2 text-white font-semibold text-base">Check Out Bid</Text>
+                  </TouchableOpacity>
                 </View>
-              </View>
-            ))
-          ) : (
-            <Text className="text-center text-gray-600">No won bids found.</Text>
-          )}
-        </View>
+              ))
+            ) : (
+              <Text className="text-center text-gray-600">No active bids found.</Text>
+            )}
+          </View>
+        );
+
+      case "checkedout":
+        return (
+          <View className="p-4">
+            {checkedOutBidData.length > 0 ? (
+              checkedOutBidData.map((myBid) => (
+                <View
+                  key={myBid.bid_id}
+                  className="mb-6 p-6 border border-gray-300 rounded-lg bg-white shadow-md"
+                >
+                  <TouchableOpacity onPress={() => navigation.navigate('My Bid Details', { data: myBid })}>
+                    {/* Bid Content */}
+                    <View className="flex-row items-center mb-2">
+                      {/* Display Image if Available */}
+                      {myBid.bid_image && (
+                        <Image
+                          source={{ uri: myBid.bid_image }}
+                          className="w-24 h-24 rounded-lg mr-4"
+                          resizeMode="cover"
+                        />
+                      )}
+                      <View className="flex-1">
+                        <Text className="text-gray-700 mb-1">
+                          <Text className="font-semibold text-base">Bid Name:</Text>
+                          <Text className="font-bold text-base text-[#00b251]"> {myBid.bid_name}</Text>
+                        </Text>
+                        <Text className="text-gray-700 mb-1">
+                          <Text className="font-semibold text-base">Highest Bid:</Text>
+                          <Text className="font-bold text-base text-[#00b251]"> ₱{myBid.bid_current_highest}</Text>
+                        </Text>
+                        <Text className="text-gray-700 mb-1">
+                          <Text className="font-bold text-base text-green-600">This bid has already been checked out.</Text>
+                        </Text>
+                      </View>
+                    </View>
+                  </TouchableOpacity>
+                </View>
+              ))
+            ) : (
+              <Text className="text-center text-gray-600">No checkedout bids found.</Text>
+            )}
+          </View>
         );
 
       default:
@@ -488,69 +485,81 @@ function MyBidScreen({ navigation }) {
   return (
     <>
       <SafeAreaView className="flex-1 bg-gray-100">
-      <ScrollView>
         <View className="flex-row justify-between items-center px-6 py-4 bg-gray-100 border-b border-gray-300">
           <TouchableOpacity onPress={() => setCurrentTab("ongoing")}>
             <Text
               className={
                 currentTab === "ongoing"
-                  ? "text-[#00b251] font-bold border-b-2 border-[#00b251] pb-1"
-                  : "text-gray-500 font-medium"
+                  ? "text-[#00b251] font-bold border-b-2 border-[#00b251] pb-1 text-base"
+                  : "text-gray-500 font-medium text-base"
               }
             >
               Ongoing
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => setCurrentTab("past")}>
-            <Text
-              className={
-                currentTab === "past"
-                  ? "text-[#00b251] font-bold border-b-2 border-[#00b251] pb-1"
-                  : "text-gray-500 font-medium"
-              }
-            >
-              Past
             </Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => setCurrentTab("won")}>
             <Text
               className={
                 currentTab === "won"
-                  ? "text-[#00b251] font-bold border-b-2 border-[#00b251] pb-1"
-                  : "text-gray-500 font-medium"
+                  ? "text-[#00b251] font-bold border-b-2 border-[#00b251] pb-1 text-base"
+                  : "text-gray-500 font-medium text-base"
               }
             >
-              Won
+              Won Bids
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => setCurrentTab("past")}>
+            <Text
+              className={
+                currentTab === "past"
+                  ? "text-[#00b251] font-bold border-b-2 border-[#00b251] pb-1 text-base"
+                  : "text-gray-500 font-medium text-base"
+              }
+            >
+              Lost Bids
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => setCurrentTab("checkedout")}>
+            <Text
+              className={
+                currentTab === "checkedout"
+                  ? "text-[#00b251] font-bold border-b-2 border-[#00b251] pb-1 text-base"
+                  : "text-gray-500 font-medium text-base"
+              }
+            >
+              Checked Out
             </Text>
           </TouchableOpacity>
         </View>
+        <ScrollView>
 
-        {renderBidData()}
 
-      </ScrollView>
-      {/* Alert Modal */}
-      <Modal
-        animationType="fade"
-        transparent={true}
-        visible={alertVisible}
-        onRequestClose={() => setAlertVisible(false)}
-      >
-        <View className="flex-1 justify-center items-center bg-black/50 bg-opacity-50">
-          <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
-            <Text className="text-lg font-semibold text-gray-900 mb-4">
-              {alertMessage}
-            </Text>
-            <TouchableOpacity
-              className="mt-4 p-2 bg-[#00B251] rounded-lg flex-row justify-center items-center"
-              onPress={() => setAlertVisible(false)}
-            >
-              <Ionicons name="checkmark-circle-outline" size={24} color="white" />
-              <Text className="text-lg text-white ml-2">OK</Text>
-            </TouchableOpacity>
+          {renderBidData()}
+
+        </ScrollView>
+        {/* Alert Modal */}
+        <Modal
+          animationType="fade"
+          transparent={true}
+          visible={alertVisible}
+          onRequestClose={() => setAlertVisible(false)}
+        >
+          <View className="flex-1 justify-center items-center bg-black/50 bg-opacity-50">
+            <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
+              <Text className="text-lg font-semibold text-gray-900 mb-4">
+                {alertMessage}
+              </Text>
+              <TouchableOpacity
+                className="mt-4 p-2 bg-[#00B251] rounded-lg flex-row justify-center items-center"
+                onPress={() => setAlertVisible(false)}
+              >
+                <Ionicons name="checkmark-circle-outline" size={24} color="white" />
+                <Text className="text-lg text-white ml-2">OK</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
-      </Modal>
-    </SafeAreaView>
+        </Modal>
+      </SafeAreaView>
       <NavigationbarComponent />
     </>
   );
