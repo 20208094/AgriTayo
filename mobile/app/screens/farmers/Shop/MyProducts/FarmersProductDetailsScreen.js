@@ -8,6 +8,7 @@ import {
   TextInput,
   TouchableOpacity,
   Alert,
+  Switch,
   Modal,
 } from "react-native";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
@@ -20,6 +21,8 @@ function FarmersProductDetailScreen({ route, navigation }) {
   const { liveItem, reviewingItem, violationItem, delistedItem } = route.params;
 
   const product = liveItem || reviewingItem || violationItem || delistedItem;
+
+  console.log(product)
 
   // for data fetching
   const [categories, setCategories] = useState([]);
@@ -42,6 +45,12 @@ function FarmersProductDetailScreen({ route, navigation }) {
   const [cropQuantity, setCropQuantity] = useState(
     String(product.crop_quantity)
   );
+
+const [minimumNegotiation, setMinimumNegotiation] = useState(String(product.minimum_negotiation))
+
+const [isEnabled, setIsEnabled] = useState(product.negotiation_allowed);
+  const toggleSwitch = () => setIsEnabled(previousState => !previousState);
+
   const [loading, setLoading] = useState(true);
 
   const handleImagePick = async () => {
@@ -345,6 +354,8 @@ function FarmersProductDetailScreen({ route, navigation }) {
     );
     formData.append("crop_class", selectedCropClass);
     formData.append("crop_availability", selectedCropAvailability);
+    formData.append("negotiation_allowed", isEnabled ? 'TRUE' : 'FALSE')
+    formData.append("minimum_negotiation", parseInt(minimumNegotiation))
 
     console.log("Form Data:", formData);
 
@@ -400,33 +411,7 @@ function FarmersProductDetailScreen({ route, navigation }) {
                   />
                 </TouchableOpacity>
               </View>
-              <View className="mb-4">
-                <Text className="text-sm mb-2 text-gray-800">Crop Variety</Text>
-                <TouchableOpacity
-                  className="flex-row items-center w-full p-2 bg-white rounded-lg shadow-md"
-                  onPress={() => setIsClickedCropVariety(!isClickedCropVariety)}
-                >
-                  <Text className="flex-1 text-gray-700">
-                    {selectedCropVariety}
-                  </Text>
-                  <Ionicons name="chevron-down" size={20} color="gray" />
-                </TouchableOpacity>
-                {isClickedCropVariety && (
-                  <View className="bg-gray-100 p-2 rounded ">
-                    {cropVarieties.map((cropVariety) => (
-                      <TouchableOpacity
-                        className="py-1"
-                        key={cropVariety.crop_variety_id}
-                        onPress={() => handleCropVarietySelect(cropVariety)}
-                      >
-                        <Text className="text-gray-600">
-                          {cropVariety.crop_variety_name}
-                        </Text>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-                )}
-              </View>
+              
 
               <View className="mb-4">
                 <Text className="text-sm mb-2 text-gray-800">
@@ -502,6 +487,62 @@ function FarmersProductDetailScreen({ route, navigation }) {
               </View>
 
               <View className="mb-4">
+                <Text className="text-sm mb-2 text-gray-800">Crop Variety</Text>
+                <TouchableOpacity
+                  className="flex-row items-center w-full p-2 bg-white rounded-lg shadow-md"
+                  onPress={() => setIsClickedCropVariety(!isClickedCropVariety)}
+                >
+                  <Text className="flex-1 text-gray-700">
+                    {selectedCropVariety}
+                  </Text>
+                  <Ionicons name="chevron-down" size={20} color="gray" />
+                </TouchableOpacity>
+                {isClickedCropVariety && (
+                  <View className="bg-gray-100 p-2 rounded ">
+                    {cropVarieties.map((cropVariety) => (
+                      <TouchableOpacity
+                        className="py-1"
+                        key={cropVariety.crop_variety_id}
+                        onPress={() => handleCropVarietySelect(cropVariety)}
+                      >
+                        <Text className="text-gray-600">
+                          {cropVariety.crop_variety_name}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                )}
+              </View>
+
+              <View className="mb-4">
+                <Text className="text-sm mb-2 text-gray-800">Crop Class</Text>
+                <TouchableOpacity
+                  className="flex-row items-center w-full p-2 bg-white rounded-lg shadow-md"
+                  onPress={() => setIsClickedCropClass(!isClickedCropClass)}
+                >
+                  <Text className="flex-1 text-gray-700">
+                    {selectedCropClass}
+                  </Text>
+                  <Ionicons name="chevron-down" size={20} color="gray" />
+                </TouchableOpacity>
+                {isClickedCropClass && (
+                  <View className="bg-gray-100 p-2 rounded">
+                    {cropClasses.map((cropClass) => (
+                      <TouchableOpacity
+                        className="py-1"
+                        key={cropClass.crop_class_id}
+                        onPress={() => handleCropClassSelect(cropClass)}
+                      >
+                        <Text className="text-gray-600">
+                          {cropClass.crop_class_name}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                )}
+              </View>
+
+              <View className="mb-4">
                 <Text className="text-sm mb-2 text-gray-800">Crop Size</Text>
                 <TouchableOpacity
                   className="flex-row items-center w-full p-2 bg-white rounded-lg shadow-md"
@@ -539,6 +580,21 @@ function FarmersProductDetailScreen({ route, navigation }) {
                 />
               </View>
 
+              
+
+
+              <View className="mb-4">
+                <Text className="text-sm mb-2 text-gray-800">
+                  Crop Quantity
+                </Text>
+                <TextInput
+                  className="flex-row items-center w-full p-2 bg-white rounded-lg shadow-md"
+                  value={cropQuantity}
+                  onChangeText={setCropQuantity}
+                  keyboardType="numeric"
+                />
+              </View>
+
               <View className="mb-4">
                 <Text className="text-sm mb-2 text-gray-800">Crop Metric</Text>
                 <TouchableOpacity
@@ -567,45 +623,40 @@ function FarmersProductDetailScreen({ route, navigation }) {
                 )}
               </View>
 
-              <View className="mb-4">
-                <Text className="text-sm mb-2 text-gray-800">Crop Class</Text>
-                <TouchableOpacity
-                  className="flex-row items-center w-full p-2 bg-white rounded-lg shadow-md"
-                  onPress={() => setIsClickedCropClass(!isClickedCropClass)}
-                >
-                  <Text className="flex-1 text-gray-700">
-                    {selectedCropClass}
-                  </Text>
-                  <Ionicons name="chevron-down" size={20} color="gray" />
-                </TouchableOpacity>
-                {isClickedCropClass && (
-                  <View className="bg-gray-100 p-2 rounded">
-                    {cropClasses.map((cropClass) => (
-                      <TouchableOpacity
-                        className="py-1"
-                        key={cropClass.crop_class_id}
-                        onPress={() => handleCropClassSelect(cropClass)}
-                      >
-                        <Text className="text-gray-600">
-                          {cropClass.crop_class_name}
-                        </Text>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-                )}
-              </View>
-
-              <View className="mb-4">
-                <Text className="text-sm mb-2 text-gray-800">
-                  Crop Quantity
-                </Text>
-                <TextInput
-                  className="flex-row items-center w-full p-2 bg-white rounded-lg shadow-md"
-                  value={cropQuantity}
-                  onChangeText={setCropQuantity}
-                  keyboardType="numeric"
-                />
-              </View>
+              {/* Negotiation Selector */}
+          <Text className='text-sm mb-2 text-gray-800'>Open for Negotiation?</Text>
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              marginVertical: 10,
+            }}
+          >
+            <Text>{isEnabled ? "Yes" : "No"}</Text>
+            <Switch
+              trackColor={{ false: "#767577", true: "#00b251" }}
+              thumbColor={isEnabled ? "#f5dd4b" : "#f4f3f4"}
+              ios_backgroundColor="#3e3e3e"
+              onValueChange={toggleSwitch}
+              value={isEnabled}
+            />
+          </View>
+          {isEnabled && (
+            <>
+            <View className='mb-4'>
+            <Text className="text-sm mb-2 text-gray-800">
+              Crop Minimum Negotiation
+            </Text>
+            <TextInput
+              className="w-full p-2 bg-white rounded-lg shadow-md"
+              keyboardType="numeric"
+              placeholder="₱5"
+              value={minimumNegotiation}
+              onChangeText={setMinimumNegotiation}
+            />
+            </View>
+            </>
+          )}
 
               <View className="mb-4">
                 <Text className="text-sm mb-2 text-gray-800">
