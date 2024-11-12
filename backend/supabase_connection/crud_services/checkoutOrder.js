@@ -56,7 +56,12 @@ async function checkoutOrder(req, res) {
             orig_prod_metric_symbol: item.metric_system_symbol,
             orig_prod_metric_system: item.metric_system_name,
             orig_prod_shop_id: item.shop_id,
-            orig_prod_shop_name: item.shopName
+            orig_prod_shop_name: item.shopName,
+
+            orig_prod_name: item.crop_name,
+            orig_prod_description: item.crop_description,
+            orig_prod_class: item.crop_class,
+            orig_prod_image_url: item.crop_image_url,
         }));
 
         const { data: itemsData, error: itemsError } = await supabase
@@ -120,6 +125,24 @@ async function checkoutOrder(req, res) {
                 .from('negotiations')
                 .update(updateData)
                 .in('negotiation_id', cartIdsToUpdate);
+
+            if (cartError) {
+                console.error('Supabase negotiation update query failed:', cartError.message);
+                return res.status(500).json({ error: 'Internal server error' });
+            }
+
+            return res.status(201).json({ message: 'Order added successfully' });
+        } else if (orderDetails.cartType === 'bidding') {
+            // UPDATING BIDDING
+            const cartIdsToUpdate = items.map(item => item.cart_id);
+
+            const updateData = {};
+            updateData.checked_out = true;
+
+            const { data: cartData, error: cartError } = await supabase
+                .from('biddings')
+                .update(updateData)
+                .in('bid_id', cartIdsToUpdate);
 
             if (cartError) {
                 console.error('Supabase negotiation update query failed:', cartError.message);

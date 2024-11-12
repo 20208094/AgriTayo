@@ -776,18 +776,18 @@ function AddProductScreen({ navigation }) {
           </View>
           {isEnabled && (
             <>
-            <View className='mb-4'>
-            <Text className="text-sm mb-2 text-gray-800">
-              Crop Minimum Negotiation
-            </Text>
-            <TextInput
-              className="w-full p-2 bg-white rounded-lg shadow-md"
-              keyboardType="numeric"
-              placeholder="₱5"
-              value={minimumNegotiation}
-              onChangeText={setMinimumNegotiation}
-            />
-            </View>
+              <View className='mb-4'>
+                <Text className="text-sm mb-2 text-gray-800">
+                  Minimum Quantity for Negotiation:
+                </Text>
+                <TextInput
+                  className="w-full p-2 bg-white rounded-lg shadow-md"
+                  keyboardType="numeric"
+                  placeholder="5"
+                  value={minimumNegotiation}
+                  onChangeText={setMinimumNegotiation}
+                />
+              </View>
             </>
           )}
 

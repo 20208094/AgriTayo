@@ -108,6 +108,23 @@ function CartScreen() {
     }
   };
 
+  const fetchSizes = async () => {
+    try {
+      const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_sizes`, {
+        headers: {
+          "x-api-key": REACT_NATIVE_API_KEY,
+        },
+      });
+      const allSizes = await response.json();
+      return allSizes; // Return fetched crops
+    } catch (error) {
+      console.error("Error fetching sizes:", error);
+      setAlertMessage("Error, Could not fetch sizes, please try again later.");
+      setAlertVisible(true);
+      return []; // Return an empty array on error
+    }
+  };
+
   const fetchCarts = async () => {
     // Ensure userId is present before making the fetch call
     if (!userId) {
@@ -140,6 +157,7 @@ function CartScreen() {
         crop_image_url: cart.crop.crop_image_url,
         crop_description: cart.crop.crop_description,
         crop_quantity: cart.crop.crop_quantity,
+        crop_class: cart.crop.crop_class,
         // Include crop data as part of the cart object
         metric_system_name: cart.metric_system.metric_system_name,
         metric_system_symbol: cart.metric_system.metric_system_symbol,
@@ -157,10 +175,11 @@ function CartScreen() {
     // setLoading(true);
     if (userId) {
       try {
-        const [fetchedShops, fetchedCrops, fetchedCarts] = await Promise.all([
+        const [fetchedShops, fetchedCrops, fetchedCarts, fetchedSizes] = await Promise.all([
           fetchShops(),
           fetchCrops(),
           fetchCarts(),
+          fetchSizes(),
         ]);
 
         // Combine shops and carts into the desired structure
@@ -185,6 +204,8 @@ function CartScreen() {
               metric_system_symbol: cart.metric_system_symbol,
               cart_metric_system_id: cart.cart_metric_system_id,
               cart_user_id: cart.cart_user_id,
+              crop_class: cart.crop_class,
+              crop_description: cart.crop_description,
               selected: false,
               // Additional cart data
               cart_total_quantity: cart.cart_total_quantity,

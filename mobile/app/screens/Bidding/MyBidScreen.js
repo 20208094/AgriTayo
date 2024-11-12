@@ -18,6 +18,7 @@ import LoadingAnimation from "../../components/LoadingAnimation";
 function MyBidScreen({ navigation }) {
   const [myBidData, setMyBidData] = useState([]);
   const [userId, setUserId] = useState(null);
+  const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
@@ -34,6 +35,7 @@ function MyBidScreen({ navigation }) {
         if (Array.isArray(parsedData)) {
           const user = parsedData[0];
           setUserId(user.user_id);
+          setUserData(user);
         }
       }
     } catch (error) {
@@ -67,9 +69,34 @@ function MyBidScreen({ navigation }) {
 
       if (!biddingResponse.ok) throw new Error("Error fetching biddings");
 
+      const metricResponse = await fetch(
+        `${REACT_NATIVE_API_BASE_URL}/api/metric_systems`,
+        {
+          headers: {
+            "x-api-key": REACT_NATIVE_API_KEY,
+          },
+        }
+      );
+
+      if (!metricResponse.ok) throw new Error("Error fetching metrics");
+
+      const shopResponse = await fetch(
+        `${REACT_NATIVE_API_BASE_URL}/api/shops`,
+        {
+          headers: {
+            "x-api-key": REACT_NATIVE_API_KEY,
+          },
+        }
+      );
+
+      if (!shopResponse.ok) throw new Error("Error fetching shop data");
+
+
       // SAVING DATA
       const userBidData = await response.json();
       const biddingData = await biddingResponse.json();
+      const metricData = await metricResponse.json();
+      const shopData = await shopResponse.json();
       // sort userbids based on id
       const sortedUserBids = [...userBidData].sort((a, b) => b.user_bid_id - a.user_bid_id);
       // filter based on whose logged in
@@ -86,28 +113,15 @@ function MyBidScreen({ navigation }) {
         const relatedBidding = filteredUserBids.filter(
           (bidding) => userBidReverse.bid_id === bidding.bid_id
         );
-
-        // Fetch shop data for each bid
-        const shopResponse = await fetch(
-          `${REACT_NATIVE_API_BASE_URL}/api/shops`,
-          {
-            headers: {
-              "x-api-key": REACT_NATIVE_API_KEY,
-            },
-          }
-        );
-
-        if (!shopResponse.ok) throw new Error("Error fetching shop data");
-
-        const shopData = await shopResponse.json();
-
         // Find the specific shop associated with the bid
         const newShop = shopData.find((shop) => shop.shop_id === userBidReverse.shop_id);
+        const newMetric = metricData.find((metric) => metric.metric_system_id === userBidReverse.metric_system_id);
 
         return {
           ...userBidReverse,
           bidding: relatedBidding || {},
           shops: newShop || {},
+          metrics: newMetric || {},
         };
       }));
 
@@ -142,7 +156,7 @@ function MyBidScreen({ navigation }) {
       );
 
       // completed bids that the user lost
-      const checkedoutBids = completedBids.filter((bid) => bid.checked_out === true); 
+      const checkedoutBids = completedBids.filter((bid) => bid.checked_out === true);
 
       setMyBidData(activeBids);
       setWonBidData(wonBids);
@@ -167,7 +181,7 @@ function MyBidScreen({ navigation }) {
       const interval = setInterval(() => {
         fetchUserBids();
       }, 1000);
-  
+
       return () => clearInterval(interval);
     }, [userId])
   );
@@ -218,6 +232,31 @@ function MyBidScreen({ navigation }) {
         )}
       </View>
     );
+  };
+
+  const handleCheckout = (product) => {
+    const selectedItems = [{
+      cart_crop_id: null,
+      cart_id: product.bid_id,
+      cart_metric_system_id: product.metric_system_id,
+      cart_total_price: product.bid_current_highest,
+      cart_total_quantity: 1,
+      cart_user_id: product.bid_user_id,
+      crop_id: null,
+      crop_image_url: product.bid_image,
+      crop_name: product.bid_name,
+      crop_price: product.bid_current_highest,
+      crop_quantity: 1,
+      metric_system_name: product.metrics.metric_system_name,
+      metric_system_symbol: product.metrics.metric_system_symbol,
+      selected: true,
+      shopName: product.shops.shop_name,
+      shop_id: product.shop_id,
+      crop_class: null,
+      crop_description: product.bid_description,
+    }];
+    
+    navigation.navigate("CheckOutScreen", { items: selectedItems, user: userData, order_type: 'bidding', cart_type: 'bidding' });
   };
 
   if (loading) {
@@ -418,13 +457,10 @@ function MyBidScreen({ navigation }) {
                   </TouchableOpacity>
                   {/* Add Another Bid Button */}
                   <TouchableOpacity
-                    onPress={() =>
-                      navigation.navigate("Add Another Bid", { myBidId: myBid.bid_id })
-                    }
+                    onPress={() => handleCheckout(myBid)}
                     className="flex-row justify-center items-center bg-[#00b251] rounded-lg py-2 mb-2"
                   >
-                    <Ionicons name="add-circle-outline" size={24} color="white" />
-                    <Text className="ml-2 text-white font-semibold text-base">Check Out Bid</Text>
+                    <Text className="ml-2 text-white font-semibold text-base">Proceed to Checkout</Text>
                   </TouchableOpacity>
                 </View>
               ))

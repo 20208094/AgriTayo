@@ -157,7 +157,9 @@ function NegotiationSellerListScreen({ route, navigation }) {
             metric_system_symbol: product.metric_system.metric_system_symbol,
             selected: true,
             shopName: product.shops.shop_name,
-            shop_id: product.shop_id
+            shop_id: product.shop_id,
+            crop_class: product.crops.crop_class,
+            crop_description: product.crops.crop_description,
         }];
 
         navigation.navigate("CheckOutScreen", { items: selectedItems, user: userData, order_type: 'negotiation', cart_type: 'negotiate' });

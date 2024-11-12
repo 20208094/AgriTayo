@@ -9,6 +9,7 @@ function CheckOutScreen() {
   const navigation = useNavigation();
   const route = useRoute();
   const { items: checkedOutItems, user: userData, order_type, cart_type } = route.params || { items: [] };
+  console.log('checkedOutItems :', checkedOutItems);
   const [modalVisible, setModalVisible] = useState(false);
   const [shopDetails, setShopDetails] = useState(null);
   const [selectedShippingMethod, setSelectedShippingMethod] = useState(null);
@@ -211,7 +212,7 @@ function CheckOutScreen() {
       orderType: order_type,
       cartType: cart_type,
       totalWeight: totalweight,
-      shop_number: shopDetails.shop_number
+      shop_number: shopDetails.shop_number,
     };
 
     console.log('orderDetails :', orderDetails);
@@ -227,6 +228,7 @@ function CheckOutScreen() {
       });
 
       if (response.ok) {
+        navigation.pop(1)
         navigation.navigate("Orders", { screen: "To Confirm" })
       } else {
         console.error('Failed to place order:', response.statusText);
