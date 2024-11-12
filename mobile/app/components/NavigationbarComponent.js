@@ -1,16 +1,17 @@
-import React, {useState} from 'react'
+import React, { useState } from 'react'
 import {
-    View,
-    TouchableOpacity,
-    Animated,
-    StyleSheet,
-    Text,
-    TouchableWithoutFeedback,
-    Image,
-  } from "react-native";
-  import Icon from "react-native-vector-icons/Ionicons";
-  import { useNavigation, useFocusEffect } from "@react-navigation/native";
-  import AsyncStorage from "@react-native-async-storage/async-storage";
+  View,
+  TouchableOpacity,
+  Animated,
+  StyleSheet,
+  Text,
+  TouchableWithoutFeedback,
+  Image,
+} from "react-native";
+import Icon from "react-native-vector-icons/Ionicons";
+import { FontAwesome5 } from "@expo/vector-icons";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const NavigationbarComponent = () => {
   const navigation = useNavigation();
@@ -116,8 +117,8 @@ const NavigationbarComponent = () => {
       </View>
 
       {/* Overlay for additional menu options */}
-     {/* Overlay to detect clicks outside the menu */}
-     {menuVisible && (
+      {/* Overlay to detect clicks outside the menu */}
+      {menuVisible && (
         <TouchableWithoutFeedback onPress={closeMenuOnOutsidePress}>
           <View style={StyleSheet.absoluteFillObject} className="bg-black/10">
             <Animated.View className="absolute right-0 bottom-14 bg-white/90 flex-row items-center rounded-xl px-2 py-1 mx-2 w-full*0.85 justify-center flex-wrap">
@@ -139,33 +140,33 @@ const NavigationbarComponent = () => {
                     className="items-center bg-white border-2 border-slate-500 rounded-xl px-2 py-1 mx-2 mb-2 w-36"
                     onPress={() => navigation.navigate("My Products")}
                   >
-                    <Icon name="storefront-outline" size={30} color="#00B251" />
+                    <FontAwesome5 name="box" size={30} color="#00B251" />
                     <Text className="text-center">Shop Products</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     className="items-center bg-white border-2 border-slate-500 rounded-xl px-2 py-1 mx-2 mb-2 w-36"
                     onPress={() => navigation.navigate("Seller Negotiation List")}
                   >
-                    <Icon name="storefront-outline" size={30} color="#00B251" />
+                    <FontAwesome5 name="handshake" size={30} color="#00B251" />
                     <Text className="text-center">Shop Negotiations</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     className="items-center bg-white border-2 border-slate-500 rounded-xl px-2 py-1 mx-2 mb-2 w-36"
                     onPress={() => navigation.navigate("Bidding")}
                   >
-                    <Icon name="storefront-outline" size={30} color="#00B251" />
+                    <FontAwesome5 name="file-contract" size={30} color="#00B251" />
                     <Text className="text-center">Shop Bids</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     className="items-center bg-white border-2 border-slate-500 rounded-xl px-2 py-1 mx-2 mb-2 w-36"
                     onPress={() => navigation.navigate("Sales History", { screen: "Completed" })}
                   >
-                    <Icon name="storefront-outline" size={30} color="#00B251" />
+                    <FontAwesome5 name="receipt" size={30} color="#00B251" />
                     <Text className="text-center">Shop Orders</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     className="items-center bg-white border-2 border-slate-500 rounded-xl px-2 py-1 mx-2 mb-2 w-36"
-                    onPress={() => navigation.navigate('Seller Shop', {shop_id})}
+                    onPress={() => navigation.navigate('Seller Shop', { shop_id })}
                   >
                     <Icon name="storefront-outline" size={30} color="#00B251" />
                     <Text className="text-center">Shop View</Text>
