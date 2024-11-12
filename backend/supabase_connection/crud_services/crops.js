@@ -43,6 +43,8 @@ async function addCrop(req, res) {
         metric_system_id,
         crop_class,
         crop_availability,
+        negotiation_allowed,
+        minimum_negotiation
       } = fields;
 
       const getSingleValue = (value) =>
@@ -56,6 +58,7 @@ async function addCrop(req, res) {
       const cropRating = parseFloat(getSingleValue(crop_rating), 10);
       const cropPrice = parseFloat(getSingleValue(crop_price), 10);
       const cropQuantity = parseInt(getSingleValue(crop_quantity), 10);
+      const minimumNegotiation = parseInt(getSingleValue(minimum_negotiation), 10);
       const cropWeight = parseInt(getSingleValue(crop_weight), 10);
       const metricSystemId = parseInt(getSingleValue(metric_system_id), 10);
 
@@ -91,6 +94,8 @@ async function addCrop(req, res) {
           crop_quantity: getSingleValue(cropQuantity),
           crop_weight: getSingleValue(cropWeight),
           metric_system_id: getSingleValue(metricSystemId),
+          negotiation_allowed: getSingleValue(negotiation_allowed),
+          minimum_negotiation: getSingleValue(minimumNegotiation),
           crop_image_url,
         },
       ]);
@@ -137,6 +142,8 @@ async function updateCrop(req, res) {
         metric_system_id,
         crop_class,
         crop_availability,
+        negotiation_allowed,
+        minimum_negotiation
       } = fields;
 
       const new_image_file = files.crop_image ? files.crop_image[0] : null;
@@ -204,6 +211,8 @@ async function updateCrop(req, res) {
         crop_class: getSingleValue(crop_class),
         availability: getSingleValue(crop_availability),
         metric_system_id: parseInt(metric_system_id, 10),
+        minimum_negotiation: parseInt(minimum_negotiation, 10),
+        negotiation_allowed: getSingleValue(negotiation_allowed),
         crop_image_url, // Only set if a new image is uploaded
       };
 
