@@ -118,7 +118,6 @@ function EditSecondaryShopPhoneScreen({ navigation, route }) {
             console.log("Successfully Updated Alternative Shop Phone Number:", data);
             setAlertMessage("Success!, Successfully Updated Shop Alternative Phone Number");
             setAlertVisible(true);
-            navigation.navigate("View Shop");
           } else {
             const errorData = await response.json();
             console.error("Adding new alternative shop phone number failed:", errorData);
@@ -212,8 +211,8 @@ function EditSecondaryShopPhoneScreen({ navigation, route }) {
           </>
         )}
       </View>
-    {/* Alert Modal */}
-    <Modal
+      {/* Alert Modal */}
+      <Modal
         animationType="fade"
         transparent={true}
         visible={alertVisible}
@@ -221,12 +220,21 @@ function EditSecondaryShopPhoneScreen({ navigation, route }) {
       >
         <View className="flex-1 justify-center items-center bg-black/50 bg-opacity-50">
           <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
-            <Text className="text-lg font-semibold text-gray-900 mb-4">{alertMessage}</Text>
+            <Text className="text-lg font-semibold text-gray-900 mb-4">
+              {alertMessage}
+            </Text>
             <TouchableOpacity
               className="mt-4 p-2 bg-[#00B251] rounded-lg flex-row justify-center items-center"
-              onPress={() => setAlertVisible(false)}
+              onPress={() => {
+                setAlertVisible(false); // Close the alert modal
+                navigation.navigate("View Shop");
+              }}
             >
-              <Ionicons name="checkmark-circle-outline" size={24} color="white" />
+              <Ionicons
+                name="checkmark-circle-outline"
+                size={24}
+                color="white"
+              />
               <Text className="text-lg text-white ml-2">OK</Text>
             </TouchableOpacity>
           </View>

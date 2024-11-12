@@ -126,7 +126,6 @@ function EditShopPhoneScreen({ navigation, route }) {
             console.log("Successfully Updated Shop Phone Number:", data);
             setAlertMessage("Success!, Successfully Updated Shop Phone Number");
             setAlertVisible(true);
-            navigation.navigate("View Shop");
           } else {
             const errorData = await response.json();
             console.error("Adding new shop phone number failed:", errorData);
@@ -241,7 +240,10 @@ function EditShopPhoneScreen({ navigation, route }) {
             </Text>
             <TouchableOpacity
               className="mt-4 p-2 bg-[#00B251] rounded-lg flex-row justify-center items-center"
-              onPress={() => setAlertVisible(false)}
+              onPress={() => {
+                setAlertVisible(false); // Close the alert modal
+                navigation.navigate("View Shop");
+              }}
             >
               <Ionicons
                 name="checkmark-circle-outline"

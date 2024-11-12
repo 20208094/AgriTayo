@@ -334,7 +334,6 @@ function SellerShopScreen({ route }) {
                             ₱{product.crop_price}
                           </Text>
                           <Text className="text-xs text-gray-500 mt-1">{shopData?.shop_name}</Text>
-                          <Text className="text-xs text-gray-500 mt-1">⭐ {product.crop_rating}</Text>
                         </TouchableOpacity>
                       </View>
                     </View>
@@ -434,7 +433,6 @@ function SellerShopScreen({ route }) {
                             <Text className="text-sm font-bold">{product.crop_name}</Text>
                             <Text className="text-[#00B251] text-sm font-bold mt-1">₱{product.crop_price}</Text>
                             <Text className="text-xs text-gray-500 mt-1">{shopData?.shop_name}</Text>
-                            <Text className="text-xs text-gray-500 mt-1">⭐ {product.crop_rating}</Text>
                           </TouchableOpacity>
                         </View>
                       </View>

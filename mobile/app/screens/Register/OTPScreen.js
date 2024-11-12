@@ -124,7 +124,6 @@ function OTPScreen({ route, navigation }) {
           console.log("Successfully Registered");
           setAlertMessage("Success!, Successfully Registered");
           setAlertVisible(true);
-          navigation.navigate("Login");
         } else {
           const errorData = await response.json();
           console.error("Registration failed:", errorData);
@@ -286,7 +285,10 @@ function OTPScreen({ route, navigation }) {
             </Text>
             <TouchableOpacity
               className="mt-4 p-2 bg-[#00B251] rounded-lg flex-row justify-center items-center"
-              onPress={() => setAlertVisible(false)}
+              onPress={() => {
+                setAlertVisible(false); // Close the alert modal
+                navigation.navigate("Login"); // Navigate to "Login" after pressing OK
+              }}
             >
               <Ionicons
                 name="checkmark-circle-outline"

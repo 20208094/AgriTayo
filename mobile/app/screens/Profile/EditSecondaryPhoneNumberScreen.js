@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, Alert, Modal } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { styled } from "nativewind";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 import { io } from "socket.io-client";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Ionicons } from "@expo/vector-icons";
 
 function EditSecondaryPhoneNumberScreen({ navigation, route }) {
   const { userData, secondaryPhoneNumber } = route.params;
@@ -17,6 +18,8 @@ function EditSecondaryPhoneNumberScreen({ navigation, route }) {
   const [generatedCode, setGeneratedCode] = useState("");
   const [seconds, setSeconds] = useState(10 * 60);
   const [isResendEnabled, setIsResendEnabled] = useState(false);
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
   const [isOtpVisible, setIsOtpVisible] = useState(false);
 
   const socket = io(REACT_NATIVE_API_BASE_URL);
@@ -117,10 +120,9 @@ function EditSecondaryPhoneNumberScreen({ navigation, route }) {
           if (response.ok) {
             const data = await response.json();
             console.log("Successfully Updated Alternative Phone Number:", data);
-            Alert.alert(
-              "Success!",
-              "Successfully Updated Alternative Phone Number"
-            );
+            setAlertMessage("Success! Successfully Updated Alternative Phone Number");
+            setAlertVisible(true); // Show modal with OK button
+
             const updatedUserData = {
               ...userData,
               secondary_phone_number: newSecondaryPhone,
@@ -132,24 +134,20 @@ function EditSecondaryPhoneNumberScreen({ navigation, route }) {
               "userData",
               JSON.stringify(updatedUserData)
             );
-            navigation.goBack(updatedUserData);
-            navigation.navigate("View Profile", { userData });
+
+            // Save the updated user data for later navigation
+            setUpdatedUserData(updatedUserData);
+
           } else {
             const errorData = await response.json();
-            console.error(
-              "Adding new alternative phone number failed:",
-              errorData
-            );
-            alert(
-              "Adding New Alternative Phone Number Failed. Please Try Again"
-            );
+            console.error("Adding new alternative phone number failed:", errorData);
+            setAlertMessage("Adding New Alternative Phone Number Failed. Please Try Again");
+            setAlertVisible(true);
           }
         } catch (error) {
-          console.error(
-            "Error during adding new alternative phone number:",
-            error
-          );
-          alert("An error occurred. Please try again.");
+          console.error("Error during adding new alternative phone number:", error);
+          setAlertMessage("An error occurred. Please try again.");
+          setAlertVisible(true);
         } finally {
           setLoading(false);
         }
@@ -158,6 +156,9 @@ function EditSecondaryPhoneNumberScreen({ navigation, route }) {
       }
     }
   };
+
+  // Modal and OK button handling
+  const [updatedUserData, setUpdatedUserData] = useState(null);
 
   const handleConfirm = () => {
     console.log("Handling new alternative phone number update");
@@ -239,6 +240,38 @@ function EditSecondaryPhoneNumberScreen({ navigation, route }) {
           </>
         )}
       </View>
+
+      {/* Alert Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={alertVisible}
+        onRequestClose={() => setAlertVisible(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black/50 bg-opacity-50">
+          <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
+            <Text className="text-lg font-semibold text-gray-900 mb-4">
+              {alertMessage}
+            </Text>
+            <TouchableOpacity
+              className="mt-4 p-2 bg-[#00B251] rounded-lg flex-row justify-center items-center"
+              onPress={() => {
+                setAlertVisible(false); // Close the alert modal
+                if (updatedUserData) {
+                  navigation.navigate("View Profile", { userData: updatedUserData });
+                }
+              }}
+            >
+              <Ionicons
+                name="checkmark-circle-outline"
+                size={24}
+                color="white"
+              />
+              <Text className="text-lg text-white ml-2">OK</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }

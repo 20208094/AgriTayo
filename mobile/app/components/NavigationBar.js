@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Icon from "react-native-vector-icons/Ionicons";
+import { FontAwesome5 } from "@expo/vector-icons";
 import HomePageScreen from "../screens/Home/HomePageScreen";
 import CropsScreen from "../screens/Market/CropsScreen";
 import ProfileScreen from "../screens/Profile/ProfileScreen";
@@ -235,7 +236,7 @@ const NavigationBar = () => {
                     className="items-center bg-white border-2 border-slate-500 rounded-xl px-2 py-1 mx-2 mb-2 w-36"
                     onPress={() => navigation.navigate("My Products")}
                   >
-                    <Icon name="storefront-outline" size={30} color="#00B251" />
+                    <FontAwesome5 name="box" size={30} color="#00B251" />
                     <Text className="text-center">Shop Products</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
@@ -244,14 +245,14 @@ const NavigationBar = () => {
                       navigation.navigate("Seller Negotiation List")
                     }
                   >
-                    <Icon name="storefront-outline" size={30} color="#00B251" />
+                    <FontAwesome5 name="handshake" size={30} color="#00B251" />
                     <Text className="text-center">Shop Negotiations</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     className="items-center bg-white border-2 border-slate-500 rounded-xl px-2 py-1 mx-2 mb-2 w-36"
                     onPress={() => navigation.navigate("Bidding")}
                   >
-                    <Icon name="storefront-outline" size={30} color="#00B251" />
+                    <FontAwesome5 name="file-contract" size={30} color="#00B251" />
                     <Text className="text-center">Shop Bids</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
@@ -262,7 +263,7 @@ const NavigationBar = () => {
                       })
                     }
                   >
-                    <Icon name="storefront-outline" size={30} color="#00B251" />
+                    <FontAwesome5 name="receipt" size={30} color="#00B251" />
                     <Text className="text-center">Shop Orders</Text>
                   </TouchableOpacity>
                   <TouchableOpacity

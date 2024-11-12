@@ -96,16 +96,16 @@ function BusinessInformationScreen({ navigation, route }) {
 
   const handleSubmit = async () => {
     setAttemptedSubmit(true);
-  
+
     if (!validateForm()) {
       setAlertMessage("Error", "Please complete all required fields.");
       setAlertVisible(true);
       return;
     }
-  
+
     try {
       const formData = new FormData();
-      
+
       formData.append("shop_name", shopData.shop_name);
       formData.append("shop_description", shopData.shop_description);
       formData.append("shop_address", shopData.shop_address);
@@ -118,11 +118,11 @@ function BusinessInformationScreen({ navigation, route }) {
       formData.append("gcash", shopData.gcash);
       formData.append("cod", shopData.cod);
       formData.append("bank", shopData.bank);
-  
+
       formData.append("user_id", userData.user_id);
       formData.append("submit_later", selectedBusinessInformation === "later" ? 1 : 0);
       console.log(shopData.shop_image);
-      
+
       if (shopData.shop_image) {
         formData.append('shop_image', {
           uri: shopData.shop_image,
@@ -130,10 +130,10 @@ function BusinessInformationScreen({ navigation, route }) {
           type: 'image/jpeg',
         });
       }
-  
+
       if (selectedBusinessInformation === "now") {
         formData.append("tin_number", tin);
-  
+
         if (birCertificate) {
           formData.append('bir_image', {
             uri: birCertificate,
@@ -143,10 +143,10 @@ function BusinessInformationScreen({ navigation, route }) {
         }
 
       }
-  
+
       // Log the formData to verify it's correctly populated
       console.log("FormData before submission:", formData);
-  
+
       // Make the API request
       const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/shops`, {
         method: "POST",
@@ -155,7 +155,7 @@ function BusinessInformationScreen({ navigation, route }) {
           "x-api-key": REACT_NATIVE_API_KEY,
         },
       });
-  
+
       const data = await response.json();
       if (response.ok) {
         const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/shops`, {
@@ -163,7 +163,7 @@ function BusinessInformationScreen({ navigation, route }) {
             'x-api-key': REACT_NATIVE_API_KEY,
           },
         });
-  
+
         const shops = await response.json();
         // get user data of the logged in user
         const filteredShops = shops.filter(shop => shop.user_id === userData.user_id);
@@ -175,8 +175,6 @@ function BusinessInformationScreen({ navigation, route }) {
         }
         setAlertMessage("Success, Shop created successfully!");
         setAlertVisible(true);
-        navigation.pop(4)
-        navigation.navigate("My Shop")
       } else {
         setAlertMessage("Error, Failed to create shop");
         setAlertVisible(true);
@@ -187,9 +185,9 @@ function BusinessInformationScreen({ navigation, route }) {
       setAlertVisible(true);
     }
   };
-  
 
-  
+
+
   return (
     <SafeAreaView className="flex-1 bg-white" edges={["bottom", "left", "right"]}>
       <ScrollView contentContainerStyle={{ padding: 16 }}>
@@ -339,12 +337,21 @@ function BusinessInformationScreen({ navigation, route }) {
       >
         <View className="flex-1 justify-center items-center bg-black/50 bg-opacity-50">
           <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
-            <Text className="text-lg font-semibold text-gray-900 mb-4">{alertMessage}</Text>
+            <Text className="text-lg font-semibold text-gray-900 mb-4">
+              {alertMessage}
+            </Text>
             <TouchableOpacity
               className="mt-4 p-2 bg-[#00B251] rounded-lg flex-row justify-center items-center"
-              onPress={() => setAlertVisible(false)}
+              onPress={() => {
+                setAlertVisible(false); // Close the alert modal
+                navigation.pop(4)
+              }}
             >
-              <Ionicons name="checkmark-circle-outline" size={24} color="white" />
+              <Ionicons
+                name="checkmark-circle-outline"
+                size={24}
+                color="white"
+              />
               <Text className="text-lg text-white ml-2">OK</Text>
             </TouchableOpacity>
           </View>
