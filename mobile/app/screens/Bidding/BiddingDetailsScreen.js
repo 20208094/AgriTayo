@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import {
   SafeAreaView,
   View,
@@ -11,22 +11,20 @@ import {
   Dimensions,
 } from "react-native";
 import { useWindowDimensions } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
+import LoadingAnimation from "../../components/LoadingAnimation";
+import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 
-function BiddingDetailsScreen({ route, navigation}) {
+function BiddingDetailsScreen({ route, navigation }) {
   const { data } = route.params;
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
-
   const [activeIndex, setActiveIndex] = useState(0);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [showFullDescription, setShowFullDescription] = useState(false);
-  const [timeLeft, setTimeLeft] = useState({}); // State for timer
-
-  const carouselImages = [
-    { uri: data.bid_image },
-    { uri: data.bid_image },
-    { uri: data.bid_image },
-  ];
+  const [timeLeft, setTimeLeft] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [bidData, setBidData] = useState([]);
 
   const onViewRef = React.useRef((viewableItems) => {
     if (viewableItems?.changed?.length > 0) {
@@ -39,6 +37,77 @@ function BiddingDetailsScreen({ route, navigation}) {
     setSelectedImage(image);
     setIsModalVisible(true);
   };
+
+  const fetchUserBids = async () => {
+    if (!data) return;
+
+    try {
+      const biddingResponse = await fetch(
+        `${REACT_NATIVE_API_BASE_URL}/api/biddings`,
+        {
+          headers: {
+            "x-api-key": REACT_NATIVE_API_KEY,
+          },
+        }
+      );
+
+      if (!biddingResponse.ok) throw new Error("Error fetching biddings");
+
+      // SAVING DATA
+      const biddingData = await biddingResponse.json();
+
+      // Map through each bid and fetch shop data
+      const combinedDataReverse = await Promise.all(biddingData.map(async (userBidReverse) => {
+        // Fetch shop data for each bid
+        const shopResponse = await fetch(
+          `${REACT_NATIVE_API_BASE_URL}/api/shops`,
+          {
+            headers: {
+              "x-api-key": REACT_NATIVE_API_KEY,
+            },
+          }
+        );
+
+        if (!shopResponse.ok) throw new Error("Error fetching shop data");
+
+        const shopData = await shopResponse.json();
+
+        // Find the specific shop associated with the bid
+        const newShop = shopData.find((shop) => shop.shop_id === userBidReverse.shop_id);
+
+        return {
+          ...userBidReverse,
+          shops: newShop || {},
+        };
+      }));
+
+      const bidSelected = combinedDataReverse.find((bid) => bid.bid_id === data.bid_id);
+
+      setBidData(bidSelected);
+    } catch (error) {
+      setAlertMessage(`Error: ${error.message}`);
+      setAlertVisible(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      const interval = setInterval(() => {
+        fetchUserBids();
+      }, 1000);
+
+      return () => clearInterval(interval);
+    }, [data])
+  );
+
+  const carouselImages = [
+    { uri: bidData.bid_image },
+    { uri: bidData.bid_image },
+    { uri: bidData.bid_image },
+  ];
+
 
   // Function to calculate time left
   const calculateTimeLeft = (endDate) => {
@@ -68,14 +137,21 @@ function BiddingDetailsScreen({ route, navigation}) {
     }, 1000);
 
     return () => clearInterval(timer); // Cleanup timer on component unmount
-  }, [data.end_date]);
+  }, [bidData.end_date]);
 
+  
+  if (loading) {
+    return (
+      <LoadingAnimation />
+    );
+  }
+  
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
       <View className="flex-1">
         {/* Background Image */}
         <Image
-          source={{ uri: data.bid_image }}
+          source={{ uri: bidData.bid_image }}
           className="absolute w-full h-[100%] object-cover -z-1"
           style={{ height: screenHeight * 0.7 }} // Dynamic height based on screen size
         />
@@ -86,15 +162,15 @@ function BiddingDetailsScreen({ route, navigation}) {
           <View className="bg-white/80 p-3 rounded-lg mx-5 mt-[45%] self-center w-[90%]">
             {/* Product Name and Details */}
             <Text className="text-center text-2xl font-bold text-gray-900">
-              {data.bid_name}
+              {bidData.bid_name}
             </Text>
             <Text className="text-center text-lg text-gray-500 mt-2">
-              Sold by: {data.shops.shop_name}
+              Sold by: {bidData.shops.shop_name}
             </Text>
 
             {/* Current Highest Bid */}
             <Text className="text-center text-xl font-semibold text-green-600 mt-4">
-              Current Highest Bid: ₱{data.bid_current_highest}
+              Current Highest Bid: ₱{bidData.bid_current_highest}
             </Text>
 
             {/* Timer */}
@@ -132,9 +208,8 @@ function BiddingDetailsScreen({ route, navigation}) {
               {carouselImages.map((_, index) => (
                 <View
                   key={index}
-                  className={`h-2 w-2 rounded-full mx-1 ${
-                    index === activeIndex ? "bg-green-600" : "bg-gray-300"
-                  }`}
+                  className={`h-2 w-2 rounded-full mx-1 ${index === activeIndex ? "bg-green-600" : "bg-gray-300"
+                    }`}
                 />
               ))}
             </View>
@@ -148,18 +223,18 @@ function BiddingDetailsScreen({ route, navigation}) {
             </Text>
             {/* Always truncate the description on the main screen */}
             <Text className="text-base text-gray-600 leading-6" numberOfLines={2}>
-              {data.bid_description}
+              {bidData.bid_description}
             </Text>
 
             {/* Read More Button */}
-            {data.bid_description.length > 100 && (
+            {bidData.bid_description.length > 100 && (
               <TouchableOpacity onPress={() => setShowFullDescription(true)}>
                 <Text className="text-green-600 text-base mt-1">Read More</Text>
               </TouchableOpacity>
             )}
 
             {/* Place a Bid Button */}
-            <TouchableOpacity className="bg-green-600 py-4 rounded-lg mt-6" onPress={() => navigation.navigate('Place a Bid', {data})}>
+            <TouchableOpacity className="bg-green-600 py-4 rounded-lg mt-6" onPress={() => navigation.navigate('Place a Bid', { data: bidData })}>
               <Text className="text-lg font-bold text-white text-center">
                 Place a Bid
               </Text>
@@ -189,7 +264,7 @@ function BiddingDetailsScreen({ route, navigation}) {
               <Text className="text-lg font-semibold mb-2">Full Description</Text>
               <ScrollView>
                 <Text className="text-base text-gray-600 leading-6">
-                  {data.bid_description}
+                  {bidData.bid_description}
                 </Text>
               </ScrollView>
               <TouchableOpacity onPress={() => setShowFullDescription(false)} className="mt-5">

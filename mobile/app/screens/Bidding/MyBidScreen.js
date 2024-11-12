@@ -237,7 +237,7 @@ function MyBidScreen({ navigation }) {
                   key={myBid.bid_id}
                   className="mb-6 p-6 border border-gray-300 rounded-lg bg-white shadow-md"
                 >
-                  <TouchableOpacity onPress={() => navigation.navigate('My Bid Details', { data: myBid })}>
+                  <TouchableOpacity onPress={() => navigation.navigate('Bidding Details', { data: myBid })}>
                     {/* Bid Content */}
                     <View className="flex-row items-center mb-2">
                       {/* Display Image if Available */}
@@ -268,7 +268,7 @@ function MyBidScreen({ navigation }) {
                   {/* Add Another Bid Button */}
                   <TouchableOpacity
                     onPress={() =>
-                      navigation.navigate("Add Another Bid", { myBidId: myBid.bid_id })
+                      navigation.navigate("Place a Bid", { data: myBid })
                     }
                     className="flex-row justify-center items-center bg-[#00b251] rounded-lg py-2 mb-2"
                   >
@@ -318,7 +318,7 @@ function MyBidScreen({ navigation }) {
                   key={myBid.bid_id}
                   className="mb-6 p-6 border border-gray-300 rounded-lg bg-white shadow-md"
                 >
-                  <TouchableOpacity onPress={() => navigation.navigate('My Bid Details', { data: myBid })}>
+                  <TouchableOpacity onPress={() => navigation.navigate('Bidding Details', { data: myBid })}>
                     {/* Bid Content */}
                     <View className="flex-row items-center mb-2">
                       {/* Display Image if Available */}
@@ -390,7 +390,7 @@ function MyBidScreen({ navigation }) {
                   key={myBid.bid_id}
                   className="mb-6 p-6 border border-gray-300 rounded-lg bg-white shadow-md"
                 >
-                  <TouchableOpacity onPress={() => navigation.navigate('My Bid Details', { data: myBid })}>
+                  <TouchableOpacity onPress={() => navigation.navigate('Bidding Details', { data: myBid })}>
                     {/* Bid Content */}
                     <View className="flex-row items-center mb-2">
                       {/* Display Image if Available */}
@@ -443,7 +443,7 @@ function MyBidScreen({ navigation }) {
                   key={myBid.bid_id}
                   className="mb-6 p-6 border border-gray-300 rounded-lg bg-white shadow-md"
                 >
-                  <TouchableOpacity onPress={() => navigation.navigate('My Bid Details', { data: myBid })}>
+                  <TouchableOpacity onPress={() => navigation.navigate('Bidding Details', { data: myBid })}>
                     {/* Bid Content */}
                     <View className="flex-row items-center mb-2">
                       {/* Display Image if Available */}

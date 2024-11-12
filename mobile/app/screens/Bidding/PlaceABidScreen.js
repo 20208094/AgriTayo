@@ -14,7 +14,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 import Ionicons from 'react-native-vector-icons/Ionicons';
-
+import LoadingAnimation from "../../components/LoadingAnimation";
 
 function PlaceABid({ route, navigation }) {
   const { data } = route.params;
@@ -24,10 +24,13 @@ function PlaceABid({ route, navigation }) {
   const [isBidValid, setIsBidValid] = useState(false);
   const [userId, setUserId] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(false);
   const [minValidBid, setMinValidBid] = useState(0); // New state for minValidBid
   const [modalVisible, setModalVisible] = useState(false); // State for modal visibility
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
+  const [bidData, setBidData] = useState([]);
+
 
   // Function to calculate time left
   const calculateTimeLeft = (endDate) => {
@@ -57,17 +60,17 @@ function PlaceABid({ route, navigation }) {
     }, 1000);
 
     return () => clearInterval(timer); // Cleanup timer on component unmount
-  }, [data.end_date]);
+  }, [bidData.end_date]);
 
   // Calculate minValidBid and update amount when it is set
   useEffect(() => {
     const minBid =
-      parseFloat(data.bid_current_highest) +
-      parseFloat(data.bid_minimum_increment);
+      parseFloat(bidData.bid_current_highest) +
+      parseFloat(bidData.bid_minimum_increment);
 
     setMinValidBid(minBid); // Set minValidBid to the calculated value
     setAmount(minBid.toString()); // Pre-fill amount with minValidBid as soon as it is calculated
-  }, [data.bid_current_highest, data.bid_minimum_increment]);
+  }, [bidData.bid_current_highest, bidData.bid_minimum_increment]);
 
   // Validation for the entered bid amount
   useEffect(() => {
@@ -76,14 +79,14 @@ function PlaceABid({ route, navigation }) {
     if (isNaN(enteredAmount)) {
       setError("Please enter a valid number.");
       setIsBidValid(false);
-    } else if (enteredAmount <= data.bid_current_highest) {
+    } else if (enteredAmount <= bidData.bid_current_highest) {
       setError(
-        `Bid must be higher than the current highest bid of ${data.bid_current_highest}`
+        `Bid must be higher than the current highest bid of ${bidData.bid_current_highest}`
       );
       setIsBidValid(false);
     } else if (enteredAmount < minValidBid) {
       setError(
-        `Bid must be at least ${minValidBid} (${data.bid_current_highest} + minimum increment of ${data.bid_minimum_increment})`
+        `Bid must be at least ${minValidBid} (${bidData.bid_current_highest} + minimum increment of ${bidData.bid_minimum_increment})`
       );
       setIsBidValid(false);
     } else {
@@ -93,12 +96,13 @@ function PlaceABid({ route, navigation }) {
   }, [
     amount,
     minValidBid,
-    data.bid_current_highest,
-    data.bid_minimum_increment,
+    bidData.bid_current_highest,
+    bidData.bid_minimum_increment,
   ]);
 
   // Fetching user data from AsyncStorage
   const getAsyncUserData = async () => {
+    setFetching(true)
     try {
       const storedData = await AsyncStorage.getItem("userData");
 
@@ -112,8 +116,6 @@ function PlaceABid({ route, navigation }) {
       }
     } catch (error) {
       console.error("Failed to load user data:", error);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -123,17 +125,83 @@ function PlaceABid({ route, navigation }) {
     }, [])
   );
 
+  const fetchUserBids = async () => {
+    if (!data) return;
+
+    try {
+      const biddingResponse = await fetch(
+        `${REACT_NATIVE_API_BASE_URL}/api/biddings`,
+        {
+          headers: {
+            "x-api-key": REACT_NATIVE_API_KEY,
+          },
+        }
+      );
+
+      if (!biddingResponse.ok) throw new Error("Error fetching biddings");
+
+      // SAVING DATA
+      const biddingData = await biddingResponse.json();
+
+      // Map through each bid and fetch shop data
+      const combinedDataReverse = await Promise.all(biddingData.map(async (userBidReverse) => {
+        // Fetch shop data for each bid
+        const shopResponse = await fetch(
+          `${REACT_NATIVE_API_BASE_URL}/api/shops`,
+          {
+            headers: {
+              "x-api-key": REACT_NATIVE_API_KEY,
+            },
+          }
+        );
+
+        if (!shopResponse.ok) throw new Error("Error fetching shop data");
+
+        const shopData = await shopResponse.json();
+
+        // Find the specific shop associated with the bid
+        const newShop = shopData.find((shop) => shop.shop_id === userBidReverse.shop_id);
+
+        return {
+          ...userBidReverse,
+          shops: newShop || {},
+        };
+      }));
+
+      const bidSelected = combinedDataReverse.find((bid) => bid.bid_id === data.bid_id);
+
+      setBidData(bidSelected);
+    } catch (error) {
+      setAlertMessage(`Error: ${error.message}`);
+      setAlertVisible(true);
+    } finally {
+      setLoading(false);
+      setFetching(false);
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      const interval = setInterval(() => {
+        fetchUserBids();
+      }, 1000);
+
+      return () => clearInterval(interval);
+    }, [data])
+  );
+
+
   // Handle placing a bid
   const handlePlaceBid = async () => {
     if (isBidValid) {
       setLoading(true);
       const bidDetails = {
-        bid_id: data.bid_id,
+        bid_id: bidData.bid_id,
         user_id: userId,
         price: Number(amount),
         bid_current_highest: Number(amount),
         bid_user_id: userId,
-        number_of_bids: data.number_of_bids + 1
+        number_of_bids: bidData.number_of_bids + 1
       };
 
       try {
@@ -153,7 +221,7 @@ function PlaceABid({ route, navigation }) {
           const result = await response.json();
           console.log("Bid placed successfully:", result);
           setAlertMessage("Success!, Bid placed successfully!");
-          setAlertVisible(true);
+          // setAlertVisible(true);
           navigation.navigate("My Bids");
         } else {
           console.error("Failed to place bid:", response.statusText);
@@ -177,39 +245,72 @@ function PlaceABid({ route, navigation }) {
 
   // Function to add bid_minimum_increment to the current amount
   const addMinimumIncrement = () => {
-    const newAmount = parseFloat(amount) + parseFloat(data.bid_minimum_increment);
+    const newAmount = parseFloat(amount) + parseFloat(bidData.bid_minimum_increment);
     setAmount(newAmount.toString());
   };
 
+  if (loading || fetching) {
+    return (
+      <LoadingAnimation />
+    );
+  }
+
   return (
-    <SafeAreaView className="flex-1 bg-white p-4">
-      <View className="items-center mb-5">
-        <Image
-          source={{ uri: data.bid_image }}
-          className="w-11/12 h-52 rounded-lg"
-        />
+    <SafeAreaView className="flex-1 bg-white p-6">
+      {/* OTHER INFORMATIONS */}
+      <View className="border-2 border-[#00b251] rounded-xl py-4 px-4 mb-4">
+        {/* IMAGE */}
+        <View className="items-center mb-3">
+          <Image
+            source={{ uri: bidData.bid_image }}
+            className="w-11/12 h-52 rounded-lg"
+          />
+        </View>
+        <Text className="text-2xl font-bold text-gray-800 mb-1 text-center">
+          {bidData.bid_name}
+        </Text>
+        <Text className="text-base text-gray-600 mb-1">{bidData.bid_description}</Text>
+        <Text className="text-lg">
+          {timeLeft.expired ? (
+            <Text className="text-red-600">Bid Expired</Text>
+          ) : (
+            <View className="flex-row items-center">
+              <Text className="text-base font-bold text-gray-700">
+                Time Left:
+              </Text>
+              <Text className="text-xl font-bold text-[#00b251] ml-2">
+                {timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m {timeLeft.seconds}s
+              </Text>
+            </View>
+          )}
+        </Text>
+
+        <View className="flex-row items-center">
+          <Text className="text-base font-bold text-gray-700">
+            Total bids:
+          </Text>
+          <Text className="text-xl font-bold text-[#00b251] ml-2">
+            {bidData.number_of_bids} bids
+          </Text>
+        </View>
+
+        <View className="flex-row items-center">
+          <Text className="text-base font-bold text-gray-700">
+            Current Highest Bid:
+          </Text>
+          <Text className="text-xl font-bold text-[#00b251] ml-2">
+            ₱{bidData.bid_current_highest}.00
+          </Text>
+        </View>
       </View>
-      <Text className="text-lg mb-4 text-center">
-        {timeLeft.expired ? (
-          <Text className="text-red-600">Bid Expired</Text>
-        ) : (
-          `${timeLeft.days}d ${timeLeft.hours}h ${timeLeft.minutes}m ${timeLeft.seconds}s`
-        )}
-      </Text>
-      <Text className="text-xl font-bold text-gray-800 mb-2">
-        {data.bid_name}
-      </Text>
-      <Text className="text-lg text-gray-600 mb-4">{data.bid_description}</Text>
 
-      <Text className="text-lg font-bold text-[#00b251] mb-4">
-        Current Highest Bid: {data.bid_current_highest}
-      </Text>
-
-      <View className="mb-6">
-        <Text className="text-base text-gray-700 mb-2">Amount</Text>
+      <View className="mb-4 border-2 border-[#00b251] rounded-xl pb-3 pt-2 px-4">
+        <Text className="text-base font-bold text-gray-700">
+          Selected Amount:
+        </Text>
         <View className="flex-row items-center">
           <TextInput
-            className="border border-gray-300 rounded-lg p-3 text-base text-gray-800 flex-1"
+            className="border border-gray-400 rounded-lg p-3 text-base text-gray-800 flex-1"
             keyboardType="numeric"
             placeholder="Enter your bid amount"
             value={amount} // Pre-fill with amount (which will be minValidBid)
@@ -238,7 +339,7 @@ function PlaceABid({ route, navigation }) {
           disabled={!isBidValid}
         >
           {loading ? (
-            <ActivityIndicator color="#fff" />
+            <LoadingAnimation />
           ) : (
             <Text className="text-white text-lg font-bold text-center">
               Place Bid
@@ -266,16 +367,16 @@ function PlaceABid({ route, navigation }) {
                   setModalVisible(false);
                   console.log("Bid Placement Cancelled");
                 }}
-                className="bg-gray-300 p-2 rounded"
+                className="bg-gray-300 p-2 rounded w-16 items-center "
               >
                 <Text>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => {
                   setModalVisible(false);
-                  handlePlaceBid(); // Call handlePlaceBid on confirmation
+                  handlePlaceBid();
                 }}
-                className="bg-[#00B251] p-2 rounded"
+                className="bg-[#00B251] p-2 rounded w-16 items-center"
               >
                 <Text className="text-white">Yes</Text>
               </TouchableOpacity>

@@ -73,7 +73,6 @@ import EditPhoneNumberScreen from "./app/screens/Profile/EditPhoneNumberScreen";
 import EditSecondaryPhoneNumberScreen from "./app/screens/Profile/EditSecondaryPhoneNumberScreen";
 import OTPOnlyPhoneScreen from "./app/screens/Register/OTPOnlyPhoneScreen";
 import ShopOTPScreen from "./app/screens/farmers/ShopOTPScreen";
-import MyBidDetailsScreen from "./app/screens/Bidding/MyBidDetailsScreen";
 // for farmers
 import ShopScreen from "./app/screens/farmers/Shop/ShopScreen";
 import ViewShopScreen from "./app/screens/farmers/Shop/ViewShopScreen";
@@ -519,11 +518,6 @@ function App() {
               name="Bidding Details"
               component={BiddingDetailsScreen}
               options={screenOptions}
-            />
-            <Stack.Screen
-            name='My Bid Details'
-            component={MyBidDetailsScreen}
-            options={screenOptions}
             />
             <Stack.Screen
               name="Bidding View All"
