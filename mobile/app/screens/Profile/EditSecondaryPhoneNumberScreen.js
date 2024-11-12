@@ -87,8 +87,9 @@ function EditSecondaryPhoneNumberScreen({ navigation, route }) {
           if (response.ok) {
             const data = await response.json();
             console.log("Successfully Updated Alternative Phone Number:", data);
-            setAlertMessage("Success!, Successfully Updated Alternative Phone Number");
-            setAlertVisible(true);
+            setAlertMessage("Success! Successfully Updated Alternative Phone Number");
+            setAlertVisible(true); // Show modal with OK button
+
             const updatedUserData = {
               ...userData,
               secondary_phone_number: newSecondaryPhone,
@@ -100,8 +101,10 @@ function EditSecondaryPhoneNumberScreen({ navigation, route }) {
               "userData",
               JSON.stringify(updatedUserData)
             );
-            navigation.goBack(updatedUserData);
-            navigation.navigate("View Profile", { userData });
+
+            // Save the updated user data for later navigation
+            setUpdatedUserData(updatedUserData);
+
           } else {
             const errorData = await response.json();
             console.error("Adding new alternative phone number failed:", errorData);
@@ -120,6 +123,9 @@ function EditSecondaryPhoneNumberScreen({ navigation, route }) {
       }
     }
   };
+
+  // Modal and OK button handling
+  const [updatedUserData, setUpdatedUserData] = useState(null);
 
   const handleConfirm = () => {
     console.log("Handling new alternative phone number update");
@@ -206,12 +212,23 @@ function EditSecondaryPhoneNumberScreen({ navigation, route }) {
       >
         <View className="flex-1 justify-center items-center bg-black/50 bg-opacity-50">
           <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
-            <Text className="text-lg font-semibold text-gray-900 mb-4">{alertMessage}</Text>
+            <Text className="text-lg font-semibold text-gray-900 mb-4">
+              {alertMessage}
+            </Text>
             <TouchableOpacity
               className="mt-4 p-2 bg-[#00B251] rounded-lg flex-row justify-center items-center"
-              onPress={() => setAlertVisible(false)}
+              onPress={() => {
+                setAlertVisible(false); // Close the alert modal
+                if (updatedUserData) {
+                  navigation.navigate("View Profile", { userData: updatedUserData });
+                }
+              }}
             >
-              <Ionicons name="checkmark-circle-outline" size={24} color="white" />
+              <Ionicons
+                name="checkmark-circle-outline"
+                size={24}
+                color="white"
+              />
               <Text className="text-lg text-white ml-2">OK</Text>
             </TouchableOpacity>
           </View>
