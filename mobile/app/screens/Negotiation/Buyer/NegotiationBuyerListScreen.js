@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { SafeAreaView, View, Text, TouchableOpacity, ScrollView, Image } from 'react-native';
 import { styled } from 'nativewind';
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
@@ -105,30 +105,34 @@ function NegotiationSellerListScreen({ route, navigation }) {
         }
     };
 
-    useEffect(() => {
-        const fetchData = async () => {
+    useFocusEffect(
+        useCallback(() => {
+          const fetchData = async () => {
             await getAsyncUserData();
-        };
-
-        fetchData();
-    }, []);
-
-    useEffect(() => {
-        let interval;
-
-        if (userData) {
+          };
+      
+          fetchData();
+        }, [])
+      );
+      
+      useFocusEffect(
+        useCallback(() => {
+          let interval;
+      
+          if (userData) {
             fetchNegotiations();
             interval = setInterval(() => {
-                fetchNegotiations();
+              fetchNegotiations();
             }, 5000);
-        }
-
-        return () => {
+          }
+      
+          return () => {
             if (interval) {
-                clearInterval(interval);
+              clearInterval(interval);
             }
-        };
-    }, [userData]);
+          };
+        }, [userData])
+      );
 
     useEffect(() => {
         if (negotiationData) {

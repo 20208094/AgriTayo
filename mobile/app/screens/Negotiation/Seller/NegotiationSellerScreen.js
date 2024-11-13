@@ -25,6 +25,8 @@ const NegotiationSellerScreen = ({ route }) => {
   const navigation = useNavigation();
   const [offerPrice, setOfferPrice] = useState('');
   const [amount, setAmount] = useState('');
+  const [priceError, setPriceError] = useState('');
+  const [amountError, setAmountError] = useState('');
   const [total, setTotal] = useState(0);
   const [modalVisible, setModalVisible] = useState(false);
   const [confirmationModalVisible, setConfirmationModalVisible] = useState(false);
@@ -41,6 +43,21 @@ const NegotiationSellerScreen = ({ route }) => {
   }, [offerPrice, amount]);
 
   handleMakeOffer = async () => {
+    if (!amount && !offerPrice) {
+      setAmountError('Enter Quantity');
+      setPriceError('Enter Price');
+      return
+    }
+    if (!amount) {
+      setAmountError('Enter Quantity');
+      setPriceError('');
+      return
+    }
+    if (!offerPrice) {
+      setAmountError('');
+      setPriceError('Enter Price');
+      return
+    }
     const formData = new FormData();
     formData.append("shop_amount", amount);
     formData.append("shop_price", offerPrice);
@@ -55,7 +72,7 @@ const NegotiationSellerScreen = ({ route }) => {
     const isSuccess = await handleSubmit(formData);
 
     if (isSuccess) {
-      navigation.navigate("Buyer Negotiation List", { screen: "Ongoing" });
+      navigation.navigate("Seller Negotiation List", { screen: "Ongoing" });
     } else {
       alert('Failed to decline the offer. Please try again.');
     }
@@ -76,7 +93,7 @@ const NegotiationSellerScreen = ({ route }) => {
     const isSuccess = await handleSubmit(formData);
 
     if (isSuccess) {
-      navigation.navigate("Buyer Negotiation List", { screen: "Approved" });
+      navigation.navigate("Seller Negotiation List", { screen: "Approved" });
     } else {
       alert('Failed to decline the offer. Please try again.');
     }
@@ -97,7 +114,7 @@ const NegotiationSellerScreen = ({ route }) => {
     const isSuccess = await handleSubmit(formData);
 
     if (isSuccess) {
-      navigation.navigate("Buyer Negotiation List", { screen: "Cancelled" });
+      navigation.navigate("Seller Negotiation List", { screen: "Cancelled" });
     } else {
       alert('Failed to decline the offer. Please try again.');
     }
@@ -175,9 +192,35 @@ const NegotiationSellerScreen = ({ route }) => {
           </View>
 
           {/* Negotiation Details */}
-          {negotiationData.buyer_turn ? (
+          {negotiationData.negotiation_status !== 'Ongoing' ? (
             <>
-            <View className="border border-gray-200 rounded-lg p-4 shadow-sm bg-white mb-5 ml-2 mt-3">
+              <View className="border border-gray-200 rounded-lg p-4 shadow-sm bg-white mb-5 ml-2 mt-3">
+                {/* Pricing Information */}
+                <View className="space-y-1 mb-4">
+                  <View className="flex-row justify-between">
+                    <Text className="text-lg md:text-base font-bold text-gray-700">Final Price:</Text>
+                    <Text className="text-lg md:text-base text-gray-600">₱{parseFloat(negotiationData.final_price).toFixed(2)}</Text>
+                  </View>
+                  <View className="flex-row justify-between">
+                    <Text className="text-lg md:text-base font-bold text-gray-700">Final Quantity:</Text>
+                    <Text className="text-lg md:text-base text-gray-600">{negotiationData.final_amount} {negotiationData.metric_system.metric_system_symbol}</Text>
+                  </View>
+                  <View className="flex-row justify-between">
+                    <Text className="text-lg md:text-base font-bold text-gray-700">Final Total Price:</Text>
+                    <Text className="text-lg md:text-base text-gray-600">₱{parseFloat(negotiationData.final_total).toFixed(2)}</Text>
+                  </View>
+                </View>
+              </View>
+              <View className="flex-row ">
+                {/* Your Offer Section */}
+                <View className="flex-1 border border-white rounded-md p-4 bg-white shadow-md h-96">
+
+                </View>
+              </View>
+            </>
+          ) : negotiationData.buyer_turn ? (
+            <>
+              <View className="border border-gray-200 rounded-lg p-4 shadow-sm bg-white mb-5 ml-2 mt-3">
                 {/* Message */}
                 <Text className="text-lg md:text-xl font-semibold text-orange-600 mb-3">
                   Please wait for the buyer to make a new offer, Accept, or Decline the negotiation
@@ -190,8 +233,8 @@ const NegotiationSellerScreen = ({ route }) => {
                     <Text className="text-sm md:text-base text-gray-600">₱{negotiationData.shop_price}</Text>
                   </View>
                   <View className="flex-row justify-between">
-                    <Text className="text-sm md:text-base font-bold text-gray-700">Amount:</Text>
-                    <Text className="text-sm md:text-base text-gray-600">₱{negotiationData.shop_amount}</Text>
+                    <Text className="text-sm md:text-base font-bold text-gray-700">Quantity:</Text>
+                    <Text className="text-sm md:text-base text-gray-600">₱{negotiationData.shop_amount} {negotiationData.metric_system.metric_system_symbol}</Text>
                   </View>
                   <View className="flex-row justify-between">
                     <Text className="text-sm md:text-base font-bold text-gray-700">Total Price:</Text>
@@ -202,11 +245,11 @@ const NegotiationSellerScreen = ({ route }) => {
               <View className="flex-row ">
                 {/* Your Offer Section */}
                 <View className="flex-1 border border-white rounded-md p-4 bg-white shadow-md h-96">
-                  
+
                 </View>
               </View>
             </>
-          ) : negotiationData.shop_open_for_negotiation ? (
+          ) : negotiationData.user_open_for_negotiation ? (
             <>
               <View className="flex-row space-x-4 ">
                 {/* Seller Offer Section */}
@@ -214,16 +257,16 @@ const NegotiationSellerScreen = ({ route }) => {
                   <Text
                     className={`text-lg font-semibold text-gray-800 mb-2`}
                   >
-                    Buyer Offer
+                    Buyer Offer:
                   </Text>
                   <Text className="text-sm text-gray-600 mt-2">
-                    Price: ₱{negotiationData.user_price}
+                    Price: ₱{parseFloat(negotiationData.user_price).toFixed(2)}
                   </Text>
                   <Text className="text-sm text-gray-600 mt-9">
-                    Amount: {negotiationData.user_amount}
+                    Quantity: {negotiationData.user_amount} {negotiationData.metric_system.metric_system_symbol}
                   </Text>
-                  <Text className="font-bold text-lg text-black mt-7">
-                    Total: ₱{negotiationData.user_total}
+                  <Text className="font-bold text-base text-black mt-7">
+                    Total: ₱{parseFloat(negotiationData.user_total).toFixed(2)}
                   </Text>
                 </View>
 
@@ -232,11 +275,16 @@ const NegotiationSellerScreen = ({ route }) => {
                   <Text
                     className={`text-lg font-semibold text-gray-800 mb-2`}
                   >
-                    Your Offer
+                    Your Offer:
                   </Text>
                   <View className="">
                     <Text className={`text-base font-bold text-gray-800`} >
                       Price:
+                      {priceError ? (
+                        <Text className="text-sm font-bold text-red-500"> {priceError}</Text>
+                      ) : (
+                        <></>
+                      )}
                     </Text>
                     <TextInput
                       className="border border-gray-300 rounded-md p-2 text-gray-800"
@@ -247,12 +295,17 @@ const NegotiationSellerScreen = ({ route }) => {
                       style={{ fontSize: width > 400 ? 18 : 16 }}
                     />
                     <Text className={`text-base font-bold text-gray-800`} >
-                      Ammount:
+                      Quantity:
+                      {amountError ? (
+                        <Text className="text-sm font-bold text-red-500"> {amountError}</Text>
+                      ) : (
+                        <></>
+                      )}
                     </Text>
                     <TextInput
                       className="border border-gray-300 rounded-md p-2 text-gray-800"
                       keyboardType="numeric"
-                      placeholder={`${negotiationData.shop_amount}`}
+                      placeholder={`${negotiationData.shop_amount} ${negotiationData.metric_system.metric_system_symbol}`}
                       value={amount}
                       onChangeText={setAmount}
                       style={{ fontSize: width > 400 ? 18 : 16 }} // Adjust font size
@@ -266,7 +319,7 @@ const NegotiationSellerScreen = ({ route }) => {
                     {/* New Toggle Switch */}
 
                     <StyledText className="text-base font-bold text-gray-800 mt-2">
-                      Open for Negotiation:
+                      Allow Buyer to Negotiate?
                     </StyledText>
                     <StyledView className="flex-row items-center mb-4 w-full">
                       <StyledText className="text-red-700 font-bold text-base ml-12">
@@ -338,7 +391,7 @@ const NegotiationSellerScreen = ({ route }) => {
               <View className="border border-gray-200 rounded-lg p-4 shadow-sm bg-white mb-5 ml-2">
                 {/* Message */}
                 <Text className="text-lg md:text-xl font-semibold text-red-500 mb-3">
-                The buyer has indicated that they do not wish to negotiate further. Please either accept or decline the offer.
+                  The buyer has chosen not to allow negotiation. Please accept or decline the offer.
                 </Text>
 
                 {/* Pricing Information */}
@@ -348,8 +401,8 @@ const NegotiationSellerScreen = ({ route }) => {
                     <Text className="text-sm md:text-base text-gray-600">₱{negotiationData.user_price}</Text>
                   </View>
                   <View className="flex-row justify-between">
-                    <Text className="text-sm md:text-base font-bold text-gray-700">Amount:</Text>
-                    <Text className="text-sm md:text-base text-gray-600">₱{negotiationData.user_amount}</Text>
+                    <Text className="text-sm md:text-base font-bold text-gray-700">Quantity:</Text>
+                    <Text className="text-sm md:text-base text-gray-600">₱{negotiationData.user_amount} {negotiationData.metric_system.metric_system_symbol}</Text>
                   </View>
                   <View className="flex-row justify-between">
                     <Text className="text-sm md:text-base font-bold text-gray-700">Total Price:</Text>

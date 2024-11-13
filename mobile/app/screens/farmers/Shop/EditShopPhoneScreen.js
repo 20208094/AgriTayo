@@ -171,6 +171,12 @@ function EditShopPhoneScreen({ navigation, route }) {
     setTimeout(() => setIsClicked(true), 0); // Set back to true to generate a new OTP
   };
 
+  const handleEditPhone = () => {
+    setIsClicked(false);
+    setIsOtpVisible(false);
+    setOtp("");
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
       <View className="flex-1 items-center px-5">
@@ -184,16 +190,19 @@ function EditShopPhoneScreen({ navigation, route }) {
             placeholder="09123456789"
             value={newPhone}
             onChangeText={setNewPhone}
+            editable={!isCLicked}
           />
           {phoneError ? (
             <Text className="w-4/5 text-red-500 mb-4">{phoneError}</Text>
           ) : null}
-          <TouchableOpacity
-            onPress={handleConfirm}
-            className="bg-green-600 px-4 py-2 rounded-lg"
-          >
-            <Text className="text-white font-bold text-center">Confirm </Text>
-          </TouchableOpacity>
+          {!isCLicked && (
+            <TouchableOpacity
+              onPress={handleConfirm}
+              className="bg-green-600 px-4 py-2 rounded-lg"
+            >
+              <Text className="text-white font-bold text-center">Confirm</Text>
+            </TouchableOpacity>
+          )}
         </View>
         {isOtpVisible && (
           <>
@@ -212,10 +221,15 @@ function EditShopPhoneScreen({ navigation, route }) {
                 <Text className="text w-4/5 text-red-500 mb-4">{otpError}</Text>
               ) : null}
               <TouchableOpacity
-                className="bg-green-600 px-4 py-2 rounded-lg mb-5"
+                className="bg-green-600 px-4 py-2 rounded-lg mb-3"
                 onPress={handleOtp}
               >
                 <Text className="text-white font-bold text-center">Submit</Text>
+              </TouchableOpacity>
+              <TouchableOpacity className="bg-gray-200 px-4 py-2 rounded-lg mb-5" onPress={handleEditPhone}>
+                <Text className="text-[#00B251] font-bold text-center">
+                  Change Number
+                </Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={handleResend}>
                 <Text className="text-center font-bold text-[#00B251]">

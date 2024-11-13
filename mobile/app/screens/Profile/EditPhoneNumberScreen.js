@@ -44,25 +44,25 @@ function EditPhoneNumberScreen({ navigation, route }) {
   useEffect(() => {
     if (isCLicked) {
       if (phoneNumbersList.includes(newPhone) || phoneNumbers2List.includes(newPhone)) {
-      Alert.alert("", "Phone Number is already registered")
-      setIsClicked(false)
-      }else {
+        Alert.alert("", "Phone Number is already registered")
+        setIsClicked(false)
+      } else {
         const generateRandomCode = () => {
-        const code = Math.floor(100000 + Math.random() * 900000).toString();
-        setGeneratedCode(code);
-        console.log("Generated OTP code:", code); // For debugging
-        const title = "AgriTayo";
-        const message = `Your OTP code is: ${code}`;
-        const phone_number = newPhone;
-        socket.emit("sms sender", { title, message, phone_number });
-      };
+          const code = Math.floor(100000 + Math.random() * 900000).toString();
+          setGeneratedCode(code);
+          console.log("Generated OTP code:", code);
+          const title = "AgriTayo";
+          const message = `Your OTP code is: ${code}`;
+          const phone_number = newPhone;
+          socket.emit("sms sender", { title, message, phone_number });
+        };
 
-      generateRandomCode(); // Generate OTP when isCLicked is true
-      setIsOtpVisible(true);
+        generateRandomCode(); // Generate OTP when isCLicked is true
+        setIsOtpVisible(true);
+      }
     }
-  }
   }, [isCLicked, newPhone, phoneNumbersList, phoneNumbers2List]); // Runs when the OTP button is clicked
-  
+
 
   useEffect(() => {
     const fetchPhoneNumbers = async () => {
@@ -94,7 +94,7 @@ function EditPhoneNumberScreen({ navigation, route }) {
       setOtpError("Enter the 6 digit code");
     } else if (otp !== generatedCode) {
       setOtpError("Invalid OTP. Please try again.");
-    }else {
+    } else {
       const formData = new FormData();
       formData.append("edit_phone_number", newPhone);
 
@@ -186,6 +186,12 @@ function EditPhoneNumberScreen({ navigation, route }) {
     setTimeout(() => setIsClicked(true), 0); // Set back to true to generate a new OTP
   };
 
+  const handleEditPhone = () => {
+    setIsClicked(false);
+    setIsOtpVisible(false);
+    setOtp("");
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
       <View className="flex-1 items-center px-5">
@@ -199,16 +205,19 @@ function EditPhoneNumberScreen({ navigation, route }) {
             placeholder="09123456789"
             value={newPhone}
             onChangeText={setNewPhone}
+            editable={!isCLicked}
           />
           {phoneError ? (
             <Text className="w-4/5 text-red-500 mb-4">{phoneError}</Text>
           ) : null}
-          <TouchableOpacity
-            onPress={handleConfirm}
-            className="bg-green-600 px-4 py-2 rounded-lg"
-          >
-            <Text className="text-white font-bold text-center">Confirm </Text>
-          </TouchableOpacity>
+          {!isCLicked && (
+            <TouchableOpacity
+              onPress={handleConfirm}
+              className="bg-green-600 px-4 py-2 rounded-lg"
+            >
+              <Text className="text-white font-bold text-center">Confirm</Text>
+            </TouchableOpacity>
+          )}
         </View>
         {isOtpVisible && (
           <>
@@ -229,10 +238,15 @@ function EditPhoneNumberScreen({ navigation, route }) {
                 </Text>
               ) : null}
               <TouchableOpacity
-                className="bg-green-600 px-4 py-2 rounded-lg mb-5"
+                className="bg-green-600 px-4 py-2 rounded-lg mb-3"
                 onPress={handleOtp}
               >
                 <Text className="text-white font-bold text-center">Submit</Text>
+              </TouchableOpacity>
+              <TouchableOpacity className="bg-gray-200 px-4 py-2 rounded-lg mb-5" onPress={handleEditPhone}>
+                <Text className="text-[#00B251] font-bold text-center">
+                  Change Number
+                </Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={handleResend}>
                 <Text className="text-center font-bold text-[#00B251]">

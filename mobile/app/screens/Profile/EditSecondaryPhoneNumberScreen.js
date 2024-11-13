@@ -45,21 +45,21 @@ function EditSecondaryPhoneNumberScreen({ navigation, route }) {
       if (phoneNumbersList.includes(newSecondaryPhone) || phoneNumbers2List.includes(newSecondaryPhone)) {
         Alert.alert("", "Alternative Phone Number is already registered")
         setIsClicked(false)
-        } else {
-      const generateRandomCode = () => {
-        const code = Math.floor(100000 + Math.random() * 900000).toString();
-        setGeneratedCode(code);
-        console.log("Generated OTP code:", code); // For debugging
-        const title = "AgriTayo";
-        const message = `Your OTP code is: ${code}`;
-        const phone_number = newSecondaryPhone;
-        socket.emit("sms sender", { title, message, phone_number });
-      };
+      } else {
+        const generateRandomCode = () => {
+          const code = Math.floor(100000 + Math.random() * 900000).toString();
+          setGeneratedCode(code);
+          console.log("Generated OTP code:", code); // For debugging
+          const title = "AgriTayo";
+          const message = `Your OTP code is: ${code}`;
+          const phone_number = newSecondaryPhone;
+          socket.emit("sms sender", { title, message, phone_number });
+        };
 
-      generateRandomCode(); // Generate OTP when isCLicked is true
-      setIsOtpVisible(true);
+        generateRandomCode(); // Generate OTP when isCLicked is true
+        setIsOtpVisible(true);
+      }
     }
-  }
   }, [isCLicked, newSecondaryPhone, phoneNumbersList, phoneNumbers2List]); // Runs when the OTP button is clicked
 
   useEffect(() => {
@@ -184,6 +184,12 @@ function EditSecondaryPhoneNumberScreen({ navigation, route }) {
     setTimeout(() => setIsClicked(true), 0); // Set back to true to generate a new OTP
   };
 
+  const handleEditPhone = () => {
+    setIsClicked(false);
+    setIsOtpVisible(false);
+    setOtp("");
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
       <View className="flex-1 items-center px-5">
@@ -197,16 +203,19 @@ function EditSecondaryPhoneNumberScreen({ navigation, route }) {
             placeholder="09123456789"
             value={newSecondaryPhone}
             onChangeText={setNewSecondaryPhone}
+            editable={!isCLicked}
           />
           {phoneError ? (
             <Text className="w-4/5 text-red-500 mb-4">{phoneError}</Text>
           ) : null}
-          <TouchableOpacity
-            onPress={handleConfirm}
-            className="bg-green-600 px-4 py-2 rounded-lg"
-          >
-            <Text className="text-white font-bold text-center">Confirm </Text>
-          </TouchableOpacity>
+          {!isCLicked && (
+            <TouchableOpacity
+              onPress={handleConfirm}
+              className="bg-green-600 px-4 py-2 rounded-lg"
+            >
+              <Text className="text-white font-bold text-center">Confirm</Text>
+            </TouchableOpacity>
+          )}
         </View>
         {isOtpVisible && (
           <>
@@ -225,12 +234,16 @@ function EditSecondaryPhoneNumberScreen({ navigation, route }) {
                 <Text className="text w-4/5 text-red-500 mb-4">{otpError}</Text>
               ) : null}
               <TouchableOpacity
-                className="bg-green-600 px-4 py-2 rounded-lg mb-5"
+                className="bg-green-600 px-4 py-2 rounded-lg mb-3"
                 onPress={handleOtp}
               >
                 <Text className="text-white font-bold text-center">Submit</Text>
               </TouchableOpacity>
-
+              <TouchableOpacity className="bg-gray-200 px-4 py-2 rounded-lg mb-5" onPress={handleEditPhone}>
+                <Text className="text-[#00B251] font-bold text-center">
+                  Change Number
+                </Text>
+              </TouchableOpacity>
               <TouchableOpacity onPress={handleResend}>
                 <Text className="text-center font-bold text-[#00B251]">
                   Resend OTP

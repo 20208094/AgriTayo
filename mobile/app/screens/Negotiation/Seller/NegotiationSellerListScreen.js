@@ -232,7 +232,19 @@ function NegotiationSellerListScreen({ route, navigation }) {
                                         </StyledView>
                                     </StyledView>
                                 </StyledView>
-                                {data.buyer_turn ? (
+                                {data.negotiation_status === 'Completed' || data.negotiation_status === 'Cancelled' ? (
+                                    <StyledView className="flex-row items-center space-x-2 mt-2">
+                                    </StyledView>
+                                ) : data.negotiation_status === 'Approved' ? (
+                                    <StyledView className="flex-row items-center space-x-2 mt-2">
+                                        {/* Icon for waiting */}
+                                        <Icon name="hourglass-half" size={20} color="#FFA500" />
+                                        {/* Waiting for response message */}
+                                        <StyledText className="text-gray-700 font-medium">
+                                            Waiting for Buyer to Checkout the negotiation.
+                                        </StyledText>
+                                    </StyledView>
+                                ) : data.buyer_turn ? (
                                     <StyledView className="flex-row items-center space-x-2 mt-2">
                                         {/* Icon for waiting */}
                                         <Icon name="hourglass-half" size={20} color="#FFA500" />

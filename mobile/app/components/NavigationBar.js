@@ -24,7 +24,7 @@ import {
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import LoadingAnimation from "./LoadingAnimation";
-
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 const Tab = createBottomTabNavigator();
 
 const NavigationBar = () => {
@@ -221,7 +221,7 @@ const NavigationBar = () => {
               {shopData && (
                 <View className="flex-row items-center w-full px-2 justify-center flex-wrap rounded-xl mb-4">
                   <View className="w-full ml-6">
-                    <Text className="text-left w-1/2 text-[#00b251] text-xl font-extrabold pl-1 rounded-lg">
+                    <Text className="text-left w-1/2 text-[#00b251] text-xl font-bold pl-1 rounded-lg">
                       Shop Navigation
                     </Text>
                   </View>
@@ -229,14 +229,14 @@ const NavigationBar = () => {
                     className="items-center bg-white border-2 border-slate-500 rounded-xl px-2 py-1 mx-2 mb-2 w-36"
                     onPress={() => navigation.navigate("My Shop")}
                   >
-                    <Icon name="storefront-outline" size={30} color="#00B251" />
+                    <Icon name="storefront-outline" size={28} color="#00B251" />
                     <Text className="text-center">My Shop</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     className="items-center bg-white border-2 border-slate-500 rounded-xl px-2 py-1 mx-2 mb-2 w-36"
                     onPress={() => navigation.navigate("My Products")}
                   >
-                    <FontAwesome5 name="box" size={30} color="#00B251" />
+                    <FontAwesome5 name="box" size={28} color="#00B251" />
                     <Text className="text-center">Shop Products</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
@@ -245,14 +245,14 @@ const NavigationBar = () => {
                       navigation.navigate("Seller Negotiation List")
                     }
                   >
-                    <FontAwesome5 name="handshake" size={30} color="#00B251" />
+                    <FontAwesome5 name="handshake" size={28} color="#00B251" />
                     <Text className="text-center">Shop Negotiations</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     className="items-center bg-white border-2 border-slate-500 rounded-xl px-2 py-1 mx-2 mb-2 w-36"
                     onPress={() => navigation.navigate("Bidding")}
                   >
-                    <FontAwesome5 name="file-contract" size={30} color="#00B251" />
+                    <MaterialCommunityIcons name="gavel" size={28} color="#00B251" />
                     <Text className="text-center">Shop Bids</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
@@ -263,7 +263,7 @@ const NavigationBar = () => {
                       })
                     }
                   >
-                    <FontAwesome5 name="receipt" size={30} color="#00B251" />
+                    <FontAwesome5 name="receipt" size={28} color="#00B251" />
                     <Text className="text-center">Shop Orders</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
@@ -272,7 +272,7 @@ const NavigationBar = () => {
                       navigation.navigate("Seller Shop", { shop_id })
                     }
                   >
-                    <Icon name="storefront-outline" size={30} color="#00B251" />
+                    <Icon name="storefront-outline" size={28} color="#00B251" />
                     <Text className="text-center">Shop View</Text>
                   </TouchableOpacity>
                 </View>
@@ -288,7 +288,7 @@ const NavigationBar = () => {
                 className="items-center bg-white border-2 border-slate-500 rounded-xl px-2 py-1 mx-2 mb-2 w-36"
                 onPress={() => navigation.navigate("Orders")}
               >
-                <Icon name="receipt-outline" size={30} color="#00B251" />
+                <Icon name="receipt-outline" size={28} color="#00B251" />
                 <Text className="text-center">My Orders</Text>
               </TouchableOpacity>
 
@@ -296,11 +296,7 @@ const NavigationBar = () => {
                 className="items-center bg-white border-2 border-slate-500 rounded-xl px-2 py-1 mx-2 mb-2 w-36"
                 onPress={() => navigation.navigate("Buyer Negotiation List")}
               >
-                <Icon
-                  name="swap-horizontal-outline"
-                  size={30}
-                  color="#00B251"
-                />
+                    <FontAwesome5 name="handshake" size={28} color="#00B251" />
                 <Text className="text-center">My Negotiations</Text>
               </TouchableOpacity>
 
@@ -308,14 +304,14 @@ const NavigationBar = () => {
                 className="items-center bg-white border-2 border-slate-500 rounded-xl px-2 py-1 mx-2 mb-2 w-36"
                 onPress={() => navigation.navigate("My Bids")}
               >
-                <Icon name="ticket-outline" size={30} color="#00B251" />
+                    <MaterialCommunityIcons name="gavel" size={28} color="#00B251" />
                 <Text className="text-center">My Bids</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 className="items-center bg-white border-2 border-slate-500 rounded-xl px-2 py-1 mx-2 mb-2 w-36"
                 onPress={() => navigation.navigate("Analytics")}
               >
-                <Icon name="analytics-outline" size={30} color="#00B251" />
+                <Icon name="analytics-outline" size={28} color="#00B251" />
                 <Text className="text-center">Analytics</Text>
               </TouchableOpacity>
             </Animated.View>
