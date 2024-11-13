@@ -21,6 +21,7 @@ function CropsPage() {
     metric_system_id: ''
   });
   const [categories, setCategories] = useState([]);
+  const [subcategories, setSubcategories] = useState([]);
   const [shops, setShops] = useState([]);
   const [metricSystems, setMetricSystems] = useState([]);
   const [isEdit, setIsEdit] = useState(false);
@@ -37,6 +38,7 @@ function CropsPage() {
   useEffect(() => {
     fetchCrops();
     fetchCategories();
+    fetchSubcategories();
     fetchShops();
     fetchMetricSystems();
   }, []);
@@ -62,6 +64,18 @@ function CropsPage() {
       setCategories(data);
     } catch (error) {
       console.error('Error fetching crop categories:', error);
+    }
+  };
+
+  const fetchSubcategories = async () => {
+    try {
+      const response = await fetch('/api/crop_subcategories', {
+        headers: { 'x-api-key': API_KEY },
+      });
+      const data = await response.json();
+      setSubcategories(data);
+    } catch (error) {
+      console.error('Error fetching crop subcategories:', error);
     }
   };
 
@@ -151,7 +165,6 @@ function CropsPage() {
       category_id: '',
       shop_id: '',
       image: null,
-      crop_rating: '',
       crop_price: '',
       crop_quantity: '',
       crop_weight: '',
@@ -203,16 +216,11 @@ function CropsPage() {
       ? crop.category_id === parseInt(selectedCategory)
       : true;
     const matchesShop = selectedShop ? crop.shop_id === parseInt(selectedShop) : true;
-    const matchesRating = selectedRatingRange
-      ? (() => {
-        const [min, max] = selectedRatingRange.split('-').map(Number);
-        return crop.crop_rating >= min && crop.crop_rating <= max;
-      })()
-      : true;
+    
     const matchesMetricSystem = selectedMetricSystem
       ? crop.metric_system_id === parseInt(selectedMetricSystem)
       : true;
-    return matchesSearch && matchesCategory && matchesShop && matchesRating && matchesMetricSystem;
+    return matchesSearch && matchesCategory && matchesShop && matchesMetricSystem;
   });
 
 
@@ -235,9 +243,9 @@ function CropsPage() {
       crop.crop_name,
       crop.crop_description,
       categories.find(category => category.crop_category_id === crop.category_id)?.crop_category_name || 'N/A',
+      subcategories.find(subcategory => subcategory.crop_subcategory_id === crop.subcategory_id)?.crop_subcategory_name || 'N/A',
       shops.find(shop => shop.shop_id === crop.shop_id)?.shop_name || 'N/A',
       crop.crop_image,
-      crop.crop_rating,
       crop.crop_price,
       crop.crop_quantity,
       crop.crop_weight,
@@ -246,7 +254,7 @@ function CropsPage() {
 
     doc.autoTable({
       startY: tableStartY,
-      head: [['ID', 'Name', 'Description', 'Category', 'Shop', 'Image', 'Rating', 'Price', 'Quantity', 'Weight', 'Metric System']],
+      head: [['ID', 'Name', 'Description', 'Category', 'Shop', 'Image', 'Price', 'Quantity', 'Weight', 'Metric System']],
       body: tableData,
       headStyles: {
         fillColor: [0, 128, 0], halign: 'center', valign: 'middle'
@@ -295,19 +303,6 @@ function CropsPage() {
           </select>
 
           <select
-            value={selectedRatingRange}
-            onChange={(e) => setSelectedRatingRange(e.target.value)}
-            className="p-2 border rounded w-1/8"
-          >
-            <option value="">All Ratings</option>
-            <option value="0-1">0 - 1</option>
-            <option value="2-3">2 - 3</option>
-            <option value="4-5">4 - 5</option>
-            <option value="6-7">6 - 7</option>
-            <option value="8-9">8 - 9</option>
-          </select>
-
-          <select
             value={selectedMetricSystem}
             onChange={(e) => setSelectedMetricSystem(e.target.value)}
             className="p-2 border rounded w-1/8"
@@ -337,7 +332,7 @@ function CropsPage() {
       <table className="min-w-full border border-gray-300 rounded-lg overflow-hidden">
         <thead className="bg-[#00B251] text-white">
           <tr>
-            {['ID', 'Name', 'Description', 'Category', 'Shop', 'Image', 'Rating', 'Price', 'Quantity', 'Weight', 'Metric System', 'Actions'].map((header) => (
+            {['ID', 'Name', 'Description', 'Category','Subcategory', 'Variety','Shop', 'Price', 'Quantity', 'Metric System', 'Actions'].map((header) => (
               <th key={header} className="p-2 text-center">{header}</th>
             ))}
           </tr>
@@ -352,13 +347,13 @@ function CropsPage() {
                 {categories.find(category => category.crop_category_id === crop.category_id)?.crop_category_name || 'N/A'}
               </td>
               <td className="p-2">
+                {subcategories.find(subcategory => subcategory.crop_subcategory_id === crop.subcategory_id)?.crop_subcategory_name || 'N/A'}
+              </td>
+              <td className="p-2">
                 {shops.find(shop => shop.shop_id === crop.shop_id)?.shop_name || 'N/A'}
               </td>
-              <td className="p-2">{crop.crop_image}</td>
-              <td className="p-2">{crop.crop_rating}</td>
               <td className="p-2">{crop.crop_price}</td>
               <td className="p-2">{crop.crop_quantity}</td>
-              <td className="p-2">{crop.crop_weight}</td>
               <td className="p-2">
                 {metricSystems.find(metric => metric.metric_system_id === crop.metric_system_id)?.metric_system_name || 'N/A'}
               </td>
@@ -440,16 +435,6 @@ function CropsPage() {
                 onChange={handleInputChange}
                 accept="image/*"
                 required={!isEdit}
-                className="p-2 border rounded mb-2 w-full"
-              />
-            <p className="text-l font-bold mb-4" style={{ marginBottom: '5px' }}>Rating</p>
-              <input
-                type="number"
-                step="0.01"
-                name="crop_rating"
-                value={formData.crop_rating}
-                onChange={handleInputChange}
-                placeholder="Crop Rating"
                 className="p-2 border rounded mb-2 w-full"
               />
             <p className="text-l font-bold mb-4" style={{ marginBottom: '5px' }}>Price</p>

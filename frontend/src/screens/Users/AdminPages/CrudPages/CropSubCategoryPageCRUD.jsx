@@ -251,6 +251,12 @@ function CropSubCategoryPageCRUD() {
           {filteredSubCategories.map((subCategory) => (
             <tr key={subCategory.crop_sub_category_id} className="text-center border-b hover:bg-gray-100">
               <td className="p-2">{subCategory.crop_sub_category_id}</td>
+              
+              <td className="p-2">{subCategory.crop_sub_category_name}</td>
+              <td className="p-2">{subCategory.crop_sub_category_description}</td>
+              <td className="p-2">
+                {categories.find(category => category.crop_category_id === subCategory.crop_category_id)?.crop_category_name || 'N/A'}
+              </td>
               <td className="p-2 border">
                 {subCategory.crop_sub_category_image_url && (
                   <img
@@ -259,11 +265,6 @@ function CropSubCategoryPageCRUD() {
                     className="w-20 h-auto mx-auto"
                   />
                 )}
-              </td>
-              <td className="p-2">{subCategory.crop_sub_category_name}</td>
-              <td className="p-2">{subCategory.crop_sub_category_description}</td>
-              <td className="p-2">
-                {categories.find(category => category.crop_category_id === subCategory.crop_category_id)?.crop_category_name || 'N/A'}
               </td>
               <td className="p-2">
                 <button onClick={() => handleEdit(subCategory)} className="bg-[#00B251] text-white p-1 m-1 rounded">Edit</button>
@@ -373,16 +374,6 @@ function CropSubCategoryPageCRUD() {
                 />
               </div>
               <div className="mb-4">
-              <p className="text-l font-bold mb-4" style={{marginBottom: '5px' }}>Image</p>
-                <input
-                  type="file"
-                  name="image"
-                  onChange={handleImageChange}
-                  className="p-2 border rounded w-full"
-                  accept="image/*"
-                />
-              </div>
-              <div className="mb-4">
               <p className="text-l font-bold mb-4" style={{marginBottom: '5px' }}>Category</p>
                 <select
                   name="crop_category_id"
@@ -398,6 +389,16 @@ function CropSubCategoryPageCRUD() {
                     </option>
                   ))}
                 </select>
+              </div>
+              <div className="mb-4">
+              <p className="text-l font-bold mb-4" style={{marginBottom: '5px' }}>Image</p>
+                <input
+                  type="file"
+                  name="image"
+                  onChange={handleImageChange}
+                  className="p-2 border rounded w-full"
+                  accept="image/*"
+                />
               </div>
               <div className="flex justify-end">
                 <button

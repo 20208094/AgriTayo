@@ -208,6 +208,7 @@ function CropCategoryPageCRUD() {
                 <input
                   type="file"
                   name="image"
+                  accept="image/*"
                   onChange={handleImageChange}
                   className="border p-2 w-full rounded-md"
                 />
@@ -302,6 +303,7 @@ function CropCategoryPageCRUD() {
               <input
                 type="file"
                 name="image"
+                accept="image/*"
                 onChange={handleImageChange}
                 className="border p-2 w-full rounded-md"
               />

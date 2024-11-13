@@ -179,12 +179,12 @@ function ShopsPage() {
         const matchesGcash = filter.gcash === '' || (filter.gcash === 'Yes' && shop.gcash) || (filter.gcash === 'No' && !shop.gcash);
         const matchesCod = filter.cod === '' || (filter.cod === 'Yes' && shop.cod) || (filter.cod === 'No' && !shop.cod);
         const matchesBank = filter.bank === '' || (filter.bank === 'Yes' && shop.bank) || (filter.bank === 'No' && !shop.bank);
-        const matchesSubmitLater = filter.submitLater === '' || (filter.submitLater === 'Yes' && shop.submit_later) || (filter.submitLater === 'No' && !shop.submit_later);
+      
 
         const matchesSearch = shop.shop_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             shop.shop_address.toLowerCase().includes(searchTerm.toLowerCase());
 
-        return matchesDelivery && matchesPickup && matchesGcash && matchesCod && matchesBank && matchesSubmitLater && matchesSearch;
+        return matchesDelivery && matchesPickup && matchesGcash && matchesCod && matchesBank && matchesSearch;
     });
 
     const exportToPDF = () => {
@@ -193,7 +193,7 @@ function ShopsPage() {
         doc.text("List of Shops", 160, 70, { align: "center" });
         doc.autoTable({
             startY: 80,
-            head: [['ID', 'Shop Name', 'Address', 'Description', 'User ID', 'Delivery', 'Pickup', 'Delivery Price', 'Pickup Price', 'GCash', 'COD', 'Bank', 'Shop Number', 'Submit Later', 'TIN Number', 'Pickup Address']],
+            head: [['ID', 'Shop Name', 'Address', 'Description', 'User ID', 'Delivery', 'Pickup', 'Delivery Price', 'Pickup Price', 'GCash', 'COD', 'Bank', 'Shop Number', 'TIN Number', 'Pickup Address']],
             body: filteredShops.map(shop => [
                 shop.shop_id,
                 shop.shop_name,
@@ -208,7 +208,7 @@ function ShopsPage() {
                 shop.cod ? 'Yes' : 'No',
                 shop.bank ? 'Yes' : 'No',
                 shop.shop_number,
-                shop.submit_later ? 'Yes' : 'No',
+               
                 shop.tin_number,
                 shop.pickup_address,
             ]),
@@ -225,7 +225,7 @@ function ShopsPage() {
             </div>
 
             <div className="mb-4 flex flex-wrap space-x-2">
-                {['delivery', 'pickup', 'gcash', 'cod', 'bank', 'submitLater'].map(filterKey => (
+                {['delivery', 'pickup', 'gcash', 'cod', 'bank'].map(filterKey => (
                     <select
                         key={filterKey}
                         name={filterKey}
@@ -266,7 +266,6 @@ function ShopsPage() {
                             <th className="py-2 px-4 text-xs sm:text-sm">COD</th>
                             <th className="py-2 px-4 text-xs sm:text-sm">Bank</th>
                             <th className="py-2 px-4 text-xs sm:text-sm">Shop Number</th>
-                            <th className="py-2 px-4 text-xs sm:text-sm">Submit Later</th>
                             <th className="py-2 px-4 text-xs sm:text-sm">TIN Number</th>
                             <th className="py-2 px-4 text-xs sm:text-sm">Pickup Address</th>
                             <th className="py-2 px-4 text-xs sm:text-sm">BIR Image</th>
@@ -290,7 +289,6 @@ function ShopsPage() {
                                 <td className="border px-4 py-2 text-xs sm:text-sm">{shop.cod ? 'Yes' : 'No'}</td>
                                 <td className="border px-4 py-2 text-xs sm:text-sm">{shop.bank ? 'Yes' : 'No'}</td>
                                 <td className="border px-4 py-2 text-xs sm:text-sm">{shop.shop_number}</td>
-                                <td className="border px-4 py-2 text-xs sm:text-sm">{shop.submit_later ? 'Yes' : 'No'}</td>
                                 <td className="border px-4 py-2 text-xs sm:text-sm">{shop.tin_number}</td>
                                 <td className="border px-4 py-2 text-xs sm:text-sm">{shop.pickup_address}</td>
                                 <td className="border py-2 px-4 text-xs sm:text-sm">
@@ -315,7 +313,7 @@ function ShopsPage() {
 
 
             {isModalOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center overflow-y-auto">
                     <form onSubmit={handleSubmit} className="bg-white p-6 rounded-md w-full max-w-lg space-y-4">
                         <h2 className="text-2xl font-bold text-center mb-4 text-green-600">{isEdit ? 'Edit Shop' : 'Add Shop'}</h2>
                         <div className="grid grid-cols-1 gap-4">
@@ -346,6 +344,7 @@ function ShopsPage() {
                                 <input
                                     type="file"
                                     name="shop_image_url"
+                                    accept="image/*"
                                     onChange={handleFileChange}
                                     className="p-2 border rounded-md"
                                 />
@@ -355,6 +354,7 @@ function ShopsPage() {
                                 <input
                                     type="file"
                                     name="bir_image_url"
+                                    accept="image/*"
                                     onChange={handleFileChange}
                                     className="p-2 border rounded-md"
                                 />
