@@ -54,6 +54,14 @@ const PreparingScreen = ({ orders, orderProducts }) => {
               <Text className="text-lg font-semibold text-gray-800 ml-2">Order Being Prepared</Text>
             </View>
             <Text className="text-md text-gray-600">Order placed on: {formatDate(preparingOrder.order_date)} at {formatTime(preparingOrder.order_date)}</Text>
+            <Text className="text-md text-gray-600">Shipping Method: {preparingOrder.shipping_method}</Text>
+            {preparingOrder.shipping_method === 'Delivery' ? (
+              <Text className="text-md text-gray-600">Shipping Address: {preparingOrder.shipping_address}</Text>
+            ) : (
+              <></>
+            )}
+            <Text className="text-md text-gray-600">Payment Method: {preparingOrder.payment_method}</Text>
+            <Text className="text-md text-gray-600">Total Price: ₱{parseFloat(preparingOrder.total_price).toFixed(2)}</Text>
             <Text className="text-sm text-yellow-600 mt-1">Seller is preparing your order</Text>
             <View className="mt-2 border-t border-gray-300 pt-2">
               <Text className="text-md font-semibold text-gray-800">Items:</Text>

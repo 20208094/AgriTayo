@@ -144,8 +144,16 @@ const PickupScreen = ({ orders, orderProducts }) => {
               <Text className="text-lg font-semibold text-gray-800 ml-2">Ready for Pickup</Text>
             </View>
 
+            
             <Text className="text-md text-gray-600">Order placed on: {formatDate(pickupOrder.order_date)} at {formatTime(pickupOrder.order_date)}</Text>
-            {/* Check if seller has marked the item as received */}
+            <Text className="text-md text-gray-600">Shipping Method: {pickupOrder.shipping_method}</Text>
+            {pickupOrder.shipping_method === 'Delivery' ? (
+              <Text className="text-md text-gray-600">Shipping Address: {pickupOrder.shipping_address}</Text>
+            ) : (
+              <></>
+            )}
+            <Text className="text-md text-gray-600">Payment Method: {pickupOrder.payment_method}</Text>
+            <Text className="text-md text-gray-600">Total Price: ₱{parseFloat(pickupOrder.total_price).toFixed(2)}</Text>{/* Check if seller has marked the item as received */}
             {pickupOrder.seller_is_received ? (
               <View>
                 <Text className="text-sm text-green-600 mt-2">Waiting for Buyer to confirm that they picked up the order.</Text>

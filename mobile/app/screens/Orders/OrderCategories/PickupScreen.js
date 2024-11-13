@@ -148,7 +148,16 @@ const PickupScreen = ({ orders, orderProducts }) => {
               <Ionicons name="basket-outline" size={24} color="#FFA500" />
               <Text className="text-lg font-semibold text-gray-800 ml-2">Ready for Pickup</Text>
             </View>
+            
             <Text className="text-md text-gray-600">Order placed on: {formatDate(pickupOrder.order_date)} at {formatTime(pickupOrder.order_date)}</Text>
+            <Text className="text-md text-gray-600">Shipping Method: {pickupOrder.shipping_method}</Text>
+            {pickupOrder.shipping_method === 'Delivery' ? (
+              <Text className="text-md text-gray-600">Shipping Address: {pickupOrder.shipping_address}</Text>
+            ) : (
+              <></>
+            )}
+            <Text className="text-md text-gray-600">Payment Method: {pickupOrder.payment_method}</Text>
+            <Text className="text-md text-gray-600">Total Price: ₱{parseFloat(pickupOrder.total_price).toFixed(2)}</Text>
             <Text className="text-sm text-orange-600 mt-1">Your order is ready for pickup</Text>
 
             {/* Buttons for confirming or returning item */}

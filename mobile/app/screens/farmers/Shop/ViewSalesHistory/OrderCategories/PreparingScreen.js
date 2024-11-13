@@ -132,9 +132,16 @@ const PreparingScreen = ({ orders, orderProducts }) => {
               <Ionicons name="cart-outline" size={24} color="#FFD700" />
               <Text className="text-lg font-semibold text-gray-800 ml-2">Order Being Prepared</Text>
             </View>
+            
             <Text className="text-md text-gray-600">Order placed on: {formatDate(preparingOrder.order_date)} at {formatTime(preparingOrder.order_date)}</Text>
-            <Text className="text-md text-gray-600">Delivery Method: {preparingOrder.shipping_method}</Text>
-
+            <Text className="text-md text-gray-600">Shipping Method: {preparingOrder.shipping_method}</Text>
+            {preparingOrder.shipping_method === 'Delivery' ? (
+              <Text className="text-md text-gray-600">Shipping Address: {preparingOrder.shipping_address}</Text>
+            ) : (
+              <></>
+            )}
+            <Text className="text-md text-gray-600">Payment Method: {preparingOrder.payment_method}</Text>
+            <Text className="text-md text-gray-600">Total Price: ₱{parseFloat(preparingOrder.total_price).toFixed(2)}</Text>
             {/* Conditional Message Based on Shipping Method */}
             <View className="mt-4">
               <Text className="text-md text-gray-800">

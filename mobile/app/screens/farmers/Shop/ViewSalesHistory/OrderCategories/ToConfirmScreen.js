@@ -130,8 +130,16 @@ const ToConfirmScreen = ({ orders, orderProducts }) => {
               <Ionicons name="alert-circle-outline" size={24} color="#FFA500" />
               <Text className="text-lg font-semibold text-gray-800 ml-2">Order to Confirm</Text>
             </View>
+            
             <Text className="text-md text-gray-600">Order placed on: {formatDate(toConfirmOrder.order_date)} at {formatTime(toConfirmOrder.order_date)}</Text>
-            <Text className="text-md text-gray-600">Delivery Method: {toConfirmOrder.delivery_method}</Text>
+            <Text className="text-md text-gray-600">Shipping Method: {toConfirmOrder.shipping_method}</Text>
+            {toConfirmOrder.shipping_method === 'Delivery' ? (
+              <Text className="text-md text-gray-600">Shipping Address: {toConfirmOrder.shipping_address}</Text>
+            ) : (
+              <></>
+            )}
+            <Text className="text-md text-gray-600">Payment Method: {toConfirmOrder.payment_method}</Text>
+            <Text className="text-md text-gray-600">Total Price: ₱{parseFloat(toConfirmOrder.total_price).toFixed(2)}</Text>
 
             {/* New Section: Confirmation message and buttons */}
             <View className="mt-4">

@@ -139,8 +139,16 @@ const ShippingScreen = ({ orders, orderProducts }) => {
               <Ionicons name="airplane-outline" size={24} color="#32CD32" />
               <Text className="text-lg font-semibold text-gray-800 ml-2">Order On The Way</Text>
             </View>
+            
             <Text className="text-md text-gray-600">Order placed on: {formatDate(shippingOrder.order_date)} at {formatTime(shippingOrder.order_date)}</Text>
-
+            <Text className="text-md text-gray-600">Shipping Method: {shippingOrder.shipping_method}</Text>
+            {shippingOrder.shipping_method === 'Delivery' ? (
+              <Text className="text-md text-gray-600">Shipping Address: {shippingOrder.shipping_address}</Text>
+            ) : (
+              <></>
+            )}
+            <Text className="text-md text-gray-600">Payment Method: {shippingOrder.payment_method}</Text>
+            <Text className="text-md text-gray-600">Total Price: ₱{parseFloat(shippingOrder.total_price).toFixed(2)}</Text>
             {/* Check if seller has marked the item as received */}
             {shippingOrder.seller_is_received ? (
               <View>

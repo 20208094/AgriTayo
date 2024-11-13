@@ -54,6 +54,14 @@ const ToConfirmScreen = ({ orders, orderProducts }) => {
               <Text className="text-lg font-semibold text-gray-800 ml-2">Order to Confirm</Text>
             </View>
             <Text className="text-md text-gray-600">Order placed on: {formatDate(toConfirmOrder.order_date)} at {formatTime(toConfirmOrder.order_date)}</Text>
+            <Text className="text-md text-gray-600">Shipping Method: {toConfirmOrder.shipping_method}</Text>
+            {toConfirmOrder.shipping_method === 'Delivery' ? (
+              <Text className="text-md text-gray-600">Shipping Address: {toConfirmOrder.shipping_address}</Text>
+            ) : (
+              <></>
+            )}
+            <Text className="text-md text-gray-600">Payment Method: {toConfirmOrder.payment_method}</Text>
+            <Text className="text-md text-gray-600">Total Price: ₱{parseFloat(toConfirmOrder.total_price).toFixed(2)}</Text>
             <Text className="text-sm text-orange-600 mt-1">Please wait for seller to confirm your order.</Text>
             <View className="mt-2 border-t border-gray-300 pt-2">
               <Text className="text-md font-semibold text-gray-800">Items:</Text>
