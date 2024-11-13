@@ -13,13 +13,11 @@ function UsersPage() {
         firstname: '',
         middlename: '',
         lastname: '',
-        email: '',
         password: '',
         phone_number: '',
         gender: '',
         birthday: '',
         user_type_id: '',
-        verified: false,
         image: null 
     });
 
@@ -27,7 +25,6 @@ function UsersPage() {
     const [filteredUsers, setFilteredUsers] = useState([]);
     const [genderFilter, setGenderFilter] = useState('');
     const [userTypeFilter, setUserTypeFilter] = useState('');
-    const [verifiedFilter, setVerifiedFilter] = useState('');
     const [isEdit, setIsEdit] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -41,14 +38,23 @@ function UsersPage() {
     useEffect(() => {
         setFilteredUsers(
             users.filter(user => {
-                const fullNameMatches = `${user.firstname} ${user.lastname}`.toLowerCase().includes(searchQuery.toLowerCase());
+                const searchValue = searchQuery.toLowerCase();
+                const fullNameMatches = `${user.firstname} ${user.middlename} ${user.lastname}`.toLowerCase().includes(searchValue);
+                const phoneMatches = user.phone_number?.toLowerCase().includes(searchValue) || user.alt_phone_number?.toLowerCase().includes(searchValue);
+                
+                // Find the user type name based on user_type_id
+                const userTypeName = userTypes.find(type => type.user_type_id === user.user_type_id)?.user_type_name || '';
+                const userTypeMatches = userTypeName.toLowerCase().includes(searchValue);
+    
                 const genderMatches = genderFilter ? user.gender === genderFilter : true;
-                const userTypeMatches = userTypeFilter ? user.user_type_id === parseInt(userTypeFilter) : true;
-                const verifiedMatches = verifiedFilter !== '' ? user.verified === (verifiedFilter === 'true') : true;
-                return fullNameMatches && genderMatches && userTypeMatches && verifiedMatches;
+                const userTypeFilterMatches = userTypeFilter ? user.user_type_id === parseInt(userTypeFilter) : true;
+    
+                return (fullNameMatches || phoneMatches || userTypeMatches) && genderMatches && userTypeFilterMatches;
             })
         );
-    }, [searchQuery, users, genderFilter, userTypeFilter, verifiedFilter]);
+    }, [searchQuery, users, genderFilter, userTypeFilter, userTypes]);
+    
+    
 
     const fetchUsers = async () => {
         try {
@@ -110,15 +116,13 @@ function UsersPage() {
         formPayload.append('firstname', formData.firstname);
         formPayload.append('middlename', formData.middlename);
         formPayload.append('lastname', formData.lastname);
-        formPayload.append('email', formData.email);
         formPayload.append('password', formData.password);
         formPayload.append('phone_number', formData.phone_number);
         formPayload.append('gender', formData.gender);
         formPayload.append('birthday', formData.birthday);
         formPayload.append('user_type_id', formData.user_type_id);
-        formPayload.append('verified', formData.verified);
         if (formData.image) formPayload.append('image', formData.image);
-
+    
         try {
             const response = await fetch(url, {
                 method,
@@ -126,16 +130,22 @@ function UsersPage() {
                 body: formPayload
             });
             if (!response.ok) throw new Error('Network response was not ok');
+            
             fetchUsers();
+            
             setFormData({
-                user_id: '', firstname: '', middlename: '', lastname: '', email: '', password: '',
-                phone_number: '', gender: '', birthday: '', user_type_id: '', verified: false, image: null
+                user_id: '', firstname: '', middlename: '', lastname: '', password: '',
+                phone_number: '', gender: '', birthday: '', user_type_id: '', image: null
             });
+            
             setIsEdit(false);
+
+            setShowModal(false);
         } catch (error) {
             console.error('Error submitting form:', error);
         }
     };
+    
 
     const handleEdit = (user) => {
         setFormData({ ...user, password: '', image: null });
@@ -159,16 +169,14 @@ function UsersPage() {
 
     const generatePDF = () => {
         const doc = new jsPDF('landscape');
-        const columns = ["ID", "Name", "Email", "Phone", "Gender", "Birthday", "User Type", "Verified"];
+        const columns = ["ID", "Name", "Phone", "Gender", "Birthday", "User Type",];
         const data = filteredUsers.map((user) => [
             user.user_id,
             `${user.firstname} ${user.lastname}`,
-            user.email,
             user.phone_number,
             user.gender,
             user.birthday,
             userTypes.find((type) => type.user_type_id === user.user_type_id)?.user_type_name || 'Unknown',
-            user.verified ? 'Yes' : 'No',
         ]);
 
         const logoWidth = 50;
@@ -190,13 +198,11 @@ function UsersPage() {
             firstname: '',
             middlename: '',
             lastname: '',
-            email: '',
             password: '',
             phone_number: '',
             gender: '',
             birthday: '',
             user_type_id: '',
-            verified: false,
             image: null 
         });
       };
@@ -223,23 +229,40 @@ function UsersPage() {
                     <form onSubmit={onSubmit} encType="multipart/form-data" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4 mb-8">
                         <input type="hidden" name="user_id" value={formData.user_id} />
 
-                        {["Your first name", "middlename", "lastname", "email", "phone_number", "gender", "birthday"].map((field) => (
+                        {["firstname", "middlename", "lastname", "phone_number", "gender", "birthday"].map((field) => (
                         <div key={field} className="mb-2">
                             <label htmlFor={field} className="text-l font-bold mb-1">
-                            {field.replace(/_/g, " ").replace(/^\w/, (c) => c.toUpperCase())}
+                                {field.replace(/_/g, " ").replace(/^\w/, (c) => c.toUpperCase())}
                             </label>
-                            <input
-                            type={field === "email" ? "email" : "text"}
-                            id={field}
-                            name={field}
-                            value={formData[field]}
-                            onChange={handleInputChange}
-                            placeholder={field.replace(/_/g, " ").replace(/^\w/, (c) => c.toUpperCase())}
-                            required
-                            className="p-2 border border-gray-300 rounded w-full"
-                            />
+                            {field === "gender" ? (
+                                <select
+                                    id={field}
+                                    name={field}
+                                    value={formData[field]}
+                                    onChange={handleInputChange}
+                                    required
+                                    className="p-2 border border-gray-300 rounded w-full"
+                                >
+                                    <option value="">Select Gender</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Others">Others</option>
+                                </select>
+                            ) : (
+                                <input
+                                    type={field === "birthday" ? "date" : "text"}
+                                    id={field}
+                                    name={field}
+                                    value={formData[field]}
+                                    onChange={handleInputChange}
+                                    placeholder={field.replace(/_/g, " ").replace(/^\w/, (c) => c.toUpperCase())}
+                                    required
+                                    className="p-2 border border-gray-300 rounded w-full"
+                                />
+                            )}
                         </div>
-                        ))}
+                    ))}
+
 
                         <p className="text-l font-bold mb-4" style={{ marginBottom: '-15px' }}>User Type</p>
                         <select
@@ -257,23 +280,13 @@ function UsersPage() {
                         ))}
                         </select>
 
-                        <label className="flex items-center">
-                        Verified:
-                        <input
-                            type="checkbox"
-                            name="verified"
-                            checked={formData.verified}
-                            onChange={(e) => handleInputChange({ target: { name: 'verified', value: e.target.checked } })}
-                            className="ml-2"
-                        />
-                        </label>
-
                         <p className="text-l font-bold mb-4" style={{ marginBottom: '-15px' }}>Profile Picture</p>
                         <input
-                        type="file"
-                        name="image"
-                        onChange={handleFileChange}
-                        className="p-2 border border-gray-300 rounded"
+                            type="file"
+                            name="image"
+                            accept="image/*"
+                            onChange={handleFileChange}
+                            className="p-2 border border-gray-300 rounded"
                         />
 
                         <div className="flex justify-end mt-4">
@@ -316,15 +329,6 @@ function UsersPage() {
                     <option value="2">Seller</option>
                     <option value="3">Buyer</option>
                 </select>
-                <select
-                    value={verifiedFilter}
-                    onChange={(e) => setVerifiedFilter(e.target.value)}
-                    className="p-2 border border-gray-300 rounded"
-                >
-                    <option value="">All Verified Status</option>
-                    <option value="true">Yes</option>
-                    <option value="false">No</option>
-                </select>
 
                 <input
                     type="text"
@@ -344,7 +348,7 @@ function UsersPage() {
                 <table className="min-w-full border border-gray-300 rounded-lg overflow-hidden">
                     <thead className="bg-green-600 text-white">
                         <tr>
-                            {["ID", "Name", "Email", "Phone", "Gender", "Birthday", "User Type", "Verified", "Profile Picture", "Actions"].map((header) => (
+                            {["ID", "Name", "Phone", "Gender", "Birthday", "User Type", "Profile Picture", "Actions"].map((header) => (
                                 <th key={header} className="p-1 border-b whitespace-nowrap">{header}</th>
                             ))}
                         </tr>
@@ -354,14 +358,13 @@ function UsersPage() {
                             <tr key={user.user_id} className="even:bg-gray-100">
                                 <td className="p-1 border-b">{user.user_id}</td>
                                 <td className="p-1 border-b">{`${user.firstname} ${user.lastname}`}</td>
-                                <td className="p-1 border-b truncate max-w-xs">{user.email}</td>
                                 <td className="p-1 border-b">{user.phone_number}</td>
                                 <td className="p-1 border-b">{user.gender}</td>
                                 <td className="p-1 border-b">{user.birthday}</td>
                                 <td className="p-1 border-b">
                                     {userTypes.find((type) => type.user_type_id === user.user_type_id)?.user_type_name || 'Unknown'}
                                 </td>
-                                <td className="p-1 border-b">{user.verified ? 'Yes' : 'No'}</td>
+                               
                                 <td className="p-1 border-b">
                                     {user.user_image_url && (
                                         <img src={user.user_image_url} alt={`${user.firstname} ${user.lastname}`} className="w-8 h-8 rounded-full" />
@@ -393,14 +396,14 @@ function UsersPage() {
 
             {/* Edit Modal */}
             {showEditModal && (
-                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-                    <div className="bg-white p-6 rounded w-96">
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+                    <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg relative max-h-[80vh] overflow-y-auto">
                         <h2 className="text-2xl font-bold mb-4 text-green-600">Edit User</h2>
                         <form onSubmit={handleUpdate} className="grid gap-4">
-                            {["firstname", "middlename", "lastname", "email", "phone_number", "gender", "birthday"].map((field) => (
+                            {["firstname", "middlename", "lastname", "phone_number", "gender", "birthday"].map((field) => (
                                 <input
                                     key={field}
-                                    type={field === "email" ? "email" : "text"}
+                                    type={field === "text"}
                                     name={field}
                                     value={formData[field]}
                                     onChange={handleInputChange}
@@ -423,17 +426,8 @@ function UsersPage() {
                                     </option>
                                 ))}
                             </select>
-                            <label className="flex items-center">
-                                Verified:
-                                <input
-                                    type="checkbox"
-                                    name="verified"
-                                    checked={formData.verified}
-                                    onChange={(e) => setFormData({ ...formData, verified: e.target.checked })}
-                                    className="ml-2"
-                                />
-                            </label>
-                            <input type="file" name="image" onChange={handleFileChange} className="p-2 border border-gray-300 rounded" />
+
+                            <input type="file" name="image" accept="image/*" onChange={handleFileChange} className="p-2 border border-gray-300 rounded" />
 
                             <div className="flex justify-end mt-4">
                                 <button onClick={() => setShowEditModal(false)}  className="bg-gray-500 text-white px-4 py-2 mr-2 rounded">Cancel</button>

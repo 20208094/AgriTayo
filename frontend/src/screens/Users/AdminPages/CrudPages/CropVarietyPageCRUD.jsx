@@ -298,7 +298,7 @@ function CropVarietyPageCRUD() {
                   )}
                 </td>
                 <td>
-                  <button onClick={() => handleEdit(variety)} className="bg-blue-500 text-white px-2 py-1 rounded">
+                  <button onClick={() => handleEdit(variety)} className="bg-[#00B251] text-white py-1 px-2 rounded">
                     Edit
                   </button>
                   <button onClick={() => handleDelete(variety.crop_variety_id)} className="bg-red-500 text-white px-2 py-1 rounded ml-2">
