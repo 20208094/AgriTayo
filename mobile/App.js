@@ -95,6 +95,7 @@ import CompletedBidScreen from "./app/screens/farmers/Shop/FarmersBidding/Comple
 import ShopPhonesOTPScreen from "./app/screens/farmers/ShopPhonesOTPScreen";
 import EditShopPhoneScreen from "./app/screens/farmers/Shop/EditShopPhoneScreen";
 import EditSecondaryShopPhoneScreen from "./app/screens/farmers/Shop/EditSecondaryShopPhoneScreen";
+import EditBidScreen from "./app/screens/farmers/Shop/FarmersBidding/EditBidScreen";
 // for chat
 import ChatScreen from "./app/screens/Chat/ChatScreen";
 import ChatListScreen from "./app/screens/Chat/ChatListScreen";
@@ -532,6 +533,11 @@ function App() {
             <Stack.Screen
               name="Add Bid"
               component={AddBidScreen}
+              options={screenOptions}
+            />
+            <Stack.Screen
+              name="Edit Bid"
+              component={EditBidScreen}
               options={screenOptions}
             />
             <Stack.Screen
