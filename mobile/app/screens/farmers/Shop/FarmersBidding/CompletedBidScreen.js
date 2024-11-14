@@ -28,7 +28,10 @@ function CompletedBidScreen({ navigation }) {
       const data = await response.json();
 
       // Filter for bids with a valid bid_user_id
-      const filteredBids = data.filter((bidding) => bidding.bid_user_id !== null && bidding.bid_user_id !== undefined);
+      const filteredBids = data.filter(
+        (bidding) =>
+          bidding.bid_user_id !== null && bidding.bid_user_id !== undefined
+      );
 
       // Set filtered data to state
       setCompletedBiddingData(filteredBids);
@@ -81,7 +84,9 @@ function CompletedBidScreen({ navigation }) {
             <TouchableOpacity
               key={bidding.bid_id}
               className="bg-white rounded-lg shadow-md flex-row items-start p-4 mb-4 border border-gray-300"
-              onPress={() => navigation.navigate("Shop Bidding Details", { bidding })}
+              onPress={() =>
+                navigation.navigate("Shop Bidding Details", { bidding })
+              }
               style={{ elevation: 3 }}
               activeOpacity={0.8}
             >
@@ -94,7 +99,9 @@ function CompletedBidScreen({ navigation }) {
                 <Text className="text-lg font-semibold text-gray-800 mb-1">
                   {bidding.bid_name}
                 </Text>
-                <Text className="text-sm text-gray-600">{bidding.bid_description}</Text>
+                <Text className="text-sm text-gray-600">
+                  {bidding.bid_description}
+                </Text>
                 <Text className="text-sm text-green-500">
                   Current Highest Bid: ₱{bidding.bid_current_highest}
                 </Text>

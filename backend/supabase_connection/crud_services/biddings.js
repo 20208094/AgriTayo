@@ -140,6 +140,19 @@ async function updateBid(req, res) {
 
       const new_image_file = files.bid_image ? files.bid_image[0] : null;
 
+      console.log(shop_id,
+        end_date,
+        bid_description,
+        bid_name,
+        bid_category_id,
+        metric_system_id,
+        bid_subcategory_id,
+        bid_starting_price,
+        bid_minimum_increment,
+        bid_current_highest,
+        bid_user_id,
+        number_of_bids,)
+
       // Fetch current bid data to get the existing image URL
       const { data: existingData, error: fetchError } = await supabase
         .from("biddings")
