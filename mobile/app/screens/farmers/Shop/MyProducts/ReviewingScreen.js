@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Text,
   View,
+  TextInput, // Import TextInput for the search bar
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage"; // Import AsyncStorage
 import Reports from "../../../../components/Reports";
@@ -16,6 +17,8 @@ import LoadingAnimation from "../../../../components/LoadingAnimation";
 function ReviewingScreen({ navigation }) {
   const [reviewingItems, setReviewingItems] = useState([]); // State to hold reviewing items
   const [loading, setLoading] = useState(true); // Loading state
+  const [searchTerm, setSearchTerm] = useState(""); // State for search input
+  const [filteredItems, setFilteredItems] = useState([]); // State for filtered items
 
   // Function to fetch shop data and crops under review
   const getAsyncShopData = async () => {
@@ -112,19 +115,50 @@ function ReviewingScreen({ navigation }) {
     getAsyncShopData();
   }, []);
 
+  useEffect(() => {
+    setFilteredItems(reviewingItems); // Initialize filteredItems with all reviewingItems
+  }, [reviewingItems]);
+
+  const handleSearch = (text) => {
+    setSearchTerm(text);
+    if (text) {
+      const filteredData = reviewingItems.filter(
+        (item) =>
+          item.crop_name.toLowerCase().includes(text.toLowerCase()) ||
+          (item.category && item.category.crop_category_name.toLowerCase().includes(text.toLowerCase())) ||
+          (item.subcategory && item.subcategory.crop_sub_category_name.toLowerCase().includes(text.toLowerCase())) ||
+          item.crop_description.toLowerCase().includes(text.toLowerCase())
+      );
+      setFilteredItems(filteredData);
+    } else {
+      setFilteredItems(reviewingItems); // Reset to all items if search is cleared
+    }
+  };
+
   if (loading) {
     return <LoadingAnimation />;
   }
 
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
-
       {/* Reports section */}
-      <Reports data={reviewingItems} dataType="reviewingItems" />
+      <View className="text-center mb-4">
+        <Reports data={filteredItems} dataType="reviewingItems" />
+      </View>
+
+      {/* Search bar */}
+      <View className="px-4 mb-4">
+        <TextInput
+          placeholder="Search reviewing items by name, category, or description..."
+          value={searchTerm}
+          onChangeText={handleSearch}
+          className="bg-white px-4 py-2 rounded-lg shadow-md"
+        />
+      </View>
 
       {/* Scroll view for reviewing items */}
       <ScrollView className="p-4">
-        {reviewingItems.map((reviewingItem) => (
+        {filteredItems.map((reviewingItem) => (
           <TouchableOpacity
             key={reviewingItem.crop_id}
             className="bg-white p-4 mb-4 rounded-xl shadow-md flex-row items-center transition-all duration-300 hover:shadow-lg"
@@ -168,6 +202,22 @@ function ReviewingScreen({ navigation }) {
                 </Text>
               </View>
 
+              {/* Quantity and Negotiation */}
+              <View className="flex-row justify-between mt-2">
+                <Text className="text-xs font-medium text-[#00B251]">
+                  Quantity:{" "}
+                  <Text className="text-gray-800">
+                    {reviewingItem.crop_quantity}
+                  </Text>
+                </Text>
+                <Text className="text-xs font-medium text-[#00B251]">
+                  Negotiation:{" "}
+                  <Text className="text-gray-800">
+                    {reviewingItem.negotiation_allowed ? "Allowed" : "Not Allowed"}
+                  </Text>
+                </Text>
+              </View>
+
               {/* Price, Weight */}
               <View className="flex-row justify-between mt-2">
                 <Text className="text-xs font-medium text-green-600">
@@ -177,7 +227,7 @@ function ReviewingScreen({ navigation }) {
                   ₱{reviewingItem.crop_price}
                 </Text>
               </View>
-              
+
             </View>
           </TouchableOpacity>
         ))}

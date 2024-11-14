@@ -37,13 +37,12 @@ function SellerShopScreen({ route }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [userData, setUserData] = useState(null);
   const [userId, setUserId] = useState(null);
-  const [isIncomplete, setIsIncomplete] = useState(false); // Track if the shop is incomplete
-  const [modalVisible, setModalVisible] = useState(false); // State for modal visibility
-  const [missingFields, setMissingFields] = useState([]); // Track missing fields
-
-  
- const [alertVisible, setAlertVisible] = useState(false);
- const [alertMessage, setAlertMessage] = useState("");
+  const [isIncomplete, setIsIncomplete] = useState(false); 
+  const [modalVisible, setModalVisible] = useState(false); 
+  const [missingFields, setMissingFields] = useState([]); 
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [filteredSubCategories, setFilteredSubCategories] = useState([]);
 
   const getAsyncUserData = async () => {
     try {
@@ -74,7 +73,6 @@ function SellerShopScreen({ route }) {
       const shop = shopData.find((s) => s && s.shop_id === shop_id);
       if (shop) {
         setShopData(shop);
-        // Check if required fields are missing
         if (!shop.tin_number || !shop.bir_image_url) {
           setIsIncomplete(true);
           let missing = [];
@@ -83,11 +81,28 @@ function SellerShopScreen({ route }) {
           setMissingFields(missing);
         }
       }
-
     } catch (error) {
       console.error("Error fetching shop data:", error);
       setAlertMessage("Failed to load shop information.");
       setAlertVisible(true);
+    }
+  };
+
+  const fetchCropSizes = async () => {
+    try {
+      const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_sizes`, {
+        headers: {
+          "x-api-key": REACT_NATIVE_API_KEY,
+        },
+      });
+      const cropSizesArray = await response.json();
+      return cropSizesArray.reduce((sizes, size) => {
+        sizes[size.crop_size_id] = size.crop_size_name;
+        return sizes;
+      }, {});
+    } catch (error) {
+      console.error("Error fetching crop sizes:", error);
+      return {};
     }
   };
 
@@ -101,7 +116,12 @@ function SellerShopScreen({ route }) {
       });
       const cropData = await cropResponse.json();
       const crops = cropData.filter((c) => c && c.shop_id === shop_id);
-      setCropData(crops);
+      const cropSizes = await fetchCropSizes();
+      const mergedCrops = crops.map(crop => ({
+        ...crop,
+        crop_size_name: cropSizes[crop.crop_size_id] || null,
+      }));
+      setCropData(mergedCrops);
     } catch (error) {
       console.error("Error fetching crop data:", error);
       setAlertMessage("Failed to load crop information.");
@@ -152,22 +172,43 @@ function SellerShopScreen({ route }) {
   const fetchCropsBySubCategoryAndShop = async (subCategoryId) => {
     try {
       setIsLoading(true);
-      const cropResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crops?sub_category_id=${subCategoryId}&shop_id=${shop_id}`, {
+      const cropResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crops?subcategory=${subCategoryId}&shop_id=${shop_id}`, {
         headers: {
           "x-api-key": REACT_NATIVE_API_KEY,
         },
       });
-      const cropData = await cropResponse.json();
-      const filteredCrops = cropData.filter((crop) => crop.sub_category_id === subCategoryId && crop.shop_id === shop_id);
-      setCropData(filteredCrops);
+      const cropsBySubCategory = await cropResponse.json();
+      const filteredCrops = cropsBySubCategory.filter((crop) => crop.sub_category_id === subCategoryId && crop.shop_id === shop_id);
+      const cropSizes = await fetchCropSizes();
+      const mergedCrops = filteredCrops.map(crop => ({
+        ...crop,
+        crop_size_name: cropSizes[crop.crop_size_id] || "Size Not available", 
+      }));
+      setCropData(mergedCrops); 
     } catch (error) {
-      console.error("Error fetching crops:", error);
-      setAlertMessage("Failed to load crops.");
+      console.error("Error fetching crops by subcategory:", error);
+      setAlertMessage("Failed to load crop information for this subcategory.");
       setAlertVisible(true);
     } finally {
       setIsLoading(false);
     }
   };
+  
+  const filterSubCategoriesWithCrops = () => {
+    return cropSubCategories.filter((subCategory) => {
+      return cropData.some(
+        (crop) =>
+          crop.sub_category_id === subCategory.crop_sub_category_id &&
+          crop.shop_id === shop_id
+      );
+    });
+  };
+
+  useEffect(() => {
+    if (selectedCategory) {
+      filterSubCategoriesWithCrops(selectedCategory.crop_category_id);
+    }
+  }, [selectedCategory, cropData]);
 
   const filterItems = () => {
     if (selectedTab === "Products") {
@@ -334,6 +375,22 @@ function SellerShopScreen({ route }) {
                             ₱{product.crop_price}
                           </Text>
                           <Text className="text-xs text-gray-500 mt-1">{shopData?.shop_name}</Text>
+                          {product.crop_class && (
+                            <Text className="text-xs text-gray-500 mt-1">Class: {product.crop_class}</Text>
+                          )}
+                          {product.crop_size_name ? (
+                            <Text className="text-xs text-gray-500">Size: {product.crop_size_name}</Text>
+                          ) : (
+                            <Text className="text-xs text-gray-500">Size: Not available</Text>
+                          )}
+                          <Text className="text-xs text-gray-500">Stock: {product.crop_quantity}</Text>
+                          {product.negotiation_allowed ? (
+                            <Text className="text-xs text-green-500 mt-1">
+                              Negotiable (Min: ₱{product.minimum_negotation})
+                            </Text>
+                          ) : (
+                            <Text className="text-xs text-red-500 mt-1">Non-negotiable</Text>
+                          )}
                         </TouchableOpacity>
                       </View>
                     </View>
@@ -345,6 +402,7 @@ function SellerShopScreen({ route }) {
             )}
           </>
         )}
+
 
         {/* Categories Tab */}
         {selectedTab === "Categories" && (
@@ -396,7 +454,7 @@ function SellerShopScreen({ route }) {
                   </View>
                 ) : !selectedSubCategory ? (
                   <View className="flex flex-wrap flex-row p-2">
-                    {filterItems().map((subCategory) => (
+                    {filterSubCategoriesWithCrops().map((subCategory) => (
                       <TouchableOpacity
                         key={subCategory.crop_sub_category_id}
                         className="w-1/2 p-2"
@@ -418,25 +476,47 @@ function SellerShopScreen({ route }) {
                   </View>
                 ) : (
                   <View className="flex flex-wrap flex-row p-2">
-                    {cropData.map((product) => (
-                      <View key={product.crop_id} className="w-1/2 p-2">
-                        <View className="bg-white border border-white rounded-lg p-2">
-                          <TouchableOpacity
-                            onPress={() => navigation.navigate("Product Details", { product })}
-                            className="bg-white border border-white rounded-lg p-2"
-                          >
-                            <Image
-                              source={{ uri: product.crop_image_url }}
-                              className="w-full h-32 rounded-lg mb-2"
-                              resizeMode="cover"
-                            />
-                            <Text className="text-sm font-bold">{product.crop_name}</Text>
-                            <Text className="text-[#00B251] text-sm font-bold mt-1">₱{product.crop_price}</Text>
-                            <Text className="text-xs text-gray-500 mt-1">{shopData?.shop_name}</Text>
-                          </TouchableOpacity>
+                    {Array.isArray(cropData) && cropData.length > 0 ? (
+                      cropData.map((product) => (
+                        <View key={product.crop_id} className="w-1/2 p-2">
+                          <View className="bg-white border border-white rounded-lg p-2">
+                            <TouchableOpacity
+                              onPress={() => navigation.navigate("Product Details", { product })}
+                              className="bg-white border border-white rounded-lg p-2"
+                            >
+                              <Image
+                                source={{ uri: product.crop_image_url }}
+                                className="w-full h-32 rounded-lg mb-2"
+                                resizeMode="cover"
+                              />
+                              <Text className="text-sm font-bold">{product.crop_name}</Text>
+                              <Text className="text-[#00B251] text-sm font-bold mt-1">
+                                ₱{product.crop_price}
+                              </Text>
+                              <Text className="text-xs text-gray-500 mt-1">{shopData?.shop_name}</Text>
+                              {product.crop_class && (
+                                <Text className="text-xs text-gray-500 mt-1">Class: {product.crop_class}</Text>
+                              )}
+                              {product.crop_size_name ? (
+                                <Text className="text-xs text-gray-500">Size: {product.crop_size_name}</Text>
+                              ) : (
+                                <Text className="text-xs text-gray-500">Size: Not available</Text>
+                              )}
+                              <Text className="text-xs text-gray-500">Stock: {product.crop_quantity}</Text>
+                              {product.negotiation_allowed ? (
+                                <Text className="text-xs text-green-500 mt-1">
+                                  Negotiable (Min: ₱{product.minimum_negotation})
+                                </Text>
+                              ) : (
+                                <Text className="text-xs text-red-500 mt-1">Non-negotiable</Text>
+                              )}
+                            </TouchableOpacity>
+                          </View>
                         </View>
-                      </View>
-                    ))}
+                      ))
+                    ) : (
+                      <Text className="text-center">No products found.</Text>
+                    )}
                   </View>
                 )}
               </>

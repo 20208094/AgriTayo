@@ -6,18 +6,21 @@ import {
   TouchableOpacity,
   Text,
   View,
-  Alert
+  Alert,
+  TextInput, // Import TextInput for search bar
 } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage"; // Import AsyncStorage
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import Reports from "../../../../components/Reports";
-import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env"; // Import API constants
+import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 import placeholderimg from "../../../../assets/placeholder.png";
 import LoadingAnimation from "../../../../components/LoadingAnimation";
 import Ionicons from "react-native-vector-icons/Ionicons";
 
 function ViolationScreen({ navigation }) {
-  const [violationItems, setViolationItems] = useState([]); // State to hold violation items
-  const [loading, setLoading] = useState(true); // Loading state
+  const [violationItems, setViolationItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState(""); // State for capturing search input
+  const [filteredItems, setFilteredItems] = useState([]); // State for filtered items
 
   // Function to fetch shop data and crops under violation
   const getAsyncShopData = async () => {
@@ -27,47 +30,27 @@ function ViolationScreen({ navigation }) {
         const parsedData = JSON.parse(storedData);
         const shop = Array.isArray(parsedData) ? parsedData[0] : parsedData;
 
-        // Fetch crops from API
+        // Fetch crops and other data from API
         const cropsResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crops`, {
-          headers: {
-            "x-api-key": REACT_NATIVE_API_KEY,
-          },
+          headers: { "x-api-key": REACT_NATIVE_API_KEY },
         });
-
         const categoryResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_categories`, {
-          headers: {
-            "x-api-key": REACT_NATIVE_API_KEY,
-          },
+          headers: { "x-api-key": REACT_NATIVE_API_KEY },
         });
-
         const subcategoryResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_sub_categories`, {
-          headers: {
-            "x-api-key": REACT_NATIVE_API_KEY,
-          },
+          headers: { "x-api-key": REACT_NATIVE_API_KEY },
         });
-
         const varietyResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_varieties`, {
-          headers: {
-            "x-api-key": REACT_NATIVE_API_KEY,
-          },
+          headers: { "x-api-key": REACT_NATIVE_API_KEY },
         });
-
         const varietySizeResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_variety_sizes`, {
-          headers: {
-            "x-api-key": REACT_NATIVE_API_KEY,
-          },
+          headers: { "x-api-key": REACT_NATIVE_API_KEY },
         });
-
         const sizeResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_sizes`, {
-          headers: {
-            "x-api-key": REACT_NATIVE_API_KEY,
-          },
+          headers: { "x-api-key": REACT_NATIVE_API_KEY },
         });
-
         const metricResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/metric_systems`, {
-          headers: {
-            "x-api-key": REACT_NATIVE_API_KEY,
-          },
+          headers: { "x-api-key": REACT_NATIVE_API_KEY },
         });
 
         const crops = await cropsResponse.json();
@@ -94,11 +77,11 @@ function ViolationScreen({ navigation }) {
 
           return {
             ...crop,
-            category: categoryData ? categoryData : null,
-            subcategory: subcategoryData ? subcategoryData : null,
-            variety: varietyData ? varietyData : null,
-            size: actualSize ? actualSize : null,
-            metric: metricData ? metricData : null,
+            category: categoryData || null,
+            subcategory: subcategoryData || null,
+            variety: varietyData || null,
+            size: actualSize || null,
+            metric: metricData || null,
           };
         });
 
@@ -115,23 +98,20 @@ function ViolationScreen({ navigation }) {
     getAsyncShopData();
   }, []);
 
+  useEffect(() => {
+    setFilteredItems(violationItems); // Initialize filteredItems with all violationItems
+  }, [violationItems]);
+
   // Function to delete crop
   const deleteCrop = async (cropId) => {
     try {
-      const response = await fetch(
-        `${REACT_NATIVE_API_BASE_URL}/api/crops/${cropId}`,
-        {
-          method: "DELETE",
-          headers: {
-            "x-api-key": REACT_NATIVE_API_KEY,
-          },
-        }
-      );
+      const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crops/${cropId}`, {
+        method: "DELETE",
+        headers: { "x-api-key": REACT_NATIVE_API_KEY },
+      });
 
       if (response.ok) {
-        setViolationItems((prevItems) =>
-          prevItems.filter((item) => item.crop_id !== cropId)
-        );
+        setViolationItems((prevItems) => prevItems.filter((item) => item.crop_id !== cropId));
         Alert.alert("Deleted Successfully!", "Crop Deleted Successfully.");
       } else {
         console.error("Failed to delete crop:", response.statusText);
@@ -144,12 +124,24 @@ function ViolationScreen({ navigation }) {
   const confirmDelete = (cropId) => {
     Alert.alert("Delete Crop", "Are you sure you want to delete this crop?", [
       { text: "Cancel", style: "cancel" },
-      {
-        text: "Delete",
-        style: "destructive",
-        onPress: () => deleteCrop(cropId),
-      },
+      { text: "Delete", style: "destructive", onPress: () => deleteCrop(cropId) },
     ]);
+  };
+
+  const handleSearch = (text) => {
+    setSearchTerm(text);
+    if (text) {
+      const filteredData = violationItems.filter(
+        (item) =>
+          item.crop_name.toLowerCase().includes(text.toLowerCase()) ||
+          (item.category && item.category.crop_category_name.toLowerCase().includes(text.toLowerCase())) ||
+          (item.subcategory && item.subcategory.crop_sub_category_name.toLowerCase().includes(text.toLowerCase())) ||
+          item.crop_description.toLowerCase().includes(text.toLowerCase())
+      );
+      setFilteredItems(filteredData);
+    } else {
+      setFilteredItems(violationItems); // Reset to all items if search is cleared
+    }
   };
 
   if (loading) {
@@ -159,11 +151,23 @@ function ViolationScreen({ navigation }) {
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
       {/* Reports section */}
-      <Reports data={violationItems} dataType="violationItems" />
+      <View className="text-center mb-4">
+        <Reports data={filteredItems} dataType="violationItems" />
+      </View>
+
+      {/* Search bar */}
+      <View className="px-4 mb-4">
+        <TextInput
+          placeholder="Search violations by name, category, or description..."
+          value={searchTerm}
+          onChangeText={handleSearch}
+          className="bg-white px-4 py-2 rounded-lg shadow-md"
+        />
+      </View>
 
       {/* Scroll view for violation items */}
       <ScrollView className="p-4">
-        {violationItems.map((violationItem) => (
+        {filteredItems.map((violationItem) => (
           <TouchableOpacity
             key={violationItem.crop_id}
             className="bg-white p-4 mb-4 rounded-xl shadow-md flex-row items-center transition-all duration-300 hover:shadow-lg"
@@ -176,6 +180,7 @@ function ViolationScreen({ navigation }) {
             >
               <Ionicons name="trash-outline" size={20} color="red" />
             </TouchableOpacity>
+
             {/* Crop Image */}
             <Image
               source={{ uri: violationItem.crop_image_url || placeholderimg }}
@@ -217,6 +222,22 @@ function ViolationScreen({ navigation }) {
                 </Text>
               </View>
 
+              {/* Quantity and Negotiation */}
+              <View className="flex-row justify-between mt-2">
+                <Text className="text-xs font-medium text-[#00B251]">
+                  Quantity:{" "}
+                  <Text className="text-gray-800">
+                    {violationItem.crop_quantity}
+                  </Text>
+                </Text>
+                <Text className="text-xs font-medium text-[#00B251]">
+                  Negotiation:{" "}
+                  <Text className="text-gray-800">
+                    {violationItem.negotiation_allowed ? "Allowed" : "Not Allowed"}
+                  </Text>
+                </Text>
+              </View>
+
               {/* Price, Weight */}
               <View className="flex-row justify-between mt-2">
                 <Text className="text-xs font-medium text-green-600">
@@ -226,7 +247,6 @@ function ViolationScreen({ navigation }) {
                   ₱{violationItem.crop_price}
                 </Text>
               </View>
-              
             </View>
           </TouchableOpacity>
         ))}
