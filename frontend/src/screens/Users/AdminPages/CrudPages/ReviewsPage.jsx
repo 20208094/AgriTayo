@@ -479,7 +479,7 @@ function ReviewsPage() {
                                 Cancel
                                 </button>
                                 <button type="submit" className="bg-green-600 text-white p-2 rounded">
-                                    {isEdit ? 'Update' : 'Create'}
+                                    {isEdit ? 'Save' : 'Create'}
                                 </button>
                             </div>
                         </form>

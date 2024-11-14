@@ -414,7 +414,7 @@ function OrdersPage() {
                         
                         <div className="flex justify-end space-x-2">
                             <button onClick={() => setShowEditModal(false)} className="px-4 py-2 bg-gray-300 rounded">Cancel</button>
-                            <button onClick={handleUpdate} className="px-4 py-2 bg-[#00B251] text-white rounded">Update</button>
+                            <button onClick={handleUpdate} className="px-4 py-2 bg-[#00B251] text-white rounded">Save</button>
                         </div>
                     </div>
                 </div>
