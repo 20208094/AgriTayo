@@ -6,11 +6,12 @@ import {
   TouchableOpacity,
   Text,
   View,
+  TextInput,
   Alert,
 } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage"; // Import AsyncStorage
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import Reports from "../../../../components/Reports";
-import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env"; // Import API constants
+import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 import placeholderimg from "../../../../assets/placeholder.png";
 import LoadingAnimation from "../../../../components/LoadingAnimation";
 import Ionicons from "react-native-vector-icons/Ionicons";
@@ -18,6 +19,8 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 function DelistedScreen({ navigation }) {
   const [delistedItems, setDelistedItems] = useState([]); // State to hold delisted items
   const [loading, setLoading] = useState(true); // Loading state
+  const [searchTerm, setSearchTerm] = useState(""); // State to capture search input
+  const [filteredItems, setFilteredItems] = useState([]); // State for filtered items
 
   // Function to fetch shop data and crops that are delisted
   const getAsyncShopData = async () => {
@@ -150,6 +153,10 @@ function DelistedScreen({ navigation }) {
     getAsyncShopData();
   }, []);
 
+  useEffect(() => {
+    setFilteredItems(delistedItems); // Initialize filteredItems on first load
+  }, [delistedItems]);
+
   // Function to delete crop
   const deleteCrop = async (cropId) => {
     try {
@@ -187,6 +194,28 @@ function DelistedScreen({ navigation }) {
     ]);
   };
 
+  const handleSearch = (text) => {
+    setSearchTerm(text);
+    if (text) {
+      const filteredData = delistedItems.filter(
+        (item) =>
+          item.crop_name.toLowerCase().includes(text.toLowerCase()) ||
+          (item.category &&
+            item.category.crop_category_name
+              .toLowerCase()
+              .includes(text.toLowerCase())) ||
+          (item.subcategory &&
+            item.subcategory.crop_sub_category_name
+              .toLowerCase()
+              .includes(text.toLowerCase())) ||
+          item.crop_description.toLowerCase().includes(text.toLowerCase())
+      );
+      setFilteredItems(filteredData);
+    } else {
+      setFilteredItems(delistedItems); // Reset filtered items if search is cleared
+    }
+  };
+
   if (loading) {
     return <LoadingAnimation />;
   }
@@ -194,11 +223,23 @@ function DelistedScreen({ navigation }) {
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
       {/* Reports section */}
-      <Reports data={delistedItems} dataType="delistedItems" />
+      <View className="text-center mb-4">
+        <Reports data={filteredItems} dataType="delistedItems" />
+      </View>
+
+      {/* Search bar */}
+      <View className="px-4 mb-4">
+        <TextInput
+          placeholder="Search delisted crops by name, category, or description..."
+          value={searchTerm}
+          onChangeText={handleSearch}
+          className="bg-white px-4 py-2 rounded-lg shadow-md"
+        />
+      </View>
 
       {/* Scroll view for delisted items */}
       <ScrollView className="p-4">
-        {delistedItems.map((delistedItem) => (
+        {filteredItems.map((delistedItem) => (
           <TouchableOpacity
             key={delistedItem.crop_id}
             className="bg-white p-4 mb-4 rounded-xl shadow-md flex-row items-center transition-all duration-300 hover:shadow-lg"
@@ -242,57 +283,43 @@ function DelistedScreen({ navigation }) {
                   <Text className="text-gray-800">
                     {delistedItem.category
                       ? delistedItem.category.crop_category_name
-                      : "Unknown"}
-                  </Text>
-                </Text>
-                <Text className="text-xs font-medium text-green-600">
-                  Subcategory:{" "}
-                  <Text className="text-gray-800">
-                    {delistedItem.subcategory
-                      ? delistedItem.subcategory.crop_sub_category_name
-                      : "Unknown"}
+                      : "N/A"}
                   </Text>
                 </Text>
               </View>
 
-              {/* Variety, Size, and Class */}
+              {/* Variety and Size */}
               <View className="flex-row flex-wrap gap-2 mb-1">
-                <Text className="text-xs font-medium text-green-600">
+                <Text className="text-xs font-medium text-blue-600">
                   Variety:{" "}
                   <Text className="text-gray-800">
                     {delistedItem.variety
                       ? delistedItem.variety.crop_variety_name
-                      : "Unknown"}
+                      : "N/A"}
                   </Text>
                 </Text>
-                <Text className="text-xs font-medium text-green-600">
+                <Text className="text-xs font-medium text-orange-600">
                   Size:{" "}
                   <Text className="text-gray-800">
-                    {delistedItem.size
-                      ? delistedItem.size.crop_size_name
-                      : "Unknown"}
-                  </Text>
-                </Text>
-                <Text className="text-xs font-medium text-green-600">
-                  Class:{" "}
-                  <Text className="text-gray-800">
-                    {delistedItem.crop_class || "Unknown"}
+                    {delistedItem.size ? delistedItem.size.crop_size_name : "N/A"}
                   </Text>
                 </Text>
               </View>
 
-              {/* Price, Weight */}
+              
+              {/* Quantity and Negotiation */}
               <View className="flex-row justify-between mt-2">
-                <Text className="text-xs font-medium text-green-600">
-                  Weight:{" "}
+                <Text className="text-xs font-medium text-[#00B251]">
+                  Quantity:{" "}
                   <Text className="text-gray-800">
-                    {delistedItem.metric
-                      ? `${delistedItem.metric.metric_system_name}`
-                      : "Unknown"}
+                    {delistedItem.crop_quantity}
                   </Text>
                 </Text>
-                <Text className="text-sm font-semibold text-[#00B251]">
-                  ₱{delistedItem.crop_price}
+                <Text className="text-xs font-medium text-[#00B251]">
+                  Negotiation:{" "}
+                  <Text className="text-gray-800">
+                    {delistedItem.negotiation_allowed ? "Allowed" : "Not Allowed"}
+                  </Text>
                 </Text>
               </View>
             </View>

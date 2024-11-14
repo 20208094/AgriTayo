@@ -40,10 +40,10 @@ function SellerShopScreen({ route }) {
   const [isIncomplete, setIsIncomplete] = useState(false); // Track if the shop is incomplete
   const [modalVisible, setModalVisible] = useState(false); // State for modal visibility
   const [missingFields, setMissingFields] = useState([]); // Track missing fields
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
 
-  
- const [alertVisible, setAlertVisible] = useState(false);
- const [alertMessage, setAlertMessage] = useState("");
+  const [filteredSubCategories, setFilteredSubCategories] = useState([]);
 
   const getAsyncUserData = async () => {
     try {
@@ -91,9 +91,31 @@ function SellerShopScreen({ route }) {
     }
   };
 
+  const fetchCropSizes = async () => {
+    try {
+      const cropSizesResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_sizes`, {
+        headers: {
+          "x-api-key": REACT_NATIVE_API_KEY,
+        },
+      });
+      const cropSizesData = await cropSizesResponse.json();
+      return cropSizesData.reduce((acc, size) => {
+        acc[size.crop_size_id] = size.crop_size_name;
+        return acc;
+      }, {});
+    } catch (error) {
+      console.error("Error fetching crop sizes:", error);
+      setAlertMessage("Failed to load crop sizes.");
+      setAlertVisible(true);
+      return {};
+    }
+  };
+
   const fetchCropData = async () => {
     try {
       setIsLoading(true);
+
+      // Fetch crops data
       const cropResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crops`, {
         headers: {
           "x-api-key": REACT_NATIVE_API_KEY,
@@ -101,7 +123,15 @@ function SellerShopScreen({ route }) {
       });
       const cropData = await cropResponse.json();
       const crops = cropData.filter((c) => c && c.shop_id === shop_id);
-      setCropData(crops);
+
+      // Fetch crop sizes and merge with crops
+      const cropSizes = await fetchCropSizes();
+      const mergedCrops = crops.map(crop => ({
+        ...crop,
+        crop_size_name: cropSizes[crop.crop_size_id] || "Unknown Size", // Fallback if size is missing
+      }));
+
+      setCropData(mergedCrops); // Set merged data to state
     } catch (error) {
       console.error("Error fetching crop data:", error);
       setAlertMessage("Failed to load crop information.");
@@ -168,6 +198,25 @@ function SellerShopScreen({ route }) {
       setIsLoading(false);
     }
   };
+
+  const filterSubCategoriesWithCrops = () => {
+    return cropSubCategories.filter((subCategory) => {
+      // Check if there are crops in this subcategory for the specific shop
+      return cropData.some(
+        (crop) =>
+          crop.sub_category_id === subCategory.crop_sub_category_id &&
+          crop.shop_id === shop_id
+      );
+    });
+  };
+  
+
+  useEffect(() => {
+    if (selectedCategory) {
+      // Filter subcategories whenever a category is selected
+      filterSubCategoriesWithCrops(selectedCategory.crop_category_id);
+    }
+  }, [selectedCategory, cropData]);
 
   const filterItems = () => {
     if (selectedTab === "Products") {
@@ -334,6 +383,22 @@ function SellerShopScreen({ route }) {
                             ₱{product.crop_price}
                           </Text>
                           <Text className="text-xs text-gray-500 mt-1">{shopData?.shop_name}</Text>
+                          {product.crop_class && (
+                            <Text className="text-xs text-gray-500 mt-1">Class: {product.crop_class}</Text>
+                          )}
+                          {product.crop_size_name ? (
+                            <Text className="text-xs text-gray-500">Size: {product.crop_size_name}</Text>
+                          ) : (
+                            <Text className="text-xs text-gray-500">Size: Not available</Text>
+                          )}
+                          <Text className="text-xs text-gray-500">Stock: {product.crop_quantity}</Text>
+                          {product.negotiation_allowed ? (
+                            <Text className="text-xs text-green-500 mt-1">
+                              Negotiable (Min: ₱{product.minimum_negotation})
+                            </Text>
+                          ) : (
+                            <Text className="text-xs text-red-500 mt-1">Non-negotiable</Text>
+                          )}
                         </TouchableOpacity>
                       </View>
                     </View>
@@ -345,6 +410,7 @@ function SellerShopScreen({ route }) {
             )}
           </>
         )}
+
 
         {/* Categories Tab */}
         {selectedTab === "Categories" && (
@@ -396,7 +462,7 @@ function SellerShopScreen({ route }) {
                   </View>
                 ) : !selectedSubCategory ? (
                   <View className="flex flex-wrap flex-row p-2">
-                    {filterItems().map((subCategory) => (
+                    {filterSubCategoriesWithCrops().map((subCategory) => (
                       <TouchableOpacity
                         key={subCategory.crop_sub_category_id}
                         className="w-1/2 p-2"
@@ -432,12 +498,26 @@ function SellerShopScreen({ route }) {
                             />
                             <Text className="text-sm font-bold">{product.crop_name}</Text>
                             <Text className="text-[#00B251] text-sm font-bold mt-1">₱{product.crop_price}</Text>
+
                             <Text className="text-xs text-gray-500 mt-1">{shopData?.shop_name}</Text>
+                            <Text className="text-xs text-gray-500">Class: {product.crop_class}</Text>
+                            {product.crop_size_name && (
+                              <Text className="text-xs text-gray-500">Size: {product.crop_size_name}</Text>
+                            )}
+                            <Text className="text-xs text-gray-500">Stock: {product.crop_quantity}</Text>
+                          {product.negotiation_allowed ? (
+                            <Text className="text-xs text-green-500 mt-1">
+                              Negotiable (Min: ₱{product.minimum_negotation})
+                            </Text>
+                          ) : (
+                            <Text className="text-xs text-red-500 mt-1">Non-negotiable</Text>
+                          )}
                           </TouchableOpacity>
                         </View>
                       </View>
                     ))}
                   </View>
+
                 )}
               </>
             )}

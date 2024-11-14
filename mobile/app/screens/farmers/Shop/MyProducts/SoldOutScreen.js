@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Text,
   View,
+  TextInput, // Import TextInput for the search bar
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage"; // Import AsyncStorage
 import Reports from "../../../../components/Reports";
@@ -14,7 +15,9 @@ import LoadingAnimation from "../../../../components/LoadingAnimation";
 
 function SoldOutScreen({ navigation }) {
   const [soldOutItems, setSoldOutItems] = useState([]); // State to hold sold-out items
+  const [filteredItems, setFilteredItems] = useState([]); // State for filtered items based on search
   const [loading, setLoading] = useState(true); // Loading state
+  const [searchTerm, setSearchTerm] = useState(""); // State to capture search input
 
   // Function to fetch shop data and sold-out crops
   const getAsyncShopData = async () => {
@@ -24,47 +27,27 @@ function SoldOutScreen({ navigation }) {
         const parsedData = JSON.parse(storedData);
         const shop = Array.isArray(parsedData) ? parsedData[0] : parsedData;
 
-        // Fetch crops from API
+        // Fetch crops and related data from API
         const cropsResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crops`, {
-          headers: {
-            "x-api-key": REACT_NATIVE_API_KEY,
-          },
+          headers: { "x-api-key": REACT_NATIVE_API_KEY },
         });
-
         const categoryResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_categories`, {
-          headers: {
-            "x-api-key": REACT_NATIVE_API_KEY,
-          },
+          headers: { "x-api-key": REACT_NATIVE_API_KEY },
         });
-
         const subcategoryResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_sub_categories`, {
-          headers: {
-            "x-api-key": REACT_NATIVE_API_KEY,
-          },
+          headers: { "x-api-key": REACT_NATIVE_API_KEY },
         });
-
         const varietyResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_varieties`, {
-          headers: {
-            "x-api-key": REACT_NATIVE_API_KEY,
-          },
+          headers: { "x-api-key": REACT_NATIVE_API_KEY },
         });
-
         const varietySizeResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_variety_sizes`, {
-          headers: {
-            "x-api-key": REACT_NATIVE_API_KEY,
-          },
+          headers: { "x-api-key": REACT_NATIVE_API_KEY },
         });
-
         const sizeResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_sizes`, {
-          headers: {
-            "x-api-key": REACT_NATIVE_API_KEY,
-          },
+          headers: { "x-api-key": REACT_NATIVE_API_KEY },
         });
-
         const metricResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/metric_systems`, {
-          headers: {
-            "x-api-key": REACT_NATIVE_API_KEY,
-          },
+          headers: { "x-api-key": REACT_NATIVE_API_KEY },
         });
 
         const crops = await cropsResponse.json();
@@ -99,11 +82,29 @@ function SoldOutScreen({ navigation }) {
         });
 
         setSoldOutItems(combinedData);
+        setFilteredItems(combinedData); // Set both sold-out and filtered items
       }
     } catch (error) {
       console.error("Error fetching shops:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Function to handle search input
+  const handleSearch = (text) => {
+    setSearchTerm(text);
+    if (text) {
+      const filteredData = soldOutItems.filter(
+        (item) =>
+          item.crop_name.toLowerCase().includes(text.toLowerCase()) ||
+          (item.category && item.category.crop_category_name.toLowerCase().includes(text.toLowerCase())) ||
+          (item.subcategory && item.subcategory.crop_sub_category_name.toLowerCase().includes(text.toLowerCase())) ||
+          item.crop_description.toLowerCase().includes(text.toLowerCase())
+      );
+      setFilteredItems(filteredData);
+    } else {
+      setFilteredItems(soldOutItems); // Reset filtered items if search is cleared
     }
   };
 
@@ -118,11 +119,23 @@ function SoldOutScreen({ navigation }) {
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
       {/* Reports section */}
-      <Reports data={soldOutItems} dataType="soldOutItems" />
+      <View className="text-center mb-4">
+        <Reports data={filteredItems} dataType="soldOutItems" />
+      </View>
+
+      {/* Search bar */}
+      <View className="px-4 mb-4">
+        <TextInput
+          placeholder="Search crops by name, category, or description..."
+          value={searchTerm}
+          onChangeText={handleSearch}
+          className="bg-white px-4 py-2 rounded-lg shadow-md"
+        />
+      </View>
 
       {/* Scroll view for sold-out items */}
       <ScrollView className="p-4">
-        {soldOutItems.map((soldOutItem) => (
+        {filteredItems.map((soldOutItem) => (
           <TouchableOpacity
             key={soldOutItem.crop_id}
             className="bg-white p-4 mb-4 rounded-xl shadow-md flex-row items-center transition-all duration-300 hover:shadow-lg"
@@ -163,6 +176,23 @@ function SoldOutScreen({ navigation }) {
                 </Text>
                 <Text className="text-xs font-medium text-green-600">
                   Class: <Text className="text-gray-800">{soldOutItem.crop_class || 'Unknown'}</Text>
+                </Text>
+              </View>
+
+              
+              {/* Quantity and Negotiation */}
+              <View className="flex-row justify-between mt-2">
+                <Text className="text-xs font-medium text-[#00B251]">
+                  Quantity:{" "}
+                  <Text className="text-gray-800">
+                    {soldOutItem.crop_quantity}
+                  </Text>
+                </Text>
+                <Text className="text-xs font-medium text-[#00B251]">
+                  Negotiation:{" "}
+                  <Text className="text-gray-800">
+                    {soldOutItem.negotiation_allowed ? "Allowed" : "Not Allowed"}
+                  </Text>
                 </Text>
               </View>
 

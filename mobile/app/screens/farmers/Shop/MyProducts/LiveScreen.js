@@ -6,11 +6,12 @@ import {
   TouchableOpacity,
   Text,
   View,
+  TextInput, // Import TextInput for the search bar
   Alert,
 } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage"; // Import AsyncStorage
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import Reports from "../../../../components/Reports";
-import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env"; // Import API constants
+import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 import { useFocusEffect } from "@react-navigation/native";
 import LoadingAnimation from "../../../../components/LoadingAnimation";
 import GenerateAllReports from "../../../../components/GenerateAllReports";
@@ -18,8 +19,10 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 
 function LiveScreen({ navigation }) {
   const [liveItems, setLiveItems] = useState([]); // State to hold live items
+  const [filteredItems, setFilteredItems] = useState([]); // State for filtered items based on search
   const [loading, setLoading] = useState(true); // Loading state
   const [shopId, setShopId] = useState(null);
+  const [searchTerm, setSearchTerm] = useState(""); // State to capture search input
 
   // Function to fetch shop data
   const getAsyncShopData = async () => {
@@ -28,7 +31,7 @@ function LiveScreen({ navigation }) {
       if (storedData) {
         const parsedData = JSON.parse(storedData);
         const shop = Array.isArray(parsedData) ? parsedData[0] : parsedData;
-        setShopId(shop)
+        setShopId(shop);
 
         const cropsResponse = await fetch(
           `${REACT_NATIVE_API_BASE_URL}/api/crops`,
@@ -103,7 +106,9 @@ function LiveScreen({ navigation }) {
 
         const filteredLiveItems = crops.filter(
           (crop) =>
-            crop.availability === "live" && crop.crop_quantity !== 0 && crop.shop_id === shop.shop_id
+            crop.availability === "live" &&
+            crop.crop_quantity !== 0 &&
+            crop.shop_id === shop.shop_id
         );
 
         const combinedData = filteredLiveItems.map((crop) => {
@@ -137,11 +142,35 @@ function LiveScreen({ navigation }) {
           };
         });
         setLiveItems(combinedData);
+        setFilteredItems(combinedData); // Set both live and filtered items
       }
     } catch (error) {
       console.error("Error fetching shops:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Function to handle search input
+  const handleSearch = (text) => {
+    setSearchTerm(text);
+    if (text) {
+      const filteredData = liveItems.filter(
+        (item) =>
+          item.crop_name.toLowerCase().includes(text.toLowerCase()) ||
+          (item.category &&
+            item.category.crop_category_name
+              .toLowerCase()
+              .includes(text.toLowerCase())) ||
+          (item.subcategory &&
+            item.subcategory.crop_sub_category_name
+              .toLowerCase()
+              .includes(text.toLowerCase())) ||
+          item.crop_description.toLowerCase().includes(text.toLowerCase())
+      );
+      setFilteredItems(filteredData);
+    } else {
+      setFilteredItems(liveItems); // Reset filtered items if search is cleared
     }
   };
 
@@ -151,51 +180,15 @@ function LiveScreen({ navigation }) {
     }, [])
   );
 
-  // Function to delete crop
-  // const deleteCrop = async (cropId) => {
-  //   try {
-  //     const response = await fetch(
-  //       `${REACT_NATIVE_API_BASE_URL}/api/crops/${cropId}`,
-  //       {
-  //         method: "DELETE",
-  //         headers: {
-  //           "x-api-key": REACT_NATIVE_API_KEY,
-  //         },
-  //       }
-  //     );
-
-  //     if (response.ok) {
-  //       setLiveItems((prevItems) =>
-  //         prevItems.filter((item) => item.crop_id !== cropId)
-  //       );
-  //       Alert.alert("Deleted Successfully!", "Crop Deleted Successfully.");
-  //     } else {
-  //       console.error("Failed to delete crop:", response.statusText);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error deleting crop:", error);
-  //   }
-  // };
-
-  // const confirmDelete = (cropId) => {
-  //   Alert.alert("Delete Crop", "Are you sure you want to delete this crop?", [
-  //     { text: "Cancel", style: "cancel" },
-  //     {
-  //       text: "Delete",
-  //       style: "destructive",
-  //       onPress: () => deleteCrop(cropId),
-  //     },
-  //   ]);
-  // };
-
   if (loading) {
     return <LoadingAnimation />;
   }
+
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
       {/* Header section with Add Product button and Reports */}
-      <View className='text-center mb-4'>
-      <GenerateAllReports shopId={shopId} dataType="Crops Report" />
+      <View className="text-center">
+        <GenerateAllReports shopId={shopId} dataType="Crops Report" />
       </View>
       <View className="flex-row justify-between items-center px-4 mb-4">
         {/* Add New Product button */}
@@ -209,12 +202,22 @@ function LiveScreen({ navigation }) {
         </TouchableOpacity>
 
         {/* Reports section */}
-        <Reports data={liveItems} dataType="liveItems" />
+        <Reports data={filteredItems} dataType="liveItems" />
+      </View>
+
+      {/* Search bar */}
+      <View className="px-4">
+        <TextInput
+          placeholder="Search crops by name, category, or description..."
+          value={searchTerm}
+          onChangeText={handleSearch}
+          className="bg-white px-4 py-2 rounded-lg shadow-md"
+        />
       </View>
 
       {/* Scroll view for live items */}
       <ScrollView className="p-4">
-        {liveItems.map((liveItem) => (
+        {filteredItems.map((liveItem) => (
           <TouchableOpacity
             key={liveItem.crop_id}
             className="bg-white p-4 mb-4 rounded-xl shadow-md flex-row items-center transition-all duration-300 hover:shadow-lg"
@@ -222,14 +225,6 @@ function LiveScreen({ navigation }) {
               navigation.navigate("Farmers Product Details", { liveItem })
             }
           >
-            {/* Delete Icon
-            <TouchableOpacity
-              style={{ position: "absolute", top: 8, right: 8 }}
-              onPress={() => confirmDelete(liveItem.crop_id)}
-            >
-              <Ionicons name="trash-outline" size={20} color="red" />
-            </TouchableOpacity> */}
-            {/* Crop Image */}
             <Image
               source={{ uri: liveItem.crop_image_url }}
               className="w-16 h-16 rounded-lg mr-4 object-cover bg-gray-200"
@@ -246,7 +241,7 @@ function LiveScreen({ navigation }) {
 
               {/* Category and Subcategory */}
               <View className="flex-row flex-wrap gap-2 mb-1">
-                <Text className="text-xs font-medium text-green-600">
+                <Text className="text-xs font-medium text-[#00B251]">
                   Category:{" "}
                   <Text className="text-gray-800">
                     {liveItem.category
@@ -254,7 +249,7 @@ function LiveScreen({ navigation }) {
                       : "Unknown"}
                   </Text>
                 </Text>
-                <Text className="text-xs font-medium text-green-600">
+                <Text className="text-xs font-medium text-[#00B251]">
                   Subcategory:{" "}
                   <Text className="text-gray-800">
                     {liveItem.subcategory
@@ -266,7 +261,7 @@ function LiveScreen({ navigation }) {
 
               {/* Variety, Size, and Class */}
               <View className="flex-row flex-wrap gap-2 mb-1">
-                <Text className="text-xs font-medium text-green-600">
+                <Text className="text-xs font-medium text-[#00B251]">
                   Variety:{" "}
                   <Text className="text-gray-800">
                     {liveItem.variety
@@ -274,13 +269,13 @@ function LiveScreen({ navigation }) {
                       : "Unknown"}
                   </Text>
                 </Text>
-                <Text className="text-xs font-medium text-green-600">
+                <Text className="text-xs font-medium text-[#00B251]">
                   Size:{" "}
                   <Text className="text-gray-800">
                     {liveItem.size ? liveItem.size.crop_size_name : "Unknown"}
                   </Text>
                 </Text>
-                <Text className="text-xs font-medium text-green-600">
+                <Text className="text-xs font-medium text-[#00B251]">
                   Class:{" "}
                   <Text className="text-gray-800">
                     {liveItem.crop_class || "Unknown"}
@@ -288,9 +283,25 @@ function LiveScreen({ navigation }) {
                 </Text>
               </View>
 
+              {/* Quantity and Negotiation */}
+              <View className="flex-row justify-between mt-2">
+                <Text className="text-xs font-medium text-[#00B251]">
+                  Quantity:{" "}
+                  <Text className="text-gray-800">
+                    {liveItem.crop_quantity}
+                  </Text>
+                </Text>
+                <Text className="text-xs font-medium text-[#00B251]">
+                  Negotiation:{" "}
+                  <Text className="text-gray-800">
+                    {liveItem.negotiation_allowed ? "Allowed" : "Not Allowed"}
+                  </Text>
+                </Text>
+              </View>
+
               {/* Price, Weight, and Rating */}
               <View className="flex-row justify-between mt-2">
-                <Text className="text-xs font-medium text-green-600">
+                <Text className="text-xs font-medium text-[#00B251]">
                   Weight:{" "}
                   <Text className="text-gray-800">
                     {liveItem.metric
