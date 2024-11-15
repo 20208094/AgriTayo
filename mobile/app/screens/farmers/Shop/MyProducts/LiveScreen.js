@@ -206,14 +206,16 @@ function LiveScreen({ navigation }) {
       </View>
 
       {/* Search bar */}
-      <View className="px-4">
+      <View className="px-4 flex-row items-center bg-white rounded-lg shadow-md mx-2">
+        <Ionicons name="search" size={20} color="#888" className="mr-2" />
         <TextInput
-          placeholder="Search crops by name, category, or description..."
+          placeholder="Search by name, category, or description..."
           value={searchTerm}
           onChangeText={handleSearch}
-          className="bg-white px-4 py-2 rounded-lg shadow-md"
+          className="flex-1 px-4 py-2"
         />
       </View>
+
 
       {/* Scroll view for live items */}
       <ScrollView className="p-4">
@@ -281,14 +283,10 @@ function LiveScreen({ navigation }) {
                     {liveItem.crop_class || "Unknown"}
                   </Text>
                 </Text>
-              </View>
-
-              {/* Quantity and Negotiation */}
-              <View className="flex-row justify-between mt-2">
                 <Text className="text-xs font-medium text-[#00B251]">
                   Quantity:{" "}
                   <Text className="text-gray-800">
-                    {liveItem.crop_quantity}
+                    {liveItem.crop_quantity} {liveItem.metric.metric_system_symbol}
                   </Text>
                 </Text>
                 <Text className="text-xs font-medium text-[#00B251]">
@@ -296,21 +294,6 @@ function LiveScreen({ navigation }) {
                   <Text className="text-gray-800">
                     {liveItem.negotiation_allowed ? "Allowed" : "Not Allowed"}
                   </Text>
-                </Text>
-              </View>
-
-              {/* Price, Weight, and Rating */}
-              <View className="flex-row justify-between mt-2">
-                <Text className="text-xs font-medium text-[#00B251]">
-                  Weight:{" "}
-                  <Text className="text-gray-800">
-                    {liveItem.metric
-                      ? `${liveItem.metric.metric_system_name}`
-                      : "Unknown"}
-                  </Text>
-                </Text>
-                <Text className="text-sm font-semibold text-[#00B251]">
-                  ₱{liveItem.crop_price}
                 </Text>
               </View>
             </View>

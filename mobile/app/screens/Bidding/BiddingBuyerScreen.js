@@ -319,7 +319,6 @@ const CategorySection = ({ data, category, biddingData, navigation }) => {
               navigation.navigate("Bidding Details", { data: item })
             }
             className="bg-white m-2 rounded-lg overflow-hidden shadow-md border-gray-500 border-2"
-            style={{ width: screenWidth * 0.4, height: screenHeight * 0.25 }}
           >
             <Image
               source={{ uri: item.bid_image }}

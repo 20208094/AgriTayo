@@ -13,6 +13,7 @@ import Reports from "../../../../components/Reports";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env"; // Import API constants
 import placeholderimg from "../../../../assets/placeholder.png";
 import LoadingAnimation from "../../../../components/LoadingAnimation";
+import Ionicons from "react-native-vector-icons/Ionicons";
 
 function ReviewingScreen({ navigation }) {
   const [reviewingItems, setReviewingItems] = useState([]); // State to hold reviewing items
@@ -146,15 +147,16 @@ function ReviewingScreen({ navigation }) {
         <Reports data={filteredItems} dataType="reviewingItems" />
       </View>
 
-      {/* Search bar */}
-      <View className="px-4 mb-4">
-        <TextInput
-          placeholder="Search reviewing items by name, category, or description..."
-          value={searchTerm}
-          onChangeText={handleSearch}
-          className="bg-white px-4 py-2 rounded-lg shadow-md"
-        />
-      </View>
+{/* Search bar */}
+<View className="px-4 flex-row items-center bg-white rounded-lg shadow-md mx-2">
+  <Ionicons name="search" size={20} color="#888" className="mr-2" />
+  <TextInput
+    placeholder="Search by name, category, or description..."
+    value={searchTerm}
+    onChangeText={handleSearch}
+    className="flex-1 px-4 py-2"
+  />
+</View>
 
       {/* Scroll view for reviewing items */}
       <ScrollView className="p-4">

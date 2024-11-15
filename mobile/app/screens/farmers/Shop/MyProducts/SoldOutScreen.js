@@ -12,6 +12,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage"; // Import 
 import Reports from "../../../../components/Reports";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env"; // Import API constants
 import LoadingAnimation from "../../../../components/LoadingAnimation";
+import Ionicons from "react-native-vector-icons/Ionicons";
 
 function SoldOutScreen({ navigation }) {
   const [soldOutItems, setSoldOutItems] = useState([]); // State to hold sold-out items
@@ -122,14 +123,14 @@ function SoldOutScreen({ navigation }) {
       <View className="text-center mb-4">
         <Reports data={filteredItems} dataType="soldOutItems" />
       </View>
-
       {/* Search bar */}
-      <View className="px-4 mb-4">
+      <View className="px-4 flex-row items-center bg-white rounded-lg shadow-md mx-2">
+        <Ionicons name="search" size={20} color="#888" className="mr-2" />
         <TextInput
-          placeholder="Search crops by name, category, or description..."
+          placeholder="Search by name, category, or description..."
           value={searchTerm}
           onChangeText={handleSearch}
-          className="bg-white px-4 py-2 rounded-lg shadow-md"
+          className="flex-1 px-4 py-2"
         />
       </View>
 

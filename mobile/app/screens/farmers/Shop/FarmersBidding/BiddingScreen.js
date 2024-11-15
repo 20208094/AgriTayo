@@ -12,11 +12,29 @@ import { useFocusEffect } from "@react-navigation/native";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import NavigationbarComponent from "../../../../components/NavigationbarComponent";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 function BiddingScreen({ navigation }) {
   const [biddingData, setBiddingData] = useState([]);
   const [completedBiddingData, setCompletedBiddingData] = useState([]);
   const [currentTab, setCurrentTab] = useState("ongoing");
+  const [shopId, setShopId] = useState(null);
+
+  // Function to fetch shop data
+  const getAsyncShopData = async () => {
+    try {
+      const storedData = await AsyncStorage.getItem("shopData");
+      if (storedData) {
+        const parsedData = JSON.parse(storedData);
+        const shop = Array.isArray(parsedData) ? parsedData[0] : parsedData;
+        setShopId(shop.shop_id);
+      }
+    } catch (error) {
+      console.error("Error fetching shops:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchBiddings = async () => {
     try {
@@ -40,8 +58,10 @@ function BiddingScreen({ navigation }) {
         (bidding) => new Date(bidding.end_date) > now
       );
 
+      const shopBids = availableBids.filter((bidding) => bidding.shop_id === shopId);
+
       // Set filtered data to state
-      setBiddingData(availableBids);
+      setBiddingData(shopBids);
     } catch (error) {
       alert(`Error fetching bidding systems: ${error.message}`);
     }
@@ -66,9 +86,10 @@ function BiddingScreen({ navigation }) {
         (bidding) =>
           bidding.bid_user_id !== null && bidding.bid_user_id !== undefined
       );
+      const shopBids = filteredBids.filter((bidding) => bidding.shop_id === shopId);
 
       // Set filtered data to state
-      setCompletedBiddingData(filteredBids);
+      setCompletedBiddingData(shopBids);
     } catch (error) {
       alert(`Error fetching completed biddings: ${error.message}`);
     }
@@ -118,9 +139,15 @@ function BiddingScreen({ navigation }) {
 
   useFocusEffect(
     useCallback(() => {
+      getAsyncShopData();
+    }, [])
+  );
+
+  useFocusEffect(
+    useCallback(() => {
       fetchBiddings();
       fetchCompletedBiddings();
-    }, [])
+    }, [shopId])
   );
 
   const renderBidData = () => {
@@ -185,9 +212,9 @@ function BiddingScreen({ navigation }) {
                         ₱{bidding.bid_current_highest}
                       </Text>
                     </Text>
-                    {bidding.checked_out === false &&(
+                    {bidding.checked_out === false && (
                       <Text className='text-base text-red-600'>
-                        Waiting for buyer to checkout this bid.
+                        Waiting for the buyer who won to checkout this bid.
                       </Text>
                     )}
                     {bidding.checked_out === true && (
@@ -209,18 +236,8 @@ function BiddingScreen({ navigation }) {
 
   return (
     <>
-      <SafeAreaView className="flex-1 p-4 bg-gray-100">
-        {/* Header Section */}
-        <View className="flex-row justify-between items-center mb-4">
-          <Text className="text-lg font-semibold text-gray-800">My Bids</Text>
-          <TouchableOpacity
-            className="bg-[#00b251] rounded-lg px-4 py-2"
-            onPress={() => navigation.navigate("Add Bid")}
-          >
-            <Text className="text-white text-base">+ Add Bid</Text>
-          </TouchableOpacity>
-        </View>
-        <View className="flex-row justify-between items-center px-6 py-4 bg-gray-100 border-b border-gray-300">
+      <SafeAreaView className="flex-1 p-4 pt-0 bg-gray-100">
+        <View className="flex-row justify-between items-center px-6 py-4 pt-2 bg-gray-100">
           <TouchableOpacity onPress={() => setCurrentTab("ongoing")}>
             <Text
               className={
@@ -243,6 +260,17 @@ function BiddingScreen({ navigation }) {
             >
               Completed Bids
             </Text>
+          </TouchableOpacity>
+        </View>
+        {/* Header Section */}
+        <View className="flex-row justify-between items-center mb-4">
+          <TouchableOpacity
+            className="bg-[#00b251] rounded-lg px-4 py-2 w-full items-center flex-row justify-center"
+            onPress={() => navigation.navigate("Add Bid")}
+          >
+
+            <Ionicons name="add-circle-outline" size={30} color="white" />
+            <Text className="text-white text-lg font-bold ml-1">Create New Bidding</Text>
           </TouchableOpacity>
         </View>
 
@@ -287,71 +315,76 @@ const BidItem = ({ bidding, navigation, handleDeleteConfirmation }) => {
   }, [bidding.end_date]);
 
   return (
-    <TouchableOpacity
-      className="bg-white rounded-lg shadow-md flex-row items-start p-4 mb-4 border border-gray-300"
-      onPress={() => navigation.navigate("Shop Bidding Details", { bidding })}
-      style={{ elevation: 3 }}
-      activeOpacity={0.8}
-    >
-      <Image
-        source={{ uri: bidding.bid_image }}
-        className="w-24 h-24 rounded-lg mr-4"
-        resizeMode="cover"
-      />
-      <View className="flex-1">
-        <Text className="text-lg font-semibold text-gray-800 mb-1">
-          Bid Name:
-          <Text className="font-bold text-base text-[#00b251]">
-            {" "}
-            {bidding.bid_name}
-          </Text>
-        </Text>
-        <Text className="text-gray-700 mb-1">
-          <Text className="font-semibold text-base">Starting Price:</Text>
-          <Text className="font-bold text-base text-[#00b251]">
-            {" "}
-            ₱{bidding.bid_starting_price}
-          </Text>
-        </Text>
-        <Text className="text-gray-700 mb-1">
-          <Text className="font-semibold text-base">Current Highest Bid:</Text>
-          <Text className="font-bold text-base text-[#00b251]">
-            {" "}
-            ₱{bidding.bid_current_highest}
-          </Text>
-        </Text>
-        {timeLeft.expired ? (
-          <Text className="text-base text-red-600">Bid Expired</Text>
-        ) : (
-          <Text className="font-semibold text-base">
-            Time Left:
+    <>
+      <TouchableOpacity
+        className="bg-white rounded-lg shadow-md flex-row items-start p-4 mb-4 border border-gray-300"
+        onPress={() => navigation.navigate("Shop Bidding Details", { bidding })}
+        style={{ elevation: 3 }}
+        activeOpacity={0.8}
+      >
+
+        <Image
+          source={{ uri: bidding.bid_image }}
+          className="w-24 h-24 rounded-lg mr-3"
+          resizeMode="cover"
+        />
+        <View className="flex-1">
+
+          {/* Conditional Button */}
+          {bidding.number_of_bids === 0 && (
+            <>
+              <View className="flex-row items-end justify-end">
+                <TouchableOpacity
+                  className=""
+                  onPress={() => navigation.navigate('Edit Bid', { bidding })}
+                >
+                  <Ionicons name="create-outline" size={24} color="#00b251" />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  className="ml-1"
+                  onPress={() => handleDeleteConfirmation(bidding.bid_id)}
+                >
+                  <Ionicons name="trash-outline" size={24} color="red" />
+                </TouchableOpacity>
+              </View>
+            </>
+          )}
+          <Text className="text-lg font-semibold text-gray-800 mb-1">
+            Bid Name:
             <Text className="font-bold text-base text-[#00b251]">
               {" "}
-              {timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m{" "}
-              {timeLeft.seconds}s
+              {bidding.bid_name}
             </Text>
           </Text>
-        )}
-      </View>
-
-      {/* Conditional Button */}
-      {bidding.number_of_bids === 0 && (
-        <>
-        <TouchableOpacity
-          className="ml-4"
-          onPress={() =>navigation.navigate('Edit Bid', {bidding})}
-        >
-          <Ionicons name="create-outline" size={24} color="#00b251" />
-        </TouchableOpacity>
-        <TouchableOpacity
-          className="ml-4"
-          onPress={() => handleDeleteConfirmation(bidding.bid_id)}
-        >
-          <Ionicons name="trash-outline" size={24} color="red" />
-        </TouchableOpacity>
-        </>
-      )}
-    </TouchableOpacity>
+          <Text className="text-gray-700 mb-1">
+            <Text className="font-semibold text-base">Starting Price:</Text>
+            <Text className="font-bold text-base text-[#00b251]">
+              {" "}
+              ₱{bidding.bid_starting_price}
+            </Text>
+          </Text>
+          <Text className="text-gray-700 mb-1">
+            <Text className="font-semibold text-base">Current Highest Bid:</Text>
+            <Text className="font-bold text-base text-[#00b251]">
+              {" "}
+              ₱{bidding.bid_current_highest}
+            </Text>
+          </Text>
+          {timeLeft.expired ? (
+            <Text className="text-base text-red-600">Bid Expired</Text>
+          ) : (
+            <Text className="font-semibold text-base">
+              Time Left:
+              <Text className="font-bold text-base text-[#00b251]">
+                {" "}
+                {timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m{" "}
+                {timeLeft.seconds}s
+              </Text>
+            </Text>
+          )}
+        </View>
+      </TouchableOpacity>
+    </>
   );
 };
 

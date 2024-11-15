@@ -227,15 +227,16 @@ function DelistedScreen({ navigation }) {
         <Reports data={filteredItems} dataType="delistedItems" />
       </View>
 
-      {/* Search bar */}
-      <View className="px-4 mb-4">
-        <TextInput
-          placeholder="Search delisted crops by name, category, or description..."
-          value={searchTerm}
-          onChangeText={handleSearch}
-          className="bg-white px-4 py-2 rounded-lg shadow-md"
-        />
-      </View>
+{/* Search bar */}
+<View className="px-4 flex-row items-center bg-white rounded-lg shadow-md mx-2">
+  <Ionicons name="search" size={20} color="#888" className="mr-2" />
+  <TextInput
+    placeholder="Search by name, category, or description..."
+    value={searchTerm}
+    onChangeText={handleSearch}
+    className="flex-1 px-4 py-2"
+  />
+</View>
 
       {/* Scroll view for delisted items */}
       <ScrollView className="p-4">
