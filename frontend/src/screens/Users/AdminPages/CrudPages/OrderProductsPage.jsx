@@ -555,7 +555,7 @@ function OrderProductsPage() {
                             </div>
                             <div className="flex justify-end mt-4">
                                 <button type="button" onClick={resetForm} className="bg-gray-400 text-white p-2 rounded mr-2">Cancel</button>
-                                <button type="submit" className="bg-green-600 text-white p-2 rounded">Update</button>
+                                <button type="submit" className="bg-green-600 text-white p-2 rounded">Save</button>
                             </div>
                         </form>
                     </div>

@@ -42,7 +42,6 @@ function UsersPage() {
                 const fullNameMatches = `${user.firstname} ${user.middlename} ${user.lastname}`.toLowerCase().includes(searchValue);
                 const phoneMatches = user.phone_number?.toLowerCase().includes(searchValue) || user.alt_phone_number?.toLowerCase().includes(searchValue);
                 
-                // Find the user type name based on user_type_id
                 const userTypeName = userTypes.find(type => type.user_type_id === user.user_type_id)?.user_type_name || '';
                 const userTypeMatches = userTypeName.toLowerCase().includes(searchValue);
     
@@ -53,8 +52,6 @@ function UsersPage() {
             })
         );
     }, [searchQuery, users, genderFilter, userTypeFilter, userTypes]);
-    
-    
 
     const fetchUsers = async () => {
         try {
@@ -431,7 +428,7 @@ function UsersPage() {
 
                             <div className="flex justify-end mt-4">
                                 <button onClick={() => setShowEditModal(false)}  className="bg-gray-500 text-white px-4 py-2 mr-2 rounded">Cancel</button>
-                                <button type="submit" className="bg-[#00B251] text-white px-4 py-2 rounded">Update</button>
+                                <button type="submit" className="bg-[#00B251] text-white px-4 py-2 rounded">Save</button>
                             </div>
                         </form>
                     </div>

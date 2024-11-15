@@ -14,21 +14,21 @@ function CropsPage() {
     category_id: '',
     shop_id: '',
     image: null,
-    crop_rating: '',
     crop_price: '',
     crop_quantity: '',
-    crop_weight: '',
     metric_system_id: ''
   });
   const [categories, setCategories] = useState([]);
   const [subcategories, setSubcategories] = useState([]);
+  const [varieties, setCropVarieties] = useState([]);
   const [shops, setShops] = useState([]);
   const [metricSystems, setMetricSystems] = useState([]);
   const [isEdit, setIsEdit] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedVariety, setSelectedVariety] = useState('');
+  const [selectedSubcategory, setSelectedSubcategory] = useState('');
   const [selectedShop, setSelectedShop] = useState('');
-  const [selectedRatingRange, setSelectedRatingRange] = useState('');
   const [selectedMetricSystem, setSelectedMetricSystem] = useState('');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -39,6 +39,7 @@ function CropsPage() {
     fetchCrops();
     fetchCategories();
     fetchSubcategories();
+    fetchCropVarieties();
     fetchShops();
     fetchMetricSystems();
   }, []);
@@ -69,13 +70,25 @@ function CropsPage() {
 
   const fetchSubcategories = async () => {
     try {
-      const response = await fetch('/api/crop_subcategories', {
+      const response = await fetch('/api/crop_sub_categories', {
         headers: { 'x-api-key': API_KEY },
       });
       const data = await response.json();
       setSubcategories(data);
     } catch (error) {
       console.error('Error fetching crop subcategories:', error);
+    }
+  };
+
+  const fetchCropVarieties = async () => {
+    try {
+      const response = await fetch('/api/crop_varieties', {
+        headers: { 'x-api-key': API_KEY },
+      });
+      const data = await response.json();
+      setCropVarieties(data);
+    } catch (error) {
+      console.error('Error fetching crop varieties:', error);
     }
   };
 
@@ -167,7 +180,6 @@ function CropsPage() {
       image: null,
       crop_price: '',
       crop_quantity: '',
-      crop_weight: '',
       metric_system_id: ''
     });
   };
@@ -201,28 +213,32 @@ function CropsPage() {
     }
   };
 
-  const getRatingRange = (rating) => {
-    if (rating >= 0 && rating <= 1) return '0-1';
-    if (rating >= 2 && rating <= 3) return '2-3';
-    if (rating >= 4 && rating <= 5) return '4-5';
-    if (rating >= 6 && rating <= 7) return '6-7';
-    if (rating >= 8 && rating <= 9) return '8-9';
-    return '';
-  };
-
   const filteredCrops = crops.filter((crop) => {
-    const matchesSearch = crop.crop_name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = crop.crop_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        crop.crop_description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        crop.crop_price.toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (categories.find(category => category.crop_category_id === crop.category_id)?.crop_category_name.toLowerCase().includes(searchTerm.toLowerCase()) || '') ||
+        (subcategories.find(subcategory => subcategory.crop_sub_category_id === crop.sub_category_id)?.crop_sub_category_name.toLowerCase().includes(searchTerm.toLowerCase()) || '') ||
+        (varieties.find(variety=> variety.crop_variety_id === crop.crop_variety_id)?.crop_variety_name.toLowerCase().includes(searchTerm.toLowerCase()) || '') ||
+        (metricSystems.find(metric=> metric.metric_system_id === crop.metric_system_id)?.metric_system_name.toLowerCase().includes(searchTerm.toLowerCase()) || '');
+
+
+
     const matchesCategory = selectedCategory
       ? crop.category_id === parseInt(selectedCategory)
       : true;
+    const matchesSubcategory = selectedSubcategory
+      ? crop.sub_category_id === parseInt(selectedSubcategory)
+      : true;
+    const matchesVariety = selectedVariety
+      ? crop.crop_variety_id === parseInt(selectedVariety)
+      : true;
     const matchesShop = selectedShop ? crop.shop_id === parseInt(selectedShop) : true;
-    
     const matchesMetricSystem = selectedMetricSystem
       ? crop.metric_system_id === parseInt(selectedMetricSystem)
       : true;
-    return matchesSearch && matchesCategory && matchesShop && matchesMetricSystem;
+    return matchesSearch && matchesCategory && matchesSubcategory && matchesVariety && matchesShop && matchesMetricSystem;
   });
-
 
   const exportToPDF = () => {
     const doc = new jsPDF('landscape');
@@ -244,11 +260,11 @@ function CropsPage() {
       crop.crop_description,
       categories.find(category => category.crop_category_id === crop.category_id)?.crop_category_name || 'N/A',
       subcategories.find(subcategory => subcategory.crop_subcategory_id === crop.subcategory_id)?.crop_subcategory_name || 'N/A',
+      varieties.find(variety => variety.crop_variety_id === crop.crop_variety_id)?.crop_variety_name || 'N/A',
       shops.find(shop => shop.shop_id === crop.shop_id)?.shop_name || 'N/A',
       crop.crop_image,
       crop.crop_price,
       crop.crop_quantity,
-      crop.crop_weight,
       metricSystems.find(metric => metric.metric_system_id === crop.metric_system_id)?.metric_system_name || 'N/A',
     ]);
 
@@ -287,6 +303,32 @@ function CropsPage() {
                 {category.crop_category_name}
               </option>
             ))}
+          </select>
+
+          <select
+            value={selectedSubcategory}
+            onChange={(e) => setSelectedSubcategory(e.target.value)}
+            className="p-2 border rounded w-1/8"
+          >
+            <option value="">All Subcategories</option>
+            {subcategories.map(subcategory => (
+                <option key={subcategory.crop_sub_category_id} value={subcategory.crop_sub_category_id}>
+                  {subcategory.crop_sub_category_name}
+                </option>
+            ))}
+          </select>
+
+          <select
+            value={selectedVariety}
+            onChange={(e) => setSelectedVariety(e.target.value)}
+            className="p-2 border rounded w-1/12"
+          >
+            <option value="">All Varieties</option>
+                {varieties.map(variety => (
+                  <option key={variety.crop_variety_id} value={variety.crop_variety_id}>
+                    {variety.crop_variety_name}
+                  </option>
+                ))}
           </select>
 
           <select
@@ -347,7 +389,10 @@ function CropsPage() {
                 {categories.find(category => category.crop_category_id === crop.category_id)?.crop_category_name || 'N/A'}
               </td>
               <td className="p-2">
-                {subcategories.find(subcategory => subcategory.crop_subcategory_id === crop.subcategory_id)?.crop_subcategory_name || 'N/A'}
+                {subcategories.find(subcategory => subcategory.crop_sub_category_id === crop.sub_category_id)?.crop_sub_category_name || 'N/A'}
+              </td>
+              <td className="p-2">
+                {varieties.find(variety => variety.crop_variety_id === crop.crop_variety_id)?.crop_variety_name || 'N/A'}
               </td>
               <td className="p-2">
                 {shops.find(shop => shop.shop_id === crop.shop_id)?.shop_name || 'N/A'}
@@ -377,7 +422,7 @@ function CropsPage() {
             <h2 className="text-xl font-bold mb-4 text-[#00B251]">{isEdit ? 'Edit Crop' : 'Add Crop'}</h2>
             <form className="space-y-4" onSubmit={isEdit ? handleEditSubmit : handleCreateSubmit}>
             
-            <p className="text-l font-bold mb-4" style={{ marginBottom: '5px' }}>Crop Name</p>
+            <p className="text-l font-bold mb-4" style={{ marginBottom: '-15px' }}>Crop Name</p>
               <input
                 type="text"
                 name="crop_name"
@@ -388,7 +433,7 @@ function CropsPage() {
                 className="p-2 border rounded mb-2 w-full"
               />
 
-            <p className="text-l font-bold mb-4" style={{ marginBottom: '5px' }}>Crop Description</p>
+            <p className="text-l font-bold mb-4" style={{ marginBottom: '-15px' }}>Crop Description</p>
               <input
                 type="text"
                 name="crop_description"
@@ -398,7 +443,7 @@ function CropsPage() {
                 className="p-2 border rounded mb-2 w-full"
               />
 
-            <p className="text-l font-bold mb-4" style={{ marginBottom: '5px' }}>Crop Category</p>
+              <p className="text-l font-bold mb-4" style={{ marginBottom: '-15px' }}>Crop Category</p>
               <select
                 name="category_id"
                 value={formData.category_id}
@@ -413,7 +458,40 @@ function CropsPage() {
                   </option>
                 ))}
               </select>
-            <p className="text-l font-bold mb-4" style={{ marginBottom: '5px' }}>Shop</p>
+
+              <p className="text-l font-bold mb-4" style={{ marginBottom: '-15px' }}>Subcategory</p>
+              <select
+                name="sub_category_id"
+                value={formData.crop_sub_category_id}
+                onChange={handleInputChange}
+                required
+                className="p-2 border rounded mb-2 w-full"
+              >
+                <option value="">Select Subcategory</option>
+                {subcategories.map(subcategory => (
+                  <option key={subcategory.crop_sub_category_id} value={subcategory.crop_sub_category_id}>
+                    {subcategory.crop_sub_category_name}
+                  </option>
+                ))}
+              </select>
+
+              <p className="text-l font-bold mb-4" style={{ marginBottom: '-15px' }}>Variety</p>
+              <select
+                name="variety_id"
+                value={formData.crop_variety_id}
+                onChange={handleInputChange}
+                required
+                className="p-2 border rounded mb-2 w-full"
+              >
+                <option value="">Select Variety</option>
+                {varieties.map(variety => (
+                  <option key={variety.crop_variety_id} value={variety.crop_variety_id}>
+                    {variety.crop_variety_name}
+                  </option>
+                ))}
+              </select>
+
+            <p className="text-l font-bold mb-4" style={{ marginBottom: '-15px' }}>Shop</p>
               <select
                 name="shop_id"
                 value={formData.shop_id}
@@ -428,7 +506,7 @@ function CropsPage() {
                   </option>
                 ))}
               </select>
-            <p className="text-l font-bold mb-4" style={{ marginBottom: '5px' }}>Crop Image</p>
+            <p className="text-l font-bold mb-4" style={{ marginBottom: '-15px' }}>Crop Image</p>
               <input
                 type="file"
                 name="image"
@@ -437,7 +515,7 @@ function CropsPage() {
                 required={!isEdit}
                 className="p-2 border rounded mb-2 w-full"
               />
-            <p className="text-l font-bold mb-4" style={{ marginBottom: '5px' }}>Price</p>
+            <p className="text-l font-bold mb-4" style={{ marginBottom: '-15px' }}>Price</p>
               <input
                 type="number"
                 step="0.01"
@@ -448,7 +526,7 @@ function CropsPage() {
                 required
                 className="p-2 border rounded mb-2 w-full"
               />
-            <p className="text-l font-bold mb-4" style={{ marginBottom: '5px' }}>Quantity</p>
+            <p className="text-l font-bold mb-4" style={{ marginBottom: '-15px' }}>Quantity</p>
               <input
                 type="number"
                 name="crop_quantity"
@@ -457,17 +535,8 @@ function CropsPage() {
                 placeholder="Crop Quantity"
                 className="p-2 border rounded mb-2 w-full"
               />
-            <p className="text-l font-bold mb-4" style={{ marginBottom: '5px' }}>Weight</p>
-              <input
-                type="number"
-                step="0.0001"
-                name="crop_weight"
-                value={formData.crop_weight}
-                onChange={handleInputChange}
-                placeholder="Crop Weight"
-                className="p-2 border rounded mb-2 w-full"
-              />
-            <p className="text-l font-bold mb-4" style={{ marginBottom: '5px' }}>Metric System</p>
+
+            <p className="text-l font-bold mb-4" style={{ marginBottom: '-15px' }}>Metric System</p>
               <select
                 name="metric_system_id"
                 value={formData.metric_system_id}
@@ -497,7 +566,7 @@ function CropsPage() {
                   type="submit"
                  className="bg-green-600 text-white p-2 rounded"
               >
-                {isEdit ? 'Update' : 'Create'}
+                {isEdit ? 'Save' : 'Create'}
               </button>
             </div>
           </div>

@@ -7,6 +7,7 @@ const API_KEY = import.meta.env.VITE_API_KEY;
 
 function ShopsPage() {
     const [shops, setShops] = useState([]);
+    const [users, setUsers] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [filter, setFilter] = useState({
         delivery: '',
@@ -43,6 +44,7 @@ function ShopsPage() {
 
     useEffect(() => {
         fetchShops();
+        fetchUsers();
     }, []);
 
     const fetchShops = async () => {
@@ -59,6 +61,22 @@ function ShopsPage() {
             console.error('Error fetching shops:', error);
         }
     };
+
+    const fetchUsers = async () => {
+        try {
+            const response = await fetch('/api/users', {
+                headers: {
+                    'x-api-key': API_KEY,
+                },
+            });
+            if (!response.ok) throw new Error('Network response was not ok');
+            const data = await response.json();
+            setUsers(data);
+        } catch (error) {
+            console.error('Error fetching users:', error);
+        }
+    };
+
 
     const handleInputChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -180,9 +198,18 @@ function ShopsPage() {
         const matchesCod = filter.cod === '' || (filter.cod === 'Yes' && shop.cod) || (filter.cod === 'No' && !shop.cod);
         const matchesBank = filter.bank === '' || (filter.bank === 'Yes' && shop.bank) || (filter.bank === 'No' && !shop.bank);
       
-
         const matchesSearch = shop.shop_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            shop.shop_address.toLowerCase().includes(searchTerm.toLowerCase());
+            shop.shop_address.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            shop.shop_description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            shop.shop_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (() => {
+                const user = users.find(user => user.user_id === shop.user_id);
+                if (user) {
+                    const fullName = `${user.firstname} ${user.lastname}`.toLowerCase();
+                    return fullName.includes(searchTerm.toLowerCase());
+                }
+                return false;
+            })();
 
         return matchesDelivery && matchesPickup && matchesGcash && matchesCod && matchesBank && matchesSearch;
     });
@@ -257,7 +284,7 @@ function ShopsPage() {
                             <th className="py-2 px-4 text-xs sm:text-sm">Shop Name</th>
                             <th className="py-2 px-4 text-xs sm:text-sm">Address</th>
                             <th className="py-2 px-4 text-xs sm:text-sm">Description</th>
-                            <th className="py-2 px-4 text-xs sm:text-sm">User ID</th>
+                            <th className="py-2 px-4 text-xs sm:text-sm">User</th>
                             <th className="py-2 px-4 text-xs sm:text-sm">Delivery</th>
                             <th className="py-2 px-4 text-xs sm:text-sm">Pickup</th>
                             <th className="py-2 px-4 text-xs sm:text-sm">Delivery Price</th>
@@ -280,7 +307,12 @@ function ShopsPage() {
                                 <td className="border px-4 py-2 text-xs sm:text-sm">{shop.shop_name}</td>
                                 <td className="border px-4 py-2 text-xs sm:text-sm">{shop.shop_address}</td>
                                 <td className="border px-4 py-2 text-xs sm:text-sm">{shop.shop_description}</td>
-                                <td className="border px-4 py-2 text-xs sm:text-sm">{shop.user_id}</td>
+                                <td className="p-2">
+                                    {(() => {
+                                        const user = users.find(user => user.user_id === shop.user_id);
+                                        return user ? `${user.firstname} ${user.lastname}` : 'N/A';
+                                    })()}
+                                </td>
                                 <td className="border px-4 py-2 text-xs sm:text-sm">{shop.delivery ? 'Yes' : 'No'}</td>
                                 <td className="border px-4 py-2 text-xs sm:text-sm">{shop.pickup ? 'Yes' : 'No'}</td>
                                 <td className="border px-4 py-2 text-xs sm:text-sm">{shop.delivery_price}</td>
@@ -313,58 +345,63 @@ function ShopsPage() {
 
 
             {isModalOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center overflow-y-auto">
-                    <form onSubmit={handleSubmit} className="bg-white p-6 rounded-md w-full max-w-lg space-y-4">
-                        <h2 className="text-2xl font-bold text-center mb-4 text-green-600">{isEdit ? 'Edit Shop' : 'Add Shop'}</h2>
-                        <div className="grid grid-cols-1 gap-4">
-                            {Object.keys(formData).map((field) => (
-                                field !== 'shop_id' && !['shop_image_url', 'bir_image_url'].includes(field) && (
-                                    <div key={field} className="flex flex-col">
-                                        <label htmlFor={field} className="text-sm font-semibold text-gray-700">{field.replace('_', ' ').toUpperCase()}</label>
-                                        <div className="flex items-center">
-                                            <input
-                                                type={typeof formData[field] === 'boolean' ? 'checkbox' : 'text'}
-                                                name={field}
-                                                value={formData[field] || ''}
-                                                onChange={handleInputChange}
-                                                className="p-2 border rounded-md"
-                                                checked={typeof formData[field] === 'boolean' ? formData[field] : undefined}
-                                            />
-                                            {typeof formData[field] === 'boolean' && (
-                                                <span className="ml-2">Check to enable</span> // Optional, or remove
-                                            )}
+               <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center overflow-y-auto pt-16">
+    <div className="bg-white p-6 rounded-md w-full sm:max-w-sm md:max-w-md lg:max-w-lg h-full max-h-[90vh] overflow-y-auto">
+                        <form onSubmit={handleSubmit} className="space-y-4">
+                            <h2 className="text-2xl font-bold mb-4 text-green-600">
+                                {isEdit ? 'Edit Shop' : 'Add Shop'}
+                            </h2>
+                            <div className="grid grid-cols-1 gap-4">
+                                {Object.keys(formData).map((field) => (
+                                    field !== 'shop_id' && !['shop_image_url', 'bir_image_url'].includes(field) && (
+                                        <div key={field} className="flex flex-col">
+                                            <label htmlFor={field} className="text-sm font-semibold text-gray-700">
+                                                {field.replace('_', ' ').toUpperCase()}
+                                            </label>
+                                            <div className="flex items-center">
+                                                <input
+                                                    type={typeof formData[field] === 'boolean' ? 'checkbox' : 'text'}
+                                                    name={field}
+                                                    value={formData[field] || ''}
+                                                    onChange={handleInputChange}
+                                                    className="p-2 border rounded-md"
+                                                    checked={typeof formData[field] === 'boolean' ? formData[field] : undefined}
+                                                />
+                                                {typeof formData[field] === 'boolean' && (
+                                                    <span className="ml-2">Check to enable</span>
+                                                )}
+                                            </div>
                                         </div>
-                                    </div>
-                                )
-                            ))}
-
-
-                            <div className="flex flex-col col-span-2">
-                                <label className="text-sm font-semibold text-gray-700">Shop Image</label>
-                                <input
-                                    type="file"
-                                    name="shop_image_url"
-                                    accept="image/*"
-                                    onChange={handleFileChange}
-                                    className="p-2 border rounded-md"
-                                />
+                                    )
+                                ))}
+                
+                                <div className="flex flex-col col-span-2">
+                                    <label className="text-sm font-semibold text-gray-700">Shop Image</label>
+                                    <input
+                                        type="file"
+                                        name="shop_image_url"
+                                        accept="image/*"
+                                        onChange={handleFileChange}
+                                        className="p-2 border rounded-md"
+                                    />
+                                </div>
+                                <div className="flex flex-col col-span-2">
+                                    <label className="text-sm font-semibold text-gray-700">BIR Image</label>
+                                    <input
+                                        type="file"
+                                        name="bir_image_url"
+                                        accept="image/*"
+                                        onChange={handleFileChange}
+                                        className="p-2 border rounded-md"
+                                    />
+                                </div>
                             </div>
-                            <div className="flex flex-col col-span-2">
-                                <label className="text-sm font-semibold text-gray-700">BIR Image</label>
-                                <input
-                                    type="file"
-                                    name="bir_image_url"
-                                    accept="image/*"
-                                    onChange={handleFileChange}
-                                    className="p-2 border rounded-md"
-                                />
+                            <div className="flex justify-end space-x-2 mt-4">
+                                <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 bg-gray-500 text-white rounded-md">Cancel</button>
+                                <button type="submit" className="px-4 py-2 bg-green-600 text-white rounded-md">{isEdit ? 'Save' : 'Create'}</button>
                             </div>
-                        </div>
-                        <div className="flex justify-end space-x-2 mt-4">
-                            <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 bg-gray-500 text-white rounded-md">Cancel</button>
-                            <button type="submit" className="px-4 py-2 bg-green-600 text-white rounded-md">{isEdit ? 'Save' : 'Create'}</button>
-                        </div>
-                    </form>
+                        </form>
+                    </div>
                 </div>
             )}
 

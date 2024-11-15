@@ -30,7 +30,19 @@ function CropVarietyPageCRUD() {
     fetchCropVarieties();
     fetchCategories();
     fetchSubCategories();
-  }, []);
+  
+    if (isAddModalOpen) {
+      // Reset the form data when the modal opens for adding a new crop variety
+      setFormData({
+        crop_variety_name: '',
+        crop_variety_description: '',
+        crop_category_id: '',
+        crop_sub_category_id: '',
+        image: null,
+      });
+    }
+  }, [isAddModalOpen]); // Add isAddModalOpen as a dependency
+  
 
   const fetchCropVarieties = async () => {
     try {
@@ -221,18 +233,25 @@ function CropVarietyPageCRUD() {
   return (
     <div className="p-8">
       <h1 className="text-2xl font-bold text-center text-[#00B251]">Crop Variety Management</h1>
-      <div className="flex justify-between my-4">
+
+      <button
+        onClick={() => setIsAddModalOpen(true)}
+        className="bg-[#00B251] text-white px-4 py-2 rounded"
+      >
+        + Variety
+      </button>
+      <div className="flex gap-4 my-4 flex-nowrap">
         <input
           type="text"
           placeholder="Search Varieties"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="p-2 border rounded w-full sm:w-1/2"
+          className="p-2 border rounded w-full sm:w-1/4"
         />
         <select
           value={selectedCategory}
           onChange={(e) => setSelectedCategory(e.target.value)}
-          className="p-2 border rounded w-1/4"
+          className="p-2 border rounded w-1/8"
         >
           <option value="">Filter by Category</option>
           {categories.map((category) => (
@@ -244,7 +263,7 @@ function CropVarietyPageCRUD() {
         <select
           value={selectedSubCategory}
           onChange={(e) => setSelectedSubCategory(e.target.value)}
-          className="p-2 border rounded w-1/4"
+          className="p-2 border rounded w-1/8"
         >
           <option value="">Filter by Sub-Category</option>
           {subCategories.map((subCategory) => (
@@ -262,31 +281,31 @@ function CropVarietyPageCRUD() {
       </div>
 
       <div className="overflow-x-auto">
-        <table className="min-w-full table-auto">
+        <table className="min-w-full border border-gray-300 rounded-lg overflow-hidden">
           <thead>
             <tr className="bg-[#00B251] text-white">
-              <th>ID</th>
-              <th>Name</th>
-              <th>Description</th>
-              <th>Category</th>
-              <th>Sub-Category</th>
-              <th>Image</th>
-              <th>Actions</th>
+              <th className="p-2 text-center">ID</th>
+              <th className="p-2 text-center">Name</th>
+              <th className="p-2 text-center">Description</th>
+              <th className="p-2 text-center">Category</th>
+              <th className="p-2 text-center">Sub-Category</th>
+              <th className="p-2 text-center">Image</th>
+              <th className="p-2 text-center">Actions</th>
             </tr>
           </thead>
           <tbody>
             {filteredVarieties.map((variety) => (
-              <tr key={variety.crop_variety_id}>
-                <td>{variety.crop_variety_id}</td>
-                <td>{variety.crop_variety_name}</td>
-                <td>{variety.crop_variety_description}</td>
-                <td>
+              <tr key={variety.crop_variety_id} className="py-2">
+                <td className="py-2 text-center">{variety.crop_variety_id}</td>
+                <td className="py-2 text-center">{variety.crop_variety_name}</td>
+                <td className="py-2 max-w-xs truncate">{variety.crop_variety_description}</td>
+                <td className="py-2 text-center">
                   {categories.find(category => category.crop_category_id === variety.crop_category_id)?.crop_category_name}
                 </td>
-                <td>
+                <td className="py-2 text-center">
                   {subCategories.find(subCategory => subCategory.crop_sub_category_id === variety.crop_sub_category_id)?.crop_sub_category_name}
                 </td>
-                <td>
+                <td className="py-2">
                   {variety.crop_variety_image_url ? (
                     <img
                       src={variety.crop_variety_image_url}
@@ -297,7 +316,9 @@ function CropVarietyPageCRUD() {
                     <span>No Image</span>
                   )}
                 </td>
-                <td>
+                <td className="py-2 text-center">
+                
+
                   <button onClick={() => handleEdit(variety)} className="bg-[#00B251] text-white py-1 px-2 rounded">
                     Edit
                   </button>
@@ -313,8 +334,8 @@ function CropVarietyPageCRUD() {
 
       {/* Modal for Add/Edit */}
       {(isAddModalOpen || isEditModalOpen) && (
-        <div className="modal fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg w-full sm:w-1/2">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg max-h-[80vh] overflow-y-auto">
             <h2 className="text-xl font-bold mb-4">{isEdit ? 'Edit' : 'Add'} Crop Variety</h2>
             <form onSubmit={isEdit ? handleEditSubmit : handleCreateSubmit}>
               <div className="mb-4">
@@ -380,6 +401,7 @@ function CropVarietyPageCRUD() {
                   type="file"
                   id="image"
                   name="image"
+                  accept="image/*"
                   onChange={handleImageChange}
                   className="w-full p-2 border rounded"
                 />
@@ -396,7 +418,7 @@ function CropVarietyPageCRUD() {
                   type="submit"
                   className="bg-[#00B251] text-white px-4 py-2 rounded"
                 >
-                  {isEdit ? 'Update Variety' : 'Add Variety'}
+                  {isEdit ? 'Save' : 'Create'}
                 </button>
               </div>
             </form>
