@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { View, ScrollView, Text, TouchableOpacity, Modal, TextInput } from "react-native";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import ReadScreen from "../Message/ReadScreen";
 import UnreadScreen from "../Message/UnreadScreen";
 import Icon from "react-native-vector-icons/FontAwesome";
-import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from '@env';
-import { styled } from 'nativewind';
+import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
+import { styled } from "nativewind";
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -16,11 +17,39 @@ function NotificationScreen() {
   const [searchText, setSearchText] = useState("");
   const [filteredUnreadNotifications, setFilteredUnreadNotifications] = useState([]);
   const [filteredReadNotifications, setFilteredReadNotifications] = useState([]);
+  const [userData, setUserData] = useState(null);
+  const [userId, setUserId] = useState(null);
+
+  // Fetch logged-in user from AsyncStorage
+  const getAsyncUserData = async () => {
+    try {
+      const storedData = await AsyncStorage.getItem("userData");
+      console.log("Stored userData:", storedData); // Debugging line
+      if (storedData) {
+        const parsedData = JSON.parse(storedData);
+        console.log("Parsed userData:", parsedData); // Debugging line
+        if (Array.isArray(parsedData)) {
+          const user = parsedData[0];
+          setUserData(user);
+          setUserId(user.user_id);
+        } else {
+          setUserData(parsedData);
+          setUserId(parsedData.user_id);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to load user data:", error);
+    }
+  };
+  
 
   // Fetch notifications when the component mounts
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
+        // Ensure user data is loaded before fetching notifications
+        if (!userId) return;
+
         const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/notifications`, {
           headers: {
             "x-api-key": REACT_NATIVE_API_KEY,
@@ -31,11 +60,14 @@ function NotificationScreen() {
         }
         const data = await response.json();
 
-        const unread = data
+        // Filter notifications for the current user
+        const userNotifications = data.filter((notif) => notif.user_id === userId);
+
+        const unread = userNotifications
           .filter((notif) => !notif.is_read)
           .sort((a, b) => b.notification_id - a.notification_id);
 
-        const read = data
+        const read = userNotifications
           .filter((notif) => notif.is_read)
           .sort((a, b) => b.notification_id - a.notification_id);
 
@@ -49,6 +81,11 @@ function NotificationScreen() {
     };
 
     fetchNotifications();
+  }, [userId]);
+
+  // Fetch user data when the component mounts
+  useEffect(() => {
+    getAsyncUserData();
   }, []);
 
   // Update filtered notifications based on search input
@@ -128,11 +165,7 @@ function NotificationScreen() {
   return (
     <View className="flex-1">
       {/* Custom Alert Modal */}
-      <Modal
-        visible={alertVisible}
-        transparent={true}
-        animationType="fade"
-      >
+      <Modal visible={alertVisible} transparent={true} animationType="fade">
         <View className="flex-1 justify-center items-center bg-black/50">
           <View className="bg-white w-4/5 p-5 rounded-lg shadow-lg">
             <Text className="text-lg font-bold text-green-600 mb-3">Notifications Updated</Text>

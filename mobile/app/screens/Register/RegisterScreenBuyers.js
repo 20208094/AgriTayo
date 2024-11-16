@@ -10,9 +10,11 @@ import {
   Alert,
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import { FontAwesome5 } from "@expo/vector-icons";
 import { FontAwesome } from "@expo/vector-icons";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 import GoBack from "../../components/GoBack";
+import { Ionicons } from "@expo/vector-icons";
 
 function RegisterScreenBuyers({ navigation }) {
   const [firstName, setFirstName] = useState("");
@@ -36,50 +38,60 @@ function RegisterScreenBuyers({ navigation }) {
   const [secondaryPhoneNumberError, setSecondaryPhoneNumberError] =
     useState("");
 
-    const [phoneNumbersList, setPhoneNumbersList] = useState([]);
-    const [phoneSecondaryNumbersList, setSecondaryPhoneNumbersList] = useState([]);
+  const [phoneNumbersList, setPhoneNumbersList] = useState([]);
+  const [phoneSecondaryNumbersList, setSecondaryPhoneNumbersList] = useState([]);
 
-    useEffect(() => {
-      const fetchPhoneNumbers = async () => {
-        try {
-          const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/users`, {
-            headers: { "x-api-key": REACT_NATIVE_API_KEY },
-          });
-          if (response.ok) {
-            const data = await response.json();
-            const numbers = data.map((user) => user.phone_number);
-            setPhoneNumbersList(numbers);
-          } else {
-            console.error("Failed to fetch phone numbers");
-          }
-        } catch (error) {
-          console.error("Error fetching phone numbers:", error);
-        }
-      };
-  
-      fetchPhoneNumbers();
-    }, []);
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] = useState(false);
 
-    useEffect(() => {
-      const fetchSecondaryPhoneNumbers = async () => {
-        try {
-          const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/users`, {
-            headers: { "x-api-key": REACT_NATIVE_API_KEY },
-          });
-          if (response.ok) {
-            const data = await response.json();
-            const numbers = data.map((user) => user.secondary_phone_number);
-            setSecondaryPhoneNumbersList(numbers);
-          } else {
-            console.error("Failed to fetch phone numbers");
-          }
-        } catch (error) {
-          console.error("Error fetching phone numbers:", error);
+
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+
+  const togglePasswordVisibility = () => setIsPasswordVisible(!isPasswordVisible);
+  const toggleConfirmPasswordVisibility = () => setIsConfirmPasswordVisible(!isConfirmPasswordVisible);
+
+  useEffect(() => {
+    const fetchPhoneNumbers = async () => {
+      try {
+        const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/users`, {
+          headers: { "x-api-key": REACT_NATIVE_API_KEY },
+        });
+        if (response.ok) {
+          const data = await response.json();
+          const numbers = data.map((user) => user.phone_number);
+          setPhoneNumbersList(numbers);
+        } else {
+          console.error("Failed to fetch phone numbers");
         }
-      };
-  
-      fetchSecondaryPhoneNumbers();
-    }, []);
+      } catch (error) {
+        console.error("Error fetching phone numbers:", error);
+      }
+    };
+
+    fetchPhoneNumbers();
+  }, []);
+
+  useEffect(() => {
+    const fetchSecondaryPhoneNumbers = async () => {
+      try {
+        const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/users`, {
+          headers: { "x-api-key": REACT_NATIVE_API_KEY },
+        });
+        if (response.ok) {
+          const data = await response.json();
+          const numbers = data.map((user) => user.secondary_phone_number);
+          setSecondaryPhoneNumbersList(numbers);
+        } else {
+          console.error("Failed to fetch phone numbers");
+        }
+      } catch (error) {
+        console.error("Error fetching phone numbers:", error);
+      }
+    };
+
+    fetchSecondaryPhoneNumbers();
+  }, []);
 
   const [loading, setLoading] = useState(false);
 
@@ -150,12 +162,12 @@ function RegisterScreenBuyers({ navigation }) {
       setSecondaryPhoneNumberError(
         "Invalid alternative phone number format. Please use 09 followed by 9 digits."
       );
-    } 
+    }
     else if (text === phone) {
       setSecondaryPhoneNumberError(
         "Same number as the phone number. Please input another number."
       );
-    } 
+    }
     else {
       setSecondaryPhoneNumberError("");
     }
@@ -174,17 +186,20 @@ function RegisterScreenBuyers({ navigation }) {
     formData.append("user_type_id", "3");
 
     if (phone && secondaryPhoneNumber && (phoneNumbersList.includes(phone) || phoneSecondaryNumbersList.includes(phone)) && (phoneNumbersList.includes(secondaryPhoneNumber) || phoneSecondaryNumbersList.includes(secondaryPhoneNumber))) {
-      Alert.alert("", "Both Phone and Alternative Number are Already Registered");
+      setAlertMessage("Both Phone and Alternative Number are Already Registered");
+      setAlertVisible(true);
       return;
     }
 
     if (phone && (phoneNumbersList.includes(phone) || phoneSecondaryNumbersList.includes(phone))) {
-      Alert.alert("", "Phone Number is Already Registered");
+      setAlertMessage("Phone Number is Already Registered");
+      setAlertVisible(true);
       return;
     }
 
     if (secondaryPhoneNumber && (phoneSecondaryNumbersList.includes(secondaryPhoneNumber) || phoneNumbersList.includes(secondaryPhoneNumber))) {
-      Alert.alert("", "Alternative Phone Number is Already Registered");
+      setAlertMessage("Alternative Phone Number is Already Registered");
+      setAlertVisible(true);
       return;
     }
 
@@ -429,13 +444,22 @@ function RegisterScreenBuyers({ navigation }) {
               </Text>
             ) : null}
           </Text>
-          <TextInput
-            className="w-full p-2 mb-4 bg-white rounded-lg shadow-md"
-            placeholder="•••••••"
-            secureTextEntry
-            value={password}
-            onChangeText={validatePassword} // Real-time validation
-          />
+          <View className="flex-row items-center w-full p-2 mb-4 bg-white rounded-lg shadow-md">
+            <TextInput
+              className="flex-1"
+              placeholder="•••••••"
+              secureTextEntry={!isPasswordVisible}
+              value={password}
+              onChangeText={validatePassword} // Real-time validation
+            />
+            <TouchableOpacity onPress={togglePasswordVisibility}>
+              <FontAwesome5
+                name={isPasswordVisible ? "eye" : "eye-slash"}
+                size={20}
+                color="gray"
+              />
+            </TouchableOpacity>
+          </View>
 
           {/* Confirm Password */}
           <Text className="text-sm mb-2 text-gray-800">
@@ -446,20 +470,29 @@ function RegisterScreenBuyers({ navigation }) {
               </Text>
             ) : null}
           </Text>
-          <TextInput
-            className="w-full p-2 mb-4 bg-white rounded-lg shadow-md"
-            placeholder="•••••••"
-            secureTextEntry
-            value={confirmPassword}
-            onChangeText={(text) => {
-              setConfirmPassword(text);
-              if (text !== password) {
-                setConfirmPasswordError("Passwords do not match.");
-              } else {
-                setConfirmPasswordError("");
-              }
-            }}
-          />
+          <View className="flex-row items-center w-full p-2 mb-4 bg-white rounded-lg shadow-md">
+            <TextInput
+              className="flex-1"
+              placeholder="•••••••"
+              secureTextEntry={!isConfirmPasswordVisible}
+              value={confirmPassword}
+              onChangeText={(text) => {
+                setConfirmPassword(text);
+                if (text !== password) {
+                  setConfirmPasswordError("Passwords do not match.");
+                } else {
+                  setConfirmPasswordError("");
+                }
+              }}
+            />
+            <TouchableOpacity onPress={toggleConfirmPasswordVisibility}>
+              <FontAwesome5
+                name={isConfirmPasswordVisible ? "eye" : "eye-slash"}
+                size={20}
+                color="gray"
+              />
+            </TouchableOpacity>
+          </View>
 
           {/* Submit Button */}
           <TouchableOpacity
@@ -476,6 +509,27 @@ function RegisterScreenBuyers({ navigation }) {
           >
             <Text className="text-gray-800 text-center font-bold">Cancel</Text>
           </TouchableOpacity>
+
+          {/* Alert Modal */}
+          <Modal
+            animationType="fade"
+            transparent={true}
+            visible={alertVisible}
+            onRequestClose={() => setAlertVisible(false)}
+          >
+            <View className="flex-1 justify-center items-center bg-black/50 bg-opacity-50">
+              <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
+                <Text className="text-lg font-semibold text-gray-900 mb-4">{alertMessage}</Text>
+                <TouchableOpacity
+                  className="mt-4 p-2 bg-[#00B251] rounded-lg flex-row justify-center items-center"
+                  onPress={() => setAlertVisible(false)}
+                >
+                  <Ionicons name="checkmark-circle-outline" size={24} color="white" />
+                  <Text className="text-lg text-white ml-2">OK</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
 
           {/* Modal for Registration Confirmation */}
           <Modal
