@@ -104,74 +104,81 @@ function RegisterScreenBuyers({ navigation }) {
   const phone_regex = /^(?:\+63|0)?9\d{9}$/;
   const secondaryPhone_regex = /^(?:\+63|0)?9\d{9}$/;
 
-  // Real-time validation handlers
-  const validateFirstName = (text) => {
-    setFirstName(text);
-    if (!firstname_regex.test(text)) {
-      setFirstNameError("Invalid First Name. Please enter atleast 2 letters.");
-    } else {
-      setFirstNameError("");
-    }
-  };
+ // Real-time validation handlers
+const validateFirstName = (text) => {
+  setFirstName(text);
+  if (text === "") {
+    setFirstNameError(""); // Remove error if input is empty
+  } else if (!firstname_regex.test(text)) {
+    setFirstNameError("Invalid First Name. Please enter at least 2 letters.");
+  } else {
+    setFirstNameError("");
+  }
+};
 
-  const validateMiddleName = (text) => {
-    setMiddleName(text);
-    if (!middlename_regex.test(text)) {
-      setMiddleNameError(
-        "Invalid Middle Name. Please enter atleast 2 letters."
-      );
-    } else {
-      setMiddleNameError("");
-    }
-  };
+const validateMiddleName = (text) => {
+  setMiddleName(text);
+  if (text === "") {
+    setMiddleNameError(""); // Remove error if input is empty
+  } else if (!middlename_regex.test(text)) {
+    setMiddleNameError("Invalid Middle Name. Please enter at least 2 letters.");
+  } else {
+    setMiddleNameError("");
+  }
+};
 
-  const validateLastName = (text) => {
-    setLastName(text);
-    if (!lastname_regex.test(text)) {
-      setLastNameError("Invalid Last Name. Please enter atleast 2 letters.");
-    } else {
-      setLastNameError("");
-    }
-  };
+const validateLastName = (text) => {
+  setLastName(text);
+  if (text === "") {
+    setLastNameError(""); // Remove error if input is empty
+  } else if (!lastname_regex.test(text)) {
+    setLastNameError("Invalid Last Name. Please enter at least 2 letters.");
+  } else {
+    setLastNameError("");
+  }
+};
 
-  const validatePassword = (text) => {
-    setPassword(text);
-    if (!password_regex.test(text)) {
-      setPasswordError(
-        "Invalid Password. Please enter 8-30 characters, including letters and numbers."
-      );
-    } else {
-      setPasswordError("");
-    }
-  };
+const validatePassword = (text) => {
+  setPassword(text);
+  if (text === "") {
+    setPasswordError(""); // Remove error if input is empty
+  } else if (!password_regex.test(text)) {
+    setPasswordError(
+      "Invalid Password. Please enter 8-30 characters, including letters and numbers."
+    );
+  } else {
+    setPasswordError("");
+  }
+};
 
-  const validatePhone = (text) => {
-    setPhone(text);
-    if (!phone_regex.test(text)) {
-      setPhoneError(
-        "Invalid phone number format. Please use 09 followed by 9 digits."
-      );
-    } else {
-      setPhoneError("");
-    }
-  };
+const validatePhone = (text) => {
+  setPhone(text);
+  if (text === "") {
+    setPhoneError(""); // Remove error if input is empty
+  } else if (!phone_regex.test(text)) {
+    setPhoneError("Invalid phone number format. Please use 09 followed by 9 digits.");
+  } else {
+    setPhoneError("");
+  }
+};
 
-  const validateSecondaryPhone = (text) => {
-    setSecondaryPhoneNumber(text);
-    if (!secondaryPhone_regex.test(text)) {
-      setSecondaryPhoneNumberError(
-        "Invalid alternative phone number format. Please use 09 followed by 9 digits."
-      );
-    }
-    else if (text === phone) {
-      setSecondaryPhoneNumberError(
-        "Same number as the phone number. Please input another number."
-      );
-    }
-    else {
-      setSecondaryPhoneNumberError("");
-    }
-  };
+const validateSecondaryPhone = (text) => {
+  setSecondaryPhoneNumber(text);
+  if (text === "") {
+    setSecondaryPhoneNumberError(""); // Remove error if input is empty
+  } else if (!secondaryPhone_regex.test(text)) {
+    setSecondaryPhoneNumberError(
+      "Invalid alternative phone number format. Please use 09 followed by 9 digits."
+    );
+  } else if (text === phone) {
+    setSecondaryPhoneNumberError(
+      "Same number as the phone number. Please input another number."
+    );
+  } else {
+    setSecondaryPhoneNumberError("");
+  }
+};
+
 
   const handleRegister = async () => {
     const formData = new FormData();
@@ -543,7 +550,7 @@ function RegisterScreenBuyers({ navigation }) {
             <View className="flex-1 justify-center items-center bg-black/50">
               <View className="bg-white rounded-lg p-6 w-80">
                 <Text className="text-lg font-bold mb-4">Register</Text>
-                <Text className="mb-4">Do you really want to register?</Text>
+                <Text className="mb-4">Confirm if all the details are correct</Text>
                 <View className="flex-row justify-between">
                   <TouchableOpacity
                     onPress={() => {
@@ -561,7 +568,7 @@ function RegisterScreenBuyers({ navigation }) {
                     }}
                     className="bg-[#00B251] p-2 rounded"
                   >
-                    <Text className="text-white">Yes</Text>
+                    <Text className="text-white">Confirm</Text>
                   </TouchableOpacity>
                 </View>
               </View>
