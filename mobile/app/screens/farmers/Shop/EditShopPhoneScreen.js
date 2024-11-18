@@ -70,24 +70,46 @@ function EditShopPhoneScreen({ navigation, route }) {
   useEffect(() => {
     if (isCLicked) {
       if (phoneNumbersList.includes(newPhone)) {
-        Alert.alert("", "Shop Phone Number is already registered")
-        setIsClicked(false)
-        } else {
-      const generateRandomCode = () => {
-        const code = Math.floor(100000 + Math.random() * 900000).toString();
-        setGeneratedCode(code);
-        console.log("Generated OTP code:", code); // For debugging
-        const title = "AgriTayo";
-        const message = `Your OTP code is: ${code}`;
-        const phone_number = newPhone;
-        socket.emit("sms sender", { title, message, phone_number });
-      };
+        Alert.alert("", "Shop Phone Number is already registered");
+        setIsClicked(false);
+      } else {
+        const generateRandomCode = () => {
+          const code = Math.floor(100000 + Math.random() * 900000).toString();
+          setGeneratedCode(code);
+          console.log("Generated OTP code:", code); // For debugging
+          const title = "AgriTayo";
+          const message = `Your OTP code is: ${code}`;
+          const phone_number = newPhone;
+          socket.emit("sms sender", { title, message, phone_number });
+        };
 
-      generateRandomCode(); // Generate OTP when isCLicked is true
-      setIsOtpVisible(true);
+        generateRandomCode(); // Generate OTP when isCLicked is true
+        setIsOtpVisible(true);
+      }
     }
-  }
   }, [isCLicked, newPhone, phoneNumbersList]); // Runs when the OTP button is clicked
+
+  useEffect(() => {
+    let interval = null;
+    if (seconds > 0) {
+      interval = setInterval(() => {
+        setSeconds((prevSeconds) => prevSeconds - 1);
+      }, 1000);
+    } else {
+      setIsResendEnabled(true);
+      clearInterval(interval);
+    }
+    return () => clearInterval(interval);
+  }, [seconds]);
+
+  const formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${String(minutes).padStart(2, "0")}:${String(secs).padStart(
+      2,
+      "0"
+    )}`;
+  };
 
   const handleOtp = async () => {
     setOtpError("");
@@ -168,6 +190,8 @@ function EditShopPhoneScreen({ navigation, route }) {
 
   const handleResend = () => {
     setIsClicked(false); // Temporarily set to false to retrigger OTP generation
+    setSeconds(10 * 60);
+    setIsResendEnabled(false);
     setTimeout(() => setIsClicked(true), 0); // Set back to true to generate a new OTP
   };
 
@@ -226,16 +250,37 @@ function EditShopPhoneScreen({ navigation, route }) {
               >
                 <Text className="text-white font-bold text-center">Submit</Text>
               </TouchableOpacity>
-              <TouchableOpacity className="bg-gray-200 px-4 py-2 rounded-lg mb-5" onPress={handleEditPhone}>
+              <TouchableOpacity
+                className="bg-gray-200 px-4 py-2 rounded-lg mb-5"
+                onPress={handleEditPhone}
+              >
                 <Text className="text-[#00B251] font-bold text-center">
                   Change Number
                 </Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={handleResend}>
-                <Text className="text-center font-bold text-[#00B251]">
-                  Resend OTP
+              <View className="flex-row items-center mb-6">
+                <Text className="text-gray-600">
+                  - Didn’t receive the code?{" "}
                 </Text>
-              </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={isResendEnabled ? handleResend : null}
+                  disabled={!isResendEnabled}
+                >
+                  <Text
+                    className={`text-${
+                      isResendEnabled ? "green-500" : "gray-400"
+                    }`}
+                  >
+                    Resend
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
+              {seconds > 0 && (
+                <Text className="text-gray-600 mb-4">
+                  - The OTP will expire in {formatTime(seconds)}
+                </Text>
+              )}
             </View>
           </>
         )}

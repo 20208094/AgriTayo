@@ -25,6 +25,9 @@ function OTPScreen({ route, navigation }) {
   const [message, setMessage] = useState("");
   const [phone_number, setPhone_Number] = useState("");
   const [seconds, setSeconds] = useState(10 * 60);
+  const [secondsSecondary, setSecondsSecondary] = useState(10 * 60);
+  const [isResendEnabled, setIsResendEnabled] = useState(false);
+  const [isResendEnabledSecondary, setIsResendEnabledSecondary] = useState(false);
 
   const socket = io(REACT_NATIVE_API_BASE_URL);
 
@@ -72,7 +75,9 @@ function OTPScreen({ route, navigation }) {
   useEffect(() => {
     generateRandomCode();
     generateRandomCode2();
+  }, [phone, secondaryPhoneNumber]); 
 
+  useEffect(() => {
     let interval = null;
     if (seconds > 0) {
       interval = setInterval(() => {
@@ -83,7 +88,29 @@ function OTPScreen({ route, navigation }) {
       clearInterval(interval);
     }
     return () => clearInterval(interval);
-  }, [phone, secondaryPhoneNumber]);
+  }, [seconds]);
+
+  useEffect(() => {
+    let intervalSecondary = null;
+    if (secondsSecondary > 0) {
+      intervalSecondary = setInterval(() => {
+        setSecondsSecondary((prevSeconds) => prevSeconds - 1);
+      }, 1000);
+    } else {
+      setIsResendEnabledSecondary(true);
+      clearInterval(intervalSecondary);
+    }
+    return () => clearInterval(intervalSecondary);
+  }, [secondsSecondary]);
+
+  const formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${String(minutes).padStart(2, "0")}:${String(secs).padStart(
+      2,
+      "0"
+    )}`;
+  };
 
   const handleOtp = async () => {
     setOtpError("");
@@ -141,10 +168,14 @@ function OTPScreen({ route, navigation }) {
   };
 
   const handleResend = () => {
+    setSeconds(10 * 60);
+    setIsResendEnabled(false);
     generateRandomCode();
   };
 
   const handleResend2 = () => {
+    setSecondsSecondary(10 * 60);
+    setIsResendEnabledSecondary(false);
     generateRandomCode2();
   };
 
@@ -194,11 +225,11 @@ function OTPScreen({ route, navigation }) {
         <Text className="text-3xl font-bold mb-4 text-gray-800 text-center">
           Verify Your Phone Numbers
         </Text>
-
         <View className="mb-6">
-          <Text className="text-gray-600 text-center">Phone: {phone}</Text>
+          <Text className="font-bold text-gray-600 text-center">
+            Phone: {phone}
+          </Text>
         </View>
-
         <View className="flex-row justify-between w-full max-w-xs mb-4">
           {otp.map((value, index) => (
             <TextInput
@@ -214,26 +245,36 @@ function OTPScreen({ route, navigation }) {
             />
           ))}
         </View>
-
-        <View className="flex-row items-center mb-6">
-          <Text className="text-gray-600">- Didn’t receive the code? </Text>
-          <TouchableOpacity onPress={handleResend}>
-            <Text className="text-green-500">Resend</Text>
-          </TouchableOpacity>
-        </View>
-
         {otpError ? (
           <Text className="text-center text w-4/5 text-red-500 mb-4">
             {otpError}
           </Text>
         ) : null}
+        <View className="flex-row items-center mb-6">
+          <Text className="text-gray-600">- Didn’t receive the code? </Text>
+          <TouchableOpacity
+            onPress={isResendEnabled ? handleResend : null}
+            disabled={!isResendEnabled}
+          >
+            <Text
+              className={`text-${isResendEnabled ? "green-500" : "gray-400"}`}
+            >
+              Resend
+            </Text>
+          </TouchableOpacity>
+        </View>
 
-        <View className='mb-6'>
-          <Text className="text-gray-600 text-center">
+        {seconds > 0 && (
+          <Text className="text-gray-600 mb-4">
+            - The OTP will expire in {formatTime(seconds)}
+          </Text>
+        )}
+
+        <View className="mb-6">
+          <Text className="font-bold text-gray-600 text-center">
             Alternative Phone: {secondaryPhoneNumber}
           </Text>
         </View>
-
         <View className="flex-row justify-between w-full max-w-xs mb-4">
           {otp2.map((value, index) => (
             <TextInput
@@ -249,7 +290,6 @@ function OTPScreen({ route, navigation }) {
             />
           ))}
         </View>
-
         {otpError2 ? (
           <Text className="text-center text w-4/5 text-red-500 mb-4">
             {otpError2}
@@ -258,11 +298,22 @@ function OTPScreen({ route, navigation }) {
 
         <View className="flex-row items-center mb-6">
           <Text className="text-gray-600">- Didn’t receive the code? </Text>
-          <TouchableOpacity onPress={handleResend2}>
-            <Text className="text-green-500">Resend</Text>
+          <TouchableOpacity
+            onPress={isResendEnabledSecondary  ? handleResend2 : null}
+            disabled={!isResendEnabledSecondary }
+          >
+            <Text
+              className={`text-${isResendEnabledSecondary  ? "green-500" : "gray-400"}`}
+            >
+              Resend
+            </Text>
           </TouchableOpacity>
         </View>
-
+        {secondsSecondary > 0 && (
+          <Text className="text-gray-600 mb-4">
+            - The OTP will expire in {formatTime(secondsSecondary)}
+          </Text>
+        )}
         <TouchableOpacity
           onPress={handleOtp}
           className="w-4/5 p-3 bg-[#00B251] rounded-lg shadow-md"

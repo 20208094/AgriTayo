@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import pic from "../../assets/emailotp.png";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
-import { io } from 'socket.io-client';
+import { io } from "socket.io-client";
 import GoBack from "../../components/GoBack";
 import { Ionicons } from "@expo/vector-icons";
 import LoadingAnimation from "../../components/LoadingAnimation";
@@ -20,6 +20,7 @@ function OTPOnlyPhoneScreen({ route, navigation }) {
   const { formData, phone } = route.params;
 
   const [generatedCode, setGeneratedCode] = useState("");
+  const [isResendEnabled, setIsResendEnabled] = useState(false);
 
   const socket = io(REACT_NATIVE_API_BASE_URL);
 
@@ -38,19 +39,21 @@ function OTPOnlyPhoneScreen({ route, navigation }) {
   const generateRandomCode = () => {
     const code = Math.floor(100000 + Math.random() * 900000).toString();
     setGeneratedCode(code); // Store generated code in state
-    const title = 'AgriTayo'
-    const message = `Your OTP code is: ${code}`
-    const phone_number = phone
-    socket.emit('sms sender', {
+    const title = "AgriTayo";
+    const message = `Your OTP code is: ${code}`;
+    const phone_number = phone;
+    socket.emit("sms sender", {
       title,
       message,
-      phone_number
+      phone_number,
     });
   };
 
   useEffect(() => {
     generateRandomCode(); // Generate code on component mount
+  }, [phone]);
 
+  useEffect(() => {
     let interval = null;
     if (seconds > 0) {
       interval = setInterval(() => {
@@ -61,7 +64,16 @@ function OTPOnlyPhoneScreen({ route, navigation }) {
       clearInterval(interval);
     }
     return () => clearInterval(interval);
-  }, []);
+  }, [seconds]);
+
+  const formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${String(minutes).padStart(2, "0")}:${String(secs).padStart(
+      2,
+      "0"
+    )}`;
+  };
 
   const handleOtp = async () => {
     setOtpError("");
@@ -84,8 +96,8 @@ function OTPOnlyPhoneScreen({ route, navigation }) {
 
         if (response.ok) {
           const data = await response.json();
-          console.log("Successfully Registered")
-          setAlertMessage("Success!, Successfully Registered")
+          console.log("Successfully Registered");
+          setAlertMessage("Success!, Successfully Registered");
           setAlertVisible(true);
         } else {
           const errorData = await response.json();
@@ -104,7 +116,9 @@ function OTPOnlyPhoneScreen({ route, navigation }) {
   };
 
   const handleResend = () => {
-    generateRandomCode()
+    setSeconds(10 * 60);
+    setIsResendEnabled(false);
+    generateRandomCode();
   };
 
   const handleChangeText = (index, text) => {
@@ -167,10 +181,23 @@ function OTPOnlyPhoneScreen({ route, navigation }) {
 
         <View className="flex-row items-center mb-6">
           <Text className="text-gray-600">- Didn’t receive the code? </Text>
-          <TouchableOpacity onPress={handleResend}>
-            <Text className="text-green-500">Resend</Text>
+          <TouchableOpacity
+            onPress={isResendEnabled ? handleResend : null}
+            disabled={!isResendEnabled}
+          >
+            <Text
+              className={`text-${isResendEnabled ? "green-500" : "gray-400"}`}
+            >
+              Resend
+            </Text>
           </TouchableOpacity>
         </View>
+
+        {seconds > 0 && (
+          <Text className="text-gray-600 mb-4">
+            - The OTP will expire in {formatTime(seconds)}
+          </Text>
+        )}
 
         <TouchableOpacity
           onPress={handleOtp}

@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, TouchableOpacity, Alert, Modal } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Alert,
+  Modal,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { styled } from "nativewind";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
@@ -62,24 +69,46 @@ function EditSecondaryShopPhoneScreen({ navigation, route }) {
   useEffect(() => {
     if (isCLicked) {
       if (phoneNumbersList.includes(newSecondaryPhone)) {
-        Alert.alert("", "Shop Phone Number is already registered")
-        setIsClicked(false)
-        } else {
-      const generateRandomCode = () => {
-        const code = Math.floor(100000 + Math.random() * 900000).toString();
-        setGeneratedCode(code);
-        console.log("Generated OTP code:", code); // For debugging
-        const title = "AgriTayo";
-        const message = `Your OTP code is: ${code}`;
-        const phone_number = newSecondaryPhone;
-        socket.emit("sms sender", { title, message, phone_number });
-      };
+        Alert.alert("", "Shop Phone Number is already registered");
+        setIsClicked(false);
+      } else {
+        const generateRandomCode = () => {
+          const code = Math.floor(100000 + Math.random() * 900000).toString();
+          setGeneratedCode(code);
+          console.log("Generated OTP code:", code); // For debugging
+          const title = "AgriTayo";
+          const message = `Your OTP code is: ${code}`;
+          const phone_number = newSecondaryPhone;
+          socket.emit("sms sender", { title, message, phone_number });
+        };
 
-      generateRandomCode(); // Generate OTP when isCLicked is true
-      setIsOtpVisible(true);
+        generateRandomCode(); // Generate OTP when isCLicked is true
+        setIsOtpVisible(true);
+      }
     }
-  }
   }, [isCLicked, newSecondaryPhone, phoneNumbersList]); // Runs when the OTP button is clicked
+
+  useEffect(() => {
+    let interval = null;
+    if (seconds > 0) {
+      interval = setInterval(() => {
+        setSeconds((prevSeconds) => prevSeconds - 1);
+      }, 1000);
+    } else {
+      setIsResendEnabled(true);
+      clearInterval(interval);
+    }
+    return () => clearInterval(interval);
+  }, [seconds]);
+
+  const formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${String(minutes).padStart(2, "0")}:${String(secs).padStart(
+      2,
+      "0"
+    )}`;
+  };
 
   const handleOtp = async () => {
     setOtpError("");
@@ -115,17 +144,30 @@ function EditSecondaryShopPhoneScreen({ navigation, route }) {
 
           if (response.ok) {
             const data = await response.json();
-            console.log("Successfully Updated Alternative Shop Phone Number:", data);
-            setAlertMessage("Success!, Successfully Updated Shop Alternative Phone Number");
+            console.log(
+              "Successfully Updated Alternative Shop Phone Number:",
+              data
+            );
+            setAlertMessage(
+              "Success!, Successfully Updated Shop Alternative Phone Number"
+            );
             setAlertVisible(true);
           } else {
             const errorData = await response.json();
-            console.error("Adding new alternative shop phone number failed:", errorData);
-            setAlertMessage("Adding New Alternative Shop Phone Number Failed. Please Try Again");
+            console.error(
+              "Adding new alternative shop phone number failed:",
+              errorData
+            );
+            setAlertMessage(
+              "Adding New Alternative Shop Phone Number Failed. Please Try Again"
+            );
             setAlertVisible(true);
           }
         } catch (error) {
-          console.error("Error during adding new phone alternative phone number:", error);
+          console.error(
+            "Error during adding new phone alternative phone number:",
+            error
+          );
           setAlertMessage("An error occurred. Please try again.");
           setAlertVisible(true);
         } finally {
@@ -158,6 +200,8 @@ function EditSecondaryShopPhoneScreen({ navigation, route }) {
 
   const handleResend = () => {
     setIsClicked(false); // Temporarily set to false to retrigger OTP generation
+    setSeconds(10 * 60);
+    setIsResendEnabled(false);
     setTimeout(() => setIsClicked(true), 0); // Set back to true to generate a new OTP
   };
 
@@ -197,7 +241,9 @@ function EditSecondaryShopPhoneScreen({ navigation, route }) {
         {isOtpVisible && (
           <>
             <View className="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
-              <Text className="text-2xl font-bold text-green-700 mb-4 text-center">Enter your 6 digit code: </Text>
+              <Text className="text-2xl font-bold text-green-700 mb-4 text-center">
+                Enter your 6 digit code:{" "}
+              </Text>
               <TextInput
                 className="border border-gray-300 rounded-lg px-4 py-2 mb-4"
                 keyboardType="numeric"
@@ -206,9 +252,7 @@ function EditSecondaryShopPhoneScreen({ navigation, route }) {
                 placeholder="123456"
               />
               {otpError ? (
-                <Text className="text w-4/5 text-red-500 mb-4">
-                  {otpError}
-                </Text>
+                <Text className="text w-4/5 text-red-500 mb-4">{otpError}</Text>
               ) : null}
               <TouchableOpacity
                 className="bg-green-600 px-4 py-2 rounded-lg mb-3"
@@ -216,14 +260,37 @@ function EditSecondaryShopPhoneScreen({ navigation, route }) {
               >
                 <Text className="text-white font-bold text-center">Submit</Text>
               </TouchableOpacity>
-              <TouchableOpacity className="bg-gray-200 px-4 py-2 rounded-lg mb-5" onPress={handleEditPhone}>
+              <TouchableOpacity
+                className="bg-gray-200 px-4 py-2 rounded-lg mb-5"
+                onPress={handleEditPhone}
+              >
                 <Text className="text-[#00B251] font-bold text-center">
                   Change Number
                 </Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={handleResend}>
-                <Text className="text-center font-bold text-[#00B251]">Resend OTP</Text>
-              </TouchableOpacity>
+              <View className="flex-row items-center mb-6">
+                <Text className="text-gray-600">
+                  - Didn’t receive the code?{" "}
+                </Text>
+                <TouchableOpacity
+                  onPress={isResendEnabled ? handleResend : null}
+                  disabled={!isResendEnabled}
+                >
+                  <Text
+                    className={`text-${
+                      isResendEnabled ? "green-500" : "gray-400"
+                    }`}
+                  >
+                    Resend
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
+              {seconds > 0 && (
+                <Text className="text-gray-600 mb-4">
+                  - The OTP will expire in {formatTime(seconds)}
+                </Text>
+              )}
             </View>
           </>
         )}

@@ -19,6 +19,9 @@ function ShopPhonesOTPScreen({ route, navigation }) {
   const { userData, shopData, shopNumber, secondaryShopNumber } = route.params;
   const [generatedCode, setGeneratedCode] = useState("");
   const [generatedCode2, setGeneratedCode2] = useState("");
+  const [secondsSecondary, setSecondsSecondary] = useState(10 * 60);
+  const [isResendEnabled, setIsResendEnabled] = useState(false);
+  const [isResendEnabledSecondary, setIsResendEnabledSecondary] = useState(false);
 
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
@@ -70,8 +73,10 @@ function ShopPhonesOTPScreen({ route, navigation }) {
 
   useEffect(() => {
     generateRandomCode();
-    generateRandomCode2(); // Generate code on component mount
+    generateRandomCode2();
+  }, [shopNumber, secondaryShopNumber]); 
 
+  useEffect(() => {
     let interval = null;
     if (seconds > 0) {
       interval = setInterval(() => {
@@ -82,7 +87,20 @@ function ShopPhonesOTPScreen({ route, navigation }) {
       clearInterval(interval);
     }
     return () => clearInterval(interval);
-  }, []);
+  }, [seconds]);
+
+  useEffect(() => {
+    let intervalSecondary = null;
+    if (secondsSecondary > 0) {
+      intervalSecondary = setInterval(() => {
+        setSecondsSecondary((prevSeconds) => prevSeconds - 1);
+      }, 1000);
+    } else {
+      setIsResendEnabledSecondary(true);
+      clearInterval(intervalSecondary);
+    }
+    return () => clearInterval(intervalSecondary);
+  }, [secondsSecondary]);
 
   const handleOtp = async () => {
     setOtpError("");
@@ -116,10 +134,14 @@ function ShopPhonesOTPScreen({ route, navigation }) {
   };
 
   const handleResend = () => {
+    setSeconds(10 * 60);
+    setIsResendEnabled(false);
     generateRandomCode();
   };
 
   const handleResend2 = () => {
+    setSecondsSecondary(10 * 60);
+    setIsResendEnabledSecondary(false);
     generateRandomCode2();
   };
 
@@ -188,10 +210,23 @@ function ShopPhonesOTPScreen({ route, navigation }) {
 
         <View className="flex-row items-center mb-6">
           <Text className="text-gray-600">- Didn’t receive the code? </Text>
-          <TouchableOpacity onPress={handleResend}>
-            <Text className="text-green-500">Resend</Text>
+          <TouchableOpacity
+            onPress={isResendEnabled ? handleResend : null}
+            disabled={!isResendEnabled}
+          >
+            <Text
+              className={`text-${isResendEnabled ? "green-500" : "gray-400"}`}
+            >
+              Resend
+            </Text>
           </TouchableOpacity>
         </View>
+
+        {seconds > 0 && (
+          <Text className="text-gray-600 mb-4">
+            - The OTP will expire in {formatTime(seconds)}
+          </Text>
+        )}
 
         {otpError ? (
           <Text className="text-center text w-4/5 text-red-500 mb-4">
@@ -199,7 +234,7 @@ function ShopPhonesOTPScreen({ route, navigation }) {
           </Text>
         ) : null}
 
-        <View className='mb-6'>
+        <View className="mb-6">
           <Text className="text-gray-600 text-center">
             Alternative Phone: {secondaryShopNumber}
           </Text>
@@ -229,10 +264,22 @@ function ShopPhonesOTPScreen({ route, navigation }) {
 
         <View className="flex-row items-center mb-6">
           <Text className="text-gray-600">- Didn’t receive the code? </Text>
-          <TouchableOpacity onPress={handleResend2}>
-            <Text className="text-green-500">Resend</Text>
+          <TouchableOpacity
+            onPress={isResendEnabledSecondary ? handleResend2 : null}
+            disabled={!isResendEnabledSecondary}
+          >
+            <Text
+              className={`text-${isResendEnabledSecondary ? "green-500" : "gray-400"}`}
+            >
+              Resend
+            </Text>
           </TouchableOpacity>
         </View>
+        {secondsSecondary > 0 && (
+          <Text className="text-gray-600 mb-4">
+            - The OTP will expire in {formatTime(secondsSecondary)}
+          </Text>
+        )}
 
         <TouchableOpacity
           onPress={handleOtp}
