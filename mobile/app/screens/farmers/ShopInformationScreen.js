@@ -40,63 +40,100 @@ function ShopInformationScreen({ route, navigation }) {
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
 
+  const MAX_IMAGE_SIZE_MB = 5; // Set maximum allowed image size (5 MB)
+
   const shopNameRegex = /^[A-Za-z\s]{2,}$/;
   const addressRegex = /^[A-Za-z0-9\s,'-]{10,}$/;
   const phone_regex = /^(?:\+63|0)?9\d{9}$/;
 
   const handleInputChange = (field, value) => {
     let error = "";
+
+    // If the value is empty, clear the error for that field
+    if (!value) {
+      setErrors((prev) => ({
+        ...prev,
+        [field]: "",
+      }));
+    }
+
     switch (field) {
       case "shopName":
-        if (!shopNameRegex.test(value)) {
+        if (value && !shopNameRegex.test(value)) {
           error =
             "Invalid Shop Name. Must be at least 2 characters and letters only.";
         }
         setShopName(value);
         break;
+
       case "shopAddress":
-        if (!addressRegex.test(value)) {
+        if (value && !addressRegex.test(value)) {
           error = "Invalid Address. Must be at least 10 characters.";
         }
         setShopAddress(value);
         break;
+
       case "pickupAddress":
-        if (!addressRegex.test(value)) {
+        if (value && value.length < 10) {
           error = "Invalid Address. Must be at least 10 characters.";
         }
         setPickupAddress(value);
         break;
+
       case "shopDeliveryFee":
-        if (isCheckedDelivery && (isNaN(value) || value <= 0)) {
-          error = "Delivery fee must be a positive number.";
+        if (isCheckedDelivery && (value && (!/^\d+$/.test(value) || value <= 0))) {
+          error = "Delivery fee must be a positive integer.";
         }
         setShopDeliveryFee(value);
         break;
+
       case "pickupAreaFee":
-        if (isCheckedPickup && (isNaN(value) || value <= 0)) {
-          error = "Pickup area fee must be a positive number.";
+        if (isCheckedPickup && (value && (!/^\d+$/.test(value) || value <= 0))) {
+          error = "Pickup area fee must be a positive integer.";
         }
         setPickupAreaFee(value);
         break;
+
       case "shopNumber":
-        if (!phone_regex.test(value)) {
-          error =
-            "Invalid phone number format. Please use 09 followed by 9 digits.";
+        if (value && !phone_regex.test(value)) {
+          error = "Invalid phone number format. Please use 09 followed by 9 digits.";
         }
         setShopNumber(value);
+
+        // Revalidate secondaryShopNumber if needed
+        if (secondaryShopNumber && secondaryShopNumber === value) {
+          setErrors((prev) => ({
+            ...prev,
+            secondaryShopNumber:
+              "Same number as the phone number. Please input another number.",
+          }));
+        } else {
+          setErrors((prev) => ({
+            ...prev,
+            secondaryShopNumber: "", // Clear error if valid
+          }));
+        }
         break;
+
       case "secondaryShopNumber":
-        if (!phone_regex.test(value)) {
-          error =
-            "Invalid phone number format. Please use 09 followed by 9 digits.";
+        if (value && !phone_regex.test(value)) {
+          error = "Invalid phone number format. Please use 09 followed by 9 digits.";
+        } else if (value && shopNumber && value === shopNumber) {
+          error = "Same number as the phone number. Please input another number.";
         }
         setSecondaryShopNumber(value);
         break;
+
       default:
         break;
     }
-    setErrors({ ...errors, [field]: error });
+
+    // Update the error state for the specific field
+    if (value) {
+      setErrors((prev) => ({ ...prev, [field]: error }));
+    }
   };
+
 
   const pickImage = async () => {
     const permissionResult =
@@ -112,17 +149,40 @@ function ShopInformationScreen({ route, navigation }) {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
-      quality: 1,
+      quality: 1, // Full quality
     });
 
     if (!result.canceled) {
-      setShopImage(result.assets[0].uri);
-      setModalVisible(false);
+      // Check the file size
+      const imageUri = result.assets[0].uri;
+
+      try {
+        const response = await fetch(imageUri);
+        const blob = await response.blob();
+        const sizeInMB = blob.size / (1024 * 1024); // Convert bytes to MB
+
+        if (sizeInMB > MAX_IMAGE_SIZE_MB) {
+          setAlertMessage(
+            `The selected image is too large (${sizeInMB.toFixed(
+              2
+            )} MB). Please choose an image smaller than ${MAX_IMAGE_SIZE_MB} MB.`
+          );
+          setAlertVisible(true);
+          return;
+        }
+
+        setShopImage(imageUri);
+        setModalVisible(false);
+      } catch (error) {
+        setAlertMessage("Failed to check image size. Please try again.");
+        setAlertVisible(true);
+      }
     }
   };
 
   const handleSubmit = () => {
     let hasError = false;
+
     if (!shopImage) {
       setErrors((prev) => ({ ...prev, shopImage: "Shop Image is required." }));
       hasError = true;
@@ -132,27 +192,50 @@ function ShopInformationScreen({ route, navigation }) {
       hasError = true;
     }
     if (!shopAddress) {
-      setErrors((prev) => ({
-        ...prev,
-        shopAddress: "Shop address is required.",
-      }));
+      setErrors((prev) => ({ ...prev, shopAddress: "Shop address is required." }));
       hasError = true;
     }
     if (!shopNumber) {
-      setErrors((prev) => ({
-        ...prev,
-        shopNumber: "Shop number is required.",
-      }));
+      setErrors((prev) => ({ ...prev, shopNumber: "Shop number is required." }));
       hasError = true;
     }
+
+    if (isCheckedDelivery) {
+      if (!shopDeliveryFee) {
+        setErrors((prev) => ({
+          ...prev,
+          shopDeliveryFee: "Delivery fee is required.",
+        }));
+        hasError = true;
+      }
+    }
+
+    if (isCheckedPickup) {
+      if (!pickupAddress) {
+        setErrors((prev) => ({
+          ...prev,
+          pickupAddress: "Pickup address is required.",
+        }));
+        hasError = true;
+      }
+      if (!pickupAreaFee) {
+        setErrors((prev) => ({
+          ...prev,
+          pickupAreaFee: "Pickup area fee is required.",
+        }));
+        hasError = true;
+      }
+    }
+
     if (!isCheckedDelivery && !isCheckedPickup) {
       setErrors((prev) => ({
         ...prev,
         shippingOption:
-          "Shipping options is required, Please select a shipping option (Delivery or Pickup).",
+          "Shipping options are required, Please select a shipping option (Delivery or Pickup).",
       }));
       hasError = true;
     }
+
     if (!isCheckedCod && !isCheckedGcash && !isCheckedBankTransfer) {
       setErrors((prev) => ({
         ...prev,
@@ -160,8 +243,23 @@ function ShopInformationScreen({ route, navigation }) {
       }));
       hasError = true;
     }
+
+    if (secondaryShopNumber && secondaryShopNumber === shopNumber) {
+      setErrors((prev) => ({
+        ...prev,
+        secondaryShopNumber:
+          "Same number as the phone number. Please input another number.",
+      }));
+      hasError = true;
+    } else if (secondaryShopNumber === "") {
+      setErrors((prev) => ({
+        ...prev,
+        secondaryShopNumber: "",
+      }));
+    }
+
     if (hasError) {
-      setAlertMessage("Sorry,  Please fill up the forms before continuing.");
+      setAlertMessage("Sorry, please fill up the forms correctly before continuing.");
       setAlertVisible(true);
       return;
     }
@@ -186,18 +284,14 @@ function ShopInformationScreen({ route, navigation }) {
 
     console.log("shopData being passed:", shopData);
 
-    // navigation.navigate("Business Information", {
-    //   userData,
-    //   shopData,
-    // });
-    if(secondaryShopNumber){
+    if (secondaryShopNumber) {
       navigation.navigate("Shop Phones OTP", {
         userData,
         shopData,
         shopNumber,
-        secondaryShopNumber
+        secondaryShopNumber,
       });
-    }else{
+    } else {
       navigation.navigate("Shop OTP", {
         userData,
         shopData,
@@ -205,6 +299,7 @@ function ShopInformationScreen({ route, navigation }) {
       });
     }
   };
+
 
   return (
     <SafeAreaView
@@ -343,8 +438,9 @@ function ShopInformationScreen({ route, navigation }) {
           {/* Delivery Fee */}
           {isCheckedDelivery && (
             <>
-              <Text className="text-sm mb-2 text-gray-800">Delivery Fee:</Text>
-
+              <Text className="text-sm mb-2 text-gray-800">Delivery Fee: {errors.shopDeliveryFee && (
+                <Text className="text-red-500 mb-2">*{errors.shopDeliveryFee}</Text>
+              )}</Text>
               <TextInput
                 value={shopDeliveryFee}
                 onChangeText={(value) =>
@@ -376,7 +472,9 @@ function ShopInformationScreen({ route, navigation }) {
           {isCheckedPickup && (
             <>
               <Text className="text-sm mb-2 text-gray-800">
-                Pickup Address:
+                Pickup Address: {errors.pickupAddress && (
+                  <Text className="text-red-500 mb-2"> *{errors.pickupAddress}</Text>
+                )}
               </Text>
               <TextInput
                 value={pickupAddress}
@@ -388,7 +486,9 @@ function ShopInformationScreen({ route, navigation }) {
               />
 
               <Text className="text-sm mb-2 text-gray-800">
-                Pickup Area Fee:{" "}
+                Pickup Area Fee:{" "} {errors.pickupAreaFee && (
+                  <Text className="text-red-500 mb-2"> *{errors.pickupAreaFee}</Text>
+                )}
               </Text>
               <TextInput
                 value={pickupAreaFee}
