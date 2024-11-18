@@ -40,7 +40,7 @@ function UsersPage() {
             users.filter(user => {
                 const searchValue = searchQuery.toLowerCase();
                 const fullNameMatches = `${user.firstname} ${user.middlename} ${user.lastname}`.toLowerCase().includes(searchValue);
-                const phoneMatches = user.phone_number?.toLowerCase().includes(searchValue) || user.alt_phone_number?.toLowerCase().includes(searchValue);
+                const phoneMatches = user.phone_number?.toLowerCase().includes(searchValue) || user.secondary_phone_number?.toLowerCase().includes(searchValue);
                 
                 const userTypeName = userTypes.find(type => type.user_type_id === user.user_type_id)?.user_type_name || '';
                 const userTypeMatches = userTypeName.toLowerCase().includes(searchValue);
@@ -115,6 +115,7 @@ function UsersPage() {
         formPayload.append('lastname', formData.lastname);
         formPayload.append('password', formData.password);
         formPayload.append('phone_number', formData.phone_number);
+        formPayload.append('phone_number', formData.secondary_phone_number);
         formPayload.append('gender', formData.gender);
         formPayload.append('birthday', formData.birthday);
         formPayload.append('user_type_id', formData.user_type_id);
@@ -132,7 +133,7 @@ function UsersPage() {
             
             setFormData({
                 user_id: '', firstname: '', middlename: '', lastname: '', password: '',
-                phone_number: '', gender: '', birthday: '', user_type_id: '', image: null
+                phone_number: '', secondary_phone_number: '', gender: '', birthday: '', user_type_id: '', image: null
             });
             
             setIsEdit(false);
@@ -197,6 +198,7 @@ function UsersPage() {
             lastname: '',
             password: '',
             phone_number: '',
+            secondary_phone_number,
             gender: '',
             birthday: '',
             user_type_id: '',
@@ -226,39 +228,46 @@ function UsersPage() {
                     <form onSubmit={onSubmit} encType="multipart/form-data" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4 mb-8">
                         <input type="hidden" name="user_id" value={formData.user_id} />
 
-                        {["firstname", "middlename", "lastname", "phone_number", "gender", "birthday"].map((field) => (
-                        <div key={field} className="mb-2">
-                            <label htmlFor={field} className="text-l font-bold mb-1">
-                                {field.replace(/_/g, " ").replace(/^\w/, (c) => c.toUpperCase())}
-                            </label>
-                            {field === "gender" ? (
-                                <select
-                                    id={field}
-                                    name={field}
-                                    value={formData[field]}
-                                    onChange={handleInputChange}
-                                    required
-                                    className="p-2 border border-gray-300 rounded w-full"
-                                >
-                                    <option value="">Select Gender</option>
-                                    <option value="Male">Male</option>
-                                    <option value="Female">Female</option>
-                                    <option value="Others">Others</option>
-                                </select>
-                            ) : (
-                                <input
-                                    type={field === "birthday" ? "date" : "text"}
-                                    id={field}
-                                    name={field}
-                                    value={formData[field]}
-                                    onChange={handleInputChange}
-                                    placeholder={field.replace(/_/g, " ").replace(/^\w/, (c) => c.toUpperCase())}
-                                    required
-                                    className="p-2 border border-gray-300 rounded w-full"
-                                />
-                            )}
-                        </div>
-                    ))}
+                        {["firstname", "middlename", "lastname", "phone_number", "secondary_phone_number", "gender", "birthday"].map((field) => (
+                            <div key={field} className="mb-2">
+                                <label htmlFor={field} className="text-l font-bold mb-1">
+                                    {field.replace(/_/g, " ").replace(/^\w/, (c) => c.toUpperCase())}
+                                </label>
+                                {field === "gender" ? (
+                                    <select
+                                        id={field}
+                                        name={field}
+                                        value={formData[field]}
+                                        onChange={handleInputChange}
+                                        required
+                                        className="p-2 border border-gray-300 rounded w-full"
+                                    >
+                                        <option value="">Select Gender</option>
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                        <option value="Others">Others</option>
+                                    </select>
+                                ) : (
+                                    <input
+                                        type={field === "birthday" ? "date" : "text"}
+                                        id={field}
+                                        name={field}
+                                        value={formData[field]}
+                                        onChange={handleInputChange}
+                                        onInput={
+                                            field === "phone_number" || field === "secondary_phone_number"
+                                                ? (e) => (e.target.value = e.target.value.replace(/\D/g, ""))
+                                                : undefined
+                                        }
+                                        placeholder={field.replace(/_/g, " ").replace(/^\w/, (c) => c.toUpperCase())}
+                                        required
+                                        className="p-2 border border-gray-300 rounded w-full"
+                                        inputMode={field === "phone_number" || field === "secondary_phone_number" ? "numeric" : undefined}
+                                    />
+                                )}
+                            </div>
+                        ))}
+
 
 
                         <p className="text-l font-bold mb-4" style={{ marginBottom: '-15px' }}>User Type</p>
@@ -345,7 +354,7 @@ function UsersPage() {
                 <table className="min-w-full border border-gray-300 rounded-lg overflow-hidden">
                     <thead className="bg-green-600 text-white">
                         <tr>
-                            {["ID", "Name", "Phone", "Gender", "Birthday", "User Type", "Profile Picture", "Actions"].map((header) => (
+                            {["ID", "Name", "Phone Number", "Alt. Phone Number", "Gender", "Birthday", "User Type", "Profile Picture", "Actions"].map((header) => (
                                 <th key={header} className="p-1 border-b whitespace-nowrap">{header}</th>
                             ))}
                         </tr>
@@ -356,6 +365,7 @@ function UsersPage() {
                                 <td className="p-1 border-b">{user.user_id}</td>
                                 <td className="p-1 border-b">{`${user.firstname} ${user.lastname}`}</td>
                                 <td className="p-1 border-b">{user.phone_number}</td>
+                                <td className="p-1 border-b">{user.secondary_phone_number}</td>
                                 <td className="p-1 border-b">{user.gender}</td>
                                 <td className="p-1 border-b">{user.birthday}</td>
                                 <td className="p-1 border-b">
@@ -397,18 +407,41 @@ function UsersPage() {
                     <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg relative max-h-[80vh] overflow-y-auto">
                         <h2 className="text-2xl font-bold mb-4 text-green-600">Edit User</h2>
                         <form onSubmit={handleUpdate} className="grid gap-4">
-                            {["firstname", "middlename", "lastname", "phone_number", "gender", "birthday"].map((field) => (
-                                <input
+                        {["firstname", "middlename", "lastname", "phone_number", "secondary_phone_number", "gender", "birthday"].map((field) => (
+                            field === "gender" ? (
+                                <select
                                     key={field}
-                                    type={field === "text"}
                                     name={field}
                                     value={formData[field]}
                                     onChange={handleInputChange}
+                                    required
+                                    className="p-2 border border-gray-300 rounded w-full"
+                                >
+                                    <option value="">Select Gender</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Others">Others</option>
+                                </select>
+                            ) : (
+                                <input
+                                    key={field}
+                                    type={field === "birthday" ? "date" : "text"}
+                                    name={field}
+                                    value={formData[field]}
+                                    onChange={handleInputChange}
+                                    onInput={
+                                        field === "phone_number" || field === "secondary_phone_number"
+                                            ? (e) => (e.target.value = e.target.value.replace(/\D/g, ""))
+                                            : undefined
+                                    }
                                     placeholder={field.replace(/_/g, " ").replace(/^\w/, (c) => c.toUpperCase())}
                                     required
-                                    className="p-2 border border-gray-300 rounded"
+                                    className="p-2 border border-gray-300 rounded w-full"
+                                    inputMode={field === "phone_number" || field === "secondary_phone_number" ? "numeric" : undefined}
                                 />
-                            ))}
+                            )
+                        ))}
+
                             <select
                                 name="user_type_id"
                                 value={formData.user_type_id}
