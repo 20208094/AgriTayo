@@ -10,6 +10,7 @@ import { NotificationIcon, MessagesIcon, MarketIcon } from "../../components/Sea
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 import { Ionicons } from "@expo/vector-icons";
 import LoadingAnimation from "../../components/LoadingAnimation";
+import NavigationbarComponent from "../../components/NavigationbarComponent";
 
 function ProductDetailsScreen({ navigation, route }) {
   const { product } = route.params;
@@ -471,9 +472,9 @@ function ProductDetailsScreen({ navigation, route }) {
             </ScrollView>
           </View>
         </ScrollView>
-
+        
         {/* Enhanced Sticky Bottom Bar */}
-        <View className="absolute bottom-0 left-0 right-0 flex-row mb-1 h-12 px-1">
+        <View className="absolute bottom-0 left-0 right-0 flex-row mb-12 h-12 px-1">
           <TouchableOpacity
             className="flex-1 w-12 items-center justify-center border border-green-600 bg-green-100 rounded-lg"
             onPress={handleMessageSeller}  // Message seller logic
@@ -498,6 +499,7 @@ function ProductDetailsScreen({ navigation, route }) {
             </View>
           )}
 
+          
 
           {/* Separator */}
           <View className="w-1" />
@@ -512,7 +514,7 @@ function ProductDetailsScreen({ navigation, route }) {
           </TouchableOpacity>
         </View>
 
-
+        <NavigationbarComponent/>
         {/* Alert Modal */}
         <Modal
           animationType="fade"
@@ -533,8 +535,9 @@ function ProductDetailsScreen({ navigation, route }) {
             </View>
           </View>
         </Modal>
+        
       </View>
-
+      
     );
   }
 }
