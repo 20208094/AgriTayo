@@ -46,7 +46,7 @@ function ShopPhonesOTPScreen({ route, navigation }) {
     console.log("Generated OTP code:", code);
     const title = "AgriTayo";
     const message = `Your OTP code is: ${code}`;
-    const phone_number = shopNumber;
+    const phone_number = userData.phone_number;
     socket.emit("sms sender", {
       title,
       message,
@@ -60,7 +60,7 @@ function ShopPhonesOTPScreen({ route, navigation }) {
     console.log("Generated OTP code:", code2);
     const title = "AgriTayo";
     const message = `Your OTP code is: ${code2}`;
-    const phone_number = secondaryShopNumber;
+    const phone_number = userData.secondary_phone_number;
     socket.emit("sms sender", {
       title,
       message,
@@ -167,7 +167,7 @@ function ShopPhonesOTPScreen({ route, navigation }) {
         </Text>
 
         <View className="mb-6">
-          <Text className="text-gray-600 text-center">Phone: {shopNumber}</Text>
+          <Text className="text-gray-600 text-center">Phone: {userData.phone_number}</Text>
         </View>
 
         <View className="flex-row justify-between w-full max-w-xs mb-4">
@@ -201,7 +201,7 @@ function ShopPhonesOTPScreen({ route, navigation }) {
 
         <View className='mb-6'>
           <Text className="text-gray-600 text-center">
-            Alternative Phone: {secondaryShopNumber}
+            Alternative Phone: {userData.secondary_phone_number}
           </Text>
         </View>
 
