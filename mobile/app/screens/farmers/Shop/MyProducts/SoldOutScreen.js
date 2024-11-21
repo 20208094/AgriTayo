@@ -124,7 +124,7 @@ function SoldOutScreen({ navigation }) {
         <Reports data={filteredItems} dataType="soldOutItems" />
       </View>
       {/* Search bar */}
-      <View className="px-4 flex-row items-center bg-white rounded-lg shadow-md mx-2">
+      <View className="px-4 flex-row items-center bg-white rounded-lg shadow-md mx-2 mb-2">
         <Ionicons name="search" size={20} color="#888" className="mr-2" />
         <TextInput
           placeholder="Search by name, category, or description..."
@@ -135,7 +135,7 @@ function SoldOutScreen({ navigation }) {
       </View>
 
       {/* Scroll view for sold-out items */}
-      <ScrollView className="p-4">
+      <ScrollView className="p-4 mb-16">
         {filteredItems.map((soldOutItem) => (
           <TouchableOpacity
             key={soldOutItem.crop_id}

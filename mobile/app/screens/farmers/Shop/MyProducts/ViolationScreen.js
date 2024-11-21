@@ -155,19 +155,19 @@ function ViolationScreen({ navigation }) {
         <Reports data={filteredItems} dataType="violationItems" />
       </View>
 
-{/* Search bar */}
-<View className="px-4 flex-row items-center bg-white rounded-lg shadow-md mx-2">
-  <Ionicons name="search" size={20} color="#888" className="mr-2" />
-  <TextInput
-    placeholder="Search by name, category, or description..."
-    value={searchTerm}
-    onChangeText={handleSearch}
-    className="flex-1 px-4 py-2"
-  />
-</View>
+      {/* Search bar */}
+      <View className="px-4 flex-row items-center bg-white rounded-lg shadow-md mx-2 mb-2">
+        <Ionicons name="search" size={20} color="#888" className="mr-2" />
+        <TextInput
+          placeholder="Search by name, category, or description..."
+          value={searchTerm}
+          onChangeText={handleSearch}
+          className="flex-1 px-4 py-2"
+        />
+      </View>
 
       {/* Scroll view for violation items */}
-      <ScrollView className="p-4">
+      <ScrollView className="p-4 mb-16">
         {filteredItems.map((violationItem) => (
           <TouchableOpacity
             key={violationItem.crop_id}

@@ -15,6 +15,7 @@ import {
 } from 'react-native';
 import io from 'socket.io-client';
 import * as ImagePicker from 'expo-image-picker';
+import * as MediaLibrary from 'expo-media-library';
 import * as FileSystem from 'expo-file-system';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { styled } from 'nativewind';
@@ -80,31 +81,31 @@ function ChatScreen({ route }) {
   // Fetch messages from the server
   const fetchMessages = async () => {
     if (userId && receiverId) {
-        console.log("User IDs:", userId, receiverId, senderType, receiverType);
-        try {
-            const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/chatsId/${userId}/${receiverId}/${receiverType}/${senderType}`, {
-                headers: { "x-api-key": REACT_NATIVE_API_KEY },
-            });
+      console.log("User IDs:", userId, receiverId, senderType, receiverType);
+      try {
+        const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/chatsId/${userId}/${receiverId}/${receiverType}/${senderType}`, {
+          headers: { "x-api-key": REACT_NATIVE_API_KEY },
+        });
 
-            if (response.ok) {
-                // Parse the JSON response
-                const allMessages = await response.json();
+        if (response.ok) {
+          // Parse the JSON response
+          const allMessages = await response.json();
 
-                // Sort messages based on chat_id in ascending order
-                const sortedMessages = allMessages.sort((a, b) => {
-                    return b.chat_id - a.chat_id; // Ascending order
-                });
+          // Sort messages based on chat_id in ascending order
+          const sortedMessages = allMessages.sort((a, b) => {
+            return b.chat_id - a.chat_id; // Ascending order
+          });
 
-                // Update state with sorted messages
-                setMessages(sortedMessages);
-            } else {
-                console.error("Failed to fetch messages:", response.statusText);
-            }
-        } catch (error) {
-            console.error("Error fetching messages:", error);
+          // Update state with sorted messages
+          setMessages(sortedMessages);
+        } else {
+          console.error("Failed to fetch messages:", response.statusText);
         }
+      } catch (error) {
+        console.error("Error fetching messages:", error);
+      }
     }
-};
+  };
 
 
   useFocusEffect(
@@ -203,28 +204,87 @@ function ChatScreen({ route }) {
   };
 
 
-  // Image selection handlers
+  const MAX_IMAGE_SIZE_MB = 1; 
+
+  const validateImageSize = async (imageUri) => {
+    try {
+      const response = await fetch(imageUri);
+      const blob = await response.blob();
+      const sizeInMB = blob.size / (1024 * 1024); 
+
+      if (sizeInMB > MAX_IMAGE_SIZE_MB) {
+        setAlertMessage(
+          `The selected image is too large (${sizeInMB.toFixed(
+            2
+          )} MB). Please choose an image smaller than ${MAX_IMAGE_SIZE_MB} MB.`
+        );
+        setAlertVisible(true);
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      setAlertMessage("Failed to check image size. Please try again.");
+      setAlertVisible(true);
+      return false;
+    }
+  };
+
   const pickImage = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
+    const { status } = await MediaLibrary.requestPermissionsAsync();
+    if (status !== 'granted') {
+      setAlertMessage('Permission to access camera roll denied');
+      setAlertVisible(true);
+      return;
+    }
+
+    let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      quality: 1,
+      allowsEditing: true,  
+      aspect: [4, 3],       
+      quality: 0.7,         
     });
 
     if (!result.canceled && result.assets && result.assets.length > 0) {
-      setNewImage(result.assets[0]);
+      const imageUri = result.assets[0].uri;
+
+      const isValidSize = await validateImageSize(imageUri);
+
+      if (isValidSize) {
+        setNewImage(result.assets[0]);
+      }
+    } else {
+      console.log('User canceled image picker or no image selected');
     }
   };
 
   const openCamera = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== 'granted') {
+      setAlertMessage('Permission to access camera denied');
+      setAlertVisible(true);
+      return;
+    }
     const result = await ImagePicker.launchCameraAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      quality: 1,
+      allowsEditing: true,  
+      aspect: [4, 3],       
+      quality: 0.7,         
     });
 
     if (!result.canceled && result.assets && result.assets.length > 0) {
-      setNewImage(result.assets[0]);
+      const imageUri = result.assets[0].uri;
+      const isValidSize = await validateImageSize(imageUri);
+
+      if (isValidSize) {
+        setNewImage(result.assets[0]);
+      }
+    } else {
+      console.log('User canceled camera or no image captured');
     }
   };
+
+
 
   const viewImage = (uri) => {
     setSelectedImage([{ uri }]);
@@ -308,10 +368,15 @@ function ChatScreen({ route }) {
               <Icon name="photo" size={24} color="#00B251" />
             </IconButton>
           </View>
+
           <InputWrapper>
             {newImage && (
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <ImagePreview source={{ uri: newImage.uri }} />
+                {/* Image Preview Section */}
+                <Image
+                  style={{ width: 150, height: 150, borderRadius: 10, marginRight: 10 }}
+                  source={{ uri: newImage.uri }}  // Display the captured or cropped image
+                />
                 <TouchableOpacity onPress={removeSelectedImage}>
                   <Icon name="close" size={24} color="red" />
                 </TouchableOpacity>
@@ -363,7 +428,7 @@ function ChatScreen({ route }) {
       </Modal>
     </KeyboardAvoidingView>
 
-    
+
   );
 }
 
