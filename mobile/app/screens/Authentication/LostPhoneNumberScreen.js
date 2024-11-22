@@ -79,8 +79,8 @@ function LostPhoneNumberScreen({ navigation }) {
             <TouchableOpacity
               onPress={() => {
                 Alert.alert(
-                  "Confirm Secondary Phone Number",
-                  "Is this really your secondary phone number?",
+                  "Confirm Alternative Phone Number",
+                  "Is this really your alternative phone number?",
                   [
                     {
                       text: "No",

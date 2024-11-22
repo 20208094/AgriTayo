@@ -9,7 +9,7 @@ import {
   ScrollView,
   Image,
   Alert,
-  Switch
+  Switch,
 } from "react-native";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 import { useFocusEffect } from "@react-navigation/native";
@@ -32,7 +32,7 @@ function AddProductScreen({ navigation }) {
   const [cropDescription, setCropDescription] = useState("");
   const [cropPrice, setCropPrice] = useState("");
   const [cropQuantity, setCropQuantity] = useState("");
-  const [minimumNegotiation, setMinimumNegotiation] = useState('')
+  const [minimumNegotiation, setMinimumNegotiation] = useState("");
 
   const [isClickedCategory, setIsClickedCategory] = useState(false);
   const [isClickedMetricSystem, setIsClickedMetricSystem] = useState(false);
@@ -61,7 +61,7 @@ function AddProductScreen({ navigation }) {
   const [errors, setErrors] = useState({});
 
   const [isEnabled, setIsEnabled] = useState(false);
-  const toggleSwitch = () => setIsEnabled(previousState => !previousState);
+  const toggleSwitch = () => setIsEnabled((previousState) => !previousState);
 
   const handleMetricSelect = (metric) => {
     setSelectedMetricSystem(metric.metric_system_name);
@@ -405,8 +405,8 @@ function AddProductScreen({ navigation }) {
     formData.append("metric_system_id", selectedMetricSystemId);
     formData.append("crop_availability", "live");
     formData.append("crop_class", selectedCropClass);
-    formData.append("negotiation_allowed", isEnabled ? 'TRUE' : 'FALSE')
-    formData.append("minimum_negotiation", minimumNegotiation || 0)
+    formData.append("negotiation_allowed", isEnabled ? "TRUE" : "FALSE");
+    formData.append("minimum_negotiation", minimumNegotiation || 0);
 
     try {
       setLoading(true);
@@ -478,20 +478,28 @@ function AddProductScreen({ navigation }) {
                 </Text>
               )}
             </Text>
-            <TouchableOpacity
-              className="flex-row items-center w-full p-2 bg-white rounded-lg shadow-md"
-              onPress={() => setIsClickedCategory(!isClickedCategory)}
-            >
-              <Text className="text-base text-gray-700 flex-1">
-                {selectedCategory}
-              </Text>
-              <Ionicons
-                name="chevron-down"
-                size={20}
-                color="gray"
-                className="ml-2"
-              />
-            </TouchableOpacity>
+            <View className="flex-row items-center">
+              <TouchableOpacity
+                className="flex-row items-center w-full p-2 bg-white rounded-lg shadow flex-1"
+                onPress={() => setIsClickedCategory(!isClickedCategory)}
+              >
+                <Text className="text-base text-gray-700 flex-1">
+                  {selectedCategory}
+                </Text>
+                <Ionicons
+                  name="chevron-down"
+                  size={20}
+                  color="gray"
+                  className="ml-2"
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                className=" ml-2 p-2 rounded-lg "
+                onPress={() => navigation.navigate("Add Crop Category")}
+              >
+                <Ionicons name="add-outline" size={24} color="#00b251" />
+              </TouchableOpacity>
+            </View>
             {isClickedCategory && (
               <View className="w-full p-2 mb-4 bg-white rounded-lg shadow-md">
                 {categories.map((category) => (
@@ -519,20 +527,28 @@ function AddProductScreen({ navigation }) {
                 </Text>
               )}
             </Text>
-            <TouchableOpacity
-              className="flex-row items-center w-full p-2 bg-white rounded-lg shadow-md"
-              onPress={() => setIsclickedSubCategory(!isClickedSubCategory)}
-            >
-              <Text className="text-base text-gray-700 flex-1">
-                {selectedSubCategory}
-              </Text>
-              <Ionicons
-                name="chevron-down"
-                size={20}
-                color="gray"
-                className="ml-2"
-              />
-            </TouchableOpacity>
+            <View className="flex-row items-center">
+              <TouchableOpacity
+                className="flex-row items-center w-full p-2 bg-white rounded-lg shadow-md flex-1"
+                onPress={() => setIsclickedSubCategory(!isClickedSubCategory)}
+              >
+                <Text className="text-base text-gray-700 flex-1">
+                  {selectedSubCategory}
+                </Text>
+                <Ionicons
+                  name="chevron-down"
+                  size={20}
+                  color="gray"
+                  className="ml-2"
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                className="ml-2 p-2 rounded-lg"
+                onPress={() => navigation.navigate("Add Crop Sub Category")}
+              >
+                <Ionicons name="add-outline" size={24} color="#00b251" />
+              </TouchableOpacity>
+            </View>
             {isClickedSubCategory && (
               <View className="w-full p-2 mb-4 bg-white rounded-lg shadow-md">
                 {subCategories.map((subCategory) => (
@@ -551,43 +567,53 @@ function AddProductScreen({ navigation }) {
           </View>
 
           {/* Variety Selector */}
-          <Text className="text-sm mb-2 text-gray-800">
-            Crop Variety <Text className="text-red-500 text-sm">*</Text>
-            {errors.selectedCropVarietyId && (
-              <Text className="text-red-600 text-xs">
-                {errors.selectedCropVarietyId}
-              </Text>
-            )}
-          </Text>
-          <TouchableOpacity
-            className="flex-row items-center w-full p-2 mb-3 bg-white rounded-lg shadow-md"
-            onPress={() => setIsClickedCropVariety(!isClickedCropVariety)}
-          >
-            <Text className="text-base text-gray-700 flex-1">
-              {selectedCropVariety}
+          <View className="mb-4">
+            <Text className="text-sm mb-2 text-gray-800">
+              Crop Variety <Text className="text-red-500 text-sm">*</Text>
+              {errors.selectedCropVarietyId && (
+                <Text className="text-red-600 text-xs">
+                  {errors.selectedCropVarietyId}
+                </Text>
+              )}
             </Text>
-            <Ionicons
-              name="chevron-down"
-              size={20}
-              color="gray"
-              className="ml-2"
-            />
-          </TouchableOpacity>
-          {isClickedCropVariety && (
-            <View className="w-full p-2 mb-4 bg-white rounded-lg shadow-md">
-              {cropVarieties.map((cropVariety) => (
-                <TouchableOpacity
-                  key={cropVariety.crop_variety_id}
-                  className="p-2"
-                  onPress={() => handleCropVarietySelect(cropVariety)}
-                >
-                  <Text className="text-base">
-                    {cropVariety.crop_variety_name}
-                  </Text>
-                </TouchableOpacity>
-              ))}
+            <View className="flex-row items-center">
+              <TouchableOpacity
+                className="flex-row items-center w-full p-2 mb-3 bg-white rounded-lg shadow-md flex-1"
+                onPress={() => setIsClickedCropVariety(!isClickedCropVariety)}
+              >
+                <Text className="text-base text-gray-700 flex-1">
+                  {selectedCropVariety}
+                </Text>
+                <Ionicons
+                  name="chevron-down"
+                  size={20}
+                  color="gray"
+                  className="ml-2"
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                className="ml-2 p-2 rounded-lg"
+                onPress={() => navigation.navigate("Add Crop Variety")}
+              >
+                <Ionicons name="add-outline" size={24} color="#00b251" />
+              </TouchableOpacity>
             </View>
-          )}
+            {isClickedCropVariety && (
+              <View className="w-full p-2 mb-4 bg-white rounded-lg shadow-md">
+                {cropVarieties.map((cropVariety) => (
+                  <TouchableOpacity
+                    key={cropVariety.crop_variety_id}
+                    className="p-2"
+                    onPress={() => handleCropVarietySelect(cropVariety)}
+                  >
+                    <Text className="text-base">
+                      {cropVariety.crop_variety_name}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
+          </View>
 
           {/* Crop Class */}
           <View className="mb-4">
@@ -757,7 +783,9 @@ function AddProductScreen({ navigation }) {
           </View>
 
           {/* Negotiation Selector */}
-          <Text className='text-sm mb-2 text-gray-800'>Open for Negotiation?</Text>
+          <Text className="text-sm mb-2 text-gray-800">
+            Open for Negotiation?
+          </Text>
           <View
             style={{
               flexDirection: "row",
@@ -776,7 +804,7 @@ function AddProductScreen({ navigation }) {
           </View>
           {isEnabled && (
             <>
-              <View className='mb-4'>
+              <View className="mb-4">
                 <Text className="text-sm mb-2 text-gray-800">
                   Minimum Quantity for Negotiation:
                 </Text>
@@ -887,6 +915,31 @@ function AddProductScreen({ navigation }) {
               onPress={() => setModalVisible(false)}
             >
               <Text className="text-white text-center">Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={alertVisible}
+        onRequestClose={() => setAlertVisible(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black/50 bg-opacity-50">
+          <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
+            <Text className="text-lg font-semibold text-gray-900 mb-4">
+              {alertMessage}
+            </Text>
+            <TouchableOpacity
+              className="mt-4 p-2 bg-[#00B251] rounded-lg flex-row justify-center items-center"
+              onPress={() => setAlertVisible(false)}
+            >
+              <Ionicons
+                name="checkmark-circle-outline"
+                size={24}
+                color="white"
+              />
+              <Text className="text-lg text-white ml-2">OK</Text>
             </TouchableOpacity>
           </View>
         </View>

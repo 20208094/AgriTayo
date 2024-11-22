@@ -91,6 +91,9 @@ import FarmersProductDetailScreen from "./app/screens/farmers/Shop/MyProducts/Fa
 import FarmersOrderDetailsScreen from "./app/screens/farmers/Shop/ViewSalesHistory/FarmersOrderDetailsScreen";
 import ViewShopDetailsScreen from "./app/screens/farmers/Shop/ViewShopDetailsScreen";
 import AddProductScreen from "./app/screens/farmers/Shop/MyProducts/AddProductScreen";
+import AddCropCategoryScreen from "./app/screens/farmers/Shop/MyProducts/AddCropCategoryScreen";
+import AddCropSubCategoryScreen from "./app/screens/farmers/Shop/MyProducts/AddCropSubCategoryScreen";
+import AddCropVarietyScreen from "./app/screens/farmers/Shop/MyProducts/AddCropVarietyScreen";
 import CompletedBidScreen from "./app/screens/farmers/Shop/FarmersBidding/CompletedBidScreen";
 import ShopPhonesOTPScreen from "./app/screens/farmers/ShopPhonesOTPScreen";
 import EditShopPhoneScreen from "./app/screens/farmers/Shop/EditShopPhoneScreen";
@@ -654,6 +657,21 @@ function App() {
             <Stack.Screen
               name="Add Product"
               component={AddProductScreen}
+              options={screenOptions}
+            />
+            <Stack.Screen
+              name="Add Crop Category"
+              component={AddCropCategoryScreen}
+              options={screenOptions}
+            />
+            <Stack.Screen
+              name="Add Crop Sub Category"
+              component={AddCropSubCategoryScreen}
+              options={screenOptions}
+            />
+            <Stack.Screen
+              name="Add Crop Variety"
+              component={AddCropVarietyScreen}
               options={screenOptions}
             />
             <Stack.Screen
