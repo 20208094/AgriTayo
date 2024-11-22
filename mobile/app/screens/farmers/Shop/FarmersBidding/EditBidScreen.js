@@ -229,6 +229,33 @@ const [errors, setErrors] = useState('')
   const openModal = () => setModalVisible1(true);
   const closeModal = () => setModalVisible1(false);
 
+  const MAX_IMAGE_SIZE_MB = 1; // Maximum allowed image size (1 MB)
+
+  // Helper function to validate image size
+  const validateImageSize = async (imageUri) => {
+    try {
+      const response = await fetch(imageUri);
+      const blob = await response.blob();
+      const sizeInMB = blob.size / (1024 * 1024); // Convert bytes to MB
+
+      if (sizeInMB > MAX_IMAGE_SIZE_MB) {
+        setAlertMessage(
+          `The selected image is too large (${sizeInMB.toFixed(
+            2
+          )} MB). Please choose an image smaller than ${MAX_IMAGE_SIZE_MB} MB.`
+        );
+        setAlertVisible(true);
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      setAlertMessage("Failed to check image size. Please try again.");
+      setAlertVisible(true);
+      return false;
+    }
+  };
+
   const selectImage = async (source) => {
     if (!hasPermission) {
       setAlertMessage(
@@ -237,26 +264,33 @@ const [errors, setErrors] = useState('')
       setAlertVisible(true);
       return;
     }
-
+  
     const options = {
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       quality: 1,
       allowsEditing: true,
     };
-
+  
     let result;
     if (source === "camera") {
       result = await ImagePicker.launchCameraAsync(options);
     } else {
       result = await ImagePicker.launchImageLibraryAsync(options);
     }
-
+  
     if (!result.canceled && result.assets && result.assets.length > 0) {
-      setImageUri({uri: result.assets[0].uri});
+      const imageUri = result.assets[0].uri;
+  
+      // Validate the image size before setting it
+      const isValidSize = await validateImageSize(imageUri);
+      if (isValidSize) {
+        setImageUri({ uri: imageUri });  // Set the image URI if it's valid
+      }
     } else {
       console.log("User cancelled image picker or no image selected");
     }
   };
+  
   const handleEditBid = async () => {
     // Preparing FormData for submission
     const formData = new FormData();

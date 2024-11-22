@@ -53,6 +53,34 @@ const [isEnabled, setIsEnabled] = useState(product.negotiation_allowed);
 
   const [loading, setLoading] = useState(true);
 
+  const MAX_IMAGE_SIZE_MB = 1; // Maximum allowed image size (1 MB)
+
+  // Helper function to validate image size
+  const validateImageSize = async (imageUri) => {
+    try {
+      const response = await fetch(imageUri);
+      const blob = await response.blob();
+      const sizeInMB = blob.size / (1024 * 1024); // Convert bytes to MB
+  
+      if (sizeInMB > MAX_IMAGE_SIZE_MB) {
+        setAlertMessage(
+          `The selected image is too large (${sizeInMB.toFixed(
+            2
+          )} MB). Please choose an image smaller than ${MAX_IMAGE_SIZE_MB} MB.`
+        );
+        setAlertVisible(true);
+        return false;
+      }
+  
+      return true;
+    } catch (error) {
+      setAlertMessage("Failed to check image size. Please try again.");
+      setAlertVisible(true);
+      return false;
+    }
+  };
+  
+  // Handle image picking and validation
   const handleImagePick = async () => {
     const { status } = await MediaLibrary.requestPermissionsAsync();
     if (status !== "granted") {
@@ -60,16 +88,24 @@ const [isEnabled, setIsEnabled] = useState(product.negotiation_allowed);
       setAlertVisible(true);
       return;
     }
-
+  
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [4, 3],
       quality: 0.5,
     });
-
+  
     if (!result.canceled && result.assets && result.assets.length > 0) {
-      setImageSource({ uri: result.assets[0].uri });
+      const imageUri = result.assets[0].uri;
+  
+      // Validate the image size before proceeding
+      const isValidSize = await validateImageSize(imageUri);
+      
+      if (isValidSize) {
+        // If the image size is valid, set the image source
+        setImageSource({ uri: imageUri });
+      }
     }
   };
 

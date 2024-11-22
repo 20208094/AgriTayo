@@ -66,6 +66,33 @@ const ToRateScreen = ({ orders, orderProducts }) => {
     setModalVisible(false);
   };
 
+  const MAX_IMAGE_SIZE_MB = 1; // Maximum allowed image size (1 MB)
+
+  // Helper function to validate image size
+  const validateImageSize = async (imageUri) => {
+    try {
+      const response = await fetch(imageUri);
+      const blob = await response.blob();
+      const sizeInMB = blob.size / (1024 * 1024); // Convert bytes to MB
+
+      if (sizeInMB > MAX_IMAGE_SIZE_MB) {
+        setAlertMessage(
+          `The selected image is too large (${sizeInMB.toFixed(
+            2
+          )} MB). Please choose an image smaller than ${MAX_IMAGE_SIZE_MB} MB.`
+        );
+        setAlertVisible(true);
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      setAlertMessage("Failed to check image size. Please try again.");
+      setAlertVisible(true);
+      return false;
+    }
+  };
+  
   const selectImages = async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
@@ -77,17 +104,25 @@ const ToRateScreen = ({ orders, orderProducts }) => {
 
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsMultipleSelection: true, // Expo doesn't support this yet, so we'll handle this later
+      allowsMultipleSelection: true, 
       aspect: [4, 3],
       quality: 1,
     });
 
     if (!result.canceled) {
-      const selectedImages = result.assets.map(asset => asset.uri);
+      const selectedImages = result.assets;
+
+      const validImages = [];
+      for (const image of selectedImages) {
+        const isValidSize = await validateImageSize(image.uri);
+        if (isValidSize) {
+          validImages.push(image.uri); 
+        }
+      }
+
       setImages(prevImages => {
-        const combinedImages = [...prevImages, ...selectedImages];
-        // Ensure the length does not exceed 3
-        return combinedImages.slice(0, 3);
+        const combinedImages = [...prevImages, ...validImages];
+        return combinedImages.slice(0, 3); 
       });
     }
   };

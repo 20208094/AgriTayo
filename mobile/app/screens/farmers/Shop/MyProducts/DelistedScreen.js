@@ -227,19 +227,19 @@ function DelistedScreen({ navigation }) {
         <Reports data={filteredItems} dataType="delistedItems" />
       </View>
 
-{/* Search bar */}
-<View className="px-4 flex-row items-center bg-white rounded-lg shadow-md mx-2">
-  <Ionicons name="search" size={20} color="#888" className="mr-2" />
-  <TextInput
-    placeholder="Search by name, category, or description..."
-    value={searchTerm}
-    onChangeText={handleSearch}
-    className="flex-1 px-4 py-2"
-  />
-</View>
+      {/* Search bar */}
+      <View className="px-4 flex-row items-center bg-white rounded-lg shadow-md mx-2 mb-2">
+        <Ionicons name="search" size={20} color="#888" className="mr-2" />
+        <TextInput
+          placeholder="Search by name, category, or description..."
+          value={searchTerm}
+          onChangeText={handleSearch}
+          className="flex-1 px-4 py-2"
+        />
+      </View>
 
       {/* Scroll view for delisted items */}
-      <ScrollView className="p-4">
+      <ScrollView className="p-4 mb-16">
         {filteredItems.map((delistedItem) => (
           <TouchableOpacity
             key={delistedItem.crop_id}
@@ -307,7 +307,7 @@ function DelistedScreen({ navigation }) {
                 </Text>
               </View>
 
-              
+
               {/* Quantity and Negotiation */}
               <View className="flex-row justify-between mt-2">
                 <Text className="text-xs font-medium text-[#00B251]">

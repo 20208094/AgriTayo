@@ -86,9 +86,8 @@ function AddBidScreen({ navigation }) {
     if (event.type === "set") {
       const currentDate = selectedDate || date;
       const today = new Date();
-      today.setHours(0, 0, 0, 0); // Set to start of today for accurate comparison
+      today.setHours(0, 0, 0, 0); 
 
-      // Check if selected date is in the past
       if (currentDate < today) {
         setErrors((prev) => ({
           ...prev,
@@ -99,7 +98,7 @@ function AddBidScreen({ navigation }) {
         setDate(currentDate);
         setFormattedDate(currentDate.toLocaleDateString());
         setEndDate(currentDate.toLocaleDateString());
-        setErrors((prev) => ({ ...prev, endDate: "" })); // Clear any previous errors
+        setErrors((prev) => ({ ...prev, endDate: "" })); 
       }
     } else {
       setShow(false);
@@ -260,6 +259,31 @@ function AddBidScreen({ navigation }) {
   const openModal = () => setModalVisible1(true);
   const closeModal = () => setModalVisible1(false);
 
+  const MAX_IMAGE_SIZE_MB = 1; // Maximum allowed image size (1 MB)
+
+  const validateImageSize = async (imageUri) => {
+    try {
+      const response = await fetch(imageUri);
+      const blob = await response.blob();
+      const sizeInMB = blob.size / (1024 * 1024); // Convert bytes to MB
+
+      if (sizeInMB > MAX_IMAGE_SIZE_MB) {
+        setAlertMessage(
+          `The selected image is too large (${sizeInMB.toFixed(2)} MB). Please choose an image smaller than ${MAX_IMAGE_SIZE_MB} MB.`
+        );
+        setAlertVisible(true);
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      setAlertMessage("Failed to check image size. Please try again.");
+      setAlertVisible(true);
+      return false;
+    }
+  };
+
+
   const selectImage = async (source) => {
     if (!hasPermission) {
       setAlertMessage(
@@ -283,7 +307,12 @@ function AddBidScreen({ navigation }) {
     }
 
     if (!result.canceled && result.assets && result.assets.length > 0) {
-      setImageUri(result.assets[0].uri);
+      const imageUri = result.assets[0].uri;
+
+      const isValidSize = await validateImageSize(imageUri);
+      if (isValidSize) {
+        setImageUri(imageUri);
+      }
     } else {
       console.log("User cancelled image picker or no image selected");
     }
