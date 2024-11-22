@@ -5,7 +5,7 @@ import SamplePage from './screens/Users/AdminPages/CrudPages/SamplePage';
 import LoginPage from './screens/AuthPages/LoginPage';
 import LogoutButton from './screens/AuthPages/LogoutPage';
 import RegisterPage from './screens/AuthPages/RegisterPage';
-import OTPScreen from './screens/AuthPages/OTPScreen';
+import OTPPage from './screens/AuthPages/OTPPage';
 import UserTypePage from './screens/Users/AdminPages/CrudPages/UserTypePage';
 import UsersPage from './screens/Users/AdminPages/CrudPages/UsersPage';
 import AddressesPage from './screens/Users/AdminPages/CrudPages/AdressesPage';
@@ -202,7 +202,7 @@ function Layout({ userType, userId, refreshProfile, setRefreshProfile }) {
             <>
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
-              <Route path="/otpscreen" element={<OTPScreen />} />
+              <Route path="/otp" element={<OTPPage />} />
             </>
           )}
           <Route path="/logout" element={<LogoutButton />} />

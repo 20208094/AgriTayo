@@ -17,6 +17,8 @@ function RegisterPage() {
         user_type_id: 1, // Default user type ID
         verified: false
     });
+
+    console.log("console.log", formData)
     
     const [errors, setErrors] = useState({});
     const [submitError, setSubmitError] = useState('');
@@ -76,26 +78,30 @@ function RegisterPage() {
 
         if (hasError) return;
 
-        try {
-            const response = await fetch('/api/register', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'x-api-key': API_KEY // Include the API key in the request headers
-                },
-                body: JSON.stringify(formData)
-            });
-            if (!response.ok) {
-                const errorData = await response.json();
-                setSubmitError(errorData.error + ": " + errorData.details);
-                return;
-            }
-            // Redirect to login page after successful registration
-            navigate('/login'); // Adjust the path as needed
-        } catch (error) {
-            console.error('Error during registration:', error);
-            setSubmitError('An error occurred. Please try again.');
-        }
+        navigate('/otp', { state: { formData } });
+
+        console.log('FormData:', formData)
+
+        // try {
+        //     const response = await fetch('/api/register', {
+        //         method: 'POST',
+        //         headers: {
+        //             'Content-Type': 'application/json',
+        //             'x-api-key': API_KEY // Include the API key in the request headers
+        //         },
+        //         body: JSON.stringify(formData)
+        //     });
+        //     if (!response.ok) {
+        //         const errorData = await response.json();
+        //         setSubmitError(errorData.error + ": " + errorData.details);
+        //         return;
+        //     }
+        //     // Redirect to login page after successful registration
+        //     navigate('/login'); // Adjust the path as needed
+        // } catch (error) {
+        //     console.error('Error during registration:', error);
+        //     setSubmitError('An error occurred. Please try again.');
+        // }
     };
 
     return (
@@ -208,7 +214,9 @@ function RegisterPage() {
                                 />
                             </div>
                         </div>
-                        <button type="submit" className="register-button">Register</button>
+                        <button type="submit" className="register-button"
+                        onClick={handleSubmit}
+                        >Register</button>
                         <button
                             type="button"
                             onClick={() => navigate('/login')}
