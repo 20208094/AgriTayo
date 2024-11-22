@@ -195,10 +195,6 @@ function ShopInformationScreen({ route, navigation }) {
       setErrors((prev) => ({ ...prev, shopAddress: "Shop address is required." }));
       hasError = true;
     }
-    if (!shopNumber) {
-      setErrors((prev) => ({ ...prev, shopNumber: "Shop number is required." }));
-      hasError = true;
-    }
 
     if (isCheckedDelivery) {
       if (!shopDeliveryFee) {
@@ -208,6 +204,11 @@ function ShopInformationScreen({ route, navigation }) {
         }));
         hasError = true;
       }
+    }
+
+    if (!userData.phone_number) {
+      setErrors((prev) => ({ ...prev, shopNumber: "Shop number is required." }));
+      hasError = true;
     }
 
     if (isCheckedPickup) {
@@ -277,14 +278,14 @@ function ShopInformationScreen({ route, navigation }) {
       gcash: isCheckedGcash,
       cod: isCheckedCod,
       bank: isCheckedBankTransfer,
-      shop_number: shopNumber,
-      secondary_shop_number: secondaryShopNumber,
+      shop_number: userData.phone_number,
+      secondary_shop_number: userData.secondary_phone_number,
       pickup_address: pickupAddress,
     };
 
     console.log("shopData being passed:", shopData);
 
-    if (secondaryShopNumber) {
+    if (userData.secondary_phone_number) {
       navigation.navigate("Shop Phones OTP", {
         userData,
         shopData,
@@ -383,7 +384,7 @@ function ShopInformationScreen({ route, navigation }) {
             )}
           </Text>
           <TextInput
-            value={shopNumber}
+            value={userData.phone_number}
             onChangeText={(value) => handleInputChange("shopNumber", value)}
             className="w-full p-2 mb-4 bg-white rounded-lg shadow-md text-gray-800"
             placeholder="e.g., 09123456789"
@@ -400,7 +401,7 @@ function ShopInformationScreen({ route, navigation }) {
             )}
           </Text>
           <TextInput
-            value={secondaryShopNumber}
+            value={userData.secondary_phone_number}
             onChangeText={(value) =>
               handleInputChange("secondaryShopNumber", value)
             }

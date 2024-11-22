@@ -41,7 +41,7 @@ function ShopOTPScreen({ route, navigation }) {
     console.log("Generated OTP code:", code); // For debugging, remove in production
     const title = "AgriTayo";
     const message = `Your OTP code is: ${code}`;
-    const phone_number = shopNumber;
+    const phone_number = userData.phone_number;
     socket.emit("sms sender", {
       title,
       message,
@@ -116,7 +116,7 @@ function ShopOTPScreen({ route, navigation }) {
 
         <View className="mb-6">
           <Text className="text-gray-600 text-center">
-            A 6-digit code has been sent to {shopNumber}
+            A 6-digit code has been sent to {userData.phone_number}
           </Text>
         </View>
 
