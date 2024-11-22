@@ -161,7 +161,7 @@ function MetricSystemPage() {
                   className="border p-2 w-full rounded-md"
                 />
                 <p className="text-l font-bold mb-4" style={{ marginBottom: '-20px' }}>
-                  Kilogram Value
+                  Kilogram (kg)
                 </p>
                 <input
                   type="number"
@@ -174,7 +174,7 @@ function MetricSystemPage() {
                   className="border p-2 w-full rounded-md"
                 />
                 <p className="text-l font-bold mb-4" style={{ marginBottom: '-20px' }}>
-                  Gram Value
+                  Gram (g)
                 </p>
                 <input
                   type="number"
@@ -187,7 +187,7 @@ function MetricSystemPage() {
                   className="border p-2 w-full rounded-md"
                 />
                 <p className="text-l font-bold mb-4" style={{ marginBottom: '-20px' }}>
-                  Pounds Value
+                  Pounds (lb)
                 </p>
                 <input
                   type="number"
@@ -250,9 +250,9 @@ function MetricSystemPage() {
             <tr key={metric.metric_system_id} className="text-center">
               <td className="p-2 border">{metric.metric_system_id}</td>
               <td className="p-2 border">{metric.metric_system_name}</td>
-              <td className="p-2 border">{metric.metric_val_kilogram}</td>
-              <td className="p-2 border">{metric.metric_val_gram}</td>
-              <td className="p-2 border">{metric.metric_val_pounds}</td>
+              <td className="p-2 border">{metric.metric_val_kilogram}kg</td>
+              <td className="p-2 border">{metric.metric_val_gram}g</td>
+              <td className="p-2 border">{metric.metric_val_pounds}lb</td>
               <td className="p-2 border">
                 <button onClick={() => handleEdit(metric)} className="bg-[#00B251] text-white py-1 px-3 rounded-md mx-1">Edit</button>
                 <button onClick={() => { setSelectedMetricId(metric.metric_system_id); setShowDeleteModal(true); }} className="bg-red-500 text-white py-1 px-3 rounded-md mx-1">Delete</button>
@@ -279,7 +279,7 @@ function MetricSystemPage() {
                 className="border p-2 w-full rounded-md"
               />
 
-            <p className="text-l font-bold mb-4" style={{ marginBottom: '-10px' }}>Kilogram</p>
+            <p className="text-l font-bold mb-4" style={{ marginBottom: '-10px' }}>Kilogram (kg)</p>
               <input
                 type="number"
                 step="0.0001"
@@ -290,7 +290,7 @@ function MetricSystemPage() {
                 required
                 className="border p-2 w-full rounded-md"
               />
-            <p className="text-l font-bold mb-4" style={{ marginBottom: '-10px' }}>Gram</p>
+            <p className="text-l font-bold mb-4" style={{ marginBottom: '-10px' }}>Gram (g)</p>
               <input
                 type="number"
                 step="0.0001"
@@ -301,7 +301,7 @@ function MetricSystemPage() {
                 required
                 className="border p-2 w-full rounded-md"
               />
-            <p className="text-l font-bold mb-4" style={{ marginBottom: '-10px' }}>Pounds</p>
+            <p className="text-l font-bold mb-4" style={{ marginBottom: '-10px' }}>Pounds (lb)</p>
               <input
                 type="number"
                 step="0.0001"
