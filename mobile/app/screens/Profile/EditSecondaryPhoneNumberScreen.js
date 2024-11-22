@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, TouchableOpacity, Alert, Modal } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Alert,
+  Modal,
+  ScrollView,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { styled } from "nativewind";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
@@ -42,9 +50,12 @@ function EditSecondaryPhoneNumberScreen({ navigation, route }) {
 
   useEffect(() => {
     if (isCLicked) {
-      if (phoneNumbersList.includes(newSecondaryPhone) || phoneNumbers2List.includes(newSecondaryPhone)) {
-        Alert.alert("", "Alternative Phone Number is already registered")
-        setIsClicked(false)
+      if (
+        phoneNumbersList.includes(newSecondaryPhone) ||
+        phoneNumbers2List.includes(newSecondaryPhone)
+      ) {
+        Alert.alert("", "Alternative Phone Number is already registered");
+        setIsClicked(false);
       } else {
         const generateRandomCode = () => {
           const code = Math.floor(100000 + Math.random() * 900000).toString();
@@ -85,6 +96,28 @@ function EditSecondaryPhoneNumberScreen({ navigation, route }) {
     fetchPhoneNumbers();
   }, []);
 
+  useEffect(() => {
+    let interval = null;
+    if (seconds > 0) {
+      interval = setInterval(() => {
+        setSeconds((prevSeconds) => prevSeconds - 1);
+      }, 1000);
+    } else {
+      setIsResendEnabled(true);
+      clearInterval(interval);
+    }
+    return () => clearInterval(interval);
+  }, [seconds]);
+
+  const formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${String(minutes).padStart(2, "0")}:${String(secs).padStart(
+      2,
+      "0"
+    )}`;
+  };
+
   const handleOtp = async () => {
     setOtpError("");
 
@@ -120,7 +153,9 @@ function EditSecondaryPhoneNumberScreen({ navigation, route }) {
           if (response.ok) {
             const data = await response.json();
             console.log("Successfully Updated Alternative Phone Number:", data);
-            setAlertMessage("Success! Successfully Updated Alternative Phone Number");
+            setAlertMessage(
+              "Success! Successfully Updated Alternative Phone Number"
+            );
             setAlertVisible(true); // Show modal with OK button
 
             const updatedUserData = {
@@ -137,15 +172,22 @@ function EditSecondaryPhoneNumberScreen({ navigation, route }) {
 
             // Save the updated user data for later navigation
             setUpdatedUserData(updatedUserData);
-
           } else {
             const errorData = await response.json();
-            console.error("Adding new alternative phone number failed:", errorData);
-            setAlertMessage("Adding New Alternative Phone Number Failed. Please Try Again");
+            console.error(
+              "Adding new alternative phone number failed:",
+              errorData
+            );
+            setAlertMessage(
+              "Adding New Alternative Phone Number Failed. Please Try Again"
+            );
             setAlertVisible(true);
           }
         } catch (error) {
-          console.error("Error during adding new alternative phone number:", error);
+          console.error(
+            "Error during adding new alternative phone number:",
+            error
+          );
           setAlertMessage("An error occurred. Please try again.");
           setAlertVisible(true);
         } finally {
@@ -181,6 +223,8 @@ function EditSecondaryPhoneNumberScreen({ navigation, route }) {
 
   const handleResend = () => {
     setIsClicked(false); // Temporarily set to false to retrigger OTP generation
+    setSeconds(10 * 60);
+    setIsResendEnabled(false);
     setTimeout(() => setIsClicked(true), 0); // Set back to true to generate a new OTP
   };
 
@@ -239,16 +283,37 @@ function EditSecondaryPhoneNumberScreen({ navigation, route }) {
               >
                 <Text className="text-white font-bold text-center">Submit</Text>
               </TouchableOpacity>
-              <TouchableOpacity className="bg-gray-200 px-4 py-2 rounded-lg mb-5" onPress={handleEditPhone}>
+              <TouchableOpacity
+                className="bg-gray-200 px-4 py-2 rounded-lg mb-5"
+                onPress={handleEditPhone}
+              >
                 <Text className="text-[#00B251] font-bold text-center">
                   Change Number
                 </Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={handleResend}>
-                <Text className="text-center font-bold text-[#00B251]">
-                  Resend OTP
+              <View className="flex-row items-center mb-6">
+                <Text className="text-gray-600">
+                  - Didn’t receive the code?{" "}
                 </Text>
-              </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={isResendEnabled ? handleResend : null}
+                  disabled={!isResendEnabled}
+                >
+                  <Text
+                    className={`text-${
+                      isResendEnabled ? "green-500" : "gray-400"
+                    }`}
+                  >
+                    Resend
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
+              {seconds > 0 && (
+                <Text className="text-gray-600 mb-4">
+                  - The OTP will expire in {formatTime(seconds)}
+                </Text>
+              )}
             </View>
           </>
         )}
@@ -271,7 +336,9 @@ function EditSecondaryPhoneNumberScreen({ navigation, route }) {
               onPress={() => {
                 setAlertVisible(false); // Close the alert modal
                 if (updatedUserData) {
-                  navigation.navigate("View Profile", { userData: updatedUserData });
+                  navigation.navigate("View Profile", {
+                    userData: updatedUserData,
+                  });
                 }
               }}
             >

@@ -1,12 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, TouchableOpacity, Alert, Modal } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Alert,
+  Modal,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { styled } from "nativewind";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 import { io } from "socket.io-client";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
-
 
 function EditPhoneNumberScreen({ navigation, route }) {
   const { userData, phone } = route.params;
@@ -43,9 +49,12 @@ function EditPhoneNumberScreen({ navigation, route }) {
 
   useEffect(() => {
     if (isCLicked) {
-      if (phoneNumbersList.includes(newPhone) || phoneNumbers2List.includes(newPhone)) {
-        Alert.alert("", "Phone Number is already registered")
-        setIsClicked(false)
+      if (
+        phoneNumbersList.includes(newPhone) ||
+        phoneNumbers2List.includes(newPhone)
+      ) {
+        Alert.alert("", "Phone Number is already registered");
+        setIsClicked(false);
       } else {
         const generateRandomCode = () => {
           const code = Math.floor(100000 + Math.random() * 900000).toString();
@@ -62,7 +71,6 @@ function EditPhoneNumberScreen({ navigation, route }) {
       }
     }
   }, [isCLicked, newPhone, phoneNumbersList, phoneNumbers2List]); // Runs when the OTP button is clicked
-
 
   useEffect(() => {
     const fetchPhoneNumbers = async () => {
@@ -86,6 +94,28 @@ function EditPhoneNumberScreen({ navigation, route }) {
 
     fetchPhoneNumbers();
   }, []);
+
+  useEffect(() => {
+    let interval = null;
+    if (seconds > 0) {
+      interval = setInterval(() => {
+        setSeconds((prevSeconds) => prevSeconds - 1);
+      }, 1000);
+    } else {
+      setIsResendEnabled(true);
+      clearInterval(interval);
+    }
+    return () => clearInterval(interval);
+  }, [seconds]);
+
+  const formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${String(minutes).padStart(2, "0")}:${String(secs).padStart(
+      2,
+      "0"
+    )}`;
+  };
 
   const handleOtp = async () => {
     setOtpError("");
@@ -139,7 +169,6 @@ function EditPhoneNumberScreen({ navigation, route }) {
 
             // Store updated user data for later navigation
             setUpdatedUserData(updatedUserData);
-
           } else {
             const errorData = await response.json();
             console.error("Adding new phone number failed:", errorData);
@@ -183,6 +212,8 @@ function EditPhoneNumberScreen({ navigation, route }) {
 
   const handleResend = () => {
     setIsClicked(false); // Temporarily set to false to retrigger OTP generation
+    setSeconds(10 * 60);
+    setIsResendEnabled(false);
     setTimeout(() => setIsClicked(true), 0); // Set back to true to generate a new OTP
   };
 
@@ -243,16 +274,37 @@ function EditPhoneNumberScreen({ navigation, route }) {
               >
                 <Text className="text-white font-bold text-center">Submit</Text>
               </TouchableOpacity>
-              <TouchableOpacity className="bg-gray-200 px-4 py-2 rounded-lg mb-5" onPress={handleEditPhone}>
+              <TouchableOpacity
+                className="bg-gray-200 px-4 py-2 rounded-lg mb-5"
+                onPress={handleEditPhone}
+              >
                 <Text className="text-[#00B251] font-bold text-center">
                   Change Number
                 </Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={handleResend}>
-                <Text className="text-center font-bold text-[#00B251]">
-                  Resend OTP
+              <View className="flex-row items-center mb-6">
+                <Text className="text-gray-600">
+                  - Didn’t receive the code?{" "}
                 </Text>
-              </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={isResendEnabled ? handleResend : null}
+                  disabled={!isResendEnabled}
+                >
+                  <Text
+                    className={`text-${
+                      isResendEnabled ? "green-500" : "gray-400"
+                    }`}
+                  >
+                    Resend
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
+              {seconds > 0 && (
+                <Text className="text-gray-600 mb-4">
+                  - The OTP will expire in {formatTime(seconds)}
+                </Text>
+              )}
             </View>
           </>
         )}
@@ -274,7 +326,9 @@ function EditPhoneNumberScreen({ navigation, route }) {
               onPress={() => {
                 setAlertVisible(false); // Close the alert modal
                 if (updatedUserData) {
-                  navigation.navigate("View Profile", { userData: updatedUserData });
+                  navigation.navigate("View Profile", {
+                    userData: updatedUserData,
+                  });
                 }
               }}
             >

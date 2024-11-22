@@ -21,7 +21,6 @@ function RegisterScreenBuyers({ navigation }) {
   const [middleName, setMiddleName] = useState("");
   const [lastName, setLastName] = useState("");
   const [birthDay, setBirthDay] = useState("");
-  const [gender, setGender] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [phone, setPhone] = useState("");
@@ -31,7 +30,6 @@ function RegisterScreenBuyers({ navigation }) {
   const [middleNameError, setMiddleNameError] = useState("");
   const [lastNameError, setLastNameError] = useState("");
   const [birthDayError, setBirthDayError] = useState("");
-  const [genderError, setGenderError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [confirmPasswordError, setConfirmPasswordError] = useState("");
   const [phoneError, setPhoneError] = useState("");
@@ -186,7 +184,6 @@ const validateSecondaryPhone = (text) => {
     formData.append("middlename", middleName);
     formData.append("lastname", lastName);
     formData.append("birthday", birthDay);
-    formData.append("gender", gender);
     formData.append("password", password);
     formData.append("phone_number", phone);
     formData.append("secondary_phone_number", secondaryPhoneNumber);
@@ -221,12 +218,6 @@ const validateSecondaryPhone = (text) => {
     }
   };
 
-  const genderOptions = [
-    { label: "Male", value: "Male" },
-    { label: "Female", value: "Female" },
-    { label: "Other", value: "Other" },
-  ];
-
   const [show, setShow] = useState(false);
   const [date, setDate] = useState(new Date());
   const [formattedDate, setFormattedDate] = useState("");
@@ -255,7 +246,6 @@ const validateSecondaryPhone = (text) => {
     setFirstNameError("");
     setLastNameError("");
     setBirthDayError("");
-    setGenderError("");
     setPasswordError("");
     setConfirmPasswordError("");
     setPhoneError("");
@@ -274,11 +264,6 @@ const validateSecondaryPhone = (text) => {
 
     if (!birthDay) {
       setBirthDayError(" Enter your Birthday.");
-      hasError = true;
-    }
-
-    if (!gender) {
-      setGenderError(" Select your Gender.");
       hasError = true;
     }
 
@@ -384,31 +369,6 @@ const validateSecondaryPhone = (text) => {
               maximumDate={eighteenYearsAgo} // Restrict selection to dates 18 years ago or earlier
             />
           )}
-          {/* Gender */}
-          <Text className="text-sm mb-2 text-gray-800">
-            Gender: <Text className="text-red-500 text-sm">*</Text>{" "}
-            {genderError ? (
-              <Text className="text-sm w-4/5 text-red-500 mb-4">
-                {genderError}
-              </Text>
-            ) : null}
-          </Text>
-          <View className="flex-row mb-4">
-            {genderOptions.map((option) => (
-              <TouchableOpacity
-                key={option.value}
-                onPress={() => setGender(option.value)}
-                className="flex-row items-center mr-6"
-              >
-                <View className="w-7 h-7 rounded-full border-2 border-green-600 flex items-center justify-center">
-                  {gender === option.value && (
-                    <FontAwesome name="circle" size={21} color="#00B251" />
-                  )}
-                </View>
-                <Text className="ml-2 text-gray-800">{option.label}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
 
           {/* Phone */}
           <Text className="text-sm mb-2 text-gray-800">

@@ -24,7 +24,6 @@ function ViewProfileScreen({ route, navigation }) {
   const [middleName, setMiddleName] = useState(userData.middlename);
   const [lastName, setLastName] = useState(userData.lastname);
   const [birthday, setBirthday] = useState(userData.birthday);
-  const [gender, setGender] = useState(userData.gender);
   const [phone, setPhone] = useState(userData.phone_number);
   const [secondaryPhoneNumber, setSecondaryPhoneNumber] = useState(
     userData.secondary_phone_number
@@ -44,7 +43,6 @@ function ViewProfileScreen({ route, navigation }) {
     phone: "",
     secondaryPhoneNumber: "",
     birthday: "",
-    gender: "",
   });
 
   // RegEx for validation
@@ -223,7 +221,6 @@ function ViewProfileScreen({ route, navigation }) {
     formData.append("lastname", lastName);
     formData.append("phone_number", phone);
     formData.append("secondary_phone_number", secondaryPhoneNumber);
-    formData.append("gender", gender);
     formData.append("birthday", birthday);
 
     if (profileImage) {
@@ -260,7 +257,6 @@ function ViewProfileScreen({ route, navigation }) {
           lastname: lastName,
           phone_number: phone,
           secondary_phone_number: secondaryPhoneNumber,
-          gender: gender,
           birthday: birthday,
           user_image_url: profileImage,
         };
@@ -276,12 +272,6 @@ function ViewProfileScreen({ route, navigation }) {
       setAlertVisible(true);
     }
   };
-
-  const genderOptions = [
-    { label: "Male", value: "Male" },
-    { label: "Female", value: "Female" },
-    { label: "Others", value: "Others" },
-  ];
 
   const today = new Date();
   const eighteenYearsAgo = new Date(
@@ -383,30 +373,6 @@ function ViewProfileScreen({ route, navigation }) {
               maximumDate={eighteenYearsAgo}
             />
           )}
-
-          {/* Gender */}
-          <Text className="text-sm mb-2 text-gray-800">
-            Gender:{" "}
-            {errors.gender ? (
-              <Text className="text-red-500 text-xs mb-4">{errors.gender}</Text>
-            ) : null}
-          </Text>
-          <View className="flex-row mb-4">
-            {genderOptions.map((option) => (
-              <TouchableOpacity
-                key={option.value}
-                onPress={() => setGender(option.value)}
-                className="flex-row items-center mr-6"
-              >
-                <View className="w-7 h-7 rounded-full border-2 border-green-600 flex items-center justify-center">
-                  {gender === option.value && (
-                    <FontAwesome name="circle" size={21} color="#00B251" />
-                  )}
-                </View>
-                <Text className="ml-2 text-gray-800">{option.label}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
 
           <View className="relative w-full p-2 mb-4 bg-white rounded-lg shadow-md text-gray-800">
             {/* Phone Number Text */}
