@@ -390,9 +390,9 @@ function MarketAnalyticScreen({ route }) {
             labels: itemData.dates,
             datasets: [
               {
-                data: itemData.average,
-                color: (opacity = 1) => `rgba(25, 118, 210, ${opacity})`,
-                label: "Average",
+                data: itemData.lowest,
+                color: (opacity = 1) => `rgba(0, 128, 0, ${opacity})`,
+                label: "Lowest",
               },
               {
                 data: itemData.highest,
@@ -400,12 +400,12 @@ function MarketAnalyticScreen({ route }) {
                 label: "Highest",
               },
               {
-                data: itemData.lowest,
-                color: (opacity = 1) => `rgba(0, 128, 0, ${opacity})`,
-                label: "Lowest",
-              },
+                data: itemData.average,
+                color: (opacity = 1) => `rgba(25, 118, 210, ${opacity})`,
+                label: "Average",
+              }
             ],
-            legend: ["Average Price  ", "Highest Price", "Lowest Price"],
+            legend: ["Lowest Price  ", "Highest Price  ", "Average Price"],
           }}
           width={screenWidth - 20}
           height={chartHeight + 20}
@@ -448,7 +448,7 @@ function MarketAnalyticScreen({ route }) {
             }}
           >
             <View className="bg-green-600 border border-black rounded-md p-2 z-10 w-24 items-center">
-              <Text className="font-bold">₱{tooltip.value}</Text>
+              <Text className="font-bold">₱{parseFloat(tooltip.value).toFixed(2)}</Text>
               <Text>{tooltip.date}</Text>
               <Text>Sold: {tooltip.sold}</Text>
               <View
@@ -531,18 +531,38 @@ function MarketAnalyticScreen({ route }) {
                     </TouchableOpacity>
                   </View>
                 </View>
-              </Modal>
-              <Text className="text-sm font-bold text-green-500 mb-2">
-                Average
-                <Text className="text-green-700"> ₱{getDataForItem(item.crop_variety_id, selectedFilter).averagep.slice(-1)[0]}</Text>
+              </Modal><Text className="text-sm font-bold text-green-500 mb-2">
+                Average:
+                <Text className="text-green-700">
+                  ₱{
+                    (() => {
+                      const value = getDataForItem(item.crop_variety_id, selectedFilter).averagep.slice(-1)[0];
+                      return isNaN(value) || !isFinite(value) ? 0 : value;
+                    })()
+                  }
+                </Text>
               </Text>
               <Text className="text-sm font-bold text-green-500 mb-2">
-                Highest
-                <Text className="text-green-700"> ₱{getDataForItem(item.crop_variety_id, selectedFilter).lowestp.slice(-1)[0]}</Text>
+                Highest:
+                <Text className="text-green-700">
+                   ₱{
+                    (() => {
+                      const value = getDataForItem(item.crop_variety_id, selectedFilter).lowestp.slice(-1)[0];
+                      return isNaN(value) || !isFinite(value) ? 0 : value;
+                    })()
+                  }
+                </Text>
               </Text>
               <Text className="text-sm font-bold text-green-500 mb-2">
-                Lowest
-                <Text className="text-green-700"> ₱{getDataForItem(item.crop_variety_id, selectedFilter).highestp.slice(-1)[0]}</Text>
+                Lowest: 
+                <Text className="text-green-700">
+                  ₱{
+                    (() => {
+                      const value = getDataForItem(item.crop_variety_id, selectedFilter).highestp.slice(-1)[0];
+                      return isNaN(value) || !isFinite(value) ? 0 : value;
+                    })()
+                  }
+                </Text>
               </Text>
               {renderAnalyticsChart(item.crop_variety_id)}
             </View>

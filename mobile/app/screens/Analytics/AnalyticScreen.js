@@ -44,9 +44,11 @@ function AnalyticScreen({ navigation }) {
       });
 
       const crops = await cropsResponse.json();
-      const categories = await categoryResponse.json();
+      const categoriesraw = await categoryResponse.json();
       const subcategories = await subcategoryResponse.json();
       const varieties = await varietyResponse.json();
+
+      const categories = categoriesraw.sort((a, b) => a.crop_category_id - b.crop_category_id);
 
       // Combine the varieties with the crops
       const combinedVarieties = varieties.map(variety => {

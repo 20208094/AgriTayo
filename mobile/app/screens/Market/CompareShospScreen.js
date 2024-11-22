@@ -88,7 +88,7 @@ function CompareShopsScreen({ route }) {
         const subcategoryData = subcategories.find(sub => sub.crop_sub_category_id === crop.sub_category_id);
         const varietyData = varieties.find(variety => variety.crop_variety_id === crop.crop_variety_id);
         const sizeData = variety_sizes.find(varSize => varSize.crop_variety_id === crop.crop_variety_id);
-        const actualSize = sizes.find(size => size.crop_size_id === (sizeData ? sizeData.crop_size_id : null));
+        const actualSize = sizes.find(size => size.crop_size_id === (crop ? crop.crop_size_id : null));
         const metricData = metrics.find(metric => metric.metric_system_id === crop.metric_system_id);
         const shopData = shops.find(shop => shop.shop_id === crop.shop_id);
 

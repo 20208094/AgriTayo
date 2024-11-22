@@ -15,6 +15,7 @@ import * as ImagePicker from "expo-image-picker";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import LoadingAnimation from "../../components/LoadingAnimation";
 
 function BusinessInformationScreen({ navigation, route }) {
   const { userData, shopData } = route.params;
@@ -23,6 +24,7 @@ function BusinessInformationScreen({ navigation, route }) {
   const [alertMessage, setAlertMessage] = useState("");
   const [alertVisible2, setAlertVisible2] = useState(false);
   const [alertMessage2, setAlertMessage2] = useState("");
+  const [loading, setLoading] = useState(false)
 
   const [selectedBusinessInformation, setSelectedBusinessInformation] = useState("");
   const [tin, setTin] = useState("");
@@ -40,7 +42,7 @@ function BusinessInformationScreen({ navigation, route }) {
     const newErrors = { ...errors };
 
     if (!selectedBusinessInformation) {
-      newErrors.businessInformation = "Please select 'Submit Later' or 'Submit Now'.";
+      newErrors.businessInformation = "\nPlease select 'Submit Later' or 'Submit Now'.";
       isValid = false;
     } else {
       newErrors.businessInformation = "";
@@ -82,21 +84,21 @@ function BusinessInformationScreen({ navigation, route }) {
       setAlertVisible2(true);
       return;
     }
-  
+
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       quality: 1, // Full quality
     });
-  
+
     if (!result.canceled) {
       const imageUri = result.assets[0].uri;
-  
+
       try {
         const response = await fetch(imageUri);
         const blob = await response.blob();
         const sizeInMB = blob.size / (1024 * 1024); // Convert bytes to MB
-  
+
         if (sizeInMB > MAX_IMAGE_SIZE_MB) {
           setAlertMessage2(
             `The selected image is too large (${sizeInMB.toFixed(
@@ -106,7 +108,7 @@ function BusinessInformationScreen({ navigation, route }) {
           setAlertVisible2(true);
           return;
         }
-  
+
         setBirCertificate(imageUri);
         setModalVisible(false);
       } catch (error) {
@@ -115,17 +117,22 @@ function BusinessInformationScreen({ navigation, route }) {
       }
     }
   };
-  
+
   const handleSubmit = async () => {
     setAttemptedSubmit(true);
+    if (!selectedBusinessInformation) {
+      return;
+    }
 
     if (!validateForm()) {
-      setAlertMessage("Error", "Please complete all required fields.");
-      setAlertVisible(true);
+      // setAlertMessage("Error", "Please complete all required fields.");
+      // setAlertVisible(true);
       return;
     }
 
     try {
+
+      setLoading(true)
       const formData = new FormData();
 
       formData.append("shop_name", shopData.shop_name);
@@ -194,21 +201,31 @@ function BusinessInformationScreen({ navigation, route }) {
           await AsyncStorage.setItem('shopData', JSON.stringify(filteredShops));
         } catch (error) {
           console.error('Error saving shopData:', error);
+          setLoading(false)
         }
         setAlertMessage("Success, Shop created successfully!");
         setAlertVisible(true);
       } else {
         setAlertMessage("Error, Failed to create shop");
         setAlertVisible(true);
+        setLoading(false)
       }
     } catch (error) {
       console.error("Error while creating shop:", error);
       setAlertMessage("Error, Failed to create shop. Please try again.");
       setAlertVisible(true);
+      setLoading(false)
+    } finally {
+      setLoading(false)
     }
   };
 
 
+  if (loading) {
+    return (
+      <LoadingAnimation />
+    )
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-white" edges={["bottom", "left", "right"]}>
@@ -267,65 +284,84 @@ function BusinessInformationScreen({ navigation, route }) {
           </Text>
         </View>
 
-        <Text className="text-lg font-semibold text-green-600">
-          Taxpayer Identification Number (TIN) <Text className="text-red-500 text-sm">*</Text> {attemptedSubmit && errors.tin && (
-            <Text className="text-sm w-4/5 text-red-500 mb-4">{errors.tin}</Text>
-          )}
+        {selectedBusinessInformation === "now" ? (
+          <>
+            <Text className="text-lg font-semibold text-green-600">
+              Taxpayer Identification Number (TIN) <Text className="text-red-500 text-sm">*</Text> {attemptedSubmit && errors.tin && (
+                <Text className="text-sm w-4/5 text-red-500 mb-4">{errors.tin}</Text>
+              )}
 
-        </Text>
-        <TextInput
-          className="w-full p-2 mb-4 mt-3 bg-white rounded-lg shadow-md text-gray-800"
-          keyboardType="numeric"
-          placeholder="TIN"
-          value={tin}
-          onChangeText={setTin}
-        />
+            </Text>
+            <TextInput
+              className="w-full p-2 mb-4 mt-3 bg-white rounded-lg shadow-md text-gray-800"
+              keyboardType="numeric"
+              placeholder="TIN"
+              value={tin}
+              onChangeText={setTin}
+            />
 
-        <Text className="text-sm text-gray-500 mb-4">
-          Your 9-digit TIN and 3 to 5 digit branch code. Please use '000' as
-          your branch code if you don't have one (e.g. 999-999-000)
-        </Text>
+            <Text className="text-sm text-gray-500 mb-4">
+              Your 9-digit TIN and 3 to 5 digit branch code. Please use '000' as
+              your branch code if you don't have one (e.g. 999-999-000)
+            </Text>
 
 
-        <Text className="text-lg font-semibold text-green-600">
-          BIR Certificate of Registration <Text className="text-red-500 text-sm">* {attemptedSubmit && errors.birCertificate && (
-            <Text className="text-sm w-4/5 text-red-500 mb-4">{errors.birCertificate}</Text>
-          )}
-          </Text>
-        </Text>
-        <TouchableOpacity
-          className="border border-dashed border-green-600 rounded-md p-4 my-4 flex-row justify-center items-center"
-          onPress={() => setModalVisible(true)}
-        >
-          <Text className="text-green-600">+ Upload</Text>
-        </TouchableOpacity>
+            <Text className="text-lg font-semibold text-green-600">
+              BIR Certificate of Registration <Text className="text-red-500 text-sm">* {attemptedSubmit && errors.birCertificate && (
+                <Text className="text-sm w-4/5 text-red-500 mb-4">{errors.birCertificate}</Text>
+              )}
+              </Text>
+            </Text>
+            <TouchableOpacity
+              className="border border-dashed border-green-600 rounded-md p-4 my-4 flex-row justify-center items-center"
+              onPress={() => setModalVisible(true)}
+            >
+              <Text className="text-green-600">+ Upload</Text>
+            </TouchableOpacity>
 
-        {birCertificate && (
-          <Image source={{ uri: birCertificate }} className="w-24 h-24 mb-4" />
+            {birCertificate && (
+              <Image source={{ uri: birCertificate }} className="w-24 h-24 mb-4" />
+            )}
+
+            <Text className="text-sm text-gray-500 mb-4">
+              Choose a file that is not more than 1 MB in size.
+            </Text>
+            <Text className="text-sm text-gray-500 mb-4">
+              If Business Name/Trade is not applicable, please enter your Taxpayer
+              Name as indicated on your BIR CoR instead (e.g Acme, Inc.)
+            </Text>
+            <View className="flex-row justify-between mt-4">
+              <TouchableOpacity
+                className="bg-gray-300 rounded-full py-4 px-8"
+                onPress={() => navigation.goBack()}
+              >
+                <Text className="text-white text-lg font-semibold">Back</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                className="bg-green-600 rounded-full py-4 px-8"
+                onPress={handleSubmit}
+              >
+                <Text className="text-white text-lg font-semibold">Submit</Text>
+              </TouchableOpacity>
+            </View>
+          </>
+        ) : (
+          <View className="flex-row justify-between mt-2">
+            <TouchableOpacity
+              className="bg-gray-300 rounded-full py-4 px-8"
+              onPress={() => navigation.goBack()}
+            >
+              <Text className="text-white text-lg font-semibold">Back</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              className="bg-green-600 rounded-full py-4 px-8"
+              onPress={handleSubmit}
+            >
+              <Text className="text-white text-lg font-semibold">Submit</Text>
+            </TouchableOpacity>
+          </View>
         )}
 
-        <Text className="text-sm text-gray-500 mb-4">
-          Choose a file that is not more than 1 MB in size.
-        </Text>
-        <Text className="text-sm text-gray-500 mb-4">
-          If Business Name/Trade is not applicable, please enter your Taxpayer
-          Name as indicated on your BIR CoR instead (e.g Acme, Inc.)
-        </Text>
-
-        <View className="flex-row justify-between mt-6">
-          <TouchableOpacity
-            className="bg-gray-300 rounded-full py-4 px-8"
-            onPress={() => navigation.goBack()}
-          >
-            <Text className="text-white text-lg font-semibold">Back</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            className="bg-green-600 rounded-full py-4 px-8"
-            onPress={handleSubmit}
-          >
-            <Text className="text-white text-lg font-semibold">Submit</Text>
-          </TouchableOpacity>
-        </View>
       </ScrollView>
 
       <Modal visible={modalVisible} animationType="slide" transparent={true}>

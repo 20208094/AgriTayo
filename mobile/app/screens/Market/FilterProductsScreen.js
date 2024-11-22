@@ -259,13 +259,13 @@ function FilterProductsScreen(route) {
           if (filterCategorySubCategories) {
             setSubCategoryFormData(filterCategorySubCategories)
           }
-          const filterCategoryVarieties = varietyData.filter(cat => cat.crop_category_id === Number(item.value));
+          const filterCategoryVarieties = varietyData.filter(cat => cat.crop_sub_category_id === Number(item.value));
           if (filterCategoryVarieties) {
             setVarietyFormData(filterCategoryVarieties)
           }
         }
         // Filter Forms
-        const filterSubCategoryVarieties = varietyData.filter(cat => cat.crop_category_id === Number(item.value));
+        const filterSubCategoryVarieties = varietyData.filter(cat => cat.crop_sub_category_id === Number(item.value));
         if (filterSubCategoryVarieties) {
           setVarietyFormData(filterSubCategoryVarieties)
         }
@@ -305,7 +305,7 @@ function FilterProductsScreen(route) {
           if (filterVarietySubCategories) {
             setSubCategoryFormData(filterVarietySubCategories)
           }
-          const filterCategoryVarieties = varietyData.filter(cat => cat.crop_category_id === selectedVariety.crop_category_id);
+          const filterCategoryVarieties = varietyData.filter(cat => cat.crop_sub_category_id === selectedVariety.crop_sub_category_id);
           if (filterCategoryVarieties) {
             setVarietyFormData(filterCategoryVarieties)
           }

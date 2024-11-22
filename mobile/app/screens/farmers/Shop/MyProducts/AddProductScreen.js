@@ -895,7 +895,7 @@ function AddProductScreen({ navigation }) {
             animationType="slide"
             onRequestClose={() => setModalVisible1(false)}
           >
-            <View className="flex-1 justify-center items-center bg-[rgba(0,0,0,0.5)] bg-black/50">
+            <View className="flex-1 justify-center items-center bg-black/50">
               <View className="w-4/5 bg-white p-6 rounded-lg">
                 <Text className="text-lg font-semibold text-gray-800 mb-4">
                   Confirm Add Product

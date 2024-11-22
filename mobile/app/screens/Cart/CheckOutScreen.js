@@ -26,7 +26,6 @@ function CheckOutScreen() {
     order_type,
     cart_type,
   } = route.params || { items: [] };
-  console.log("checkedOutItems :", checkedOutItems);
   const [modalVisible, setModalVisible] = useState(false);
   const [shopDetails, setShopDetails] = useState(null);
   const [selectedShippingMethod, setSelectedShippingMethod] = useState(null);
@@ -50,8 +49,8 @@ function CheckOutScreen() {
     selectedShippingMethod === "Delivery"
       ? shopDetails?.delivery_price || 0
       : selectedShippingMethod === "Pickup"
-      ? shopDetails?.pickup_price || 0
-      : 0;
+        ? shopDetails?.pickup_price || 0
+        : 0;
 
   const subtotal = totalPrice;
   const total = subtotal + shippingFee;
@@ -66,7 +65,6 @@ function CheckOutScreen() {
       const shops = await response.json();
 
       const filteredShops = shops.filter((shop) => shop.shop_id === shopId);
-      console.log("filteredShops :", filteredShops.shop_number);
       setShopDetails(filteredShops[0]); // Store the first matching shop
     } catch (error) {
       console.error("Error fetching shops:", error);
@@ -125,7 +123,7 @@ function CheckOutScreen() {
   };
 
   const renderTotalPrice = () => (
-    <View className="mt-1 p-4 bg-white rounded-lg shadow border border-[#00b251]">
+    <View className="mt-2 p-4 bg-white rounded-lg shadow border border-[#00b251]">
       <Text className="text-lg font-bold text-gray-800">
         Subtotal: ₱ {subtotal.toFixed(2)}
       </Text>
@@ -138,6 +136,16 @@ function CheckOutScreen() {
     </View>
   );
 
+  const renderWarningInfo = () => (
+    <View className="mt-1 p-4 bg-white rounded-lg shadow border-2 border-orange-400">
+      <Text className="text-base font-bold text-orange-500">
+        NOTE: AgriTayo will not handle shipping and payment, this will only
+        serve as a way to inform the seller for your chosen shipping and
+        payment option.
+      </Text>
+    </View>
+  );
+
   const renderShippingMethods = () =>
     shopDetails && (
       <View className="mt-2 p-4 bg-white rounded-lg shadow border border-[#00b251]">
@@ -146,11 +154,10 @@ function CheckOutScreen() {
         </Text>
         {shopDetails.delivery && (
           <TouchableOpacity
-            className={`p-3 rounded-lg flex-row items-center justify-between mb-2 ${
-              selectedShippingMethod === "Delivery"
-                ? "bg-[#c6f7d8] border-l-4 border-[#00b251]"
-                : "bg-white"
-            }`}
+            className={`p-3 rounded-lg flex-row items-center justify-between mb-2 ${selectedShippingMethod === "Delivery"
+              ? "bg-[#c6f7d8] border-l-4 border-[#00b251]"
+              : "bg-white"
+              }`}
             onPress={() => handleShippingOption("Delivery")}
           >
             <View className="flex-row items-center">
@@ -173,23 +180,22 @@ function CheckOutScreen() {
           </TouchableOpacity>
         )}
         {selectedShippingMethod === "Delivery" && (
-          <View className="mt-2">
-          <Text className="text-sm text-gray-800">Shipping Address</Text>
-          <TextInput
-            className="w-full p-2 mb-2 bg-white rounded-lg shadow-md border border-gray-400"
-            placeholder="#123 Barangay Maria Basa, Baguio City"
-            value={checkOutAddress}
-            onChangeText={setCheckOutAddress}
-          />
+          <View className="mt-1 mb-1 border-b-2 border-green-600">
+            <Text className="text-sm text-gray-800">Enter Your Address:</Text>
+            <TextInput
+              className="w-full p-2 mb-2 bg-white rounded-lg shadow-md border border-gray-400"
+              placeholder="#123 Barangay Maria Basa, Baguio City"
+              value={checkOutAddress}
+              onChangeText={setCheckOutAddress}
+            />
           </View>
-      )}
+        )}
         {shopDetails.pickup && (
           <TouchableOpacity
-            className={`p-3 rounded-lg flex-row items-center justify-between ${
-              selectedShippingMethod === "Pickup"
-                ? "bg-[#c6f7d8] border-l-4 border-[#00b251]"
-                : "bg-white"
-            }`}
+            className={`p-3 rounded-lg flex-row items-center justify-between ${selectedShippingMethod === "Pickup"
+              ? "bg-[#c6f7d8] border-l-4 border-[#00b251]"
+              : "bg-white"
+              }`}
             onPress={() => handleShippingOption("Pickup")}
           >
             <View className="flex-row items-center">
@@ -218,11 +224,10 @@ function CheckOutScreen() {
         </Text>
         {shopDetails.cod && (
           <TouchableOpacity
-            className={`p-3 rounded-lg flex-row items-center justify-between mb-2 ${
-              selectedPaymentMethod === "COD"
-                ? "bg-[#c6f7d8] border-l-4 border-[#00b251]"
-                : "bg-white"
-            }`}
+            className={`p-3 rounded-lg flex-row items-center justify-between mb-2 ${selectedPaymentMethod === "COD"
+              ? "bg-[#c6f7d8] border-l-4 border-[#00b251]"
+              : "bg-white"
+              }`}
             onPress={() => handlePaymentOption("COD")}
           >
             <View className="flex-row items-center">
@@ -240,11 +245,10 @@ function CheckOutScreen() {
         )}
         {shopDetails.gcash && (
           <TouchableOpacity
-            className={`p-3 rounded-lg flex-row items-center justify-between mb-2 ${
-              selectedPaymentMethod === "GCash"
-                ? "bg-[#c6f7d8] border-l-4 border-[#00b251]"
-                : "bg-white"
-            }`}
+            className={`p-3 rounded-lg flex-row items-center justify-between mb-2 ${selectedPaymentMethod === "GCash"
+              ? "bg-[#c6f7d8] border-l-4 border-[#00b251]"
+              : "bg-white"
+              }`}
             onPress={() => handlePaymentOption("GCash")}
           >
             <View className="flex-row items-center">
@@ -262,11 +266,10 @@ function CheckOutScreen() {
         )}
         {shopDetails.bank && (
           <TouchableOpacity
-            className={`p-3 rounded-lg flex-row items-center justify-between mb-2 ${
-              selectedPaymentMethod === "Bank"
-                ? "bg-[#c6f7d8] border-l-4 border-[#00b251]"
-                : "bg-white"
-            }`}
+            className={`p-3 rounded-lg flex-row items-center justify-between mb-2 ${selectedPaymentMethod === "Bank"
+              ? "bg-[#c6f7d8] border-l-4 border-[#00b251]"
+              : "bg-white"
+              }`}
             onPress={() => handlePaymentOption("Bank")}
           >
             <View className="flex-row items-center">
@@ -300,8 +303,6 @@ function CheckOutScreen() {
       shop_number: shopDetails.shop_number,
       shippingAddress: checkOutAddress || null
     };
-
-    console.log("orderDetails :", orderDetails);
 
     try {
       const response = await fetch(
@@ -343,9 +344,10 @@ function CheckOutScreen() {
         ListHeaderComponent={() => <View className="flex-1"></View>}
         ListFooterComponent={() => (
           <View className="flex-1">
-            {renderTotalPrice()}
+            {renderWarningInfo()}
             {renderShippingMethods()}
             {renderPaymentMethods()}
+            {renderTotalPrice()}
             <TouchableOpacity
               className="bg-[#00b251] py-3 rounded-lg justify-center items-center mt-2"
               onPress={handleCompleteOrder}

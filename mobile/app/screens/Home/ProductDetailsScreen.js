@@ -312,7 +312,7 @@ function ProductDetailsScreen({ navigation, route }) {
   if (!loading) {
     return (
       <View className="flex-1">
-        <ScrollView ref={scrollViewRef} contentContainerStyle={{ paddingBottom: 80 }} className="bg-white p-2.5">
+        <ScrollView ref={scrollViewRef} contentContainerStyle={{ paddingBottom: 120 }} className="bg-white p-2.5">
           <Modal visible={isModalVisible} transparent={true} animationType="fade">
             <Pressable className="flex-1 bg-black bg-opacity-90 justify-center items-center" onPress={toggleModal}>
               <Image
@@ -354,7 +354,7 @@ function ProductDetailsScreen({ navigation, route }) {
                       if (quantity > 0) setQuantity(quantity - 1); 
                     }}
                   >
-                    <Text className="text-lg font-bold text-green-600">-</Text>
+                    <Text className="text-lg font-extrabold text-green-600">-</Text>
                   </TouchableOpacity>
                   <View className="flex-row items-center mx-2.5">
                     <TextInput
@@ -370,7 +370,7 @@ function ProductDetailsScreen({ navigation, route }) {
                       keyboardType="numeric" 
                     />
                     <Text className="text-lg text-gray-700 ml-2">
-                      {displayedProduct?.metric?.metric_system_symbol || 'unit'}/s
+                      {displayedProduct?.metric?.metric_system_symbol || 'unit'}
                     </Text>
                   </View>
                   <TouchableOpacity
@@ -455,7 +455,7 @@ function ProductDetailsScreen({ navigation, route }) {
                       />
                       <View className="p-2.5">
                         <Text className="text-sm font-bold" numberOfLines={1}>{relatedProduct.crop_name}</Text>
-                        <Text className="text-sm text-[#00B251] font-bold">₱ {(relatedProduct.crop_price).toFixed(2)} /kg</Text>
+                        <Text className="text-sm text-[#00B251] font-bold">₱ {(relatedProduct.crop_price).toFixed(2)} /{relatedProduct.metric.metric_system_symbol}</Text>
                         <Text className="text-xs" numberOfLines={1}>Sold by: {relatedProduct.shop.shop_name}</Text>
                       </View>
                     </TouchableOpacity>
@@ -521,8 +521,6 @@ function ProductDetailsScreen({ navigation, route }) {
               <FontAwesome5 name="handshake" size={20} color="gray" />
             </View>
           )}
-
-          
 
           {/* Separator */}
           <View className="w-1" />
