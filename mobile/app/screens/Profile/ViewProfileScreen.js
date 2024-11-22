@@ -48,66 +48,139 @@ function ViewProfileScreen({ route, navigation }) {
   });
 
   // RegEx for validation
-  const nameRegex = /^[a-zA-Z\s]+$/;
+  const firstname_regex = /^[a-zA-Z\s]{2,}$/; // At least 2 letters
   const middlename_regex = /^([A-Za-z\s]{1,})?$/;
+  const lastname_regex = /^[a-zA-Z\s]{2,}$/; // At least 2 letters
   const phoneRegex = /^(09|\+639)\d{9}$/; // Matches Philippine phone number
   const secondaryPhone_regex = /^(?:\+63|0)?9\d{9}$/;
 
-  // Validation function
-  const validateFields = () => {
-    let valid = true;
-    let updatedErrors = {};
+  // Centralized Validation Handler
+  const validateField = (field, value) => {
+    let error = "";
 
-    // First Name validation
-    if (!firstName || !nameRegex.test(firstName)) {
-      updatedErrors.firstName = "* Please enter a valid first name";
-      valid = false;
+    switch (field) {
+      case "firstName":
+        setFirstName(value);
+        if (value.trim() === "") {
+          error = "* First Name is required";
+        } else if (!firstname_regex.test(value)) {
+          error = "Invalid First Name. Please enter at least 2 letters.";
+        }
+        setErrors((prev) => ({ ...prev, firstName: error }));
+        break;
+
+      case "middleName":
+        setMiddleName(value);
+        if (value.trim() !== "" && !middlename_regex.test(value)) {
+          error = "Invalid Middle Name. Please enter at least 2 letters.";
+        }
+        setErrors((prev) => ({ ...prev, middleName: error }));
+        break;
+
+      case "lastName":
+        setLastName(value);
+        if (value.trim() === "") {
+          error = "* Last Name is required";
+        } else if (!lastname_regex.test(value)) {
+          error = "Invalid Last Name. Please enter at least 2 letters.";
+        }
+        setErrors((prev) => ({ ...prev, lastName: error }));
+        break;
+
+      case "phone":
+        setPhone(value);
+        if (value.trim() === "") {
+          error = "* Phone number is required";
+        } else if (!phoneRegex.test(value)) {
+          error = "Invalid phone number format.";
+        }
+        setErrors((prev) => ({ ...prev, phone: error }));
+        break;
+
+      case "secondaryPhoneNumber":
+        setSecondaryPhoneNumber(value);
+        if (value.trim() !== "" && !secondaryPhone_regex.test(value)) {
+          error = "Invalid alternative phone number format.";
+        }
+        setErrors((prev) => ({ ...prev, secondaryPhoneNumber: error }));
+        break;
+
+      case "birthday":
+        setBirthday(value);
+        if (!value) {
+          error = "* Birthday is required";
+        }
+        setErrors((prev) => ({ ...prev, birthday: error }));
+        break;
+
+      case "gender":
+        setGender(value);
+        if (!value) {
+          error = "* Gender is required";
+        }
+        setErrors((prev) => ({ ...prev, gender: error }));
+        break;
+
+      default:
+        break;
     }
 
-    // Middle Name validation
-    if (middleName && !middlename_regex.test(middleName)) {
-      updatedErrors.middleName = "* Please enter a valid middle name";
-      valid = false;
-    }
-
-    // Last Name validation
-    if (!lastName || !nameRegex.test(lastName)) {
-      updatedErrors.lastName = "* Please enter a valid last name";
-      valid = false;
-    }
-
-    // Phone validation
-    if (!phone || !phoneRegex.test(phone)) {
-      updatedErrors.phone = "* Please enter a valid phone number";
-      valid = false;
-    }
-
-    // Secondary Phone validation
-    if (
-      secondaryPhoneNumber &&
-      !secondaryPhone_regex.test(secondaryPhoneNumber)
-    ) {
-      updatedErrors.secondaryPhoneNumber =
-        "* Please enter a valid phone number";
-      valid = false;
-    }
-
-    // Birthday validation
-    if (!birthday) {
-      updatedErrors.birthday = "* Please enter a valid birthday";
-      valid = false;
-    }
-
-    // Gender validation
-    if (!gender) {
-      updatedErrors.gender = "* Please select a gender";
-      valid = false;
-    }
-
-    setErrors(updatedErrors);
-    return valid;
+    return error === ""; // Return true if no error
   };
 
+  // General Fields Validation for Save Changes
+  const validateFields = () => {
+    const fieldsToValidate = [
+      { field: "firstName", value: firstName },
+      { field: "middleName", value: middleName },
+      { field: "lastName", value: lastName },
+      { field: "phone", value: phone },
+      { field: "secondaryPhoneNumber", value: secondaryPhoneNumber },
+      { field: "birthday", value: birthday },
+      { field: "gender", value: gender },
+    ];
+  
+    let isValid = true;
+  
+    fieldsToValidate.forEach(({ field, value }) => {
+      if (!validateField(field, value)) {
+        isValid = false;
+      }
+    });
+  
+    return isValid;
+  };
+  
+
+
+  const MAX_IMAGE_SIZE_MB = 1; // Maximum allowed image size (1 MB)
+
+  // Helper function to validate image size
+  const validateImageSize = async (imageUri) => {
+    try {
+      const response = await fetch(imageUri);
+      const blob = await response.blob();
+      const sizeInMB = blob.size / (1024 * 1024); // Convert bytes to MB
+
+      if (sizeInMB > MAX_IMAGE_SIZE_MB) {
+        setAlertMessage(
+          `The selected image is too large (${sizeInMB.toFixed(
+            2
+          )} MB). Please choose an image smaller than ${MAX_IMAGE_SIZE_MB} MB.`
+        );
+        setAlertVisible(true);
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      setAlertMessage("Failed to check image size. Please try again.");
+      setAlertVisible(true);
+      return false;
+    }
+  };
+
+  // Updated selectImageFromGallery function
   const selectImageFromGallery = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
@@ -125,10 +198,16 @@ function ViewProfileScreen({ route, navigation }) {
     });
 
     if (!result.canceled) {
-      setProfileImage(result.assets[0].uri);
-      setModalVisible(false);
+      const imageUri = result.assets[0].uri;
+
+      const isValidSize = await validateImageSize(imageUri);
+      if (isValidSize) {
+        setProfileImage(imageUri);
+        setModalVisible(false);
+      }
     }
   };
+
 
   // Handle form submission
   const handleSubmit = async () => {
@@ -242,45 +321,39 @@ function ViewProfileScreen({ route, navigation }) {
         <View className="w-full max-w-md mx-auto">
           <Text className="text-sm mb-2 text-gray-800">
             First Name:{" "}
-            {errors.firstName ? (
-              <Text className="text-red-500 text-xs mb-4">
-                {errors.firstName}
-              </Text>
-            ) : null}
+            {errors.firstName && (
+              <Text className="text-red-500 text-xs mb-4">{errors.firstName}</Text>
+            )}
           </Text>
           <TextInput
             className="w-full p-2 mb-4 bg-white rounded-lg shadow-md text-gray-800"
             value={firstName}
-            onChangeText={setFirstName}
+            onChangeText={(text) => validateField("firstName", text)} // Real-time validation
           />
 
           {/* Middle Name */}
           <Text className="text-sm mb-2 text-gray-800">
             Middle Name:{" "}
-            {errors.middleName ? (
-              <Text className="text-red-500 text-xs mb-4">
-                {errors.middleName}
-              </Text>
-            ) : null}
+            {errors.middleName && (
+              <Text className="text-red-500 text-xs mb-4">{errors.middleName}</Text>
+            )}
           </Text>
           <TextInput
             value={middleName}
-            onChangeText={setMiddleName}
+            onChangeText={(text) => validateField("middleName", text)} // Real-time validation
             className="w-full p-2 mb-4 bg-white rounded-lg shadow-md text-gray-800"
           />
 
           {/* Last Name */}
           <Text className="text-sm mb-2 text-gray-800">
             Last Name:{" "}
-            {errors.lastName ? (
-              <Text className="text-red-500 text-xs mb-4">
-                {errors.lastName}
-              </Text>
-            ) : null}
+            {errors.lastName && (
+              <Text className="text-red-500 text-xs mb-4">{errors.lastName}</Text>
+            )}
           </Text>
           <TextInput
             value={lastName}
-            onChangeText={setLastName}
+            onChangeText={(text) => validateField("lastName", text)} // Real-time validation
             className="w-full p-2 mb-4 bg-white rounded-lg shadow-md text-gray-800"
           />
 
@@ -373,17 +446,17 @@ function ViewProfileScreen({ route, navigation }) {
             <Text className="">{secondaryPhoneNumber}</Text>
 
             {/* Pencil Icon on the Top Right */}
-              <TouchableOpacity
-                style={{ position: "absolute", top: 10, right: 10 }}
-                onPress={() =>
-                  navigation.navigate("Edit Alternative Phone Number", {
-                    secondaryPhoneNumber,
-                    userData,
-                  })
-                }
-              >
-                <Ionicons name="pencil" size={20} color="gray" />
-              </TouchableOpacity>
+            <TouchableOpacity
+              style={{ position: "absolute", top: 10, right: 10 }}
+              onPress={() =>
+                navigation.navigate("Edit Alternative Phone Number", {
+                  secondaryPhoneNumber,
+                  userData,
+                })
+              }
+            >
+              <Ionicons name="pencil" size={20} color="gray" />
+            </TouchableOpacity>
           </View>
 
           {/* Alternative Phone Number
@@ -400,13 +473,16 @@ function ViewProfileScreen({ route, navigation }) {
 
           {/* Submit Button */}
           <TouchableOpacity
-            onPress={handleSubmit}
+            onPress={() => {
+              if (validateFields()) {
+                handleSubmit();
+              }
+            }}
             className="w-full p-4 bg-[#00B251] rounded-lg shadow-md"
           >
-            <Text className="text-center text-white font-bold">
-              Save Changes
-            </Text>
+            <Text className="text-center text-white font-bold">Save Changes</Text>
           </TouchableOpacity>
+
         </View>
       </ScrollView>
 

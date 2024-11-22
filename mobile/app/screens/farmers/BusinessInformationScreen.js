@@ -21,6 +21,8 @@ function BusinessInformationScreen({ navigation, route }) {
 
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
+  const [alertVisible2, setAlertVisible2] = useState(false);
+  const [alertMessage2, setAlertMessage2] = useState("");
 
   const [selectedBusinessInformation, setSelectedBusinessInformation] = useState("");
   const [tin, setTin] = useState("");
@@ -71,29 +73,49 @@ function BusinessInformationScreen({ navigation, route }) {
     validateForm();
   }, [selectedBusinessInformation, tin, birCertificate]);
 
-  // Image Picker Handlers
+  const MAX_IMAGE_SIZE_MB = 1; // Maximum allowed image size (1 MB)
+
   const selectImageFromGallery = async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permissionResult.granted) {
-      setAlertMessage("Permission Required", "Permission to access the gallery is required.");
-      setAlertVisible(true);
+      setAlertMessage2("Permission Required", "Permission to access the gallery is required.");
+      setAlertVisible2(true);
       return;
     }
-
+  
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
-      quality: 1,
+      quality: 1, // Full quality
     });
-
-
+  
     if (!result.canceled) {
-      setBirCertificate(result.assets[0].uri);
-      setModalVisible(false);
+      const imageUri = result.assets[0].uri;
+  
+      try {
+        const response = await fetch(imageUri);
+        const blob = await response.blob();
+        const sizeInMB = blob.size / (1024 * 1024); // Convert bytes to MB
+  
+        if (sizeInMB > MAX_IMAGE_SIZE_MB) {
+          setAlertMessage2(
+            `The selected image is too large (${sizeInMB.toFixed(
+              2
+            )} MB). Please choose an image smaller than ${MAX_IMAGE_SIZE_MB} MB.`
+          );
+          setAlertVisible2(true);
+          return;
+        }
+  
+        setBirCertificate(imageUri);
+        setModalVisible(false);
+      } catch (error) {
+        setAlertMessage2("Failed to check image size. Please try again.");
+        setAlertVisible2(true);
+      }
     }
   };
-
-
+  
   const handleSubmit = async () => {
     setAttemptedSubmit(true);
 
@@ -345,6 +367,35 @@ function BusinessInformationScreen({ navigation, route }) {
               onPress={() => {
                 setAlertVisible(false); // Close the alert modal
                 navigation.pop(4)
+              }}
+            >
+              <Ionicons
+                name="checkmark-circle-outline"
+                size={24}
+                color="white"
+              />
+              <Text className="text-lg text-white ml-2">OK</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Alert Modal 2*/}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={alertVisible2}
+        onRequestClose={() => setAlertVisible2(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black/50 bg-opacity-50">
+          <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
+            <Text className="text-lg font-semibold text-gray-900 mb-4">
+              {alertMessage2}
+            </Text>
+            <TouchableOpacity
+              className="mt-4 p-2 bg-[#00B251] rounded-lg flex-row justify-center items-center"
+              onPress={() => {
+                setAlertVisible2(false); // Close the alert modal
               }}
             >
               <Ionicons

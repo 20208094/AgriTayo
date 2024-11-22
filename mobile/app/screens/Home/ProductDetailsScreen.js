@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { View, Image, Text, ScrollView, TouchableOpacity, Modal, Pressable } from "react-native";
+import { View, Image, Text, TextInput, ScrollView, TouchableOpacity, Modal, Pressable } from "react-native";
 import { FontAwesome } from '@expo/vector-icons';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { styled } from "nativewind";
@@ -345,23 +345,46 @@ function ProductDetailsScreen({ navigation, route }) {
                 <Text className="text-base text-gray-700 mb-1 ">{displayedProduct.size.crop_size_name}</Text>
                 <Text className="text-base text-gray-700 mb-1 ">{displayedProduct.crop_quantity} {displayedProduct?.metric?.metric_system_symbol || 'unit'}/s</Text>
               </View>
-              <View className="mb-2.5 justify-center ml-4">
+              <View className="mb-2.5 justify-center">
                 <View className="flex-row items-center justify-end mb-2.5">
                   <TouchableOpacity
                     className="border border-green-600 bg-white p-2.5 rounded-lg"
-                    onPress={decreaseQuantity}
+                    onPress={() => {
+                      if (quantity > 0) setQuantity(quantity - 1); 
+                    }}
                   >
                     <Text className="text-lg font-bold text-green-600">-</Text>
                   </TouchableOpacity>
-                  <Text className="text-lg mx-2.5">{quantity} {displayedProduct?.metric?.metric_system_symbol || 'unit'}/s</Text>
+                  <View className="flex-row items-center mx-2.5">
+                    <TextInput
+                      className="text-lg border border-gray-300 rounded-md text-center p-1 w-12"
+                      value={quantity.toString()} 
+                      onChangeText={(value) => {
+                        const numericValue = parseInt(value, 10);
+                        if (!isNaN(numericValue)) {
+                          setQuantity(Math.min(numericValue, displayedProduct.crop_quantity));
+                        }
+                      }}
+                      onFocus={() => setQuantity('')} 
+                      keyboardType="numeric" 
+                    />
+                    <Text className="text-lg text-gray-700 ml-2">
+                      {displayedProduct?.metric?.metric_system_symbol || 'unit'}/s
+                    </Text>
+                  </View>
                   <TouchableOpacity
                     className="border border-green-600 bg-white p-2.5 rounded-lg"
-                    onPress={increaseQuantity}
+                    onPress={() => {
+                      if (quantity < displayedProduct.crop_quantity) {
+                        setQuantity(quantity + 1);
+                      }
+                    }}
                   >
                     <Text className="text-lg font-bold text-green-600">+</Text>
                   </TouchableOpacity>
                 </View>
               </View>
+
             </View>
             <View className="px-2 mt-1  mb-3 ">
               <Text className="text-lg font-bold">Description</Text>

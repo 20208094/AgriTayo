@@ -146,6 +146,34 @@ function ViewShopScreen({ navigation }) {
     validateField("paymentMethod");
   };
 
+  const MAX_IMAGE_SIZE_MB = 1; // Maximum allowed image size (1 MB)
+
+  // Helper function to validate image size
+  const validateImageSize = async (imageUri) => {
+    try {
+      const response = await fetch(imageUri);
+      const blob = await response.blob();
+      const sizeInMB = blob.size / (1024 * 1024); // Convert bytes to MB
+  
+      if (sizeInMB > MAX_IMAGE_SIZE_MB) {
+        setAlertMessage(
+          `The selected image is too large (${sizeInMB.toFixed(
+            2
+          )} MB). Please choose an image smaller than ${MAX_IMAGE_SIZE_MB} MB.`
+        );
+        setAlertVisible(true);
+        return false;
+      }
+  
+      return true;
+    } catch (error) {
+      setAlertMessage("Failed to check image size. Please try again.");
+      setAlertVisible(true);
+      return false;
+    }
+  };
+  
+  // Updated selectImageFromGallery function
   const selectImageFromGallery = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
@@ -155,19 +183,25 @@ function ViewShopScreen({ navigation }) {
       setAlertVisible(true);
       return;
     }
-
+  
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       quality: 1,
     });
-
+  
     if (!result.canceled) {
-      setShopImage(result.assets[0].uri);
-      setModalVisible(false);
+      const imageUri = result.assets[0].uri;
+  
+      const isValidSize = await validateImageSize(imageUri);
+      if (isValidSize) {
+        setShopImage(imageUri);
+        setModalVisible(false);
+      }
     }
   };
-
+  
+  // Updated selectBirImageFromGallery function
   const selectBirImageFromGallery = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
@@ -177,18 +211,24 @@ function ViewShopScreen({ navigation }) {
       setAlertVisible(true);
       return;
     }
-
+  
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       quality: 1,
     });
-
+  
     if (!result.canceled) {
-      setBirCertificate(result.assets[0].uri);
-      setModalVisible2(false);
+      const imageUri = result.assets[0].uri;
+  
+      const isValidSize = await validateImageSize(imageUri);
+      if (isValidSize) {
+        setBirCertificate(imageUri);
+        setModalVisible2(false);
+      }
     }
   };
+  
 
   const getAsyncUserData = async () => {
     try {
