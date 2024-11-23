@@ -184,9 +184,147 @@ async function deleteCropSubCategory(req, res) {
     }
 }
 
+async function addCropSubCategoryApp(req, res) {
+    try {
+        const form = new formidable.IncomingForm({ multiples: true });
+    
+        form.parse(req, async (err, fields, files) => {
+          if (err) {
+            console.error("Formidable error:", err);
+            return res.status(500).json({ error: "Form parsing error" });
+          }
+    
+          let crop_sub_category_image_url = null;
+          let crop_variety_image_url = null;
+    
+          try {
+            // Add crop sub-category
+            const crop_sub_category_name = Array.isArray(
+              fields.crop_sub_category_name
+            )
+              ? fields.crop_sub_category_name[0]
+              : null;
+              const crop_category_id =  Array.isArray(
+                fields.crop_category_id
+              )
+                ? fields.crop_category_id[0]: null;
+            const crop_sub_category_description = Array.isArray(
+              fields.crop_sub_category_description
+            )
+              ? fields.crop_sub_category_description[0]
+              : null;
+            const subImage = files.image ? files.image[0] : null;
+    
+            if (subImage) {
+              try {
+                crop_sub_category_image_url = await imageHandler.uploadImage(
+                  subImage
+                );
+              } catch (uploadError) {
+                console.error("Image upload error:", uploadError.message);
+                return res.status(500).json({ error: "Image upload failed" });
+              }
+            }
+    
+            console.log(
+              "Sub Category Data: ",
+              crop_sub_category_name,
+              crop_sub_category_description,
+              crop_category_id,
+              crop_sub_category_image_url
+            );
+            const { data: categorySubData, error: subCategoryError } =
+              await supabase
+                .from("crop_sub_category")
+                .insert([
+                  {
+                    crop_sub_category_name,
+                    crop_sub_category_description,
+                    crop_sub_category_image_url,
+                    crop_category_id,
+                  },
+                ])
+                .select()
+                .single();
+    
+            console.log("Sub-Category Insert Data:", categorySubData);
+            console.log("Sub-Category Insert Error:", subCategoryError);
+    
+            if (subCategoryError)
+              throw new Error(
+                `Failed to add crop sub-category: ${subCategoryError.message}`
+              );
+    
+            const crop_sub_category_id = categorySubData.crop_sub_category_id;
+    
+            // Add crop variety
+            const crop_variety_name = Array.isArray(fields.crop_variety_name)
+              ? fields.crop_variety_name[0]
+              : null;
+            const crop_variety_description = Array.isArray(
+              fields.crop_variety_description
+            )
+              ? fields.crop_variety_description[0]
+              : null;
+            const varImage = files.image ? files.image[0] : null;
+    
+            if (varImage) {
+              try {
+                crop_variety_image_url = await imageHandler.uploadImage(varImage);
+              } catch (uploadError) {
+                console.error("Image upload error:", uploadError.message);
+                return res.status(500).json({ error: "Image upload failed" });
+              }
+            }
+    
+            console.log(
+              "Crop Variety Data: ",
+              crop_variety_name,
+              crop_variety_description,
+              crop_variety_image_url,
+              crop_category_id,
+              crop_sub_category_id
+            );
+            const { varietyError } = await supabase
+              .from("crop_varieties")
+              .insert([
+                {
+                  crop_variety_name,
+                  crop_variety_description,
+                  crop_variety_image_url,
+                  crop_category_id,
+                  crop_sub_category_id,
+                },
+              ])
+              .select()
+              .single();
+    
+            if (varietyError)
+              throw new Error(
+                `Failed to add crop variety: ${varietyError.message}`
+              );
+    
+            // Respond with success
+            res.status(201).json({
+              message:
+                "Crop category, sub-category, and variety added successfully",
+            });
+          } catch (error) {
+            console.error("Error during crop variety addition:", error.message);
+    
+            res.status(500).json({ error: error.message });
+          }
+        });
+      } catch (err) {
+        console.error("Unexpected error:", err.message);
+        res.status(500).json({ error: "Internal server error" });
+      }
+}
+
 module.exports = {
     getCropSubCategories,
     addCropSubCategory,
     updateCropSubCategory,
-    deleteCropSubCategory
+    deleteCropSubCategory,
+    addCropSubCategoryApp
 };

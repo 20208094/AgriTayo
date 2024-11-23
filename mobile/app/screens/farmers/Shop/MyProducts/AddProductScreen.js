@@ -80,6 +80,7 @@ function AddProductScreen({ navigation }) {
     setSelectedSubCategory(subCategory.crop_sub_category_name);
     setSelectedSubCategoryId(subCategory.crop_sub_category_id);
     setIsclickedSubCategory(false);
+    fetchCropVariety(subCategory.crop_sub_category_id)
   };
 
   const MAX_IMAGE_SIZE_MB = 1; // Maximum allowed image size (1 MB)
@@ -318,7 +319,7 @@ function AddProductScreen({ navigation }) {
   }, [selectedCropVariety, categories, subCategories]);
 
   // fetching crop variety
-  const fetchCropVariety = async () => {
+  const fetchCropVariety = async (subCategoryId) => {
     try {
       const response = await fetch(
         `${REACT_NATIVE_API_BASE_URL}/api/crop_varieties`,
@@ -331,7 +332,10 @@ function AddProductScreen({ navigation }) {
       if (!response.ok) throw new Error("Network response was not ok");
 
       const data = await response.json();
-      setCropVarieties(data);
+      const filteredData = data.filter(
+        (subCategory) => subCategory.crop_sub_category_id === subCategoryId
+      );
+      setCropVarieties(filteredData);
     } catch (error) {
       setAlertMessage(`Error fetching crop categories: ${error.message}`);
       setAlertVisible(true);
