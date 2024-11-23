@@ -52,6 +52,33 @@ function AddCropVarietyScreen({ navigation }) {
     setIsclickedSubCategory(false);
   };
 
+  const MAX_IMAGE_SIZE_MB = 1; // Maximum allowed image size (1 MB)
+
+  // Helper function to validate image size
+  const validateImageSize = async (imageUri) => {
+    try {
+      const response = await fetch(imageUri);
+      const blob = await response.blob();
+      const sizeInMB = blob.size / (1024 * 1024); // Convert bytes to MB
+
+      if (sizeInMB > MAX_IMAGE_SIZE_MB) {
+        setAlertMessage(
+          `The selected image is too large (${sizeInMB.toFixed(
+            2
+          )} MB). Please choose an image smaller than ${MAX_IMAGE_SIZE_MB} MB.`
+        );
+        setAlertVisible(true);
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      setAlertMessage("Failed to check image size. Please try again.");
+      setAlertVisible(true);
+      return false;
+    }
+  };
+
   const selectImageFromGallery = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
@@ -69,9 +96,37 @@ function AddCropVarietyScreen({ navigation }) {
     });
 
     if (!result.canceled) {
-      setCropImage(result.assets[0].uri);
-      setModalVisible(false);
+      const isValidSize = await validateImageSize(result.assets[0].uri);
+      if (isValidSize) {
+        setCropImage(result.assets[0].uri);
+        setModalVisible(false);
+      }
     }
+
+  };
+
+  const selectImageFromCamera = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== "granted") {
+      setAlertMessage("Sorry, we need camera permissions to make this work!");
+      setAlertVisible(true);
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      const isValidSize = await validateImageSize(result.assets[0].uri);
+      if (isValidSize) {
+        setCropImage(result.assets[0].uri);
+        setModalVisible(false);
+      }
+    }
+
   };
 
   const removeImage = () => {
@@ -208,8 +263,8 @@ function AddCropVarietyScreen({ navigation }) {
               multiline
             />
           </View>
-                    {/* Category Selector */}
-                    <View className="mb-4">
+          {/* Category Selector */}
+          <View className="mb-4">
             <Text className="text-sm mb-2 text-gray-800">Crop Category</Text>
             <TouchableOpacity
               className="flex-row items-center w-full p-2 bg-white rounded-lg shadow-md"
@@ -301,12 +356,8 @@ function AddCropVarietyScreen({ navigation }) {
             )}
           </View>
           {/* Modal for Image Selection */}
-          <Modal
-            visible={modalVisible}
-            transparent={true}
-            animationType="slide"
-          >
-            <View className="flex-1 justify-center items-center bg-black/50 ">
+          <Modal visible={modalVisible} transparent={true} animationType="slide">
+            <View className="flex-1 justify-center items-center bg-black/50">
               <View className="bg-white p-6 rounded-lg">
                 <Text className="text-lg font-semibold mb-4">
                   Select Image Source
@@ -320,6 +371,12 @@ function AddCropVarietyScreen({ navigation }) {
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
+                  className="mb-4 p-4 bg-[#00B251] rounded-lg"
+                  onPress={selectImageFromCamera}
+                >
+                  <Text className="text-white text-center">Take a Photo</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
                   className="p-4 bg-red-500 rounded-lg"
                   onPress={() => setModalVisible(false)}
                 >
@@ -328,6 +385,7 @@ function AddCropVarietyScreen({ navigation }) {
               </View>
             </View>
           </Modal>
+
           {/* Add Product Button */}
           <TouchableOpacity
             className="bg-[#00B251] p-4 rounded-lg flex items-center mt-4"

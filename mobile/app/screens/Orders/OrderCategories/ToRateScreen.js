@@ -92,7 +92,8 @@ const ToRateScreen = ({ orders, orderProducts }) => {
       return false;
     }
   };
-  
+
+  // Select images from gallery
   const selectImages = async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
@@ -104,26 +105,51 @@ const ToRateScreen = ({ orders, orderProducts }) => {
 
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsMultipleSelection: true, 
-      aspect: [4, 3],
+      allowsEditing: true, // Enables cropping
+      aspect: [4, 3], // Crop aspect ratio
+      quality: 1,
+    });
+
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      const imageUri = result.assets[0].uri;
+
+      // Validate the cropped image size
+      const isValidSize = await validateImageSize(imageUri);
+      if (isValidSize) {
+        setImages((prevImages) => {
+          const combinedImages = [...prevImages, imageUri];
+          return combinedImages.slice(0, 3); // Limit to 3 images
+        });
+      }
+    }
+  };
+
+  // Select images from camera
+  const selectImagesFromCamera = async () => {
+    const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+
+    if (permissionResult.granted === false) {
+      setAlertMessage("Permission to access the camera is required!");
+      setAlertVisible(true);
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
       quality: 1,
     });
 
     if (!result.canceled) {
-      const selectedImages = result.assets;
+      const imageUri = result.assets[0].uri;
 
-      const validImages = [];
-      for (const image of selectedImages) {
-        const isValidSize = await validateImageSize(image.uri);
-        if (isValidSize) {
-          validImages.push(image.uri); 
-        }
+      const isValidSize = await validateImageSize(imageUri);
+      if (isValidSize) {
+        setImages((prevImages) => {
+          const combinedImages = [...prevImages, imageUri];
+          return combinedImages.slice(0, 3);
+        });
       }
-
-      setImages(prevImages => {
-        const combinedImages = [...prevImages, ...validImages];
-        return combinedImages.slice(0, 3); 
-      });
     }
   };
 
@@ -195,7 +221,9 @@ const ToRateScreen = ({ orders, orderProducts }) => {
       >
         <View className="flex-1 justify-center items-center bg-black/50">
           <View className="bg-white p-6 rounded-lg w-11/12 max-w-md shadow-lg">
-            <Text className="text-lg font-bold mb-4 text-center text-[#00B251]">Rate Your Product</Text>
+            <Text className="text-lg font-bold mb-4 text-center text-[#00B251]">
+              Rate Your Product
+            </Text>
             <Text className="text-md font-semibold">Rating:</Text>
             <Slider
               minimumValue={0}
@@ -217,12 +245,23 @@ const ToRateScreen = ({ orders, orderProducts }) => {
               style={{ height: 80 }} // Set a fixed height for better appearance
             />
             <Text className="mt-4 text-md font-semibold">Upload Images (up to 3):</Text>
+
+            {/* Options for Camera and Gallery */}
             <TouchableOpacity
-              className="bg-[#00B251] p-2 rounded-lg mt-2 mb-4"
+              className="bg-[#00B251] p-2 rounded-lg mt-2 mb-2"
               onPress={selectImages}
             >
-              <Text className="text-white text-center font-semibold">Select Images</Text>
+              <Text className="text-white text-center font-semibold">
+                Select from Gallery
+              </Text>
             </TouchableOpacity>
+            <TouchableOpacity
+              className="bg-[#00B251] p-2 rounded-lg mt-2 mb-4"
+              onPress={selectImagesFromCamera}
+            >
+              <Text className="text-white text-center font-semibold">Take a Photo</Text>
+            </TouchableOpacity>
+
             {/* Display selected images */}
             <View className="flex-row mt-2">
               {images.map((uri, index) => (
@@ -233,7 +272,9 @@ const ToRateScreen = ({ orders, orderProducts }) => {
                   />
                   <TouchableOpacity
                     className="absolute top-0 right-0 bg-red-500 rounded-full w-6 h-6 justify-center items-center"
-                    onPress={() => setImages(prevImages => prevImages.filter((_, i) => i !== index))}
+                    onPress={() =>
+                      setImages((prevImages) => prevImages.filter((_, i) => i !== index))
+                    }
                   >
                     <Text className="text-white text-xs font-bold">X</Text>
                   </TouchableOpacity>
