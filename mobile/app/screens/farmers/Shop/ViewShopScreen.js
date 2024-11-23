@@ -49,6 +49,8 @@ function ViewShopScreen({ navigation }) {
 
   const [alertVisible2, setAlertVisible2] = useState(false);
   const [alertMessage2, setAlertMessage2] = useState("");
+  const [alertVisible3, setAlertVisible3] = useState(false);
+  const [alertMessage3, setAlertMessage3] = useState("");
   const [loading, setLoading] = useState(false);
 
   const validateField = (fieldName, value) => {
@@ -383,8 +385,6 @@ function ViewShopScreen({ navigation }) {
         type: "image/jpeg",
       });
       console.log("Appended shop image:", shopImage);
-    } else {
-      console.log("No shop image to append.");
     }
 
     formData.append("delivery", isCheckedDelivery);
@@ -396,7 +396,6 @@ function ViewShopScreen({ navigation }) {
     formData.append("cod", isCheckedCod);
     formData.append("bank", isCheckedBankTransfer);
     formData.append("user_id", userId);
-
     formData.append("tin_number", tin);
 
     if (birCertificate) {
@@ -406,17 +405,14 @@ function ViewShopScreen({ navigation }) {
         type: "image/jpeg",
       });
       console.log("Appended BIR certificate:", birCertificate.uri);
-    } else {
-      console.log("No BIR certificate to append.");
     }
 
     formData.append("shop_number", shopNumber);
-    formData.append("secondary_shop_number", shopSecondaryNumber)
+    formData.append("secondary_shop_number", shopSecondaryNumber);
 
     console.log("Final FormData before submission:", formData);
 
     try {
-      // Send the request
       const response = await fetch(
         `${REACT_NATIVE_API_BASE_URL}/api/shops/${shopId}`,
         {
@@ -429,30 +425,37 @@ function ViewShopScreen({ navigation }) {
       );
 
       if (!response.ok) {
+        const responseText = await response.text();
         throw new Error(responseText || "Failed to Edit Shop");
-      } else {
-        setLoading(false);
       }
-      const shops = await response.json();
-      // get user data of the logged in user
-      const filteredShops = shops.filter(
-        (shop) => shop.user_id === userData.user_id
-      );
-      // save user data to assync storage userData
 
-      AsyncStorage.setItem("shopData", JSON.stringify(filteredShops));
+      const responseData = await response.json();
+      console.log("API Response:", responseData);
 
-      console.log("Saved updated shop data to AsyncStorage.");
-      getAsyncShopData();
+      if (responseData.data) {
+        const filteredShops = Array.isArray(responseData.data)
+          ? responseData.data.filter((shop) => shop.user_id === userData.user_id)
+          : [responseData.data];
 
-      setAlertMessage("Shop Updated Successfully!");
-      setAlertVisible(true);
-      navigation.navigate("My Shop");
+        // Save to AsyncStorage
+        await AsyncStorage.setItem("shopData", JSON.stringify(filteredShops));
+        console.log("Saved updated shop data to AsyncStorage.");
+      } else {
+        console.log("No shop data returned from the API.");
+      }
+
+      // Refresh shop data explicitly after submission
+      await getAsyncShopData();
+
+      setAlertMessage3(responseData.message || "Shop Updated Successfully!");
+      setAlertVisible3(true);
     } catch (error1) {
       console.error("Error during submission:", error1.message);
       console.error("Full error object:", error1);
-      setAlertMessage("There was an error editing the shop.");
-      setAlertVisible(true);
+      setAlertMessage3("There was an error editing the shop.");
+      setAlertVisible3(true);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -839,6 +842,35 @@ function ViewShopScreen({ navigation }) {
             <TouchableOpacity
               className="mt-4 p-2 bg-[#00B251] rounded-lg flex-row justify-center items-center"
               onPress={() => setAlertVisible(false)}
+            >
+              <Ionicons
+                name="checkmark-circle-outline"
+                size={24}
+                color="white"
+              />
+              <Text className="text-lg text-white ml-2">OK</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={alertVisible3}
+        onRequestClose={() => setAlertVisible3(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black/50 bg-opacity-50">
+          <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
+            <Text className="text-lg font-semibold text-gray-900 mb-4">
+              {alertMessage3}
+            </Text>
+            <TouchableOpacity
+              className="mt-4 p-2 bg-[#00B251] rounded-lg flex-row justify-center items-center"
+              onPress={() => {
+                setAlertVisible3(false); 
+                navigation.navigate("My Shop"); 
+              }}
             >
               <Ionicons
                 name="checkmark-circle-outline"

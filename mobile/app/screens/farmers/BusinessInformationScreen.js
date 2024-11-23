@@ -37,6 +37,29 @@ function BusinessInformationScreen({ navigation, route }) {
   });
   const [attemptedSubmit, setAttemptedSubmit] = useState(false);
 
+  const formatTIN = (value) => {
+    // Remove any non-numeric characters
+    let formattedValue = value.replace(/\D/g, '');
+
+    // Format the value with hyphens
+    if (formattedValue.length <= 3) {
+      formattedValue = formattedValue.replace(/(\d{3})/, '$1');
+    } else if (formattedValue.length <= 6) {
+      formattedValue = formattedValue.replace(/(\d{3})(\d{3})/, '$1-$2');
+    } else if (formattedValue.length <= 9) {
+      formattedValue = formattedValue.replace(/(\d{3})(\d{3})(\d{3})/, '$1-$2-$3');
+    } else {
+      formattedValue = formattedValue.replace(/(\d{3})(\d{3})(\d{3})(\d{1,2})/, '$1-$2-$3-$4');
+    }
+
+    return formattedValue;
+  };
+
+  const handleTINChange = (value) => {
+    const formattedTIN = formatTIN(value);
+    setTin(formattedTIN);
+  };
+
   const validateForm = () => {
     let isValid = true;
     const newErrors = { ...errors };
@@ -52,8 +75,8 @@ function BusinessInformationScreen({ navigation, route }) {
       if (!tin) {
         newErrors.tin = "TIN is required";
         isValid = false;
-      } else if (!/^[0-9]{3}-?[0-9]{3}-?[0-9]{3}$/.test(tin)) {
-        newErrors.tin = "TIN must be in the format 123-456-789";
+      } else if (!/^[0-9]{3}-?[0-9]{3}-?[0-9]{3}-?[0-9]{3,5}$/.test(tin)) {
+        newErrors.tin = "TIN must be in the format 123-456-789-000";
         isValid = false;
       } else {
         newErrors.tin = "";
@@ -323,22 +346,23 @@ function BusinessInformationScreen({ navigation, route }) {
         {selectedBusinessInformation === "now" ? (
           <>
             <Text className="text-lg font-semibold text-green-600">
-              Taxpayer Identification Number (TIN) <Text className="text-red-500 text-sm">*</Text> {attemptedSubmit && errors.tin && (
+              Taxpayer Identification Number (TIN)
+              <Text className="text-red-500 text-sm">*</Text>
+              {attemptedSubmit && errors.tin && (
                 <Text className="text-sm w-4/5 text-red-500 mb-4">{errors.tin}</Text>
               )}
-
             </Text>
             <TextInput
               className="w-full p-2 mb-4 mt-3 bg-white rounded-lg shadow-md text-gray-800"
               keyboardType="numeric"
               placeholder="TIN"
               value={tin}
-              onChangeText={setTin}
+              onChangeText={handleTINChange}
             />
 
             <Text className="text-sm text-gray-500 mb-4">
               Your 9-digit TIN and 3 to 5 digit branch code. Please use '000' as
-              your branch code if you don't have one (e.g. 999-999-000)
+              your branch code if you don't have one (e.g. 123-456-789-000)
             </Text>
 
 
