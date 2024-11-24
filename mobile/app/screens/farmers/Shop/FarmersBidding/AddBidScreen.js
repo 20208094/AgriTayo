@@ -21,7 +21,7 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 // Constants for validation
 const NAME_REGEX = /^[A-Za-z\s]{3,50}$/;
 const DESCRIPTION_REGEX = /^.{5,200}$/;
-const PRICE_REGEX = /^\d+(\.\d{1,2})?$/;
+const PRICE_REGEX = /^(?:\d+|\.\d{1,2}|\d+\.\d{1,2})$/;
 
 function AddBidScreen({ navigation }) {
   // for inputs
