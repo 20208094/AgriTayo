@@ -8,6 +8,7 @@ import {
   Modal,
   ScrollView,
   Image,
+  Alert
 } from "react-native";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 import * as ImagePicker from "expo-image-picker";
@@ -21,6 +22,9 @@ function AddCropSubCategoryScreen({ navigation }) {
   const [cropImage, setCropImage] = useState(null);
   const API_KEY = REACT_NATIVE_API_KEY;
   const [loading, setLoading] = useState(false);
+
+  const [subCategoryList, setSubCategoryList] = useState([])
+  const [varietyList, setVarietyList] = useState([])
 
   const [modalVisible, setModalVisible] = useState(false);
   const [modalVisible1, setModalVisible1] = useState(false);
@@ -82,6 +86,48 @@ function AddCropSubCategoryScreen({ navigation }) {
     setCropImage(null);
   };
 
+  useEffect(() => {
+    const fetchSubCategoryList = async () => {
+      try {
+        const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_sub_categories`, {
+          headers: { "x-api-key": REACT_NATIVE_API_KEY },
+        });
+        if (response.ok) {
+          const data = await response.json();
+          const subCategories = data.map((user) => user.crop_sub_category_name);
+          setSubCategoryList(categories);
+        } else {
+          console.error("Failed to fetch phone numbers");
+        }
+      } catch (error) {
+        console.error("Error fetching phone numbers:", error);
+      }
+    };
+
+    fetchSubCategoryList();
+  }, []);
+
+  useEffect(() => {
+    const fetchVarietyList = async () => {
+      try {
+        const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_varieties`, {
+          headers: { "x-api-key": REACT_NATIVE_API_KEY },
+        });
+        if (response.ok) {
+          const data = await response.json();
+          const varieties = data.map((user) => user.crop_variety_name);
+          setVarietyList(varieties);
+        } else {
+          console.error("Failed to fetch phone numbers");
+        }
+      } catch (error) {
+        console.error("Error fetching phone numbers:", error);
+      }
+    };
+
+    fetchVarietyList();
+  }, []);
+
   const fetchCategories = async () => {
     try {
       const response = await fetch(
@@ -132,6 +178,19 @@ function AddCropSubCategoryScreen({ navigation }) {
   );
 
   const handleAddCropSubCategory = async () => {
+
+    if (subCategoryList && varietyList && subCategoryList.includes(cropSubCategoryName) && varietyList.includes(cropVarietyName)){
+      Alert.alert("", "Both subcategory, and variety names are already included in the app. \nPlease try again.")
+    }
+
+    if (subCategoryList && subCategoryList.includes(cropSubCategoryName)) {
+      Alert.alert("", "The subcategory name is already included in the app. \nPlease try again.")
+    }
+
+    if (varietyList && varietyList.includes(cropVarietyName)) {
+      Alert.alert("", "The variety name is already included in the app. \nPlease try again.")
+    }
+
     const formData = new FormData();
     formData.append("crop_sub_category_name", cropSubCategoryName);
     formData.append(
