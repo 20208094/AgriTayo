@@ -44,6 +44,35 @@ function AddCropCategoryScreen({ navigation }) {
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
 
+  const [errors, setErrors] = useState({});
+
+  const MAX_IMAGE_SIZE_MB = 1; // Maximum allowed image size (1 MB)
+
+  // Helper function to validate image size
+  const validateImageSize = async (imageUri) => {
+    try {
+      const response = await fetch(imageUri);
+      const blob = await response.blob();
+      const sizeInMB = blob.size / (1024 * 1024); // Convert bytes to MB
+
+      if (sizeInMB > MAX_IMAGE_SIZE_MB) {
+        setAlertMessage(
+          `The selected image is too large (${sizeInMB.toFixed(
+            2
+          )} MB). Please choose an image smaller than ${MAX_IMAGE_SIZE_MB} MB.`
+        );
+        setAlertVisible(true);
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      setAlertMessage("Failed to check image size. Please try again.");
+      setAlertVisible(true);
+      return false;
+    }
+  };
+
   const selectImageFromGallery = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
@@ -61,14 +90,86 @@ function AddCropCategoryScreen({ navigation }) {
     });
 
     if (!result.canceled) {
-      setCropImage(result.assets[0].uri);
-      setModalVisible(false);
+      const isValidSize = await validateImageSize(result.assets[0].uri);
+      if (isValidSize) {
+        setCropImage(result.assets[0].uri);
+        setModalVisible(false);
+      }
+    }
+  };
+
+  const selectImageFromCamera = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== "granted") {
+      setAlertMessage("Sorry, we need camera permissions to make this work!");
+      setAlertVisible(true);
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      const isValidSize = await validateImageSize(result.assets[0].uri);
+      if (isValidSize) {
+        setCropImage(result.assets[0].uri);
+        setModalVisible(false);
+      }
     }
   };
 
   const removeImage = () => {
     setCropImage(null);
   };
+
+  const validateFields = () => {
+    let validationErrors = {};
+    if (!cropCategoryName.trim())
+      validationErrors.cropCategoryName = "Crop Category Name is required.";
+    if (!cropSubCategoryName.trim())
+      validationErrors.cropSubCategoryName =
+        "Crop Sub Category Name is required.";
+    if (!cropVarietyName.trim())
+      validationErrors.cropVarietyName = "Crop Variety Name is required.";
+    if (!cropCategoryDescription.trim())
+      validationErrors.cropCategoryDescription =
+        "Crop Category Description is required.";
+    if (!cropImage)
+      validationErrors.cropImage = "Crop Category Image is required.";
+
+    setErrors(validationErrors);
+    return Object.keys(validationErrors).length === 0; // Return true if no errors
+  };
+
+  const handleFieldChange = (field, value) => {
+    switch (field) {
+      case "cropCategoryName":
+        setCropCategoryName(value);
+        break;
+      case "cropSubCategoryName":
+        setCropSubCategoryName(value);
+        break;
+      case "cropVarietyName":
+        setCropVarietyName(value);
+        break;
+      case "cropCategoryDescription":
+        setCropCategoryDescription(value);
+        break;
+      default:
+        break;
+    }
+
+    // Clear error for the specific field if it's valid
+    setErrors((prevErrors) => {
+      const updatedErrors = { ...prevErrors };
+      if (value.trim()) delete updatedErrors[field];
+      return updatedErrors;
+    });
+  };
+
 
   useEffect(() => {
     const fetchCategoryList = async () => {
@@ -143,6 +244,7 @@ function AddCropCategoryScreen({ navigation }) {
   }, []);
 
   const handleAddCropCategory = async () => {
+    if (!validateFields()) return;
     if (
       categoryList &&
       subCategoryList &&
@@ -151,10 +253,10 @@ function AddCropCategoryScreen({ navigation }) {
       subCategoryList.includes(cropSubCategoryName) &&
       varietyList.includes(cropVarietyName)
     ) {
-      Alert.alert(
-        "",
+      setAlertMessage(
         "The category, subcategory, and variety names are already included in the app. Please try again."
       );
+      setAlertVisible(true);
       return;
     }
     if (
@@ -163,10 +265,10 @@ function AddCropCategoryScreen({ navigation }) {
       categoryList.includes(cropCategoryName) &&
       subCategoryList.includes(cropSubCategoryName)
     ) {
-      Alert.alert(
-        "",
+      setAlertMessage(
         "Both category and subcategory are already included in the app. Please try again."
       );
+      setAlertVisible(true);
       return;
     }
     if (
@@ -175,10 +277,10 @@ function AddCropCategoryScreen({ navigation }) {
       subCategoryList.includes(cropSubCategoryName) &&
       varietyList.includes(cropVarietyName)
     ) {
-      Alert.alert(
-        "",
+      setAlertMessage(
         "Both subcategory and variety names are already included in the app. Please try again."
       );
+      setAlertVisible(true);
       return;
     }
 
@@ -188,34 +290,34 @@ function AddCropCategoryScreen({ navigation }) {
       categoryList.includes(cropCategoryName) &&
       varietyList.includes(cropVarietyName)
     ) {
-      Alert.alert(
-        "",
+      setAlertMessage(
         "Both category and variety names are already included in the app. Please try again."
       );
+      setAlertVisible(true);
       return;
     }
 
     if (categoryList && categoryList.includes(cropCategoryName)) {
-      Alert.alert(
-        "",
+      setAlertMessage(
         "The category name is already included in the app. Please try again."
       );
+      setAlertVisible(true);
       return;
     }
 
     if (subCategoryList && subCategoryList.includes(cropSubCategoryName)) {
-      Alert.alert(
-        "",
+      setAlertMessage(
         "The subcategory name is already included in the app. Please try again."
       );
+      setAlertVisible(true);
       return;
     }
 
     if (varietyList && varietyList.includes(cropVarietyName)) {
-      Alert.alert(
-        "",
+      setAlertMessage(
         "The variety name is already included in the app. Please try again."
       );
+      setAlertVisible(true);
       return;
     }
     const formData = new FormData();
@@ -291,59 +393,95 @@ function AddCropCategoryScreen({ navigation }) {
         <View className="p-4">
           <View className="mb-4">
             <Text className="text-sm mb-2 text-gray-800">
-              Crop Category Name
+              Crop Category Name <Text className="text-red-500 text-sm">*</Text>
+              {errors.cropCategoryName && (
+                <Text className="text-red-500 text-sm mt-1">
+                  {errors.cropCategoryName}
+                </Text>
+              )}
             </Text>
             <TextInput
               className="w-full p-2  bg-white rounded-lg shadow-md"
               placeholder="Vegetable"
               value={cropCategoryName}
-              onChangeText={setCropCategoryName}
+              onChangeText={(value) =>
+                handleFieldChange("cropCategoryName", value)
+              }
               multiline
             />
           </View>
           <View className="mb-4">
             <Text className="text-sm mb-2 text-gray-800">
-              Crop Sub Category Name
+              Crop Sub Category Name <Text className="text-red-500 text-sm">*</Text>
+              {errors.cropSubCategoryName && (
+                <Text className="text-red-500 text-sm mt-1">
+                  {errors.cropSubCategoryName}
+                </Text>
+              )}
             </Text>
             <TextInput
               className="w-full p-2  bg-white rounded-lg shadow-md"
               placeholder="Potato"
               value={cropSubCategoryName}
-              onChangeText={setCropSubCategoryName}
+              onChangeText={(value) =>
+                handleFieldChange("cropSubCategoryName", value)
+              }
               multiline
             />
           </View>
           <View className="mb-4">
             <Text className="text-sm mb-2 text-gray-800">
-              Crop Variety Name
+              Crop Variety Name <Text className="text-red-500 text-sm">*</Text>
+              {errors.cropVarietyName && (
+                <Text className="text-red-500 text-sm mt-1">
+                  {errors.cropVarietyName}
+                </Text>
+              )}
             </Text>
             <TextInput
               className="w-full p-2  bg-white rounded-lg shadow-md"
               placeholder="Purple Potato"
               value={cropVarietyName}
-              onChangeText={setCropVarietyName}
+              onChangeText={(value) =>
+                handleFieldChange("cropVarietyName", value)
+              }
               multiline
             />
           </View>
           <View className="mb-4">
-            <Text className="text-sm mb-2 text-gray-800">Crop Description</Text>
+            <Text className="text-sm mb-2 text-gray-800">Crop Description <Text className="text-red-500 text-sm">*</Text>
+              {errors.cropCategoryDescription && (
+                <Text className="text-red-500 text-sm mt-1">
+                  {errors.cropCategoryDescription}
+                </Text>
+              )}
+            </Text>
             <TextInput
               className="w-full p-2  bg-white rounded-lg shadow-md"
               placeholder="Describe the crop you want to sell."
               value={cropCategoryDescription}
-              onChangeText={setCropCategoryDescription}
+              onChangeText={(value) =>
+                handleFieldChange("cropCategoryDescription", value)
+              }
               multiline
             />
           </View>
           <View className="mb-4">
             <Text className="text-sm mb-2 text-gray-800">
-              Crop Category Image
+              Crop Category Image <Text className="text-red-500 text-sm">*</Text>
+              {errors.cropImage && (
+                <Text className="text-red-500 text-sm mt-1">
+                  {errors.cropImage}
+                </Text>
+              )}
             </Text>
             <TouchableOpacity
               className="border border-dashed border-green-600 rounded-md p-4  flex-row justify-center items-center "
               onPress={() => setModalVisible(true)}
             >
               <Ionicons name="camera" size={24} color="#00b251" />
+              <Text className="mx-2 text-lg text-[#00b251]"> / </Text>
+              <Ionicons name="image-outline" size={24} color="#00b251" className="ml-2" />
             </TouchableOpacity>
 
             {cropImage && (
@@ -362,12 +500,8 @@ function AddCropCategoryScreen({ navigation }) {
             )}
           </View>
           {/* Modal for Image Selection */}
-          <Modal
-            visible={modalVisible}
-            transparent={true}
-            animationType="slide"
-          >
-            <View className="flex-1 justify-center items-center bg-black/50 ">
+          <Modal visible={modalVisible} transparent={true} animationType="slide">
+            <View className="flex-1 justify-center items-center bg-black/50">
               <View className="bg-white p-6 rounded-lg">
                 <Text className="text-lg font-semibold mb-4">
                   Select Image Source
@@ -379,6 +513,12 @@ function AddCropCategoryScreen({ navigation }) {
                   <Text className="text-white text-center">
                     Choose from Gallery
                   </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  className="mb-4 p-4 bg-[#00B251] rounded-lg"
+                  onPress={selectImageFromCamera}
+                >
+                  <Text className="text-white text-center">Take a Photo</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   className="p-4 bg-red-500 rounded-lg"
@@ -428,31 +568,6 @@ function AddCropCategoryScreen({ navigation }) {
                     <Text className="text-white text-base">Yes</Text>
                   </TouchableOpacity>
                 </View>
-              </View>
-            </View>
-          </Modal>
-          <Modal
-            animationType="fade"
-            transparent={true}
-            visible={alertVisible}
-            onRequestClose={() => setAlertVisible(false)}
-          >
-            <View className="flex-1 justify-center items-center bg-black/50 bg-opacity-50">
-              <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
-                <Text className="text-lg font-semibold text-gray-900 mb-4">
-                  {alertMessage}
-                </Text>
-                <TouchableOpacity
-                  className="mt-4 p-2 bg-[#00B251] rounded-lg flex-row justify-center items-center"
-                  onPress={() => setAlertVisible(false)}
-                >
-                  <Ionicons
-                    name="checkmark-circle-outline"
-                    size={24}
-                    color="white"
-                  />
-                  <Text className="text-lg text-white ml-2">OK</Text>
-                </TouchableOpacity>
               </View>
             </View>
           </Modal>

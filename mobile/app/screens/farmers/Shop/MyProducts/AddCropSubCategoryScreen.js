@@ -44,6 +44,40 @@ function AddCropSubCategoryScreen({ navigation }) {
     setSelectedCategory(category.crop_category_name);
     setSelectedCategoryId(category.crop_category_id);
     setIsClickedCategory(false);
+
+    setErrors((prevErrors) => {
+      const updatedErrors = { ...prevErrors };
+      delete updatedErrors.selectedCategory;
+      return updatedErrors;
+    });
+  };
+  const [errors, setErrors] = useState({});
+
+  const MAX_IMAGE_SIZE_MB = 1; // Maximum allowed image size (1 MB)
+
+  // Helper function to validate image size
+  const validateImageSize = async (imageUri) => {
+    try {
+      const response = await fetch(imageUri);
+      const blob = await response.blob();
+      const sizeInMB = blob.size / (1024 * 1024); // Convert bytes to MB
+
+      if (sizeInMB > MAX_IMAGE_SIZE_MB) {
+        setAlertMessage(
+          `The selected image is too large (${sizeInMB.toFixed(
+            2
+          )} MB). Please choose an image smaller than ${MAX_IMAGE_SIZE_MB} MB.`
+        );
+        setAlertVisible(true);
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      setAlertMessage("Failed to check image size. Please try again.");
+      setAlertVisible(true);
+      return false;
+    }
   };
 
   const selectImageFromGallery = async () => {
@@ -63,13 +97,81 @@ function AddCropSubCategoryScreen({ navigation }) {
     });
 
     if (!result.canceled) {
-      setCropImage(result.assets[0].uri);
-      setModalVisible(false);
+      const isValidSize = await validateImageSize(result.assets[0].uri);
+      if (isValidSize) {
+        setCropImage(result.assets[0].uri);
+        setModalVisible(false);
+      }
     }
+
+  };
+
+  const selectImageFromCamera = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== "granted") {
+      setAlertMessage("Sorry, we need camera permissions to make this work!");
+      setAlertVisible(true);
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      const isValidSize = await validateImageSize(result.assets[0].uri);
+      if (isValidSize) {
+        setCropImage(result.assets[0].uri);
+        setModalVisible(false);
+      }
+    }
+
   };
 
   const removeImage = () => {
     setCropImage(null);
+  };
+
+  const validateFields = () => {
+    let validationErrors = {};
+    if (!cropSubCategoryName.trim())
+      validationErrors.cropSubCategoryName = "Subcategory Name is required.";
+    if (!cropVarietyName.trim())
+      validationErrors.cropVarietyName = "Variety Name is required.";
+    if (!cropSubCategoryDescription.trim())
+      validationErrors.cropSubCategoryDescription =
+        "Description is required.";
+    if (!cropImage) validationErrors.cropImage = "Image is required.";
+    if (selectedCategory === "Select Crop Category")
+      validationErrors.selectedCategory = "Please select a category.";
+
+    setErrors(validationErrors);
+    return Object.keys(validationErrors).length === 0; // Return true if no errors
+  };
+
+  const handleFieldChange = (field, value) => {
+    switch (field) {
+      case "cropSubCategoryName":
+        setCropSubCategoryName(value);
+        break;
+      case "cropVarietyName":
+        setCropVarietyName(value);
+        break;
+      case "cropSubCategoryDescription":
+        setCropSubCategoryDescription(value);
+        break;
+      default:
+        break;
+    }
+
+    // Clear the error for the field if it becomes valid
+    setErrors((prevErrors) => {
+      const updatedErrors = { ...prevErrors };
+      if (value.trim()) delete updatedErrors[field];
+      return updatedErrors;
+    });
   };
 
   useEffect(() => {
@@ -147,32 +249,33 @@ function AddCropSubCategoryScreen({ navigation }) {
   );
 
   const handleAddCropSubCategory = async () => {
+    if (!validateFields()) return;
     if (
       subCategoryList &&
       varietyList &&
       subCategoryList.includes(cropSubCategoryName) &&
       varietyList.includes(cropVarietyName)
     ) {
-      Alert.alert(
-        "",
+      setAlertMessage(
         "Both subcategory, and variety names are already included in the app. Please try again."
       );
+      setAlertVisible(true);
       return;
     }
 
     if (subCategoryList && subCategoryList.includes(cropSubCategoryName)) {
-      Alert.alert(
-        "",
+      setAlertMessage(
         "The subcategory name is already included in the app. Please try again."
       );
+      setAlertVisible(true);
       return;
     }
 
     if (varietyList && varietyList.includes(cropVarietyName)) {
-      Alert.alert(
-        "",
+      setAlertMessage(
         "The variety name is already included in the app. Please try again."
       );
+      setAlertVisible(true);
       return;
     }
 
@@ -245,42 +348,68 @@ function AddCropSubCategoryScreen({ navigation }) {
         <View className="p-4">
           <View className="mb-4">
             <Text className="text-sm mb-2 text-gray-800">
-              Crop Sub Category Name
+              Crop Sub Category Name <Text className="text-red-500">*</Text>
+              {errors.cropSubCategoryName && (
+                <Text className="text-red-500 text-sm mt-1">
+                  {errors.cropSubCategoryName}
+                </Text>
+              )}
             </Text>
             <TextInput
               className="w-full p-2  bg-white rounded-lg shadow-md"
               placeholder="Potato"
               value={cropSubCategoryName}
-              onChangeText={setCropSubCategoryName}
+              onChangeText={(value) =>
+                handleFieldChange("cropSubCategoryName", value)
+              }
               multiline
             />
           </View>
 
           <View className="mb-4">
             <Text className="text-sm mb-2 text-gray-800">
-              Crop Variety Name
+              Crop Variety Name <Text className="text-red-500">*</Text>
+              {errors.cropVarietyName && (
+                <Text className="text-red-500 text-sm mt-1">
+                  {errors.cropVarietyName}
+                </Text>
+              )}
             </Text>
             <TextInput
               className="w-full p-2  bg-white rounded-lg shadow-md"
               placeholder="Purple Potato"
               value={cropVarietyName}
-              onChangeText={setCropVarietyName}
+              onChangeText={(value) => handleFieldChange("cropVarietyName", value)}
               multiline
             />
           </View>
           <View className="mb-4">
-            <Text className="text-sm mb-2 text-gray-800">Crop Description</Text>
+            <Text className="text-sm mb-2 text-gray-800">Crop Description <Text className="text-red-500">*</Text>
+              {errors.cropSubCategoryDescription && (
+                <Text className="text-red-500 text-sm mt-1">
+                  {errors.cropSubCategoryDescription}
+                </Text>
+              )}
+            </Text>
             <TextInput
               className="w-full p-2  bg-white rounded-lg shadow-md"
               placeholder="Describe the crop you want to sell."
               value={cropSubCategoryDescription}
-              onChangeText={setCropSubCategoryDescription}
+              onChangeText={(value) =>
+                handleFieldChange("cropSubCategoryDescription", value)
+              }
               multiline
             />
           </View>
           {/* Category Selector */}
           <View className="mb-4">
-            <Text className="text-sm mb-2 text-gray-800">Crop Category</Text>
+            <Text className="text-sm mb-2 text-gray-800">Crop Category<Text className="text-red-500">*</Text>
+              {errors.selectedCategory && (
+                <Text className="text-red-500 text-sm mt-1">
+                  {errors.selectedCategory}
+                </Text>
+              )}
+            </Text>
             <TouchableOpacity
               className="flex-row items-center w-full p-2 bg-white rounded-lg shadow-md"
               onPress={() => setIsClickedCategory(!isClickedCategory)}
@@ -313,13 +442,20 @@ function AddCropSubCategoryScreen({ navigation }) {
           </View>
           <View className="mb-4">
             <Text className="text-sm mb-2 text-gray-800">
-              Crop Sub Category Image
+              Crop Sub Category Image <Text className="text-red-500">*</Text>
+              {errors.cropImage && (
+                <Text className="text-red-500 text-sm mt-1">
+                  {errors.cropImage}
+                </Text>
+              )}
             </Text>
             <TouchableOpacity
               className="border border-dashed border-green-600 rounded-md p-4  flex-row justify-center items-center "
               onPress={() => setModalVisible(true)}
             >
               <Ionicons name="camera" size={24} color="#00b251" />
+              <Text className="mx-2 text-lg text-[#00b251]"> / </Text>
+              <Ionicons name="image-outline" size={24} color="#00b251" className="ml-2" />
             </TouchableOpacity>
 
             {cropImage && (
@@ -338,11 +474,7 @@ function AddCropSubCategoryScreen({ navigation }) {
             )}
           </View>
           {/* Modal for Image Selection */}
-          <Modal
-            visible={modalVisible}
-            transparent={true}
-            animationType="slide"
-          >
+          <Modal visible={modalVisible} transparent={true} animationType="slide">
             <View className="flex-1 justify-center items-center bg-black/50 ">
               <View className="bg-white p-6 rounded-lg">
                 <Text className="text-lg font-semibold mb-4">
@@ -355,6 +487,12 @@ function AddCropSubCategoryScreen({ navigation }) {
                   <Text className="text-white text-center">
                     Choose from Gallery
                   </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  className="mb-4 p-4 bg-[#00B251] rounded-lg"
+                  onPress={selectImageFromCamera}
+                >
+                  <Text className="text-white text-center">Take a Photo</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   className="p-4 bg-red-500 rounded-lg"

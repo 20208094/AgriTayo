@@ -17,7 +17,7 @@ import * as ImagePicker from "expo-image-picker";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const PRICE_REGEX = /^\d+(\.\d{1,2})?$/;
+const PRICE_REGEX = /^(?:\d+|\.\d{1,2}|\d+\.\d{1,2})$/;
 
 function AddProductScreen({ navigation }) {
   const [categories, setCategories] = useState([]);
@@ -67,6 +67,8 @@ function AddProductScreen({ navigation }) {
     setSelectedMetricSystem(metric.metric_system_name);
     setSelectedMetricSystemId(metric.metric_system_id);
     setIsClickedMetricSystem(false);
+
+    setErrors((prevErrors) => ({ ...prevErrors, selectedMetricSystemId: "" }));
   };
 
   const handleCategorySelect = (category) => {
@@ -74,6 +76,8 @@ function AddProductScreen({ navigation }) {
     setSelectedCategoryId(category.crop_category_id);
     setIsClickedCategory(false);
     fetchSubCategories(category.crop_category_id);
+
+    setErrors((prevErrors) => ({ ...prevErrors, selectedCategoryId: "" }));
   };
 
   const handleSubCategorySelect = (subCategory) => {
@@ -81,6 +85,8 @@ function AddProductScreen({ navigation }) {
     setSelectedSubCategoryId(subCategory.crop_sub_category_id);
     setIsclickedSubCategory(false);
     fetchCropVariety(subCategory.crop_sub_category_id)
+
+    setErrors((prevErrors) => ({ ...prevErrors, selectedSubCategoryId: "" }));
   };
 
   const MAX_IMAGE_SIZE_MB = 1; // Maximum allowed image size (1 MB)
@@ -133,6 +139,31 @@ function AddProductScreen({ navigation }) {
         setModalVisible(false);
       }
     }
+  };
+
+  const selectImageFromCamera = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== "granted") {
+      setAlertMessage("Sorry, we need camera permissions to make this work!");
+      setAlertVisible(true);
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 1,
+    });
+
+
+    if (!result.canceled) {
+      const isValidSize = await validateImageSize(result.assets[0].uri);
+      if (isValidSize) {
+        setCropImage(result.assets[0].uri);
+        setModalVisible(false);
+      }
+    }
+
   };
 
 
@@ -227,6 +258,8 @@ function AddProductScreen({ navigation }) {
     setSelectedCropSize(cropSize.crop_size_name);
     setSelectedCropSizeId(cropSize.crop_size_id);
     setIsClickedCropSize(false);
+
+    setErrors((prevErrors) => ({ ...prevErrors, selectedCropSizeId: "" }));
   };
 
   // fetching crop size
@@ -264,6 +297,8 @@ function AddProductScreen({ navigation }) {
     setSelectedCropVariety(cropVariety.crop_variety_name);
     setSelectedCropVarietyId(cropVariety.crop_variety_id);
     setIsClickedCropVariety(false);
+
+    setErrors((prevErrors) => ({ ...prevErrors, selectedCropVarietyId: "" }));
 
     // Find and set the category and subcategory based on the selected crop variety
     const selectedCategory = categories.find(
@@ -380,7 +415,49 @@ function AddProductScreen({ navigation }) {
   const handleCropClassSelect = (cropClass) => {
     setSelectedCropClass(cropClass.crop_class_name);
     setIsClickedCropClass(false);
+
+    setErrors((prevErrors) => ({ ...prevErrors, selectedCropClass: "" }));
   };
+
+  const handleInputValidation = (field, value) => {
+    let error = "";
+
+    // Clear error if the field is empty
+    if (!value) {
+      setErrors((prevErrors) => {
+        const updatedErrors = { ...prevErrors };
+        delete updatedErrors[field]; // Remove the error for this field
+        return updatedErrors;
+      });
+      return; // No need to continue validation for empty input
+    }
+
+    // Validation rules
+    switch (field) {
+      case "cropPrice":
+        if (!PRICE_REGEX.test(value)) {
+          error = "Enter a valid price (e.g., 100 or 100.00).";
+        }
+        break;
+      case "cropQuantity":
+        if (!PRICE_REGEX.test(value)) {
+          error = "Enter a valid Quantity.";
+        }
+        break;
+      case "cropDescription":
+        // No additional rules for description
+        break;
+      default:
+        break;
+    }
+
+    // Update errors dynamically
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [field]: error,
+    }));
+  };
+
 
   const handleAddProduct = async () => {
     const errors = {};
@@ -410,7 +487,9 @@ function AddProductScreen({ navigation }) {
     if (!selectedCropSizeId) errors.selectedCropSizeId = "Select a crop size.";
     if (!selectedCropVarietyId)
       errors.selectedCropVarietyId = "Select a crop variety.";
-    if (!selectedCropClass) errors.selectedCropClass = "Select a crop class.";
+    if (!selectedCropClass || selectedCropClass === "Select Crop Class") {
+      errors.selectedCropClass = "Select a crop class.";
+    }
 
     // If there are errors, show alert and return without submitting
     if (Object.keys(errors).length > 0) {
@@ -497,7 +576,10 @@ function AddProductScreen({ navigation }) {
               className="w-full p-2  bg-white rounded-lg shadow-md"
               placeholder="Describe the crop you want to sell."
               value={cropDescription}
-              onChangeText={setCropDescription}
+              onChangeText={(text) => {
+                setCropDescription(text);
+                handleInputValidation("cropDescription", text);
+              }}
               multiline
               numberOfLines={3}
             />
@@ -753,6 +835,7 @@ function AddProductScreen({ navigation }) {
                 } else {
                   setErrors((prev) => ({ ...prev, CropPrice: "" }));
                 }
+                handleInputValidation("cropPrice", text);
               }}
             />
           </View>
@@ -772,7 +855,10 @@ function AddProductScreen({ navigation }) {
               keyboardType="numeric"
               placeholder="Enter the quantity of the crop."
               value={cropQuantity}
-              onChangeText={setCropQuantity}
+              onChangeText={(text) => {
+                setCropQuantity(text);
+                handleInputValidation("cropQuantity", text);
+              }}
             />
           </View>
 
@@ -863,10 +949,12 @@ function AddProductScreen({ navigation }) {
               )}
             </Text>
             <TouchableOpacity
-              className="border border-dashed border-green-600 rounded-md p-4  flex-row justify-center items-center "
+              className="border border-dashed border-green-600 rounded-md p-4 flex-row justify-center items-center"
               onPress={() => setModalVisible(true)}
             >
               <Ionicons name="camera" size={24} color="#00b251" />
+              <Text className="mx-2 text-lg text-[#00b251]"> / </Text>
+              <Ionicons name="image-outline" size={24} color="#00b251" className="ml-2" />
             </TouchableOpacity>
 
             {cropImage && (
@@ -932,7 +1020,7 @@ function AddProductScreen({ navigation }) {
 
       {/* Modal for Image Selection */}
       <Modal visible={modalVisible} transparent={true} animationType="slide">
-        <View className="flex-1 justify-center items-center bg-black/50 ">
+        <View className="flex-1 justify-center items-center bg-black/50">
           <View className="bg-white p-6 rounded-lg">
             <Text className="text-lg font-semibold mb-4">
               Select Image Source
@@ -944,6 +1032,12 @@ function AddProductScreen({ navigation }) {
               <Text className="text-white text-center">
                 Choose from Gallery
               </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              className="mb-4 p-4 bg-[#00B251] rounded-lg"
+              onPress={selectImageFromCamera}
+            >
+              <Text className="text-white text-center">Take a Photo</Text>
             </TouchableOpacity>
             <TouchableOpacity
               className="p-4 bg-red-500 rounded-lg"
