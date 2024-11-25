@@ -8,7 +8,7 @@ import {
   Modal,
   ScrollView,
   Image,
-  Alert
+  Alert,
 } from "react-native";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 import { useFocusEffect } from "@react-navigation/native";
@@ -22,7 +22,7 @@ function AddCropVarietyScreen({ navigation }) {
   const API_KEY = REACT_NATIVE_API_KEY;
   const [loading, setLoading] = useState(false);
 
-  const [varietyList, setVarietyList] = useState([])
+  const [varietyList, setVarietyList] = useState([]);
 
   const [modalVisible, setModalVisible] = useState(false);
   const [modalVisible1, setModalVisible1] = useState(false);
@@ -84,9 +84,12 @@ function AddCropVarietyScreen({ navigation }) {
   useEffect(() => {
     const fetchVarietyList = async () => {
       try {
-        const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_varieties`, {
-          headers: { "x-api-key": REACT_NATIVE_API_KEY },
-        });
+        const response = await fetch(
+          `${REACT_NATIVE_API_BASE_URL}/api/crop_varieties`,
+          {
+            headers: { "x-api-key": REACT_NATIVE_API_KEY },
+          }
+        );
         if (response.ok) {
           const data = await response.json();
           const varieties = data.map((user) => user.crop_variety_name);
@@ -152,11 +155,14 @@ function AddCropVarietyScreen({ navigation }) {
   );
 
   const handleAddCropVariety = async () => {
-
     if (varietyList && varietyList.includes(cropVarietyName)) {
-      Alert.alert("", "The variety name is already included in the app. \nPlease try again.")
+      Alert.alert(
+        "",
+        "The variety name is already included in the app. Please try again."
+      );
+      return;
     }
-    
+
     const formData = new FormData();
     formData.append("crop_variety_name", cropVarietyName);
     formData.append("crop_variety_description", cropVarietyDescription);
@@ -237,8 +243,8 @@ function AddCropVarietyScreen({ navigation }) {
               multiline
             />
           </View>
-                    {/* Category Selector */}
-                    <View className="mb-4">
+          {/* Category Selector */}
+          <View className="mb-4">
             <Text className="text-sm mb-2 text-gray-800">Crop Category</Text>
             <TouchableOpacity
               className="flex-row items-center w-full p-2 bg-white rounded-lg shadow-md"

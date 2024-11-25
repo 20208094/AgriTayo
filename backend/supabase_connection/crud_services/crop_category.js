@@ -268,7 +268,7 @@ async function addCropCategoryApp(req, res) {
         )
           ? fields.crop_sub_category_description[0]
           : null;
-        const subImage = files.image ? files.image[0] : null;
+        const subImage = files.subImage ? files.subImage[0] : null;
 
         if (subImage) {
           try {
@@ -321,7 +321,7 @@ async function addCropCategoryApp(req, res) {
         )
           ? fields.crop_variety_description[0]
           : null;
-        const varImage = files.image ? files.image[0] : null;
+        const varImage = files.varImage ? files.varImage[0] : null;
 
         if (varImage) {
           try {
