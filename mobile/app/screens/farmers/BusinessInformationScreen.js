@@ -59,6 +59,8 @@ function BusinessInformationScreen({ navigation, route }) {
     const formattedTIN = formatTIN(value);
     setTin(formattedTIN);
   };
+  const [isTermsAccepted, setIsTermsAccepted] = useState(false); // State for terms acceptance
+  const [termsModalVisible, setTermsModalVisible] = useState(false);
 
   const validateForm = () => {
     let isValid = true;
@@ -178,6 +180,16 @@ function BusinessInformationScreen({ navigation, route }) {
   };
 
   const handleSubmit = async () => {
+    if (!isTermsAccepted) {
+      setAlertMessage2(
+        "You must accept the Terms and Conditions to continue."
+      );
+      setAlertVisible2(true);
+      return;
+    }
+    setAlertMessage2("Form submitted successfully!");
+    setAlertVisible2(true);
+
     setAttemptedSubmit(true);
     if (!selectedBusinessInformation) {
       return;
@@ -406,6 +418,31 @@ function BusinessInformationScreen({ navigation, route }) {
               If Business Name/Trade is not applicable, please enter your Taxpayer
               Name as indicated on your BIR CoR instead (e.g Acme, Inc.)
             </Text>
+
+            {/* Terms and Conditions */}
+            <View className="flex-row items-center mb-6">
+              <TouchableOpacity
+                onPress={() => setIsTermsAccepted(!isTermsAccepted)}
+                className={`w-6 h-6 border-2 rounded-md flex items-center justify-center ${isTermsAccepted ? "bg-green-600 border-green-600" : "border-gray-400"
+                  }`}
+              >
+                {isTermsAccepted && (
+                  <Ionicons name="checkmark" size={18} color="white" />
+                )}
+              </TouchableOpacity>
+              <View className="ml-2 flex-1">
+                <Text className="text-gray-800 leading-5">
+                  By checking this box, I confirm that I have read, understood, and agree to abide by the{" "}
+                  <TouchableOpacity onPress={() => setTermsModalVisible(true)}>
+                    <Text className="text-[#00b251] underline">
+                      Terms and Conditions
+                    </Text>
+                  </TouchableOpacity>{" "}
+                  of AgriTayo. I acknowledge that failing to adhere to the terms may result in the suspension or termination of my account.
+                </Text>
+              </View>
+            </View>
+
             <View className="flex-row justify-between mt-4">
               <TouchableOpacity
                 className="bg-gray-300 rounded-full py-4 px-8"
@@ -422,30 +459,244 @@ function BusinessInformationScreen({ navigation, route }) {
             </View>
           </>
         ) : (
-          <View className="flex-row justify-between mt-2">
-            <TouchableOpacity
-              className="bg-gray-300 rounded-full py-4 px-8"
-              onPress={() => navigation.goBack()}
-            >
-              <Text className="text-white text-lg font-semibold">Back</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              className="bg-green-600 rounded-full py-4 px-8"
-              onPress={handleSubmit}
-            >
-              <Text className="text-white text-lg font-semibold">Submit</Text>
-            </TouchableOpacity>
-          </View>
+          <>
+            {/* Terms and Conditions */}
+            <View className="flex-row items-center mb-6">
+              <TouchableOpacity
+                onPress={() => setIsTermsAccepted(!isTermsAccepted)}
+                className={`w-6 h-6 border-2 rounded-md flex items-center justify-center ${isTermsAccepted ? "bg-green-600 border-green-600" : "border-gray-400"
+                  }`}
+              >
+                {isTermsAccepted && (
+                  <Ionicons name="checkmark" size={18} color="white" />
+                )}
+              </TouchableOpacity>
+              <View className="ml-2 flex-1">
+                <Text className="text-gray-800 leading-5">
+                  By checking this box, I confirm that I have read, understood, and agree to abide by the{" "}
+                  <TouchableOpacity onPress={() => setTermsModalVisible(true)}>
+                    <Text className="text-[#00b251] underline">
+                      Terms and Conditions
+                    </Text>
+                  </TouchableOpacity>{" "}
+                  of AgriTayo. I acknowledge that failing to adhere to the terms may result in the suspension or termination of my account.
+                </Text>
+              </View>
+            </View>
+
+            {/* Navigation Buttons */}
+            <View className="flex-row justify-between mt-2">
+              <TouchableOpacity
+                className="bg-gray-300 rounded-full py-4 px-8"
+                onPress={() => navigation.goBack()}
+              >
+                <Text className="text-white text-lg font-semibold">Back</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                className="bg-green-600 rounded-full py-4 px-8"
+                onPress={handleSubmit}
+              >
+                <Text className="text-white text-lg font-semibold">Submit</Text>
+              </TouchableOpacity>
+            </View>
+          </>
         )}
 
       </ScrollView>
 
+      {/* Improved Terms and Conditions Modal */}
       <Modal
-        visible={modalVisible}
-        transparent={true}
         animationType="slide"
-        onRequestClose={() => setModalVisible(false)}
+        transparent={true}
+        visible={termsModalVisible}
+        onRequestClose={() => setTermsModalVisible(false)}
       >
+        <View className="flex-1 justify-center items-center bg-black/50">
+          <View className="bg-white rounded-lg p-6 w-12/13 max-w-lg shadow-lg">
+            {/* Header Section */}
+            <View className="flex-row justify-between items-center mb-4">
+              <Text className="text-xl font-bold text-[#00B251]">Terms and Conditions</Text>
+              <TouchableOpacity
+                onPress={() => setTermsModalVisible(false)}
+                className="p-2"
+              >
+                <Text className="text-gray-500 font-bold">✕</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Scrollable Content */}
+            <ScrollView className="h-60 mb-4">
+              <Text className="text-gray-800 text-base font-semibold mb-2">
+                Welcome to AgriTayo!
+              </Text>
+              <Text className="text-gray-800 text-sm mb-4">
+                By registering as a seller on our platform, you agree to the following Terms and Conditions. Please read them carefully before proceeding:
+              </Text>
+
+              {/* Each Term Section */}
+              <View className="mb-4">
+                <Text className="text-gray-800 text-base font-bold">
+                  1. Account Registration and Seller Verification
+                </Text>
+                <Text className="text-gray-700 text-sm mt-2">
+                  1.1 You must provide accurate, complete, and up-to-date information during registration, including your name, business details, and contact information.
+                </Text>
+                <Text className="text-gray-700 text-sm mt-2">
+                  1.2 All sellers must undergo verification, which may include submitting valid identification or business documents.
+                </Text>
+                <Text className="text-gray-700 text-sm mt-2">
+                  1.3 You are responsible for maintaining the confidentiality of your account credentials. Any activity conducted through your account is your responsibility.
+                </Text>
+              </View>
+
+              <View className="mb-4">
+                <Text className="text-gray-800 text-base font-bold">
+                  2. Seller Responsibilities
+                </Text>
+                <Text className="text-gray-700 text-sm mt-2">
+                  2.1 You are required to provide accurate product descriptions, pricing, and availability information for all listed items.
+                </Text>
+                <Text className="text-gray-700 text-sm mt-2">
+                  2.2 Ensure that the crops or agricultural products listed meet the agreed-upon quality and quantity standards.
+                </Text>
+                <Text className="text-gray-700 text-sm mt-2">
+                  2.3 Manage inventory diligently, updating product listings to reflect availability in real-time.
+                </Text>
+                <Text className="text-gray-700 text-sm mt-2">
+                  2.4 Respond to buyer inquiries, negotiations, and orders promptly and professionally.
+                </Text>
+                <Text className="text-gray-700 text-sm mt-2">
+                  2.5 Fulfill all confirmed orders in a timely manner, adhering to the agreed delivery or pickup schedules.
+                </Text>
+                <Text className="text-gray-700 text-sm mt-2">
+                  2.6 You are prohibited from posting counterfeit, expired, or substandard products on the platform.
+                </Text>
+              </View>
+
+              <View className="mb-4">
+                <Text className="text-gray-800 text-base font-bold">
+                  3. Transactions and Payments
+                </Text>
+                <Text className="text-gray-700 text-sm mt-2">
+                  3.1 All payments for orders will be processed through the platform's integrated payment system.
+                </Text>
+                <Text className="text-gray-700 text-sm mt-2">
+                  3.2 AgriTayo reserves the right to withhold payment for incomplete or disputed transactions until resolved.
+                </Text>
+                <Text className="text-gray-700 text-sm mt-2">
+                  3.3 Sellers are responsible for applicable taxes and ensuring compliance with relevant laws regarding agricultural trade.
+                </Text>
+              </View>
+
+              <View className="mb-4">
+                <Text className="text-gray-800 text-base font-bold">
+                  4. Pricing, Bidding, and Negotiation
+                </Text>
+                <Text className="text-gray-700 text-sm mt-2">
+                  4.1 You may set prices for your products, which must be reasonable and compliant with market regulations.
+                </Text>
+                <Text className="text-gray-700 text-sm mt-2">
+                  4.2 Buyers can negotiate prices or place bids on your products, and you may accept, reject, or counter these offers.
+                </Text>
+                <Text className="text-gray-700 text-sm mt-2">
+                  4.3 All agreed-upon prices during negotiations or bids are binding and must be honored by both parties.
+                </Text>
+              </View>
+
+              <View className="mb-4">
+                <Text className="text-gray-800 text-base font-bold">
+                  5. Communication with Buyers
+                </Text>
+                <Text className="text-gray-700 text-sm mt-2">
+                  5.1 The platform provides a messaging system to facilitate communication between buyers and sellers.
+                </Text>
+                <Text className="text-gray-700 text-sm mt-2">
+                  5.2 Sellers must use the messaging system professionally, refraining from abusive or inappropriate language.
+                </Text>
+                <Text className="text-gray-700 text-sm mt-2">
+                  5.3 Sharing personal contact details outside the platform is prohibited unless explicitly permitted by AgriTayo.
+                </Text>
+              </View>
+
+              <View className="mb-4">
+                <Text className="text-gray-800 text-base font-bold">
+                  6. Data Privacy and Security
+                </Text>
+                <Text className="text-gray-700 text-sm mt-2">
+                  6.1 AgriTayo collects and processes seller data in compliance with the Data Privacy Act of 2012.
+                </Text>
+                <Text className="text-gray-700 text-sm mt-2">
+                  6.2 Your data will only be used for purposes related to account management, transaction facilitation, and platform improvements.
+                </Text>
+                <Text className="text-gray-700 text-sm mt-2">
+                  6.3 Sellers must protect buyer information and only use it for purposes directly related to transactions.
+                </Text>
+              </View>
+
+              <View className="mb-4">
+                <Text className="text-gray-800 text-base font-bold">
+                  7. Dispute Resolution
+                </Text>
+                <Text className="text-gray-700 text-sm mt-2">
+                  7.1 In case of disputes with buyers, sellers are encouraged to resolve issues amicably through the platform’s support system.
+                </Text>
+                <Text className="text-gray-700 text-sm mt-2">
+                  7.2 AgriTayo may mediate disputes but is not liable for unresolved issues between buyers and sellers.
+                </Text>
+              </View>
+
+              <View className="mb-4">
+                <Text className="text-gray-800 text-base font-bold">
+                  8. Intellectual Property and Content Ownership
+                </Text>
+                <Text className="text-gray-700 text-sm mt-2">
+                  8.1 All images, descriptions, and details provided by sellers for product listings must be original or properly licensed.
+                </Text>
+                <Text className="text-gray-700 text-sm mt-2">
+                  8.2 AgriTayo reserves the right to remove any content that violates intellectual property laws or the platform's policies.
+                </Text>
+              </View>
+
+              <View className="mb-4">
+                <Text className="text-gray-800 text-base font-bold">
+                  9. Suspension and Termination
+                </Text>
+                <Text className="text-gray-700 text-sm mt-2">
+                  9.1 Sellers who fail to comply with these Terms and Conditions may have their accounts suspended or terminated.
+                </Text>
+                <Text className="text-gray-700 text-sm mt-2">
+                  9.2 AgriTayo reserves the right to terminate seller accounts for fraudulent activities, repeated disputes, or violations of platform policies.
+                </Text>
+              </View>
+
+              <View className="mb-4">
+                <Text className="text-gray-800 text-base font-bold">
+                  10. Platform Modifications
+                </Text>
+                <Text className="text-gray-700 text-sm mt-2">
+                  10.1 AgriTayo reserves the right to modify these Terms and Conditions at any time. Sellers will be notified of significant changes, and continued use of the platform implies acceptance of the updated terms.
+                </Text>
+              </View>
+
+              <Text className="text-gray-800 text-sm mt-4">
+                By proceeding with your registration, you confirm that you have read, understood, and agree to abide by these Terms and Conditions. If you do not agree, please refrain from registering as a seller on AgriTayo.
+              </Text>
+            </ScrollView>
+
+            {/* Action Buttons */}
+            <View className="flex-row justify-end mt-4">
+              <TouchableOpacity
+                onPress={() => setTermsModalVisible(false)}
+                className="bg-[#00B251] px-4 py-2 rounded-md"
+              >
+                <Text className="text-white font-medium">Close</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal visible={modalVisible} animationType="slide" transparent={true}>
         <View className="flex-1 justify-center items-center bg-black/50">
           <View className="bg-white p-6 rounded-lg w-11/12 max-w-md shadow-lg">
             <Text className="text-lg font-bold mb-4 text-center text-[#00B251]">
