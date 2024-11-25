@@ -316,7 +316,9 @@ function BusinessInformationScreen({ navigation, route }) {
               className="border border-dashed border-green-600 rounded-md p-4 my-4 flex-row justify-center items-center"
               onPress={() => setModalVisible(true)}
             >
-              <Text className="text-green-600">+ Upload</Text>
+              <Ionicons name="camera" size={24} color="#00b251" />
+              <Text className="mx-2 text-lg text-[#00b251]"> / </Text>
+              <Ionicons name="image-outline" size={24} color="#00b251" className="ml-2" />
             </TouchableOpacity>
 
             {birCertificate && (
