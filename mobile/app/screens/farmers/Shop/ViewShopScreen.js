@@ -157,6 +157,7 @@ function ViewShopScreen({ navigation }) {
       const blob = await response.blob();
       const sizeInMB = blob.size / (1024 * 1024); // Convert bytes to MB
 
+
       if (sizeInMB > MAX_IMAGE_SIZE_MB) {
         setAlertMessage(
           `The selected image is too large (${sizeInMB.toFixed(
@@ -167,6 +168,7 @@ function ViewShopScreen({ navigation }) {
         return false;
       }
 
+
       return true;
     } catch (error) {
       setAlertMessage("Failed to check image size. Please try again.");
@@ -174,6 +176,7 @@ function ViewShopScreen({ navigation }) {
       return false;
     }
   };
+
 
   // Updated selectImageFromGallery function
   const selectImageFromGallery = async () => {
@@ -186,14 +189,17 @@ function ViewShopScreen({ navigation }) {
       return;
     }
 
+
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       quality: 1,
     });
 
+
     if (!result.canceled) {
       const imageUri = result.assets[0].uri;
+
 
       const isValidSize = await validateImageSize(imageUri);
       if (isValidSize) {
@@ -240,14 +246,17 @@ function ViewShopScreen({ navigation }) {
       return;
     }
 
+
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       quality: 1,
     });
 
+
     if (!result.canceled) {
       const imageUri = result.assets[0].uri;
+
 
       const isValidSize = await validateImageSize(imageUri);
       if (isValidSize) {
@@ -707,7 +716,9 @@ function ViewShopScreen({ navigation }) {
             className="border border-dashed border-green-600 rounded-md p-4 flex-row justify-center items-center"
             onPress={() => setModalVisible2(true)}
           >
-            <Text className="text-green-600">+ Upload </Text>
+            <Ionicons name="camera" size={24} color="#00b251" />
+            <Text className="mx-2 text-lg text-[#00b251]"> / </Text>
+            <Ionicons name="image-outline" size={24} color="#00b251" className="ml-2" />
           </TouchableOpacity>
 
           {/* Display Selected Image */}
