@@ -8,6 +8,7 @@ import {
   Modal,
   ScrollView,
   Image,
+  Alert
 } from "react-native";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 import { useFocusEffect } from "@react-navigation/native";
@@ -52,6 +53,12 @@ function AddCropCategoryScreen({ navigation }) {
     setSelectedSubCategoryId(subCategory.crop_sub_category_id);
     setIsclickedSubCategory(false);
   };
+
+  // for category, subcategory, variety list
+
+  const [categoryList, setCategoryList] = useState([])
+  const [subCategoryList, setSubCategoryList] = useState([])
+  const [varietyList, setVarietyList] = useState([])
 
   const API_KEY = REACT_NATIVE_API_KEY;
   const [loading, setLoading] = useState(false);
@@ -141,6 +148,69 @@ function AddCropCategoryScreen({ navigation }) {
     setCropImage(null);
   };
 
+  useEffect(() => {
+    const fetchCategoryList = async () => {
+      try {
+        const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_categories`, {
+          headers: { "x-api-key": REACT_NATIVE_API_KEY },
+        });
+        if (response.ok) {
+          const data = await response.json();
+          const categories = data.map((user) => user.crop_category_name);
+          setCategoryList(categories);
+        } else {
+          console.error("Failed to fetch phone numbers");
+        }
+      } catch (error) {
+        console.error("Error fetching phone numbers:", error);
+      }
+    };
+
+    fetchCategoryList();
+  }, []);
+
+  useEffect(() => {
+    const fetchSubCategoryList = async () => {
+      try {
+        const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_sub_categories`, {
+          headers: { "x-api-key": REACT_NATIVE_API_KEY },
+        });
+        if (response.ok) {
+          const data = await response.json();
+          const subCategories = data.map((user) => user.crop_sub_category_name);
+          setSubCategoryList(categories);
+        } else {
+          console.error("Failed to fetch phone numbers");
+        }
+      } catch (error) {
+        console.error("Error fetching phone numbers:", error);
+      }
+    };
+
+    fetchSubCategoryList();
+  }, []);
+
+  useEffect(() => {
+    const fetchVarietyList = async () => {
+      try {
+        const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_varieties`, {
+          headers: { "x-api-key": REACT_NATIVE_API_KEY },
+        });
+        if (response.ok) {
+          const data = await response.json();
+          const varieties = data.map((user) => user.crop_variety_name);
+          setVarietyList(varieties);
+        } else {
+          console.error("Failed to fetch phone numbers");
+        }
+      } catch (error) {
+        console.error("Error fetching phone numbers:", error);
+      }
+    };
+
+    fetchVarietyList();
+  }, []);
+
   const fetchCategories = async () => {
     try {
       const response = await fetch(
@@ -191,6 +261,32 @@ function AddCropCategoryScreen({ navigation }) {
   );
 
   const handleAddCropCategory = async () => {
+    if (categoryList && subCategoryList && varietyList && categoryList.includes(cropCategoryName) && subCategoryList.includes(cropSubCategoryName) && varietyList.includes(cropVarietyName)){
+      Alert.alert("", "The category, subcategory, and variety names are already included in the app. \nPlease try again.")
+    }
+    if (categoryList && subCategoryList && categoryList.includes(cropCategoryName) && subCategoryList.includes(cropSubCategoryName)){
+      Alert.alert("", "Both category and subcategory are already included in the app. \nPlease try again.")
+    }
+    if (subCategoryList && varietyList && subCategoryList.includes(cropSubCategoryName) && varietyList.includes(cropVarietyName)){
+      Alert.alert("", "Both subcategory and variety names are already included in the app. \nPlease try again.")
+    }
+
+    if (categoryList && varietyList && categoryList.includes(cropCategoryName) && varietyList.includes(cropVarietyName)){
+      Alert.alert("", "Both category and variety names are already included in the app. \nPlease try again.")
+    }
+
+    if (categoryList && categoryList.includes(cropCategoryName)){
+      Alert.alert("", "The category name is already included in the app. \nPlease try again.")
+    }
+
+    if (subCategoryList && subCategoryList.includes(cropSubCategoryName)) {
+      Alert.alert("", "The subcategory name is already included in the app. \nPlease try again.")
+    }
+
+    if (varietyList && varietyList.includes(cropVarietyName)) {
+      Alert.alert("", "The variety name is already included in the app. \nPlease try again.")
+    }
+
     const formData = new FormData();
     formData.append("crop_category_name", cropCategoryName);
     formData.append("crop_category_description", cropCategoryDescription);
