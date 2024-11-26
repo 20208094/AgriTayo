@@ -24,7 +24,8 @@ function ShopInformationScreen({ route, navigation }) {
   const [shopAddress, setShopAddress] = useState("");
   const [shopDescription, setShopDescription] = useState("");
   const [shopImage, setShopImage] = useState(null);
-  const [shopDeliveryFee, setShopDeliveryFee] = useState("");
+  const [shopDeliveryFeeMin, setShopDeliveryFeeMin] = useState("");
+  const [shopDeliveryFeeMax, setShopDeliveryFeeMax] = useState("");
   const [pickupAreaFee, setPickupAreaFee] = useState("");
   const [isCheckedDelivery, setIsCheckedDelivery] = useState(false);
   const [isCheckedPickup, setIsCheckedPickup] = useState(false);
@@ -78,15 +79,26 @@ function ShopInformationScreen({ route, navigation }) {
         setPickupAddress(value);
         break;
 
-      case "shopDeliveryFee":
+      case "shopDeliveryFeeMin":
         if (
           isCheckedDelivery &&
           value &&
-          (!/^\d+$/.test(value) || value <= 0)
+          (!/^\d+$/.test(value) || value < 0)
         ) {
-          error = "Delivery fee must be a positive integer.";
+          error = "\n Minimum delivery fee must be a positive integer.";
         }
-        setShopDeliveryFee(value);
+        setShopDeliveryFeeMin(value);
+        break;
+
+      case "shopDeliveryFeeMax":
+        if (
+          isCheckedDelivery &&
+          value &&
+          (!/^\d+$/.test(value) || value < 0)
+        ) {
+          error = "\n Maximum delivery fee must be a positive integer.";
+        }
+        setShopDeliveryFeeMax(value);
         break;
 
       case "pickupAreaFee":
@@ -136,6 +148,33 @@ function ShopInformationScreen({ route, navigation }) {
     // Update the error state for the specific field
     if (value) {
       setErrors((prev) => ({ ...prev, [field]: error }));
+    }
+  };
+
+
+  const MAX_IMAGE_SIZE_MB = 1;
+
+  const validateImageSize = async (imageUri) => {
+    try {
+      const response = await fetch(imageUri);
+      const blob = await response.blob();
+      const sizeInMB = blob.size / (1024 * 1024);
+
+      if (sizeInMB > MAX_IMAGE_SIZE_MB) {
+        setAlertMessage(
+          `The selected image is too large (${sizeInMB.toFixed(
+            2
+          )} MB). Please choose an image smaller than ${MAX_IMAGE_SIZE_MB} MB.`
+        );
+        setAlertVisible(true);
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      setAlertMessage("Failed to check image size. Please try again.");
+      setAlertVisible(true);
+      return false;
     }
   };
 
@@ -214,10 +253,18 @@ function ShopInformationScreen({ route, navigation }) {
     }
 
     if (isCheckedDelivery) {
-      if (!shopDeliveryFee) {
+      if (!shopDeliveryFeeMin) {
         setErrors((prev) => ({
           ...prev,
-          shopDeliveryFee: "Delivery fee is required.",
+          shopDeliveryFeeMin: "Minimum delivery fee is required.",
+        }));
+        hasError = true;
+      }
+
+      if (!shopDeliveryFeeMax) {
+        setErrors((prev) => ({
+          ...prev,
+          shopDeliveryFeeMax: "Maximum delivery fee is required.",
         }));
         hasError = true;
       }
@@ -294,7 +341,8 @@ function ShopInformationScreen({ route, navigation }) {
       shop_image: shopImage,
       user_id: userData.user_id,
       delivery: isCheckedDelivery,
-      delivery_price: isCheckedDelivery ? shopDeliveryFee : null,
+      delivery_price_min: isCheckedDelivery ? shopDeliveryFeeMin : null,
+      delivery_price_max: isCheckedDelivery ? shopDeliveryFeeMax : null,
       pickup: isCheckedPickup,
       pickup_price: isCheckedPickup ? pickupAreaFee : null,
       gcash: isCheckedGcash,
@@ -505,21 +553,52 @@ function ShopInformationScreen({ route, navigation }) {
             <>
               <Text className="text-sm mb-2 text-gray-800">
                 Delivery Fee:{" "}
-                {errors.shopDeliveryFee && (
+                {errors.shopDeliveryFeeMin && (
                   <Text className="text-red-500 mb-2">
-                    *{errors.shopDeliveryFee}
+                    *{errors.shopDeliveryFeeMin}
+                  </Text>
+                )}
+                {errors.shopDeliveryFeeMax && (
+                  <Text className="text-red-500 mb-2">
+                    *{errors.shopDeliveryFeeMax}
                   </Text>
                 )}
               </Text>
-              <TextInput
-                value={shopDeliveryFee}
-                onChangeText={(value) =>
-                  handleInputChange("shopDeliveryFee", value)
-                }
-                className="w-full p-2 mb-4 bg-white rounded-lg shadow-md text-gray-800"
-                placeholder="Enter delivery fee"
-                keyboardType="numeric"
-              />
+              <View className="flex-row justify-between w-screen">
+                <Text className="text-sm mb-2 text-gray-800 flex-1">
+                  Minimum:
+                </Text>
+                <Text className="text-sm mb-2 text-gray-800 flex-1">
+                  Maximum:
+                </Text>
+              </View>
+              <View className="flex-row">
+                <TextInput
+                  value={shopDeliveryFeeMin}
+                  onChangeText={(value) =>
+                    handleInputChange("shopDeliveryFeeMin", value)
+                  }
+                  className="w-2/5 p-2 mb-4 bg-white rounded-lg flex-1 shadow-md text-gray-800 border"
+                  placeholder="Enter delivery fee"
+                  keyboardType="numeric"
+                />
+                <View className="mt-2">
+                  <Ionicons
+                    name="remove-outline"
+                    size={24}
+                    color="black"
+                  />
+                </View>
+                <TextInput
+                  value={shopDeliveryFeeMax}
+                  onChangeText={(value) =>
+                    handleInputChange("shopDeliveryFeeMax", value)
+                  }
+                  className="w-2/5 p-2 mb-4 bg-white rounded-lg flex-1 shadow-md text-gray-800 border"
+                  placeholder="Enter delivery fee"
+                  keyboardType="numeric"
+                />
+              </View>
             </>
           )}
 

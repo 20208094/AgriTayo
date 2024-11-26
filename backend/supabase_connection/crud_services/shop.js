@@ -44,8 +44,12 @@ async function addShop(req, res) {
       const user_id = parseInt(getSingleValue(fields.user_id)); // Ensure user_id is an integer
       const delivery = getSingleValue(fields.delivery);
       const pickup = getSingleValue(fields.pickup);
-      const delivery_price = parseInt(
-        getSingleValue(fields.delivery_price),
+      const delivery_price_min = parseInt(
+        getSingleValue(fields.delivery_price_min),
+        10
+      );
+      const delivery_price_max = parseInt(
+        getSingleValue(fields.delivery_price_max),
         10
       );
       const pickup_price = parseInt(getSingleValue(fields.pickup_price), 10);
@@ -100,7 +104,8 @@ async function addShop(req, res) {
           shop_image_url: shop_image_url,
           delivery: delivery,
           pickup: pickup,
-          delivery_price: delivery_price,
+          delivery_price_min: delivery_price_min,
+          delivery_price_max: delivery_price_max,
           pickup_price: pickup_price,
           gcash: gcash,
           cod: cod,
@@ -142,7 +147,6 @@ async function addShop(req, res) {
 
 // Update a shop
 async function updateShop(req, res) {
-  console.log("Updating shop");
   try {
     const { id } = req.params;
     if (!id) {
@@ -163,8 +167,12 @@ async function updateShop(req, res) {
       const user_id = parseInt(getSingleValue(fields.user_id)); // Ensure user_id is an integer
       const delivery = getSingleValue(fields.delivery);
       const pickup = getSingleValue(fields.pickup);
-      const delivery_price = parseInt(
-        getSingleValue(fields.delivery_price),
+      const delivery_price_min = parseInt(
+        getSingleValue(fields.delivery_price_min),
+        10
+      );
+      const delivery_price_max = parseInt(
+        getSingleValue(fields.delivery_price_max),
         10
       );
       const pickup_price = parseInt(getSingleValue(fields.pickup_price), 10);
@@ -201,10 +209,8 @@ async function updateShop(req, res) {
       if (shopImageFile) {
         // If there is an existing image, delete it first
         if (existingImageUrl) {
-          console.log("Deleting existing image:", existingImageUrl);
           try {
             await imageHandler.deleteImage(existingImageUrl);
-            console.log("Existing image successfully deleted");
           } catch (deleteError) {
             console.error(
               "Failed to delete existing image:",
@@ -217,7 +223,6 @@ async function updateShop(req, res) {
         // Upload the new image
         try {
           shop_image_url = await imageHandler.uploadImage(shopImageFile);
-          console.log("New image uploaded successfully, URL:", shop_image_url);
         } catch (uploadError) {
           console.error("Image upload error:", uploadError.message);
           return res.status(500).json({ error: "Image upload failed" });
@@ -252,10 +257,8 @@ async function updateShop(req, res) {
       if (birImageFile) {
         // If there is an existing image, delete it first
         if (existingBirImageUrl) {
-          console.log("Deleting existing image:", existingBirImageUrl);
           try {
             await imageHandler.deleteImage(existingBirImageUrl);
-            console.log("Existing image successfully deleted");
           } catch (deleteError) {
             console.error(
               "Failed to delete existing image:",
@@ -268,7 +271,6 @@ async function updateShop(req, res) {
         // Upload the new image
         try {
           bir_image_url = await imageHandler.uploadImage(birImageFile);
-          console.log("New image uploaded successfully, URL:", bir_image_url);
         } catch (uploadError) {
           console.error("Image upload error:", uploadError.message);
           return res.status(500).json({ error: "Image upload failed" });
@@ -287,7 +289,8 @@ async function updateShop(req, res) {
         shop_image_url: shop_image_url, // Assign the updated image URL
         delivery: delivery,
         pickup: pickup,
-        delivery_price: delivery_price,
+        delivery_price_min: delivery_price_min,
+        delivery_price_max: delivery_price_max,
         pickup_price: pickup_price,
         gcash: gcash,
         cod: cod,
@@ -303,14 +306,16 @@ async function updateShop(req, res) {
       const { data, error } = await supabase
         .from("shop")
         .update(updateData)
-        .eq("shop_id", id);
+        .eq("shop_id", id)
+        .select("*");
 
+      console.log('data :', data);
       if (error) {
         console.error("Supabase query failed:", error.message);
         return res.status(500).json({ error: "Internal server error" });
       }
 
-      res.status(200).json({ message: "Shop updated successfully", data });
+      res.status(200).json({ message: "Shop updated successfully", data: data });
     });
   } catch (err) {
     console.error("Error executing updateShop process:", err.message);

@@ -115,104 +115,104 @@ function OrdersScreen({ route }) {
 
   return (
     <>
-    <Tab.Navigator
-      initialRouteName={initialRouteName}
-      screenOptions={({ route }) => ({
-        swipeEnabled: true,
-        tabBarScrollEnabled: true,
-        lazy: true,
-        tabBarIcon: ({ color, focused }) => {
-          let iconName;
+      <Tab.Navigator
+        initialRouteName={initialRouteName}
+        screenOptions={({ route }) => ({
+          swipeEnabled: true,
+          tabBarScrollEnabled: true,
+          lazy: true,
+          tabBarIcon: ({ color, focused }) => {
+            let iconName;
 
-          switch (route.name) {
-            case "To Confirm":
-              iconName = "hourglass-outline";
-              break;
-            case "Preparing":
-              iconName = "cog-outline";
-              break;
-            case "Shipping":
-              iconName = "car-sharp";
-              break;
-            case "Pickup":
-              iconName = "logo-dropbox";
-              break;
-            case "For Return":
-              iconName = "return-up-back-outline";
-              break;
-            case "Returned":
-              iconName = "checkmark-circle-outline";
-              break;
-            case "To Rate":
-              iconName = "star-outline";
-              break;
-            case "Completed":
-              iconName = "checkmark-done-outline";
-              break;
-            case "Rejected":
-              iconName = "close-circle-sharp";
-              break;
-            default:
-              iconName = "ellipse-outline";
-              break;
-          }
+            switch (route.name) {
+              case "To Confirm":
+                iconName = "hourglass-outline";
+                break;
+              case "Preparing":
+                iconName = "cog-outline";
+                break;
+              case "Shipping":
+                iconName = "car-sharp";
+                break;
+              case "Pickup":
+                iconName = "logo-dropbox";
+                break;
+              case "For Return":
+                iconName = "return-up-back-outline";
+                break;
+              case "Returned":
+                iconName = "checkmark-circle-outline";
+                break;
+              case "To Rate":
+                iconName = "star-outline";
+                break;
+              case "Completed":
+                iconName = "checkmark-done-outline";
+                break;
+              case "Rejected":
+                iconName = "close-circle-sharp";
+                break;
+              default:
+                iconName = "ellipse-outline";
+                break;
+            }
 
-          return (
-            <View style={{ alignItems: "center" }}>
-              <Icon name={iconName} size={25} color={color} />
-            </View>
-          );
-        },
-        tabBarShowLabel: true,
-        tabBarActiveTintColor: "#00B215",
-        tabBarInactiveTintColor: "gray",
-        tabBarStyle: { backgroundColor: "white" },
-        tabBarIndicatorStyle: {
-          backgroundColor: "#00B215",
-          height: 4,
-        },
-        tabBarLabel: ({ focused, color }) => (
-          <Text
-            style={{
-              color,
-              fontSize: 12,
-              fontWeight: focused ? "bold" : "normal",
-            }}
-          >
-            {route.name}
-          </Text>
-        ),
-      })}
-    >
-      <Tab.Screen name="To Confirm" options={{ tabBarLabel: "To Confirm" }}>
-        {() => <ToConfirmScreen orders={orders} orderProducts={orderProducts} />}
-      </Tab.Screen>
-      <Tab.Screen name="Preparing" options={{ tabBarLabel: "Preparing" }}>
-        {() => <PreparingScreen orders={orders} orderProducts={orderProducts} />}
-      </Tab.Screen>
-      <Tab.Screen name="Shipping" options={{ tabBarLabel: "Shipping" }}>
-        {() => <ShippingScreen orders={orders} orderProducts={orderProducts} />}
-      </Tab.Screen>
-      <Tab.Screen name="Pickup" options={{ tabBarLabel: "Pickup" }}>
-        {() => <PickupScreen orders={orders} orderProducts={orderProducts} />}
-      </Tab.Screen>
-      <Tab.Screen name="For Return" options={{ tabBarLabel: "For Return" }}>
-        {() => <ForReturnScreen orders={orders} orderProducts={orderProducts} />}
-      </Tab.Screen>
-      <Tab.Screen name="Returned" options={{ tabBarLabel: "Returned" }}>
-        {() => <ReturnedScreen orders={orders} orderProducts={orderProducts} />}
-      </Tab.Screen>
-      <Tab.Screen name="To Rate" options={{ tabBarLabel: "To Rate" }}>
-        {() => <ToRateScreen orders={orders} orderProducts={orderProducts} />}
-      </Tab.Screen>
-      <Tab.Screen name="Completed" options={{ tabBarLabel: "Completed" }}>
-        {() => <CompletedScreen orders={orders} orderProducts={orderProducts} />}
-      </Tab.Screen>
-      <Tab.Screen name="Rejected" options={{ tabBarLabel: "Rejected" }}>
-        {() => <RejectedScreen orders={orders} orderProducts={orderProducts} />}
-      </Tab.Screen>
-    </Tab.Navigator>
-    <NavigationbarComponent/>
+            return (
+              <View style={{ alignItems: "center" }}>
+                <Icon name={iconName} size={25} color={color} />
+              </View>
+            );
+          },
+          tabBarShowLabel: true,
+          tabBarActiveTintColor: "#00B215",
+          tabBarInactiveTintColor: "gray",
+          tabBarStyle: { backgroundColor: "white" },
+          tabBarIndicatorStyle: {
+            backgroundColor: "#00B215",
+            height: 4,
+          },
+          tabBarLabel: ({ focused, color }) => (
+            <Text
+              style={{
+                color,
+                fontSize: 12,
+                fontWeight: focused ? "bold" : "normal",
+              }}
+            >
+              {route.name}
+            </Text>
+          ),
+        })}
+      >
+        <Tab.Screen name="To Confirm" options={{ tabBarLabel: "To Confirm" }}>
+          {() => <ToConfirmScreen orders={orders} orderProducts={orderProducts} />}
+        </Tab.Screen>
+        <Tab.Screen name="Preparing" options={{ tabBarLabel: "Preparing" }}>
+          {() => <PreparingScreen orders={orders} orderProducts={orderProducts} />}
+        </Tab.Screen>
+        <Tab.Screen name="Shipping" options={{ tabBarLabel: "Shipping" }}>
+          {() => <ShippingScreen orders={orders} orderProducts={orderProducts} />}
+        </Tab.Screen>
+        <Tab.Screen name="Pickup" options={{ tabBarLabel: "Pickup" }}>
+          {() => <PickupScreen orders={orders} orderProducts={orderProducts} />}
+        </Tab.Screen>
+        <Tab.Screen name="For Return" options={{ tabBarLabel: "For Return" }}>
+          {() => <ForReturnScreen orders={orders} orderProducts={orderProducts} />}
+        </Tab.Screen>
+        <Tab.Screen name="Returned" options={{ tabBarLabel: "Returned" }}>
+          {() => <ReturnedScreen orders={orders} orderProducts={orderProducts} />}
+        </Tab.Screen>
+        <Tab.Screen name="To Rate" options={{ tabBarLabel: "To Rate" }}>
+          {() => <ToRateScreen orders={orders} orderProducts={orderProducts} />}
+        </Tab.Screen>
+        <Tab.Screen name="Completed" options={{ tabBarLabel: "Completed" }}>
+          {() => <CompletedScreen orders={orders} orderProducts={orderProducts} />}
+        </Tab.Screen>
+        <Tab.Screen name="Rejected" options={{ tabBarLabel: "Rejected" }}>
+          {() => <RejectedScreen orders={orders} orderProducts={orderProducts} />}
+        </Tab.Screen>
+      </Tab.Navigator>
+      <NavigationbarComponent />
     </>
   );
 }

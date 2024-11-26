@@ -154,6 +154,7 @@ function CompareShopsScreen({ route }) {
 
   // Handle search filtering
   const handleSearch = (query) => {
+    setLoading(true)
     setSearchQuery(query);
 
     if (query.trim() === "") {
@@ -172,6 +173,7 @@ function CompareShopsScreen({ route }) {
 
       setFilteredData(searchResults);
     }
+    setLoading(false)
   };
 
   const sortOptions = [

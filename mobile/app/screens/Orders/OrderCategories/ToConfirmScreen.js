@@ -45,10 +45,10 @@ const ToConfirmScreen = ({ orders, orderProducts }) => {
   }
 
   return (
-    <SafeAreaView className="bg-gray-100">
+    <SafeAreaView className="bg-gray-100 pb-12">
       <ScrollView className="p-5">
         {toConfirmOrders.map((toConfirmOrder) => (
-          <View key={toConfirmOrder.order_id} className="p-4 mb-4 bg-white border border-[#00B251] rounded-lg shadow-md">
+          <View key={toConfirmOrder.order_id} className="p-4 mb-6 bg-white border border-[#00B251] rounded-lg shadow-md">
             <View className="flex-row items-center mb-2">
               <Ionicons name="alert-circle-outline" size={24} color="#FFA500" />
               <Text className="text-lg font-semibold text-gray-800 ml-2">Order to Confirm</Text>

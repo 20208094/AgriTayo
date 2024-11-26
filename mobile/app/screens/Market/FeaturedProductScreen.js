@@ -140,6 +140,7 @@ function FeaturedProductsScreen({ route }) {
 
   // Handle search filtering
   const handleSearch = (query) => {
+    setLoading(true)
     setSearchQuery(query);
 
     if (query.trim() === "") {
@@ -158,6 +159,7 @@ function FeaturedProductsScreen({ route }) {
 
       setFilteredData(searchResults);
     }
+    setLoading(false)
   };
 
   const sortOptions = [

@@ -187,8 +187,6 @@ function BusinessInformationScreen({ navigation, route }) {
       setAlertVisible2(true);
       return;
     }
-    setAlertMessage2("Form submitted successfully!");
-    setAlertVisible2(true);
 
     setAttemptedSubmit(true);
     if (!selectedBusinessInformation) {
@@ -212,7 +210,8 @@ function BusinessInformationScreen({ navigation, route }) {
       formData.append("shop_number", shopData.shop_number);
       formData.append("secondary_shop_number", shopData.secondary_shop_number)
       formData.append("delivery", shopData.delivery);
-      formData.append("delivery_price", shopData.delivery ? shopData.delivery_price : null);
+      formData.append("delivery_price_min", shopData.delivery ? shopData.delivery_price_min : null);
+      formData.append("delivery_price_max", shopData.delivery ? shopData.delivery_price_max : null);
       formData.append("pickup", shopData.pickup);
       formData.append("pickup_price", shopData.pickup ? shopData.pickup_price : null);
       formData.append("gcash", shopData.gcash);

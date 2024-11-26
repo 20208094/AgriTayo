@@ -48,7 +48,7 @@ const ToRateScreen = ({ orders, orderProducts }) => {
     <SafeAreaView className="bg-gray-100">
       <ScrollView className="p-5">
         {toRateOrders.map((toRateOrder) => (
-          <View key={toRateOrder.order_id} className="p-4 mb-4 bg-white border border-[#00B251] rounded-lg shadow-md">
+          <View key={toRateOrder.order_id} className="p-4 mb-6 bg-white border border-[#00B251] rounded-lg shadow-md">
             <View className="flex-row items-center mb-2">
               <Ionicons name="star-outline" size={24} color="#FFD700" />
               <Text className="text-lg font-semibold text-gray-800 ml-2">Order Details</Text>

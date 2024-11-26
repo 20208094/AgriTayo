@@ -161,7 +161,7 @@ function NegotiationBuyerScreen({ navigation, route }) {
   return (
     <StyledSafeAreaView className="flex-1 px-5 py-2 bg-white ">
       {/* Product Info */}
-      <StyledView className="mx-1 mb-2 p-3 bg-white rounded-lg shadow-lg border border-gray-400">
+      <StyledView className="mx-1 mb-2 p-3 bg-white rounded-lg shadow-lg border-2 border-green-600">
         <View className="w-full overflow-hidden rounded-2xl border-2 border-green-600">
           <Image
             source={product.crop_image_url ? { uri: product.crop_image_url } : placeholderimg}
@@ -183,17 +183,17 @@ function NegotiationBuyerScreen({ navigation, route }) {
         </Text>
 
         {/* Price */}
-        <Text className="text-lg font-semibold text-gray-800 mt-1">Price per Unit:</Text>
+        <Text className="text-lg font-semibold text-gray-800 mt-1">Original Price per Unit:</Text>
         <Text className="text-lg font-bold text-[#00B251] ml-4">
-          ₱{parseFloat(product.crop_price).toFixed(2)} / {product.metric.metric_system_symbol}
+          ₱{parseFloat(product.crop_price).toFixed(2)}/{product.metric.metric_system_symbol}
         </Text>
       </StyledView>
 
       {/* Price and Quantity Input */}
-      <StyledView className="mx-1 mb-2 p-3 py-2 bg-white rounded-lg shadow-lg border border-gray-400">
+      <StyledView className="mx-1 mb-2 p-3 py-2 bg-white rounded-lg shadow-lg border-2 border-green-600">
         <StyledView className="pb-3 mx-2 border-b-2 border-gray-500">
           <StyledText className="text-lg font-medium text-gray-800 mb-1">
-            Enter the Price:
+            Enter the Price per {product.metric.metric_system_name}:
           {priceError ? (
             <Text className="text-red-500 text-sm mt-2">
               {priceError}

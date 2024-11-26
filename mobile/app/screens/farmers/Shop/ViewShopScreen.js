@@ -27,7 +27,8 @@ function ViewShopScreen({ navigation }) {
   const [shopImage, setShopImage] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [modalVisible2, setModalVisible2] = useState(false);
-  const [shopDeliveryFee, setShopDeliveryFee] = useState("");
+  const [shopDeliveryFeeMin, setShopDeliveryFeeMin] = useState("");
+  const [shopDeliveryFeeMax, setShopDeliveryFeeMax] = useState("");
   const [pickupAreaFee, setPickUpAreaFee] = useState("");
   const [pickupAddress, setPickUpAddress] = useState("");
   const [userId, setUserId] = useState("");
@@ -66,12 +67,22 @@ function ViewShopScreen({ navigation }) {
       case "shopDescription":
         if (!value) errorMessage = " *Shop description cannot be empty.";
         break;
-      case "shopDeliveryFee":
+      case "shopDeliveryFeeMin":
         if (
           isCheckedDelivery &&
-          (!value || isNaN(value) || Number(value) < 0)
+          value &&
+          (!/^\d+$/.test(value) || value < 0)
         ) {
-          errorMessage = " *Delivery fee must be a valid number.";
+          errorMessage = "\n Minimum delivery fee must be a positive integer.";
+        }
+        break;
+      case "shopDeliveryFeeMax":
+        if (
+          isCheckedDelivery &&
+          value &&
+          (!/^\d+$/.test(value) || value < 0)
+        ) {
+          errorMessage = "\n Maximum delivery fee must be a positive integer.";
         }
         break;
       case "pickupAddress":
@@ -122,9 +133,13 @@ function ViewShopScreen({ navigation }) {
         setShopSecondaryNumber(value);
         validateField("shopSecondaryNumber", value);
         break;
-      case "shopDeliveryFee":
-        setShopDeliveryFee(value);
-        validateField("shopDeliveryFee", value);
+      case "shopDeliveryFeeMin":
+        setShopDeliveryFeeMin(value);
+        validateField("shopDeliveryFeeMin", value);
+        break;
+      case "shopDeliveryFeeMax":
+        setShopDeliveryFeeMax(value);
+        validateField("shopDeliveryFeeMax", value);
         break;
       case "pickupAddress":
         setPickUpAddress(value);
@@ -324,7 +339,8 @@ function ViewShopScreen({ navigation }) {
         setShopAddress(shop.shop_address);
         setShopDescription(shop.shop_description);
         setShopImage(shop.shop_image_url);
-        setShopDeliveryFee(String(shop.delivery_price));
+        setShopDeliveryFeeMin(String(shop.delivery_price_min));
+        setShopDeliveryFeeMax(String(shop.delivery_price_max));
         setPickUpAreaFee(String(shop.pickup_price));
         setIsCheckedPickup(shop.pickup);
         setIsCheckedDelivery(shop.delivery);
@@ -398,7 +414,8 @@ function ViewShopScreen({ navigation }) {
 
     formData.append("delivery", isCheckedDelivery);
     formData.append("pickup", isCheckedPickup);
-    formData.append("delivery_price", shopDeliveryFee);
+    formData.append("delivery_price_min", shopDeliveryFeeMin);
+    formData.append("delivery_price_max", shopDeliveryFeeMax);
     formData.append("pickup_address", pickupAddress);
     formData.append("pickup_price", pickupAreaFee);
     formData.append("gcash", isCheckedGcash);
@@ -583,7 +600,8 @@ function ViewShopScreen({ navigation }) {
             checked={isCheckedDelivery}
             onPress={() => {
               setIsCheckedDelivery(!isCheckedDelivery);
-              if (!isCheckedDelivery) setShopDeliveryFee(""); // Reset if unchecked
+              if (!isCheckedDelivery) setShopDeliveryFeeMin("");
+              if (!isCheckedDelivery) setShopDeliveryFeeMax("");
               handleShippingOptionCheck();
             }}
           />
@@ -591,20 +609,52 @@ function ViewShopScreen({ navigation }) {
             <>
               <Text className="text-sm mb-2 text-gray-800">
                 Delivery Fee:
-                {errors.shopDeliveryFee && (
+                {errors.shopDeliveryFeeMin && (
                   <Text className="text-red-500 mb-2">
-                    {errors.shopDeliveryFee}
+                    {errors.shopDeliveryFeeMin}
+                  </Text>
+                )}
+                {errors.shopDeliveryFeeMax && (
+                  <Text className="text-red-500 mb-2">
+                    {errors.shopDeliveryFeeMax}
                   </Text>
                 )}
               </Text>
-              <TextInput
-                keyboardType="numeric"
-                value={shopDeliveryFee}
-                onChangeText={(value) =>
-                  handleInputChange("shopDeliveryFee", value)
-                }
-                className="w-full p-2 mb-4 bg-white rounded-lg shadow-md text-gray-800"
-              />
+              <View className="flex-row justify-between w-screen">
+                <Text className="text-sm mb-2 text-gray-800 flex-1">
+                  Minimum:
+                </Text>
+                <Text className="text-sm mb-2 text-gray-800 flex-1">
+                  Maximum:
+                </Text>
+              </View>
+              <View className="flex-row">
+                <TextInput
+                  value={shopDeliveryFeeMin}
+                  onChangeText={(value) =>
+                    handleInputChange("shopDeliveryFeeMin", value)
+                  }
+                  className="w-2/5 p-2 mb-4 bg-white rounded-lg flex-1 shadow-md text-gray-800 border"
+                  placeholder="Enter delivery fee"
+                  keyboardType="numeric"
+                />
+                <View className="mt-2">
+                  <Ionicons
+                    name="remove-outline"
+                    size={24}
+                    color="black"
+                  />
+                </View>
+                <TextInput
+                  value={shopDeliveryFeeMax}
+                  onChangeText={(value) =>
+                    handleInputChange("shopDeliveryFeeMax", value)
+                  }
+                  className="w-2/5 p-2 mb-4 bg-white rounded-lg flex-1 shadow-md text-gray-800 border"
+                  placeholder="Enter delivery fee"
+                  keyboardType="numeric"
+                />
+              </View>
             </>
           )}
           <CustomCheckbox
@@ -753,7 +803,8 @@ function ViewShopScreen({ navigation }) {
               handleInputChange("shopName", shopName);
               handleInputChange("shopAddress", shopAddress);
               handleInputChange("shopDescription", shopDescription);
-              handleInputChange("shopDeliveryFee", shopDeliveryFee);
+              handleInputChange("shopDeliveryFeeMin", shopDeliveryFeeMin);
+              handleInputChange("shopDeliveryFeeMax", shopDeliveryFeeMax);
               handleInputChange("pickupAddress", pickupAddress);
               handleInputChange("pickupAreaFee", pickupAreaFee);
               validateField("shippingOption");
@@ -879,8 +930,8 @@ function ViewShopScreen({ navigation }) {
             <TouchableOpacity
               className="mt-4 p-2 bg-[#00B251] rounded-lg flex-row justify-center items-center"
               onPress={() => {
-                setAlertVisible3(false); 
-                navigation.navigate("My Shop"); 
+                setAlertVisible3(false);
+                navigation.navigate("My Shop");
               }}
             >
               <Ionicons

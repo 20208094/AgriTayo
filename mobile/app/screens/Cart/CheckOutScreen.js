@@ -124,15 +124,38 @@ function CheckOutScreen() {
 
   const renderTotalPrice = () => (
     <View className="mt-2 p-4 bg-white rounded-lg shadow border border-[#00b251]">
-      <Text className="text-lg font-bold text-gray-800">
-        Subtotal: ₱ {subtotal.toFixed(2)}
-      </Text>
-      <Text className="text-lg font-bold text-gray-800">
-        Shipping Fee: ₱ {shippingFee.toFixed(2)}
-      </Text>
-      <Text className="text-lg font-bold text-gray-800">
-        Total Price: ₱ {total.toFixed(2)}
-      </Text>
+      {
+        selectedShippingMethod === "Pickup" ? (
+          <>
+            <Text className="text-lg font-bold text-gray-800">
+              Subtotal: ₱ {subtotal.toFixed(2)}
+            </Text>
+            <Text className="text-lg font-bold text-gray-800">
+              Pickup Fee: ₱ {shippingFee.toFixed(2)}
+            </Text>
+            <Text className="text-lg font-bold text-gray-800">
+              Total Price: ₱ {total.toFixed(2)}
+            </Text>
+          </>
+        ) : (
+          <>
+            <Text className="text-lg font-bold text-gray-800">
+              Subtotal: ₱ {subtotal.toFixed(2)}
+            </Text>
+            <View className="flex-row items-center">
+              <Text className="text-lg font-bold text-gray-800">
+                Shipping Fee:
+              </Text>
+              <Text className="flex-1 ml-3 text-sm font-bold text-orange-600">
+                Confirm the exact amount with the seller.
+              </Text>
+            </View>
+            <Text className="text-lg font-bold text-gray-800">
+              Total Price: ₱ {total.toFixed(2)}
+            </Text>
+          </>
+        )
+      }
     </View>
   );
 
@@ -169,7 +192,7 @@ function CheckOutScreen() {
                 }
               />
               <Text className="text-gray-800 ml-2">
-                Delivery - ₱ {shopDetails.delivery_price.toFixed(2)}
+                Delivery - ₱{shopDetails.delivery_price_min.toFixed(2)}   to   ₱{shopDetails.delivery_price_max.toFixed(2)}
               </Text>
               <Text className="text-sm mb-2 text-gray-800">
               </Text>
@@ -385,15 +408,32 @@ function CheckOutScreen() {
               Payment: {selectedPaymentMethod}
             </Text>
             <Text className="px-2 mt-1">
-              Shipping: {selectedShippingMethod}
+              Shipping Method: {selectedShippingMethod}
             </Text>
-            <Text className="px-2 mt-1">
-              Shipping Fee: ₱ {shippingFee.toFixed(2)}
-            </Text>
-            <Text className="px-2 mt-1">Subtotal: ₱ {subtotal.toFixed(2)}</Text>
-            <Text className="px-2 mt-1 pb-1 border-b">
-              Total: ₱ {total.toFixed(2)}
-            </Text>
+            {
+              selectedShippingMethod === "Pickup" ? (
+                <>
+                  <Text className="px-2 mt-1 ">
+                    Pickup Fee: ₱ {shippingFee.toFixed(2)}
+                  </Text>
+                  <Text className="px-2 mt-1 pb-1 border-b font-bold">
+                    Overall Total: ₱ {total.toFixed(2)}
+                  </Text>
+                </>
+              ) : (
+                <>
+                <Text className="px-2 mt-1">
+                  Delivery Address:
+                </Text>
+                <Text className="px-2 mt-1 ml-4">
+                  {checkOutAddress}
+                </Text>
+                <Text className="px-2 mt-1 pb-1 border-b font-bold">
+                  Overall Total: ₱ {total.toFixed(2)}
+                </Text>
+                </>
+              )
+            }
             <TouchableOpacity
               className="bg-[#00b251] py-3 rounded-lg justify-center items-center mt-4"
               onPress={handleSubmit}

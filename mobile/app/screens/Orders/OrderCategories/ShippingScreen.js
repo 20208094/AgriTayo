@@ -139,7 +139,7 @@ const ShippingScreen = ({ orders, orderProducts }) => {
     <SafeAreaView className="bg-gray-100">
       <ScrollView className="p-5">
         {shippingOrders.map((shippingOrder) => (
-          <View key={shippingOrder.order_id} className="p-4 mb-4 bg-white border border-[#00B251] rounded-lg shadow-md">
+          <View key={shippingOrder.order_id} className="p-4 mb-6 bg-white border border-[#00B251] rounded-lg shadow-md">
             <View className="flex-row items-center mb-2">
               <Ionicons name="airplane-outline" size={24} color="#32CD32" />
               <Text className="text-lg font-semibold text-gray-800 ml-2">Order On The Way</Text>
