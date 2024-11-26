@@ -154,7 +154,7 @@ function ViewShopScreen({ navigation }) {
       const response = await fetch(imageUri);
       const blob = await response.blob();
       const sizeInMB = blob.size / (1024 * 1024); // Convert bytes to MB
-  
+
       if (sizeInMB > MAX_IMAGE_SIZE_MB) {
         setAlertMessage(
           `The selected image is too large (${sizeInMB.toFixed(
@@ -164,7 +164,7 @@ function ViewShopScreen({ navigation }) {
         setAlertVisible(true);
         return false;
       }
-  
+
       return true;
     } catch (error) {
       setAlertMessage("Failed to check image size. Please try again.");
@@ -172,7 +172,7 @@ function ViewShopScreen({ navigation }) {
       return false;
     }
   };
-  
+
   // Updated selectImageFromGallery function
   const selectImageFromGallery = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -183,16 +183,16 @@ function ViewShopScreen({ navigation }) {
       setAlertVisible(true);
       return;
     }
-  
+
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       quality: 1,
     });
-  
+
     if (!result.canceled) {
       const imageUri = result.assets[0].uri;
-  
+
       const isValidSize = await validateImageSize(imageUri);
       if (isValidSize) {
         setShopImage(imageUri);
@@ -200,7 +200,33 @@ function ViewShopScreen({ navigation }) {
       }
     }
   };
-  
+
+  const selectImageFromCamera = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== "granted") {
+      setAlertMessage("Sorry, we need camera permissions to make this work!");
+      setAlertVisible(true);
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      const imageUri = result.assets[0].uri;
+
+      const isValidSize = await validateImageSize(imageUri);
+      if (isValidSize) {
+        setShopImage(imageUri);
+        setModalVisible(false);
+      }
+    }
+  };
+
+
   // Updated selectBirImageFromGallery function
   const selectBirImageFromGallery = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -211,16 +237,16 @@ function ViewShopScreen({ navigation }) {
       setAlertVisible(true);
       return;
     }
-  
+
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       quality: 1,
     });
-  
+
     if (!result.canceled) {
       const imageUri = result.assets[0].uri;
-  
+
       const isValidSize = await validateImageSize(imageUri);
       if (isValidSize) {
         setBirCertificate(imageUri);
@@ -228,7 +254,37 @@ function ViewShopScreen({ navigation }) {
       }
     }
   };
-  
+
+  const selectBirImageFromCamera = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== "granted") {
+      setAlertMessage("Sorry, we need camera permissions to make this work!");
+      setAlertVisible(true);
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      const imageUri = result.assets[0].uri;
+
+      const isValidSize = await validateImageSize(imageUri);
+      if (isValidSize) {
+        setBirCertificate(imageUri);
+        setModalVisible2(false);
+      }
+    }
+  };
+
+  // Function to remove the selected image
+  const removeBirImage = () => {
+    setBirCertificate(null); // Clears the selected image
+  };
+
 
   const getAsyncUserData = async () => {
     try {
@@ -637,23 +693,35 @@ function ViewShopScreen({ navigation }) {
             your branch code if you don't have one (e.g. 999-999-000)
           </Text>
 
-          {/*BIR CERITIFICATE */}
+          {/* BIR CERTIFICATE */}
           <Text className="text-sm mb-2 text-gray-800">
             BIR Certificate of Registration{" "}
             <Text className="text-red-500 text-sm"></Text>
           </Text>
+
+          {/* Upload Button */}
           <TouchableOpacity
-            className="border border-dashed border-green-600 rounded-md p-4  flex-row justify-center items-center"
+            className="border border-dashed border-green-600 rounded-md p-4 flex-row justify-center items-center"
             onPress={() => setModalVisible2(true)}
           >
             <Text className="text-green-600">+ Upload </Text>
           </TouchableOpacity>
 
+          {/* Display Selected Image */}
           {birCertificate && (
-            <Image
-              source={{ uri: birCertificate }}
-              className="w-24 h-24 mb-4 mt-4"
-            />
+            <View className="relative mt-4 w-24 h-24">
+              <Image
+                source={{ uri: birCertificate }}
+                className="w-full h-full rounded"
+              />
+              {/* Remove Image Button Positioned as X */}
+              <TouchableOpacity
+                className="absolute -top-2 -right-2 bg-red-500 rounded-full w-5 h-5 justify-center items-center"
+                onPress={() => setBirCertificate(null)}
+              >
+                <Text className="text-white text-xs font-bold">X</Text>
+              </TouchableOpacity>
+            </View>
           )}
 
           <Text className="text-sm text-gray-500 mb-4">
@@ -695,63 +763,62 @@ function ViewShopScreen({ navigation }) {
       </ScrollView>
 
       {/* Modal for user gallery */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
+      <Modal visible={modalVisible} transparent={true} animationType="slide">
         <View className="flex-1 justify-center items-center bg-black/50">
-          <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
-            <Text className="text-lg font-semibold text-gray-900">
-              Update Profile Picture
+          <View className="bg-white p-6 rounded-lg">
+            <Text className="text-lg font-semibold mb-4">
+              Select Image Source
             </Text>
             <TouchableOpacity
-              className="mt-4 p-4 bg-green-500 rounded-lg flex-row justify-center items-center"
+              className="mb-4 p-4 bg-[#00B251] rounded-lg"
               onPress={selectImageFromGallery}
             >
-              <Ionicons name="image-outline" size={24} color="white" />
-              <Text className="text-lg text-white ml-2">
-                Select from Gallery
+              <Text className="text-white text-center">
+                Choose from Gallery
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              className="mt-4 p-4 bg-red-500 rounded-lg flex-row justify-center items-center"
+              className="mb-4 p-4 bg-[#00B251] rounded-lg"
+              onPress={selectImageFromCamera}
+            >
+              <Text className="text-white text-center">Take a Photo</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              className="p-4 bg-red-500 rounded-lg"
               onPress={() => setModalVisible(false)}
             >
-              <Ionicons name="close-outline" size={24} color="white" />
-              <Text className="text-lg text-white ml-2">Cancel</Text>
+              <Text className="text-white text-center">Cancel</Text>
             </TouchableOpacity>
           </View>
         </View>
       </Modal>
 
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible2}
-        onRequestClose={() => setModalVisible2(false)}
-      >
+
+      <Modal visible={modalVisible2} transparent={true} animationType="slide">
         <View className="flex-1 justify-center items-center bg-black/50">
-          <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
-            <Text className="text-lg font-semibold text-gray-900">
-              Update Picture
+          <View className="bg-white p-6 rounded-lg">
+            <Text className="text-lg font-semibold mb-4">
+              Select Image Source
             </Text>
             <TouchableOpacity
-              className="mt-4 p-4 bg-[#00B251] rounded-lg flex-row justify-center items-center"
+              className="mb-4 p-4 bg-[#00B251] rounded-lg"
               onPress={selectBirImageFromGallery}
             >
-              <Ionicons name="image-outline" size={24} color="white" />
-              <Text className="text-lg text-white ml-2">
-                Select from Gallery
+              <Text className="text-white text-center">
+                Choose from Gallery
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              className="mt-4 p-4 bg-red-500 rounded-lg flex-row justify-center items-center"
+              className="mb-4 p-4 bg-[#00B251] rounded-lg"
+              onPress={selectBirImageFromCamera}
+            >
+              <Text className="text-white text-center">Take a Photo</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              className="p-4 bg-red-500 rounded-lg"
               onPress={() => setModalVisible2(false)}
             >
-              <Ionicons name="close-outline" size={24} color="white" />
-              <Text className="text-lg text-white ml-2">Cancel</Text>
+              <Text className="text-white text-center">Cancel</Text>
             </TouchableOpacity>
           </View>
         </View>

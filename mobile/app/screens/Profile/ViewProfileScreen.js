@@ -111,13 +111,6 @@ function ViewProfileScreen({ route, navigation }) {
         setErrors((prev) => ({ ...prev, birthday: error }));
         break;
 
-      case "gender":
-        setGender(value);
-        if (!value) {
-          error = "* Gender is required";
-        }
-        setErrors((prev) => ({ ...prev, gender: error }));
-        break;
 
       default:
         break;
@@ -135,20 +128,18 @@ function ViewProfileScreen({ route, navigation }) {
       { field: "phone", value: phone },
       { field: "secondaryPhoneNumber", value: secondaryPhoneNumber },
       { field: "birthday", value: birthday },
-      { field: "gender", value: gender },
     ];
-  
+
     let isValid = true;
-  
+
     fieldsToValidate.forEach(({ field, value }) => {
       if (!validateField(field, value)) {
         isValid = false;
       }
     });
-  
+
     return isValid;
   };
-  
 
 
   const MAX_IMAGE_SIZE_MB = 1; // Maximum allowed image size (1 MB)
@@ -178,13 +169,11 @@ function ViewProfileScreen({ route, navigation }) {
     }
   };
 
-  // Updated selectImageFromGallery function
+  // Function to select an image from the gallery
   const selectImageFromGallery = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
-      setAlertMessage(
-        "Sorry, we need camera roll permissions to make this work!"
-      );
+      setAlertMessage("Sorry, we need camera roll permissions to make this work!");
       setAlertVisible(true);
       return;
     }
@@ -205,6 +194,33 @@ function ViewProfileScreen({ route, navigation }) {
       }
     }
   };
+
+  // Function to capture an image using the camera
+  const selectImageFromCamera = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== "granted") {
+      setAlertMessage("Sorry, we need camera permissions to make this work!");
+      setAlertVisible(true);
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      const imageUri = result.assets[0].uri;
+
+      const isValidSize = await validateImageSize(imageUri);
+      if (isValidSize) {
+        setProfileImage(imageUri);
+        setModalVisible(false);
+      }
+    }
+  };
+
 
 
   // Handle form submission
@@ -453,36 +469,36 @@ function ViewProfileScreen({ route, navigation }) {
       </ScrollView>
 
       {/* Modal for user gallery */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <View className="flex-1 justify-center items-center bg-black/50 bg-opacity-50">
-          <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
-            <Text className="text-lg font-semibold text-gray-900">
-              Update Profile Picture
+      <Modal visible={modalVisible} transparent={true} animationType="slide">
+        <View className="flex-1 justify-center items-center bg-black/50">
+          <View className="bg-white p-6 rounded-lg">
+            <Text className="text-lg font-semibold mb-4">
+              Select Image Source
             </Text>
             <TouchableOpacity
-              className="mt-4 p-4 bg-green-500 rounded-lg flex-row justify-center items-center"
+              className="mb-4 p-4 bg-[#00B251] rounded-lg"
               onPress={selectImageFromGallery}
             >
-              <Ionicons name="image-outline" size={24} color="white" />
-              <Text className="text-lg text-white ml-2">
-                Select from Gallery
+              <Text className="text-white text-center">
+                Choose from Gallery
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              className="mt-4 p-4 bg-red-500 rounded-lg flex-row justify-center items-center"
+              className="mb-4 p-4 bg-[#00B251] rounded-lg"
+              onPress={selectImageFromCamera}
+            >
+              <Text className="text-white text-center">Take a Photo</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              className="p-4 bg-red-500 rounded-lg"
               onPress={() => setModalVisible(false)}
             >
-              <Ionicons name="close-outline" size={24} color="white" />
-              <Text className="text-lg text-white ml-2">Cancel</Text>
+              <Text className="text-white text-center">Cancel</Text>
             </TouchableOpacity>
           </View>
         </View>
       </Modal>
+
 
       {/* Alert Modal */}
       <Modal

@@ -35,6 +35,7 @@ function FarmersProductDetailScreen({ route, navigation }) {
   const [alertMessage, setAlertMessage] = useState("");
 
   const [modalVisible, setModalVisible] = useState(false);
+  const [modalVisible2, setModalVisible2] = useState(false);
 
   // for user inputs
   const [cropDescription, setCropDescription] = useState(
@@ -46,9 +47,9 @@ function FarmersProductDetailScreen({ route, navigation }) {
     String(product.crop_quantity)
   );
 
-const [minimumNegotiation, setMinimumNegotiation] = useState(String(product.minimum_negotiation))
+  const [minimumNegotiation, setMinimumNegotiation] = useState(String(product.minimum_negotiation))
 
-const [isEnabled, setIsEnabled] = useState(product.negotiation_allowed);
+  const [isEnabled, setIsEnabled] = useState(product.negotiation_allowed);
   const toggleSwitch = () => setIsEnabled(previousState => !previousState);
 
   const [loading, setLoading] = useState(true);
@@ -61,7 +62,7 @@ const [isEnabled, setIsEnabled] = useState(product.negotiation_allowed);
       const response = await fetch(imageUri);
       const blob = await response.blob();
       const sizeInMB = blob.size / (1024 * 1024); // Convert bytes to MB
-  
+
       if (sizeInMB > MAX_IMAGE_SIZE_MB) {
         setAlertMessage(
           `The selected image is too large (${sizeInMB.toFixed(
@@ -71,7 +72,7 @@ const [isEnabled, setIsEnabled] = useState(product.negotiation_allowed);
         setAlertVisible(true);
         return false;
       }
-  
+
       return true;
     } catch (error) {
       setAlertMessage("Failed to check image size. Please try again.");
@@ -79,36 +80,61 @@ const [isEnabled, setIsEnabled] = useState(product.negotiation_allowed);
       return false;
     }
   };
-  
-  // Handle image picking and validation
-  const handleImagePick = async () => {
+
+  // Handle image selection from gallery
+  const handleImagePickFromGallery = async () => {
     const { status } = await MediaLibrary.requestPermissionsAsync();
     if (status !== "granted") {
       setAlertMessage("Permission to access camera roll denied");
       setAlertVisible(true);
       return;
     }
-  
-    let result = await ImagePicker.launchImageLibraryAsync({
+
+    const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [4, 3],
       quality: 0.5,
     });
-  
+
     if (!result.canceled && result.assets && result.assets.length > 0) {
       const imageUri = result.assets[0].uri;
-  
+
       // Validate the image size before proceeding
       const isValidSize = await validateImageSize(imageUri);
-      
       if (isValidSize) {
-        // If the image size is valid, set the image source
         setImageSource({ uri: imageUri });
+        setModalVisible2(false);
       }
     }
   };
 
+  // Handle image selection from camera
+  const handleImagePickFromCamera = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== "granted") {
+      setAlertMessage("Sorry, we need camera permissions to make this work!");
+      setAlertVisible(true);
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 1,
+    });
+
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      const imageUri = result.assets[0].uri;
+
+      // Validate the image size before proceeding
+      const isValidSize = await validateImageSize(imageUri);
+      if (isValidSize) {
+        setImageSource({ uri: imageUri });
+        setModalVisible2(false);
+      }
+    }
+  };
   // for crop category
   const [isClickedCategory, setIsClickedCategory] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(
@@ -359,10 +385,10 @@ const [isEnabled, setIsEnabled] = useState(product.negotiation_allowed);
       "crop_image",
       imageSource
         ? {
-            uri: imageSource.uri,
-            type: "image/jpeg",
-            name: "product-image.jpg",
-          }
+          uri: imageSource.uri,
+          type: "image/jpeg",
+          name: "product-image.jpg",
+        }
         : product.crop_image_url
     );
     formData.append("crop_price", parseFloat(cropPrice));
@@ -374,7 +400,7 @@ const [isEnabled, setIsEnabled] = useState(product.negotiation_allowed);
     formData.append(
       "sub_category_id",
       parseInt(selectedSubCategoryId) ||
-        product.subcategory.crop_sub_category_id
+      product.subcategory.crop_sub_category_id
     );
     formData.append(
       "crop_size_id",
@@ -438,7 +464,7 @@ const [isEnabled, setIsEnabled] = useState(product.negotiation_allowed);
             <>
               <View className="mb-4">
                 <TouchableOpacity
-                  onPress={handleImagePick}
+                  onPress={() => setModalVisible2(true)}
                   className="rounded-lg overflow-hidden shadow"
                 >
                   <Image
@@ -447,7 +473,7 @@ const [isEnabled, setIsEnabled] = useState(product.negotiation_allowed);
                   />
                 </TouchableOpacity>
               </View>
-              
+
 
               <View className="mb-4">
                 <Text className="text-sm mb-2 text-gray-800">
@@ -616,7 +642,7 @@ const [isEnabled, setIsEnabled] = useState(product.negotiation_allowed);
                 />
               </View>
 
-              
+
 
 
               <View className="mb-4">
@@ -660,39 +686,39 @@ const [isEnabled, setIsEnabled] = useState(product.negotiation_allowed);
               </View>
 
               {/* Negotiation Selector */}
-          <Text className='text-sm mb-2 text-gray-800'>Open for Negotiation?</Text>
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              marginVertical: 10,
-            }}
-          >
-            <Text>{isEnabled ? "Yes" : "No"}</Text>
-            <Switch
-              trackColor={{ false: "#767577", true: "#00b251" }}
-              thumbColor={isEnabled ? "#f5dd4b" : "#f4f3f4"}
-              ios_backgroundColor="#3e3e3e"
-              onValueChange={toggleSwitch}
-              value={isEnabled}
-            />
-          </View>
-          {isEnabled && (
-            <>
-            <View className='mb-4'>
-            <Text className="text-sm mb-2 text-gray-800">
-              Crop Minimum Negotiation
-            </Text>
-            <TextInput
-              className="w-full p-2 bg-white rounded-lg shadow-md"
-              keyboardType="numeric"
-              placeholder="₱5"
-              value={minimumNegotiation}
-              onChangeText={setMinimumNegotiation}
-            />
-            </View>
-            </>
-          )}
+              <Text className='text-sm mb-2 text-gray-800'>Open for Negotiation?</Text>
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  marginVertical: 10,
+                }}
+              >
+                <Text>{isEnabled ? "Yes" : "No"}</Text>
+                <Switch
+                  trackColor={{ false: "#767577", true: "#00b251" }}
+                  thumbColor={isEnabled ? "#f5dd4b" : "#f4f3f4"}
+                  ios_backgroundColor="#3e3e3e"
+                  onValueChange={toggleSwitch}
+                  value={isEnabled}
+                />
+              </View>
+              {isEnabled && (
+                <>
+                  <View className='mb-4'>
+                    <Text className="text-sm mb-2 text-gray-800">
+                      Crop Minimum Negotiation
+                    </Text>
+                    <TextInput
+                      className="w-full p-2 bg-white rounded-lg shadow-md"
+                      keyboardType="numeric"
+                      placeholder="₱5"
+                      value={minimumNegotiation}
+                      onChangeText={setMinimumNegotiation}
+                    />
+                  </View>
+                </>
+              )}
 
               <View className="mb-4">
                 <Text className="text-sm mb-2 text-gray-800">
@@ -775,6 +801,34 @@ const [isEnabled, setIsEnabled] = useState(product.negotiation_allowed);
           )}
         </View>
       </ScrollView>
+      {/* Modal for Image Selection */}
+      <Modal visible={modalVisible2} transparent={true} animationType="slide">
+        <View className="flex-1 justify-center items-center bg-black/50">
+          <View className="bg-white p-6 rounded-lg">
+            <Text className="text-lg font-semibold mb-4">
+              Select Image Source
+            </Text>
+            <TouchableOpacity
+              className="mb-4 p-4 bg-[#00B251] rounded-lg"
+              onPress={handleImagePickFromGallery}
+            >
+              <Text className="text-white text-center">Choose from Gallery</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              className="mb-4 p-4 bg-[#00B251] rounded-lg"
+              onPress={handleImagePickFromCamera}
+            >
+              <Text className="text-white text-center">Take a Photo</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              className="p-4 bg-red-500 rounded-lg"
+              onPress={() => setModalVisible2(false)}
+            >
+              <Text className="text-white text-center">Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
       {/* Alert Modal */}
       <Modal
         animationType="fade"

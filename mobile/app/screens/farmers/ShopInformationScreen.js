@@ -40,8 +40,6 @@ function ShopInformationScreen({ route, navigation }) {
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
 
-  const MAX_IMAGE_SIZE_MB = 5; // Set maximum allowed image size (5 MB)
-
   const shopNameRegex = /^[A-Za-z\s]{2,}$/;
   const addressRegex = /^[A-Za-z0-9\s,'-]{10,}$/;
   const phone_regex = /^(?:\+63|0)?9\d{9}$/;
@@ -135,9 +133,35 @@ function ShopInformationScreen({ route, navigation }) {
   };
 
 
+  const MAX_IMAGE_SIZE_MB = 1; // Maximum allowed image size (1 MB)
+
+  const validateImageSize = async (imageUri) => {
+    try {
+      const response = await fetch(imageUri);
+      const blob = await response.blob();
+      const sizeInMB = blob.size / (1024 * 1024); // Convert bytes to MB
+
+      if (sizeInMB > MAX_IMAGE_SIZE_MB) {
+        setAlertMessage(
+          `The selected image is too large (${sizeInMB.toFixed(
+            2
+          )} MB). Please choose an image smaller than ${MAX_IMAGE_SIZE_MB} MB.`
+        );
+        setAlertVisible(true);
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      setAlertMessage("Failed to check image size. Please try again.");
+      setAlertVisible(true);
+      return false;
+    }
+  };
+
+  // Function to pick an image from the gallery
   const pickImage = async () => {
-    const permissionResult =
-      await ImagePicker.requestMediaLibraryPermissionsAsync();
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permissionResult.granted) {
       setAlertMessage(
         "Permission Required, Permission to access the gallery is required."
@@ -153,29 +177,40 @@ function ShopInformationScreen({ route, navigation }) {
     });
 
     if (!result.canceled) {
-      // Check the file size
       const imageUri = result.assets[0].uri;
 
-      try {
-        const response = await fetch(imageUri);
-        const blob = await response.blob();
-        const sizeInMB = blob.size / (1024 * 1024); // Convert bytes to MB
-
-        if (sizeInMB > MAX_IMAGE_SIZE_MB) {
-          setAlertMessage(
-            `The selected image is too large (${sizeInMB.toFixed(
-              2
-            )} MB). Please choose an image smaller than ${MAX_IMAGE_SIZE_MB} MB.`
-          );
-          setAlertVisible(true);
-          return;
-        }
-
+      const isValidSize = await validateImageSize(imageUri);
+      if (isValidSize) {
         setShopImage(imageUri);
         setModalVisible(false);
-      } catch (error) {
-        setAlertMessage("Failed to check image size. Please try again.");
-        setAlertVisible(true);
+      }
+    }
+  };
+
+  // Function to capture an image using the camera
+  const captureImage = async () => {
+    const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+    if (!permissionResult.granted) {
+      setAlertMessage(
+        "Permission Required, Permission to access the camera is required."
+      );
+      setAlertVisible(true);
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 1, // Full quality
+    });
+
+    if (!result.canceled) {
+      const imageUri = result.assets[0].uri;
+
+      const isValidSize = await validateImageSize(imageUri);
+      if (isValidSize) {
+        setShopImage(imageUri);
+        setModalVisible(false);
       }
     }
   };
@@ -568,33 +603,41 @@ function ShopInformationScreen({ route, navigation }) {
 
       {/* Modal for image picker */}
       <Modal
-        animationType="slide"
-        transparent={true}
         visible={modalVisible}
-        onRequestClose={() => {
-          setModalVisible(!modalVisible);
-        }}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setModalVisible(false)}
       >
         <View className="flex-1 justify-center items-center bg-black/50">
-          <View className="bg-white rounded-lg p-8 w-5/6">
-            <Text className="text-lg font-bold mb-4">Select Image Source</Text>
+          <View className="bg-white p-6 rounded-lg w-11/12 max-w-md shadow-lg">
+            <Text className="text-lg font-bold mb-4 text-center text-[#00B251]">
+              Upload Shop Image
+            </Text>
+            {/* Choose from Gallery */}
             <TouchableOpacity
-              className="mb-4 p-2 bg-green-600 rounded-lg"
+              className="bg-[#00B251] p-3 rounded-lg mb-4"
               onPress={pickImage}
             >
-              <Text className="text-white text-center">
-                Choose from Gallery
-              </Text>
+              <Text className="text-white text-center">Choose from Gallery</Text>
             </TouchableOpacity>
+            {/* Capture from Camera */}
             <TouchableOpacity
-              className="p-2 bg-gray-400 rounded-lg"
+              className="bg-[#00B251] p-3 rounded-lg"
+              onPress={captureImage}
+            >
+              <Text className="text-white text-center">Capture from Camera</Text>
+            </TouchableOpacity>
+            {/* Cancel */}
+            <TouchableOpacity
+              className="bg-gray-300 p-3 rounded-lg mt-4"
               onPress={() => setModalVisible(false)}
             >
-              <Text className="text-white text-center">Cancel</Text>
+              <Text className="text-black text-center">Cancel</Text>
             </TouchableOpacity>
           </View>
         </View>
       </Modal>
+
 
       {/* Alert Modal */}
       <Modal

@@ -137,6 +137,29 @@ function AddProductScreen({ navigation }) {
     }
   };
 
+  const selectImageFromCamera = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== "granted") {
+      setAlertMessage("Sorry, we need camera permissions to make this work!");
+      setAlertVisible(true);
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      const isValidSize = await validateImageSize(result.assets[0].uri);
+      if (isValidSize) {
+        setCropImage(result.assets[0].uri);
+        setModalVisible(false);
+      }
+    }
+
+  };
 
   const removeImage = () => {
     setCropImage(null);
@@ -1524,7 +1547,7 @@ function AddProductScreen({ navigation }) {
 
       {/* Modal for Image Selection */}
       <Modal visible={modalVisible} transparent={true} animationType="slide">
-        <View className="flex-1 justify-center items-center bg-black/50 ">
+        <View className="flex-1 justify-center items-center bg-black/50">
           <View className="bg-white p-6 rounded-lg">
             <Text className="text-lg font-semibold mb-4">
               Select Image Source
@@ -1538,6 +1561,12 @@ function AddProductScreen({ navigation }) {
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
+              className="mb-4 p-4 bg-[#00B251] rounded-lg"
+              onPress={selectImageFromCamera}
+            >
+              <Text className="text-white text-center">Take a Photo</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
               className="p-4 bg-red-500 rounded-lg"
               onPress={() => setModalVisible(false)}
             >
@@ -1546,6 +1575,7 @@ function AddProductScreen({ navigation }) {
           </View>
         </View>
       </Modal>
+
       <Modal
         animationType="fade"
         transparent={true}

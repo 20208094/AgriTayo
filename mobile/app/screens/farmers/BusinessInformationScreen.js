@@ -77,6 +77,32 @@ function BusinessInformationScreen({ navigation, route }) {
 
   const MAX_IMAGE_SIZE_MB = 1; // Maximum allowed image size (1 MB)
 
+  // Helper function to validate image size
+  const validateImageSize = async (imageUri) => {
+    try {
+      const response = await fetch(imageUri);
+      const blob = await response.blob();
+      const sizeInMB = blob.size / (1024 * 1024); // Convert bytes to MB
+
+      if (sizeInMB > MAX_IMAGE_SIZE_MB) {
+        setAlertMessage2(
+          `The selected image is too large (${sizeInMB.toFixed(
+            2
+          )} MB). Please choose an image smaller than ${MAX_IMAGE_SIZE_MB} MB.`
+        );
+        setAlertVisible2(true);
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      setAlertMessage2("Failed to check image size. Please try again.");
+      setAlertVisible2(true);
+      return false;
+    }
+  };
+
+  // Function to select an image from the gallery
   const selectImageFromGallery = async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permissionResult.granted) {
@@ -94,26 +120,36 @@ function BusinessInformationScreen({ navigation, route }) {
     if (!result.canceled) {
       const imageUri = result.assets[0].uri;
 
-      try {
-        const response = await fetch(imageUri);
-        const blob = await response.blob();
-        const sizeInMB = blob.size / (1024 * 1024); // Convert bytes to MB
-
-        if (sizeInMB > MAX_IMAGE_SIZE_MB) {
-          setAlertMessage2(
-            `The selected image is too large (${sizeInMB.toFixed(
-              2
-            )} MB). Please choose an image smaller than ${MAX_IMAGE_SIZE_MB} MB.`
-          );
-          setAlertVisible2(true);
-          return;
-        }
-
+      const isValidSize = await validateImageSize(imageUri);
+      if (isValidSize) {
         setBirCertificate(imageUri);
         setModalVisible(false);
-      } catch (error) {
-        setAlertMessage2("Failed to check image size. Please try again.");
-        setAlertVisible2(true);
+      }
+    }
+  };
+
+  // Function to capture an image using the camera
+  const selectImageFromCamera = async () => {
+    const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+    if (!permissionResult.granted) {
+      setAlertMessage2("Permission Required", "Permission to access the camera is required.");
+      setAlertVisible2(true);
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 1, // Full quality
+    });
+
+    if (!result.canceled) {
+      const imageUri = result.assets[0].uri;
+
+      const isValidSize = await validateImageSize(imageUri);
+      if (isValidSize) {
+        setBirCertificate(imageUri);
+        setModalVisible(false);
       }
     }
   };
@@ -307,9 +343,13 @@ function BusinessInformationScreen({ navigation, route }) {
 
 
             <Text className="text-lg font-semibold text-green-600">
-              BIR Certificate of Registration <Text className="text-red-500 text-sm">* {attemptedSubmit && errors.birCertificate && (
-                <Text className="text-sm w-4/5 text-red-500 mb-4">{errors.birCertificate}</Text>
-              )}
+              BIR Certificate of Registration{" "}
+              <Text className="text-red-500 text-sm">
+                * {attemptedSubmit && errors.birCertificate && (
+                  <Text className="text-sm w-4/5 text-red-500 mb-4">
+                    {errors.birCertificate}
+                  </Text>
+                )}
               </Text>
             </Text>
             <TouchableOpacity
@@ -319,8 +359,20 @@ function BusinessInformationScreen({ navigation, route }) {
               <Text className="text-green-600">+ Upload</Text>
             </TouchableOpacity>
 
+            {/* Display Image with Close Positioned X Mark */}
             {birCertificate && (
-              <Image source={{ uri: birCertificate }} className="w-24 h-24 mb-4" />
+              <View className="relative mb-4 w-24 h-24">
+                <Image
+                  source={{ uri: birCertificate }}
+                  className="w-full h-full rounded"
+                />
+                <TouchableOpacity
+                  className="absolute -top-2 -right-2 bg-red-500 rounded-full w-5 h-5 justify-center items-center"
+                  onPress={() => setBirCertificate(null)}
+                >
+                  <Text className="text-white text-xs font-bold">X</Text>
+                </TouchableOpacity>
+              </View>
             )}
 
             <Text className="text-sm text-gray-500 mb-4">
@@ -364,20 +416,34 @@ function BusinessInformationScreen({ navigation, route }) {
 
       </ScrollView>
 
-      <Modal visible={modalVisible} animationType="slide" transparent={true}>
+      <Modal
+        visible={modalVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setModalVisible(false)}
+      >
         <View className="flex-1 justify-center items-center bg-black/50">
-          <View className="bg-white rounded-md p-4">
-            <Text className="text-lg font-semibold text-center mb-4">
-              Upload Image
+          <View className="bg-white p-6 rounded-lg w-11/12 max-w-md shadow-lg">
+            <Text className="text-lg font-bold mb-4 text-center text-[#00B251]">
+              Upload BIR Certificate
             </Text>
+            {/* Choose from Gallery */}
             <TouchableOpacity
-              className="bg-green-600 p-4 rounded-md mb-4"
+              className="bg-[#00B251] p-3 rounded-lg mb-4"
               onPress={selectImageFromGallery}
             >
-              <Text className="text-white text-center">Select from Gallery</Text>
+              <Text className="text-white text-center">Choose from Gallery</Text>
             </TouchableOpacity>
+            {/* Capture from Camera */}
             <TouchableOpacity
-              className="bg-gray-400 p-4 rounded-md"
+              className="bg-[#00B251] p-3 rounded-lg"
+              onPress={selectImageFromCamera}
+            >
+              <Text className="text-white text-center">Capture from Camera</Text>
+            </TouchableOpacity>
+            {/* Cancel */}
+            <TouchableOpacity
+              className="bg-gray-300 p-3 rounded-lg mt-4"
               onPress={() => setModalVisible(false)}
             >
               <Text className="text-black text-center">Cancel</Text>
@@ -385,6 +451,7 @@ function BusinessInformationScreen({ navigation, route }) {
           </View>
         </View>
       </Modal>
+
 
       {/* Alert Modal */}
       <Modal
