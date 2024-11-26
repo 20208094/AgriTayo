@@ -10,6 +10,7 @@ import {
   Image,
 } from "react-native";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
+import { useFocusEffect } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
 import Ionicons from "react-native-vector-icons/Ionicons";
 
@@ -17,6 +18,41 @@ function AddCropCategoryScreen({ navigation }) {
   const [cropCategoryName, setCropCategoryName] = useState("");
   const [cropCategoryDescription, setCropCategoryDescription] = useState("");
   const [cropImage, setCropImage] = useState(null);
+
+  // for sub category
+  const [cropSubCategoryName, setCropSubCategoryName] = useState("");
+  const [cropSubCategoryDescription, setCropSubCategoryDescription] =
+    useState("");
+
+  // for variety
+  const [cropVarietyName, setCropVarietyName] = useState("");
+  const [cropVarietyDescription, setCropVarietyDescription] = useState("");
+
+  const [categories, setCategories] = useState([]);
+  const [isClickedCategory, setIsClickedCategory] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState(
+    "Select Crop Category"
+  );
+  const [selectedCategoryId, setSelectedCategoryId] = useState(null);
+  const handleCategorySelect = (category) => {
+    setSelectedCategory(category.crop_category_name);
+    setSelectedCategoryId(category.crop_category_id);
+    setIsClickedCategory(false);
+    fetchSubCategories(category.crop_category_id);
+  };
+
+  const [subCategories, setSubCategories] = useState([]);
+  const [isClickedSubCategory, setIsclickedSubCategory] = useState(false);
+  const [selectedSubCategory, setSelectedSubCategory] = useState(
+    "Select Crop Sub Category"
+  );
+  const [selectedSubCategoryId, setSelectedSubCategoryId] = useState(null);
+  const handleSubCategorySelect = (subCategory) => {
+    setSelectedSubCategory(subCategory.crop_sub_category_name);
+    setSelectedSubCategoryId(subCategory.crop_sub_category_id);
+    setIsclickedSubCategory(false);
+  };
+
   const API_KEY = REACT_NATIVE_API_KEY;
   const [loading, setLoading] = useState(false);
 
@@ -105,6 +141,55 @@ function AddCropCategoryScreen({ navigation }) {
     setCropImage(null);
   };
 
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch(
+        `${REACT_NATIVE_API_BASE_URL}/api/crop_categories`,
+        {
+          headers: {
+            "x-api-key": API_KEY,
+          },
+        }
+      );
+      if (!response.ok) throw new Error("Network response was not ok");
+
+      const data = await response.json();
+      setCategories(data);
+    } catch (error) {
+      setAlertMessage(`Error fetching crop categories: ${error.message}`);
+      setAlertVisible(true);
+    }
+  };
+
+  const fetchSubCategories = async (categoryId) => {
+    try {
+      const response = await fetch(
+        `${REACT_NATIVE_API_BASE_URL}/api/crop_sub_categories`,
+        {
+          headers: {
+            "x-api-key": API_KEY,
+          },
+        }
+      );
+      if (!response.ok) throw new Error("Network response was not ok");
+
+      const data = await response.json();
+      const filteredData = data.filter(
+        (subCategory) => subCategory.crop_category_id === categoryId
+      );
+      setSubCategories(filteredData);
+    } catch (error) {
+      setAlertMessage(`Error fetching crop subcategories: ${error.message}`);
+      setAlertVisible(true);
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchCategories();
+    }, [])
+  );
+
   const handleAddCropCategory = async () => {
     const formData = new FormData();
     formData.append("crop_category_name", cropCategoryName);
@@ -112,17 +197,34 @@ function AddCropCategoryScreen({ navigation }) {
     if (cropImage) {
       formData.append("image", {
         uri: cropImage,
-        name: "shop.jpg",
+        name: "category_image.jpg",
         type: "image/jpeg",
       });
     }
-
+    formData.append("crop_sub_category_name", cropSubCategoryName)
+    if (cropImage) {
+      formData.append("subImage", {
+        uri: cropImage,
+        name: "subcategory_image.jpg",
+        type: "image/jpeg",
+      });
+    }
+    formData.append("crop_variety_name", cropVarietyName)
+    formData.append("crop_variety_description", cropVarietyDescription)
+    formData.append("crop_sub_category_id", selectedSubCategoryId)
+    if (cropImage) {
+      formData.append("varImage", {
+        uri: cropImage,
+        name: "variety_image.jpg",
+        type: "image/jpeg",
+      });
+    }
     try {
       setLoading(true);
       console.log("Submitting crop category data: ", formData);
 
       const response = await fetch(
-        `${REACT_NATIVE_API_BASE_URL}/api/crop_categories`,
+        `${REACT_NATIVE_API_BASE_URL}/api/crop_categories_app`,
         {
           method: "POST",
           headers: {
@@ -156,6 +258,9 @@ function AddCropCategoryScreen({ navigation }) {
     }
   };
 
+  console.log("selectedCategoryId: ", selectedCategoryId);
+console.log("selectedSubCategoryId: ", selectedSubCategoryId);
+
   return (
     <SafeAreaView className="bg-gray-100 flex-1">
       <ScrollView contentContainerStyle={{ paddingBottom: 80 }}>
@@ -183,6 +288,120 @@ function AddCropCategoryScreen({ navigation }) {
               onChangeText={setCropCategoryDescription}
               multiline
             />
+          </View>
+          <View className="mb-4">
+              <Text className="text-sm mb-2 text-gray-800">
+                Crop Sub Category Name
+              </Text>
+              <TextInput
+                className="w-full p-2  bg-white rounded-lg shadow-md"
+                placeholder="Potato"
+                value={cropSubCategoryName}
+                onChangeText={setCropSubCategoryName}
+                multiline
+              />
+            </View>
+            <View className="mb-4">
+              <Text className="text-sm mb-2 text-gray-800">
+                Crop Sub Category Description
+              </Text>
+              <TextInput
+                className="w-full p-2  bg-white rounded-lg shadow-md"
+                placeholder="Describe the crop you want to sell."
+                value={cropSubCategoryDescription}
+                onChangeText={setCropSubCategoryDescription}
+                multiline
+              />
+            </View>
+            {/* Category Selector */}
+          <View className="mb-4">
+            <Text className="text-sm mb-2 text-gray-800">Crop Category</Text>
+            <TouchableOpacity
+              className="flex-row items-center w-full p-2 bg-white rounded-lg shadow-md"
+              onPress={() => setIsClickedCategory(!isClickedCategory)}
+            >
+              <Text className="text-base text-gray-700 flex-1">
+                {selectedCategory}
+              </Text>
+              <Ionicons
+                name="chevron-down"
+                size={20}
+                color="gray"
+                className="ml-2"
+              />
+            </TouchableOpacity>
+            {isClickedCategory && (
+              <View className="w-full p-2 mb-4 bg-white rounded-lg shadow-md">
+                {categories.map((category) => (
+                  <TouchableOpacity
+                    key={category.crop_category_id}
+                    className="p-2"
+                    onPress={() => handleCategorySelect(category)}
+                  >
+                    <Text className="text-base">
+                      {category.crop_category_name}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
+          </View>
+          <View className="mb-4">
+            <Text className="text-sm mb-2 text-gray-800">
+              Crop Variety Name
+            </Text>
+            <TextInput
+              className="w-full p-2  bg-white rounded-lg shadow-md"
+              placeholder="Purple Potato"
+              value={cropVarietyName}
+              onChangeText={setCropVarietyName}
+              multiline
+            />
+          </View>
+          <View className="mb-4">
+            <Text className="text-sm mb-2 text-gray-800">
+              Crop Variety Description
+            </Text>
+            <TextInput
+              className="w-full p-2  bg-white rounded-lg shadow-md"
+              placeholder="Describe the crop you want to sell."
+              value={cropVarietyDescription}
+              onChangeText={setCropVarietyDescription}
+              multiline
+            />
+          </View>
+           {/* Sub-Category Selector */}
+           <View className="mb-4">
+            <Text className="text-sm mb-2 text-gray-800">Sub-Category</Text>
+            <TouchableOpacity
+              className="flex-row items-center w-full p-2 bg-white rounded-lg shadow-md"
+              onPress={() => setIsclickedSubCategory(!isClickedSubCategory)}
+            >
+              <Text className="text-base text-gray-700 flex-1">
+                {selectedSubCategory}
+              </Text>
+              <Ionicons
+                name="chevron-down"
+                size={20}
+                color="gray"
+                className="ml-2"
+              />
+            </TouchableOpacity>
+            {isClickedSubCategory && (
+              <View className="w-full p-2 mb-4 bg-white rounded-lg shadow-md">
+                {subCategories.map((subCategory) => (
+                  <TouchableOpacity
+                    key={subCategory.crop_sub_category_id}
+                    className="p-2"
+                    onPress={() => handleSubCategorySelect(subCategory)}
+                  >
+                    <Text className="text-base">
+                      {subCategory.crop_sub_category_name}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
           </View>
           <View className="mb-4">
             <Text className="text-sm mb-2 text-gray-800">
@@ -241,6 +460,7 @@ function AddCropCategoryScreen({ navigation }) {
               </View>
             </View>
           </Modal>
+
 
           {/* Add Product Button */}
           <TouchableOpacity

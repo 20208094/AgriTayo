@@ -56,7 +56,8 @@ const {
     getCropCategories,
     addCropCategory,
     updateCropCategory,
-    deleteCropCategory
+    deleteCropCategory,
+    addCropCategoryApp
 } = require('./supabase_connection/crud_services/crop_category');
 
 const {
@@ -173,7 +174,8 @@ const {
     getCropSubCategories,
     addCropSubCategory,
     updateCropSubCategory,
-    deleteCropSubCategory
+    deleteCropSubCategory,
+    addCropSubCategoryApp,
 } = require('./supabase_connection/crud_services/crop_sub_category.js');
 
 const {
@@ -322,6 +324,7 @@ app.get('/api/crop_categories', getCropCategories);
 app.post('/api/crop_categories', addCropCategory);
 app.put('/api/crop_categories/:id', updateCropCategory);
 app.delete('/api/crop_categories/:id', deleteCropCategory);
+app.post('/api/crop_categories_app', addCropCategoryApp)
 
 app.get('/api/crop_sizes', getCropSizes);
 app.post('/api/crop_sizes', addCropSize);
@@ -427,6 +430,7 @@ app.get('/api/crop_sub_categories', getCropSubCategories)
 app.post('/api/crop_sub_categories', addCropSubCategory);
 app.put('/api/crop_sub_categories/:id', updateCropSubCategory);
 app.delete('/api/crop_sub_categories/:id', deleteCropSubCategory);
+app.post('/api/crop_sub_categories_app', addCropSubCategoryApp)
 
 app.get('/api/review_images', getReviewImages)
 app.post('/api/review_images', addReviewImage);

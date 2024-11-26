@@ -30,7 +30,6 @@ const MarketCategoryCard = ({ cropCategory }) => {
     if (typeof crop_category_image_url === 'string' && crop_category_image_url.trim() !== '') {
       return { uri: crop_category_image_url };
     }
-    return logo; // Return default image if no valid URL
   };
 
   return (

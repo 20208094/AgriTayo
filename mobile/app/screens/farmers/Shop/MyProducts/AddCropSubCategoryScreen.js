@@ -16,7 +16,8 @@ import { useFocusEffect } from "@react-navigation/native";
 
 function AddCropSubCategoryScreen({ navigation }) {
   const [cropSubCategoryName, setCropSubCategoryName] = useState("");
-  const [cropSubCategoryDescription, setCropSubCategoryDescription] = useState("");
+  const [cropSubCategoryDescription, setCropSubCategoryDescription] =
+    useState("");
   const [cropImage, setCropImage] = useState(null);
   const API_KEY = REACT_NATIVE_API_KEY;
   const [loading, setLoading] = useState(false);
@@ -26,6 +27,9 @@ function AddCropSubCategoryScreen({ navigation }) {
 
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
+
+  const [cropVarietyName, setCropVarietyName] = useState("");
+  const [cropVarietyDescription, setCropVarietyDescription] = useState("");
 
   const [categories, setCategories] = useState([]);
   const [isClickedCategory, setIsClickedCategory] = useState(false);
@@ -37,33 +41,19 @@ function AddCropSubCategoryScreen({ navigation }) {
     setSelectedCategory(category.crop_category_name);
     setSelectedCategoryId(category.crop_category_id);
     setIsClickedCategory(false);
+    fetchSubCategories(category.crop_category_id);
   };
 
-  const MAX_IMAGE_SIZE_MB = 1; // Maximum allowed image size (1 MB)
-
-  // Helper function to validate image size
-  const validateImageSize = async (imageUri) => {
-    try {
-      const response = await fetch(imageUri);
-      const blob = await response.blob();
-      const sizeInMB = blob.size / (1024 * 1024); // Convert bytes to MB
-
-      if (sizeInMB > MAX_IMAGE_SIZE_MB) {
-        setAlertMessage(
-          `The selected image is too large (${sizeInMB.toFixed(
-            2
-          )} MB). Please choose an image smaller than ${MAX_IMAGE_SIZE_MB} MB.`
-        );
-        setAlertVisible(true);
-        return false;
-      }
-
-      return true;
-    } catch (error) {
-      setAlertMessage("Failed to check image size. Please try again.");
-      setAlertVisible(true);
-      return false;
-    }
+  const [subCategories, setSubCategories] = useState([]);
+  const [isClickedSubCategory, setIsclickedSubCategory] = useState(false);
+  const [selectedSubCategory, setSelectedSubCategory] = useState(
+    "Select Crop Sub Category"
+  );
+  const [selectedSubCategoryId, setSelectedSubCategoryId] = useState(null);
+  const handleSubCategorySelect = (subCategory) => {
+    setSelectedSubCategory(subCategory.crop_sub_category_name);
+    setSelectedSubCategoryId(subCategory.crop_sub_category_id);
+    setIsclickedSubCategory(false);
   };
 
   const selectImageFromGallery = async () => {
@@ -83,37 +73,9 @@ function AddCropSubCategoryScreen({ navigation }) {
     });
 
     if (!result.canceled) {
-      const isValidSize = await validateImageSize(result.assets[0].uri);
-      if (isValidSize) {
-        setCropImage(result.assets[0].uri);
-        setModalVisible(false);
-      }
+      setCropImage(result.assets[0].uri);
+      setModalVisible(false);
     }
-
-  };
-
-  const selectImageFromCamera = async () => {
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    if (status !== "granted") {
-      setAlertMessage("Sorry, we need camera permissions to make this work!");
-      setAlertVisible(true);
-      return;
-    }
-
-    const result = await ImagePicker.launchCameraAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      quality: 1,
-    });
-
-    if (!result.canceled) {
-      const isValidSize = await validateImageSize(result.assets[0].uri);
-      if (isValidSize) {
-        setCropImage(result.assets[0].uri);
-        setModalVisible(false);
-      }
-    }
-
   };
 
   const removeImage = () => {
@@ -140,23 +102,57 @@ function AddCropSubCategoryScreen({ navigation }) {
     }
   };
 
+  const fetchSubCategories = async (categoryId) => {
+    try {
+      const response = await fetch(
+        `${REACT_NATIVE_API_BASE_URL}/api/crop_sub_categories`,
+        {
+          headers: {
+            "x-api-key": API_KEY,
+          },
+        }
+      );
+      if (!response.ok) throw new Error("Network response was not ok");
+
+      const data = await response.json();
+      const filteredData = data.filter(
+        (subCategory) => subCategory.crop_category_id === categoryId
+      );
+      setSubCategories(filteredData);
+    } catch (error) {
+      setAlertMessage(`Error fetching crop subcategories: ${error.message}`);
+      setAlertVisible(true);
+    }
+  };
+
   useFocusEffect(
     useCallback(() => {
       fetchCategories();
     }, [])
   );
 
-
-
   const handleAddCropSubCategory = async () => {
     const formData = new FormData();
-    formData.append('crop_sub_category_name', cropSubCategoryName)
-    formData.append('crop_sub_category_description', cropSubCategoryDescription)
-    formData.append('crop_category_id', selectedCategoryId)
+    formData.append("crop_sub_category_name", cropSubCategoryName);
+    formData.append(
+      "crop_sub_category_description",
+      cropSubCategoryDescription
+    );
+    formData.append("crop_category_id", selectedCategoryId);
     if (cropImage) {
-      formData.append("image", {
+      formData.append("subImage", {
         uri: cropImage,
-        name: "shop.jpg",
+        name: "sub_category.jpg",
+        type: "image/jpeg",
+      });
+    }
+
+    formData.append("crop_variety_name", cropVarietyName);
+    formData.append("crop_variety_description", cropVarietyDescription);
+    if (cropImage) {
+      formData.append("varImage", {
+        uri: cropImage,
+        name: "crop_variety.jpg",
         type: "image/jpeg",
       });
     }
@@ -165,13 +161,16 @@ function AddCropSubCategoryScreen({ navigation }) {
       setLoading(true);
       console.log("Submitting crop sub category data: ", formData);
 
-      const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_sub_categories`, {
-        method: "POST",
-        headers: {
-          "x-api-key": API_KEY,
-        },
-        body: formData,
-      });
+      const response = await fetch(
+        `${REACT_NATIVE_API_BASE_URL}/api/crop_sub_categories_app`,
+        {
+          method: "POST",
+          headers: {
+            "x-api-key": API_KEY,
+          },
+          body: formData,
+        }
+      );
 
       const responseText = await response.text();
       console.log("Response Text: ", responseText);
@@ -195,7 +194,7 @@ function AddCropSubCategoryScreen({ navigation }) {
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   return (
     <SafeAreaView className="bg-gray-100 flex-1">
@@ -260,6 +259,63 @@ function AddCropSubCategoryScreen({ navigation }) {
           </View>
           <View className="mb-4">
             <Text className="text-sm mb-2 text-gray-800">
+              Crop Variety Name
+            </Text>
+            <TextInput
+              className="w-full p-2  bg-white rounded-lg shadow-md"
+              placeholder="Purple Potato"
+              value={cropVarietyName}
+              onChangeText={setCropVarietyName}
+              multiline
+            />
+          </View>
+          <View className="mb-4">
+            <Text className="text-sm mb-2 text-gray-800">
+              Crop Variety Description
+            </Text>
+            <TextInput
+              className="w-full p-2  bg-white rounded-lg shadow-md"
+              placeholder="Describe the crop you want to sell."
+              value={cropVarietyDescription}
+              onChangeText={setCropVarietyDescription}
+              multiline
+            />
+          </View>
+          {/* Sub-Category Selector */}
+          <View className="mb-4">
+            <Text className="text-sm mb-2 text-gray-800">Sub-Category</Text>
+            <TouchableOpacity
+              className="flex-row items-center w-full p-2 bg-white rounded-lg shadow-md"
+              onPress={() => setIsclickedSubCategory(!isClickedSubCategory)}
+            >
+              <Text className="text-base text-gray-700 flex-1">
+                {selectedSubCategory}
+              </Text>
+              <Ionicons
+                name="chevron-down"
+                size={20}
+                color="gray"
+                className="ml-2"
+              />
+            </TouchableOpacity>
+            {isClickedSubCategory && (
+              <View className="w-full p-2 mb-4 bg-white rounded-lg shadow-md">
+                {subCategories.map((subCategory) => (
+                  <TouchableOpacity
+                    key={subCategory.crop_sub_category_id}
+                    className="p-2"
+                    onPress={() => handleSubCategorySelect(subCategory)}
+                  >
+                    <Text className="text-base">
+                      {subCategory.crop_sub_category_name}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
+          </View>
+          <View className="mb-4">
+            <Text className="text-sm mb-2 text-gray-800">
               Crop Sub Category Image
             </Text>
             <TouchableOpacity
@@ -285,7 +341,11 @@ function AddCropSubCategoryScreen({ navigation }) {
             )}
           </View>
           {/* Modal for Image Selection */}
-          <Modal visible={modalVisible} transparent={true} animationType="slide">
+          <Modal
+            visible={modalVisible}
+            transparent={true}
+            animationType="slide"
+          >
             <View className="flex-1 justify-center items-center bg-black/50 ">
               <View className="bg-white p-6 rounded-lg">
                 <Text className="text-lg font-semibold mb-4">
@@ -300,12 +360,6 @@ function AddCropSubCategoryScreen({ navigation }) {
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  className="mb-4 p-4 bg-[#00B251] rounded-lg"
-                  onPress={selectImageFromCamera}
-                >
-                  <Text className="text-white text-center">Take a Photo</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
                   className="p-4 bg-red-500 rounded-lg"
                   onPress={() => setModalVisible(false)}
                 >
@@ -314,7 +368,6 @@ function AddCropSubCategoryScreen({ navigation }) {
               </View>
             </View>
           </Modal>
-
           {/* Add Product Button */}
           <TouchableOpacity
             className="bg-[#00B251] p-4 rounded-lg flex items-center mt-4"
