@@ -73,6 +73,8 @@ import EditPhoneNumberScreen from "./app/screens/Profile/EditPhoneNumberScreen";
 import EditSecondaryPhoneNumberScreen from "./app/screens/Profile/EditSecondaryPhoneNumberScreen";
 import OTPOnlyPhoneScreen from "./app/screens/Register/OTPOnlyPhoneScreen";
 import ShopOTPScreen from "./app/screens/farmers/ShopOTPScreen";
+import EditShopPhoneInformationScreen from "./app/screens/farmers/EditShopPhoneInformationScreen";
+import EditShopAlternativePhoneInformationScreen from "./app/screens/farmers/EditShopAlternativePhoneInformationScreen";
 // for farmers
 import ShopScreen from "./app/screens/farmers/Shop/ShopScreen";
 import ViewShopScreen from "./app/screens/farmers/Shop/ViewShopScreen";
@@ -631,6 +633,16 @@ function App() {
             <Stack.Screen
               name="Edit Phone Number"
               component={EditPhoneNumberScreen}
+              options={{ ...screenOptions}}
+            />
+            <Stack.Screen
+              name="Edit Shop Phone Information"
+              component={EditShopPhoneInformationScreen}
+              options={{ ...screenOptions}}
+            />
+            <Stack.Screen
+              name="Edit Shop Alternative Phone Information"
+              component={EditShopAlternativePhoneInformationScreen}
               options={{ ...screenOptions}}
             />
             <Stack.Screen

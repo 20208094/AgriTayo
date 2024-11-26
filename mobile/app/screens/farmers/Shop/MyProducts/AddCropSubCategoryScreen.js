@@ -8,7 +8,7 @@ import {
   Modal,
   ScrollView,
   Image,
-  Alert
+  Alert,
 } from "react-native";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 import * as ImagePicker from "expo-image-picker";
@@ -23,8 +23,8 @@ function AddCropSubCategoryScreen({ navigation }) {
   const API_KEY = REACT_NATIVE_API_KEY;
   const [loading, setLoading] = useState(false);
 
-  const [subCategoryList, setSubCategoryList] = useState([])
-  const [varietyList, setVarietyList] = useState([])
+  const [subCategoryList, setSubCategoryList] = useState([]);
+  const [varietyList, setVarietyList] = useState([]);
 
   const [modalVisible, setModalVisible] = useState(false);
   const [modalVisible1, setModalVisible1] = useState(false);
@@ -33,7 +33,6 @@ function AddCropSubCategoryScreen({ navigation }) {
   const [alertMessage, setAlertMessage] = useState("");
 
   const [cropVarietyName, setCropVarietyName] = useState("");
-  const [cropVarietyDescription, setCropVarietyDescription] = useState("");
 
   const [categories, setCategories] = useState([]);
   const [isClickedCategory, setIsClickedCategory] = useState(false);
@@ -45,19 +44,6 @@ function AddCropSubCategoryScreen({ navigation }) {
     setSelectedCategory(category.crop_category_name);
     setSelectedCategoryId(category.crop_category_id);
     setIsClickedCategory(false);
-    fetchSubCategories(category.crop_category_id);
-  };
-
-  const [subCategories, setSubCategories] = useState([]);
-  const [isClickedSubCategory, setIsclickedSubCategory] = useState(false);
-  const [selectedSubCategory, setSelectedSubCategory] = useState(
-    "Select Crop Sub Category"
-  );
-  const [selectedSubCategoryId, setSelectedSubCategoryId] = useState(null);
-  const handleSubCategorySelect = (subCategory) => {
-    setSelectedSubCategory(subCategory.crop_sub_category_name);
-    setSelectedSubCategoryId(subCategory.crop_sub_category_id);
-    setIsclickedSubCategory(false);
   };
 
   const selectImageFromGallery = async () => {
@@ -89,13 +75,16 @@ function AddCropSubCategoryScreen({ navigation }) {
   useEffect(() => {
     const fetchSubCategoryList = async () => {
       try {
-        const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_sub_categories`, {
-          headers: { "x-api-key": REACT_NATIVE_API_KEY },
-        });
+        const response = await fetch(
+          `${REACT_NATIVE_API_BASE_URL}/api/crop_sub_categories`,
+          {
+            headers: { "x-api-key": REACT_NATIVE_API_KEY },
+          }
+        );
         if (response.ok) {
           const data = await response.json();
           const subCategories = data.map((user) => user.crop_sub_category_name);
-          setSubCategoryList(categories);
+          setSubCategoryList(subCategories);
         } else {
           console.error("Failed to fetch phone numbers");
         }
@@ -110,9 +99,12 @@ function AddCropSubCategoryScreen({ navigation }) {
   useEffect(() => {
     const fetchVarietyList = async () => {
       try {
-        const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_varieties`, {
-          headers: { "x-api-key": REACT_NATIVE_API_KEY },
-        });
+        const response = await fetch(
+          `${REACT_NATIVE_API_BASE_URL}/api/crop_varieties`,
+          {
+            headers: { "x-api-key": REACT_NATIVE_API_KEY },
+          }
+        );
         if (response.ok) {
           const data = await response.json();
           const varieties = data.map((user) => user.crop_variety_name);
@@ -148,29 +140,6 @@ function AddCropSubCategoryScreen({ navigation }) {
     }
   };
 
-  const fetchSubCategories = async (categoryId) => {
-    try {
-      const response = await fetch(
-        `${REACT_NATIVE_API_BASE_URL}/api/crop_sub_categories`,
-        {
-          headers: {
-            "x-api-key": API_KEY,
-          },
-        }
-      );
-      if (!response.ok) throw new Error("Network response was not ok");
-
-      const data = await response.json();
-      const filteredData = data.filter(
-        (subCategory) => subCategory.crop_category_id === categoryId
-      );
-      setSubCategories(filteredData);
-    } catch (error) {
-      setAlertMessage(`Error fetching crop subcategories: ${error.message}`);
-      setAlertVisible(true);
-    }
-  };
-
   useFocusEffect(
     useCallback(() => {
       fetchCategories();
@@ -178,17 +147,33 @@ function AddCropSubCategoryScreen({ navigation }) {
   );
 
   const handleAddCropSubCategory = async () => {
-
-    if (subCategoryList && varietyList && subCategoryList.includes(cropSubCategoryName) && varietyList.includes(cropVarietyName)){
-      Alert.alert("", "Both subcategory, and variety names are already included in the app. \nPlease try again.")
+    if (
+      subCategoryList &&
+      varietyList &&
+      subCategoryList.includes(cropSubCategoryName) &&
+      varietyList.includes(cropVarietyName)
+    ) {
+      Alert.alert(
+        "",
+        "Both subcategory, and variety names are already included in the app. Please try again."
+      );
+      return;
     }
 
     if (subCategoryList && subCategoryList.includes(cropSubCategoryName)) {
-      Alert.alert("", "The subcategory name is already included in the app. \nPlease try again.")
+      Alert.alert(
+        "",
+        "The subcategory name is already included in the app. Please try again."
+      );
+      return;
     }
 
     if (varietyList && varietyList.includes(cropVarietyName)) {
-      Alert.alert("", "The variety name is already included in the app. \nPlease try again.")
+      Alert.alert(
+        "",
+        "The variety name is already included in the app. Please try again."
+      );
+      return;
     }
 
     const formData = new FormData();
@@ -201,21 +186,20 @@ function AddCropSubCategoryScreen({ navigation }) {
     if (cropImage) {
       formData.append("subImage", {
         uri: cropImage,
-        name: "sub_category.jpg",
+        name: "subcategory_image.jpg",
         type: "image/jpeg",
       });
     }
 
     formData.append("crop_variety_name", cropVarietyName);
-    formData.append("crop_variety_description", cropVarietyDescription);
+    formData.append("crop_variety_description", cropSubCategoryDescription);
     if (cropImage) {
       formData.append("varImage", {
         uri: cropImage,
-        name: "crop_variety.jpg",
+        name: "variety_image.jpg",
         type: "image/jpeg",
       });
     }
-
     try {
       setLoading(true);
       console.log("Submitting crop sub category data: ", formData);
@@ -271,10 +255,21 @@ function AddCropSubCategoryScreen({ navigation }) {
               multiline
             />
           </View>
+
           <View className="mb-4">
             <Text className="text-sm mb-2 text-gray-800">
-              Crop Sub Category Description
+              Crop Variety Name
             </Text>
+            <TextInput
+              className="w-full p-2  bg-white rounded-lg shadow-md"
+              placeholder="Purple Potato"
+              value={cropVarietyName}
+              onChangeText={setCropVarietyName}
+              multiline
+            />
+          </View>
+          <View className="mb-4">
+            <Text className="text-sm mb-2 text-gray-800">Crop Description</Text>
             <TextInput
               className="w-full p-2  bg-white rounded-lg shadow-md"
               placeholder="Describe the crop you want to sell."
@@ -310,63 +305,6 @@ function AddCropSubCategoryScreen({ navigation }) {
                   >
                     <Text className="text-base">
                       {category.crop_category_name}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            )}
-          </View>
-          <View className="mb-4">
-            <Text className="text-sm mb-2 text-gray-800">
-              Crop Variety Name
-            </Text>
-            <TextInput
-              className="w-full p-2  bg-white rounded-lg shadow-md"
-              placeholder="Purple Potato"
-              value={cropVarietyName}
-              onChangeText={setCropVarietyName}
-              multiline
-            />
-          </View>
-          <View className="mb-4">
-            <Text className="text-sm mb-2 text-gray-800">
-              Crop Variety Description
-            </Text>
-            <TextInput
-              className="w-full p-2  bg-white rounded-lg shadow-md"
-              placeholder="Describe the crop you want to sell."
-              value={cropVarietyDescription}
-              onChangeText={setCropVarietyDescription}
-              multiline
-            />
-          </View>
-          {/* Sub-Category Selector */}
-          <View className="mb-4">
-            <Text className="text-sm mb-2 text-gray-800">Sub-Category</Text>
-            <TouchableOpacity
-              className="flex-row items-center w-full p-2 bg-white rounded-lg shadow-md"
-              onPress={() => setIsclickedSubCategory(!isClickedSubCategory)}
-            >
-              <Text className="text-base text-gray-700 flex-1">
-                {selectedSubCategory}
-              </Text>
-              <Ionicons
-                name="chevron-down"
-                size={20}
-                color="gray"
-                className="ml-2"
-              />
-            </TouchableOpacity>
-            {isClickedSubCategory && (
-              <View className="w-full p-2 mb-4 bg-white rounded-lg shadow-md">
-                {subCategories.map((subCategory) => (
-                  <TouchableOpacity
-                    key={subCategory.crop_sub_category_id}
-                    className="p-2"
-                    onPress={() => handleSubCategorySelect(subCategory)}
-                  >
-                    <Text className="text-base">
-                      {subCategory.crop_sub_category_name}
                     </Text>
                   </TouchableOpacity>
                 ))}

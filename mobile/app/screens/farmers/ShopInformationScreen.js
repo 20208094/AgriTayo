@@ -79,14 +79,18 @@ function ShopInformationScreen({ route, navigation }) {
         break;
 
       case "shopDeliveryFee":
-        if (isCheckedDelivery && (value && (!/^\d+$/.test(value) || value <= 0))) {
+        if (
+          isCheckedDelivery &&
+          value &&
+          (!/^\d+$/.test(value) || value <= 0)
+        ) {
           error = "Delivery fee must be a positive integer.";
         }
         setShopDeliveryFee(value);
         break;
 
       case "pickupAreaFee":
-        if (isCheckedPickup && (value && (!/^\d+$/.test(value) || value <= 0))) {
+        if (isCheckedPickup && value && (!/^\d+$/.test(value) || value <= 0)) {
           error = "Pickup area fee must be a positive integer.";
         }
         setPickupAreaFee(value);
@@ -94,7 +98,8 @@ function ShopInformationScreen({ route, navigation }) {
 
       case "shopNumber":
         if (value && !phone_regex.test(value)) {
-          error = "Invalid phone number format. Please use 09 followed by 9 digits.";
+          error =
+            "Invalid phone number format. Please use 09 followed by 9 digits.";
         }
         setShopNumber(value);
 
@@ -115,9 +120,11 @@ function ShopInformationScreen({ route, navigation }) {
 
       case "secondaryShopNumber":
         if (value && !phone_regex.test(value)) {
-          error = "Invalid phone number format. Please use 09 followed by 9 digits.";
+          error =
+            "Invalid phone number format. Please use 09 followed by 9 digits.";
         } else if (value && shopNumber && value === shopNumber) {
-          error = "Same number as the phone number. Please input another number.";
+          error =
+            "Same number as the phone number. Please input another number.";
         }
         setSecondaryShopNumber(value);
         break;
@@ -132,34 +139,6 @@ function ShopInformationScreen({ route, navigation }) {
     }
   };
 
-
-  const MAX_IMAGE_SIZE_MB = 1; // Maximum allowed image size (1 MB)
-
-  const validateImageSize = async (imageUri) => {
-    try {
-      const response = await fetch(imageUri);
-      const blob = await response.blob();
-      const sizeInMB = blob.size / (1024 * 1024); // Convert bytes to MB
-
-      if (sizeInMB > MAX_IMAGE_SIZE_MB) {
-        setAlertMessage(
-          `The selected image is too large (${sizeInMB.toFixed(
-            2
-          )} MB). Please choose an image smaller than ${MAX_IMAGE_SIZE_MB} MB.`
-        );
-        setAlertVisible(true);
-        return false;
-      }
-
-      return true;
-    } catch (error) {
-      setAlertMessage("Failed to check image size. Please try again.");
-      setAlertVisible(true);
-      return false;
-    }
-  };
-
-  // Function to pick an image from the gallery
   const pickImage = async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permissionResult.granted) {
@@ -227,7 +206,10 @@ function ShopInformationScreen({ route, navigation }) {
       hasError = true;
     }
     if (!shopAddress) {
-      setErrors((prev) => ({ ...prev, shopAddress: "Shop address is required." }));
+      setErrors((prev) => ({
+        ...prev,
+        shopAddress: "Shop address is required.",
+      }));
       hasError = true;
     }
 
@@ -242,7 +224,10 @@ function ShopInformationScreen({ route, navigation }) {
     }
 
     if (!userData.phone_number) {
-      setErrors((prev) => ({ ...prev, shopNumber: "Shop number is required." }));
+      setErrors((prev) => ({
+        ...prev,
+        shopNumber: "Shop number is required.",
+      }));
       hasError = true;
     }
 
@@ -295,7 +280,9 @@ function ShopInformationScreen({ route, navigation }) {
     }
 
     if (hasError) {
-      setAlertMessage("Sorry, please fill up the forms correctly before continuing.");
+      setAlertMessage(
+        "Sorry, please fill up the forms correctly before continuing."
+      );
       setAlertVisible(true);
       return;
     }
@@ -320,22 +307,13 @@ function ShopInformationScreen({ route, navigation }) {
 
     console.log("shopData being passed:", shopData);
 
-    if (userData.secondary_phone_number) {
-      navigation.navigate("Shop Phones OTP", {
-        userData,
-        shopData,
-        shopNumber,
-        secondaryShopNumber,
-      });
-    } else {
-      navigation.navigate("Shop OTP", {
-        userData,
-        shopData,
-        shopNumber,
-      });
-    }
+    navigation.navigate("Business Information", {
+      userData,
+      shopData,
+      shopNumber,
+      secondaryShopNumber,
+    });
   };
-
 
   return (
     <SafeAreaView
@@ -411,8 +389,7 @@ function ShopInformationScreen({ route, navigation }) {
             placeholder="e.g., Flowers, Potted Plants (optional)"
           />
 
-          {/* Shop Number */}
-          <Text className="text-sm mb-2 text-[#00B251]">
+          {/* <Text className="text-sm mb-2 text-[#00B251]">
             Shop Phone Number: <Text className="text-red-500 text-sm">*</Text>
             {errors.shopNumber && (
               <Text className="text-red-500 mb-2">{errors.shopNumber}</Text>
@@ -424,9 +401,34 @@ function ShopInformationScreen({ route, navigation }) {
             className="w-full p-2 mb-4 bg-white rounded-lg shadow-md text-gray-800"
             placeholder="e.g., 09123456789"
             keyboardType="numeric"
-          />
+          /> */}
 
-          {/* Seecondary Shop Number */}
+          {/* Shop Number */}
+          <View className="relative w-full p-2 mb-4 bg-white rounded-lg shadow-md text-gray-800">
+            {/* Phone Number Text */}
+            <Text className="text-sm mb-2 text-gray-800">
+              Shop Phone Number:{" "}
+              {errors.shopNumber ? (
+                <Text className="text-red-500 text-xs mb-4">
+                  {errors.shopNumber}
+                </Text>
+              ) : null}
+            </Text>
+
+            <Text className="">{userData.phone_number}</Text>
+
+            {/* Pencil Icon on the Top Right */}
+            <TouchableOpacity
+              style={{ position: "absolute", top: 10, right: 10 }}
+              onPress={() =>
+                navigation.navigate("Edit Shop Phone Information", { userData })
+              }
+            >
+              <Ionicons name="pencil" size={20} color="gray" />
+            </TouchableOpacity>
+          </View>
+
+          {/* Seecondary Shop Number
           <Text className="text-sm mb-2 text-[#00B251]">
             Secondary Shop Phone Number: (optional)
             {errors.secondaryShopNumber && (
@@ -443,7 +445,34 @@ function ShopInformationScreen({ route, navigation }) {
             className="w-full p-2 mb-4 bg-white rounded-lg shadow-md text-gray-800"
             placeholder="e.g., 09123456789"
             keyboardType="numeric"
-          />
+          /> */}
+
+          {/* Alternative Shop Number */}
+          <View className="relative w-full p-2 mb-4 bg-white rounded-lg shadow-md text-gray-800">
+            {/* Alternative Phone Number Text */}
+            <Text className="text-sm mb-2 text-gray-800">
+              Alternative Shop Phone Number:{" "}
+              {errors.secondaryShopNumber ? (
+                <Text className="text-red-500 text-xs mb-4">
+                  {errors.secondaryShopNumber}
+                </Text>
+              ) : null}
+            </Text>
+
+            <Text className="">{userData.secondary_phone_number}</Text>
+
+            {/* Pencil Icon on the Top Right */}
+            <TouchableOpacity
+              style={{ position: "absolute", top: 10, right: 10 }}
+              onPress={() =>
+                navigation.navigate("Edit Shop Alternative Phone Information", {
+                  userData,
+                })
+              }
+            >
+              <Ionicons name="pencil" size={20} color="gray" />
+            </TouchableOpacity>
+          </View>
 
           {/* Delivery Checkbox */}
           <Text className="text-orange-500 text-sm">
@@ -474,9 +503,14 @@ function ShopInformationScreen({ route, navigation }) {
           {/* Delivery Fee */}
           {isCheckedDelivery && (
             <>
-              <Text className="text-sm mb-2 text-gray-800">Delivery Fee: {errors.shopDeliveryFee && (
-                <Text className="text-red-500 mb-2">*{errors.shopDeliveryFee}</Text>
-              )}</Text>
+              <Text className="text-sm mb-2 text-gray-800">
+                Delivery Fee:{" "}
+                {errors.shopDeliveryFee && (
+                  <Text className="text-red-500 mb-2">
+                    *{errors.shopDeliveryFee}
+                  </Text>
+                )}
+              </Text>
               <TextInput
                 value={shopDeliveryFee}
                 onChangeText={(value) =>
@@ -508,8 +542,12 @@ function ShopInformationScreen({ route, navigation }) {
           {isCheckedPickup && (
             <>
               <Text className="text-sm mb-2 text-gray-800">
-                Pickup Address: {errors.pickupAddress && (
-                  <Text className="text-red-500 mb-2"> *{errors.pickupAddress}</Text>
+                Pickup Address:{" "}
+                {errors.pickupAddress && (
+                  <Text className="text-red-500 mb-2">
+                    {" "}
+                    *{errors.pickupAddress}
+                  </Text>
                 )}
               </Text>
               <TextInput
@@ -522,8 +560,12 @@ function ShopInformationScreen({ route, navigation }) {
               />
 
               <Text className="text-sm mb-2 text-gray-800">
-                Pickup Area Fee:{" "} {errors.pickupAreaFee && (
-                  <Text className="text-red-500 mb-2"> *{errors.pickupAreaFee}</Text>
+                Pickup Area Fee:{" "}
+                {errors.pickupAreaFee && (
+                  <Text className="text-red-500 mb-2">
+                    {" "}
+                    *{errors.pickupAreaFee}
+                  </Text>
                 )}
               </Text>
               <TextInput
