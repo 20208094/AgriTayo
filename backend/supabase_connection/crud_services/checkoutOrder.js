@@ -77,6 +77,44 @@ async function checkoutOrder(req, res) {
       return res.status(500).json({ error: "Internal server error" });
     }
 
+    if (orderDetails.cartType === "cart" || orderDetails.cartType === "negotiate") {
+      // Update crop quantities after the order is placed
+      for (const item of items) {
+        const cropId = item.crop_id;
+        const orderedQuantity = item.cart_total_quantity;
+
+        // Fetch the current quantity of the crop from the "crops" table
+        const { data: cropData, error: cropError } = await supabase
+          .from("crops")
+          .select("crop_quantity")
+          .eq("crop_id", cropId)
+          .single();
+
+        if (cropError) {
+          console.error("Error fetching crop data:", cropError.message);
+          return res.status(500).json({ error: "Internal server error while fetching crop data" });
+        }
+
+        // If the crop exists, update its quantity
+        if (cropData && cropData.crop_quantity >= orderedQuantity) {
+          const updatedQuantity = Math.max(cropData.crop_quantity - orderedQuantity, 0);
+
+          const { error: updateError } = await supabase
+            .from("crops")
+            .update({ crop_quantity: updatedQuantity })
+            .eq("crop_id", cropId);
+
+          if (updateError) {
+            console.error("Error updating crop quantity:", updateError.message);
+            return res.status(500).json({ error: "Internal server error while updating crop quantity" });
+          }
+        } else {
+          console.error(`Insufficient quantity for crop_id ${cropId}`);
+          return res.status(400).json({ error: `Insufficient quantity for crop_id ${cropId}` });
+        }
+      }
+    }
+
     // Access the Socket.io instance
     const io = getIo();
 

@@ -312,6 +312,7 @@ function CheckOutScreen() {
     );
 
   const handleSubmit = async () => {
+    console.log('orderDetails :', orderDetails);
     const orderDetails = {
       items: checkedOutItems,
       shippingMethod: selectedShippingMethod,
