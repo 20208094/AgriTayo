@@ -1,277 +1,306 @@
-import React, { useState, useEffect } from "react";
-import {
-  SafeAreaView,
-  View,
-  Text,
-  Image,
-  TouchableOpacity,
-  ScrollView,
-  ActivityIndicator,
-  TextInput,
-  Modal,
-} from "react-native";
-import { useFocusEffect, useNavigation } from "@react-navigation/native";
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Ionicons, MaterialIcons } from '@expo/vector-icons'; // Import MaterialIcons for exclamation mark
-import michael from "../../../assets/ehh.png";
-import SearchBarC, {
-  NotificationIcon,
-  MessagesIcon,
-  MarketIcon,
-} from "../../../components/SearchBarC";
-import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
+  import React, { useState, useEffect } from "react";
+  import {
+    SafeAreaView,
+    View,
+    Text,
+    Image,
+    TouchableOpacity,
+    ScrollView,
+    ActivityIndicator,
+    TextInput,
+    Modal,
+  } from "react-native";
+  import { useFocusEffect, useNavigation } from "@react-navigation/native";
+  import AsyncStorage from '@react-native-async-storage/async-storage';
+  import { Ionicons, MaterialIcons } from '@expo/vector-icons'; // Import MaterialIcons for exclamation mark
+  import michael from "../../../assets/ehh.png";
+  import SearchBarC, {
+    NotificationIcon,
+    MessagesIcon,
+    MarketIcon,
+  } from "../../../components/SearchBarC";
+  import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 
 
-function SellerShopScreen({ route }) {
-  const { shop_id } = route.params;
-  const primaryColor = "#00B251";
-  const [selectedTab, setSelectedTab] = useState("Products");
-  const navigation = useNavigation();
-  const [shopData, setShopData] = useState(null);
-  const [cropData, setCropData] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [cropCategories, setCropCategories] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState(null);
-  const [cropSubCategories, setCropSubCategories] = useState([]);
-  const [selectedSubCategory, setSelectedSubCategory] = useState(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [userData, setUserData] = useState(null);
-  const [userId, setUserId] = useState(null);
-  const [isIncomplete, setIsIncomplete] = useState(false); 
-  const [modalVisible, setModalVisible] = useState(false); 
-  const [missingFields, setMissingFields] = useState([]); 
-  const [alertVisible, setAlertVisible] = useState(false);
-  const [alertMessage, setAlertMessage] = useState("");
-  const [filteredSubCategories, setFilteredSubCategories] = useState([]);
+  function SellerShopScreen({ route }) {
+    const { shop_id } = route.params;
+    const primaryColor = "#00B251";
+    const [selectedTab, setSelectedTab] = useState("Products");
+    const navigation = useNavigation();
+    const [shopData, setShopData] = useState(null);
+    const [cropData, setCropData] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [cropCategories, setCropCategories] = useState([]);
+    const [selectedCategory, setSelectedCategory] = useState(null);
+    const [cropSubCategories, setCropSubCategories] = useState([]);
+    const [selectedSubCategory, setSelectedSubCategory] = useState(null);
+    const [cropVarieties, setCropVarieties] = useState([]); // Stores crop varieties for the selected subcategory
+    const [selectedCropVariety, setSelectedCropVariety] = useState(null); // For selected crop variety
+    const [searchQuery, setSearchQuery] = useState("");
+    const [userData, setUserData] = useState(null);
+    const [userId, setUserId] = useState(null);
+    const [isIncomplete, setIsIncomplete] = useState(false); // Track if the shop is incomplete
+    const [modalVisible, setModalVisible] = useState(false); // State for modal visibility
+    const [missingFields, setMissingFields] = useState([]); // Track missing fields
 
-  const getAsyncUserData = async () => {
-    try {
-      const storedData = await AsyncStorage.getItem('userData');
-      if (storedData) {
-        const parsedData = JSON.parse(storedData);
-        if (Array.isArray(parsedData)) {
-          const user = parsedData[0];
-          setUserData(user);
-          setUserId(user.user_id);
-        } else {
-          setUserData(parsedData);
+    const [alertVisible, setAlertVisible] = useState(false);
+    const [alertMessage, setAlertMessage] = useState("");
+
+    const getAsyncUserData = async () => {
+      try {
+        const storedData = await AsyncStorage.getItem('userData');
+        if (storedData) {
+          const parsedData = JSON.parse(storedData);
+          if (Array.isArray(parsedData)) {
+            const user = parsedData[0];
+            setUserData(user);
+            setUserId(user.user_id);
+          } else {
+            setUserData(parsedData);
+          }
         }
+      } catch (error) {
+        console.error('Failed to load user data:', error);
       }
-    } catch (error) {
-      console.error('Failed to load user data:', error);
-    }
-  };
+    };
 
-  const fetchShopData = async () => {
-    try {
-      const shopResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/shops`, {
-        headers: {
-          "x-api-key": REACT_NATIVE_API_KEY,
-        },
-      });
-      const shopData = await shopResponse.json();
-      const shop = shopData.find((s) => s && s.shop_id === shop_id);
-      if (shop) {
-        setShopData(shop);
-        if (!shop.tin_number || !shop.bir_image_url) {
-          setIsIncomplete(true);
-          let missing = [];
-          if (!shop.tin_number) missing.push('TIN Number');
-          if (!shop.bir_image_url) missing.push('BIR Certificate');
-          setMissingFields(missing);
-        }
-      }
-    } catch (error) {
-      console.error("Error fetching shop data:", error);
-      setAlertMessage("Failed to load shop information.");
-      setAlertVisible(true);
-    }
-  };
-
-  const fetchCropSizes = async () => {
-    try {
-      const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_sizes`, {
-        headers: {
-          "x-api-key": REACT_NATIVE_API_KEY,
-        },
-      });
-      const cropSizesArray = await response.json();
-      return cropSizesArray.reduce((sizes, size) => {
-        sizes[size.crop_size_id] = size.crop_size_name;
-        return sizes;
-      }, {});
-    } catch (error) {
-      console.error("Error fetching crop sizes:", error);
-      return {};
-    }
-  };
-
-  const fetchCropData = async () => {
-    try {
-      setIsLoading(true);
-      const cropResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crops`, {
-        headers: {
-          "x-api-key": REACT_NATIVE_API_KEY,
-        },
-      });
-      const cropData = await cropResponse.json();
-      const crops = cropData.filter((c) => c && c.shop_id === shop_id);
-      const cropSizes = await fetchCropSizes();
-      const mergedCrops = crops.map(crop => ({
-        ...crop,
-        crop_size_name: cropSizes[crop.crop_size_id] || null,
-      }));
-      setCropData(mergedCrops);
-    } catch (error) {
-      console.error("Error fetching crop data:", error);
-      setAlertMessage("Failed to load crop information.");
-      setAlertVisible(true);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const fetchCropCategories = async () => {
-    try {
-      const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_categories`, {
-        headers: {
-          'x-api-key': REACT_NATIVE_API_KEY
-        }
-      });
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      const data = await response.json();
-      setCropCategories(data);
-    } catch (error) {
-      console.error('Error fetching crop categories:', error);
-    }
-  };
-
-  const fetchCropSubCategories = async (categoryId) => {
-    try {
-      const response = await fetch(
-        `${REACT_NATIVE_API_BASE_URL}/api/crop_sub_categories?category_id=${categoryId}`,
-        {
+    const fetchShopData = async () => {
+      try {
+        const shopResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/shops`, {
           headers: {
             "x-api-key": REACT_NATIVE_API_KEY,
           },
+        });
+        const shopData = await shopResponse.json();
+        const shop = shopData.find((s) => s && s.shop_id === shop_id);
+        if (shop) {
+          setShopData(shop);
+          // Check if required fields are missing
+          if (!shop.tin_number || !shop.bir_image_url) {
+            setIsIncomplete(true);
+            let missing = [];
+            if (!shop.tin_number) missing.push('TIN Number');
+            if (!shop.bir_image_url) missing.push('BIR Certificate');
+            setMissingFields(missing);
+          }
         }
-      );
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
+
+      } catch (error) {
+        console.error("Error fetching shop data:", error);
+        setAlertMessage("Failed to load shop information.");
+        setAlertVisible(true);
       }
-      const data = await response.json();
-      const filteredSubCategories = data.filter((subCategory) => subCategory.crop_category_id === categoryId);
-      setCropSubCategories(filteredSubCategories);
-    } catch (error) {
-      console.error('Error fetching crop subcategories:', error);
-    }
-  };
+    };
 
-  const fetchCropsBySubCategoryAndShop = async (subCategoryId) => {
-    try {
-      setIsLoading(true);
-      const cropResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crops?subcategory=${subCategoryId}&shop_id=${shop_id}`, {
-        headers: {
-          "x-api-key": REACT_NATIVE_API_KEY,
-        },
-      });
-      const cropsBySubCategory = await cropResponse.json();
-      const filteredCrops = cropsBySubCategory.filter((crop) => crop.sub_category_id === subCategoryId && crop.shop_id === shop_id);
-      const cropSizes = await fetchCropSizes();
-      const mergedCrops = filteredCrops.map(crop => ({
-        ...crop,
-        crop_size_name: cropSizes[crop.crop_size_id] || "Size Not available", 
-      }));
-      setCropData(mergedCrops); 
-    } catch (error) {
-      console.error("Error fetching crops by subcategory:", error);
-      setAlertMessage("Failed to load crop information for this subcategory.");
-      setAlertVisible(true);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  
-  const filterSubCategoriesWithCrops = () => {
-    return cropSubCategories.filter((subCategory) => {
-      return cropData.some(
-        (crop) =>
-          crop.sub_category_id === subCategory.crop_sub_category_id &&
-          crop.shop_id === shop_id
-      );
-    });
-  };
+    const fetchCropSizes = async () => {
+      try {
+        const cropSizesResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_sizes`, {
+          headers: {
+            "x-api-key": REACT_NATIVE_API_KEY,
+          },
+        });
+        const cropSizesData = await cropSizesResponse.json();
+        return cropSizesData.reduce((acc, size) => {
+          acc[size.crop_size_id] = size.crop_size_name;
+          return acc;
+        }, {});
+      } catch (error) {
+        console.error("Error fetching crop sizes:", error);
+        setAlertMessage("Failed to load crop sizes.");
+        setAlertVisible(true);
+        return {};
+      }
+    };
 
-  useEffect(() => {
-    if (selectedCategory) {
-      filterSubCategoriesWithCrops(selectedCategory.crop_category_id);
-    }
-  }, [selectedCategory, cropData]);
+    const fetchCropData = async () => {
+      try {
+        setIsLoading(true);
 
-  const filterItems = () => {
-    if (selectedTab === "Products") {
-      return cropData.filter((product) =>
-        product.crop_name.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    } else if (selectedTab === "Categories") {
-      if (!selectedCategory) {
-        return cropCategories.filter((category) =>
-          category.crop_category_name.toLowerCase().includes(searchQuery.toLowerCase())
+        // Fetch crops data
+        const cropResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crops`, {
+          headers: {
+            "x-api-key": REACT_NATIVE_API_KEY,
+          },
+        });
+        const cropData = await cropResponse.json();
+        const crops = cropData.filter((c) => c && c.shop_id === shop_id);
+
+        // Fetch crop sizes and merge with crops
+        const cropSizes = await fetchCropSizes();
+        const mergedCrops = crops.map(crop => ({
+          ...crop,
+          crop_size_name: cropSizes[crop.crop_size_id] || "Unknown Size", // Fallback if size is missing
+        }));
+
+        setCropData(mergedCrops); // Set merged data to state
+      } catch (error) {
+        console.error("Error fetching crop data:", error);
+        setAlertMessage("Failed to load crop information.");
+        setAlertVisible(true);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    const fetchCropCategories = async () => {
+      try {
+        const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_categories`, {
+          headers: {
+            'x-api-key': REACT_NATIVE_API_KEY
+          }
+        });
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        setCropCategories(data);
+      } catch (error) {
+        console.error('Error fetching crop categories:', error);
+      }
+    };
+
+    const fetchCropSubCategories = async (categoryId) => {
+      try {
+        const response = await fetch(
+          `${REACT_NATIVE_API_BASE_URL}/api/crop_sub_categories?category_id=${categoryId}`,
+          {
+            headers: {
+              "x-api-key": REACT_NATIVE_API_KEY,
+            },
+          }
         );
-      } else if (!selectedSubCategory) {
-        return cropSubCategories.filter((subCategory) =>
-          subCategory.crop_sub_category_name.toLowerCase().includes(searchQuery.toLowerCase())
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        const data = await response.json();
+        const filteredSubCategories = data.filter((subCategory) => subCategory.crop_category_id === categoryId);
+        setCropSubCategories(filteredSubCategories);
+      } catch (error) {
+        console.error('Error fetching crop subcategories:', error);
+      }
+    };
+
+    const fetchCropVarieties = async (subCategoryId) => {
+      try {
+        setIsLoading(true);
+        const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_varieties?sub_category_id=${subCategoryId}`,
+          {
+            headers: {
+              "x-api-key": REACT_NATIVE_API_KEY,
+            },
+          }
         );
-      } else {
+
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+
+        const data = await response.json();
+        const filteredCropVarieties = data.filter((cropVariety) => cropVariety.crop_sub_category_id === subCategoryId);
+        setCropVarieties(filteredCropVarieties);
+      } catch (error) {
+        console.error("Error fetching crop varieties:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+
+    const fetchCropsByCropVarietyAndShop = async (cropVarietyId) => {
+      try {
+        setIsLoading(true);
+        const cropResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crops?crop_variety_id=${cropVarietyId}&shop_id=${shop_id}`, {
+          headers: {
+            "x-api-key": REACT_NATIVE_API_KEY,
+          },
+        });
+        const cropData = await cropResponse.json();
+        const filteredCrops = cropData.filter((crop) => crop.crop_variety_id === cropVarietyId && crop.shop_id === shop_id);
+        setCropData(filteredCrops);
+      } catch (error) {
+        console.error("Error fetching crops:", error);
+        setAlertMessage("Failed to load crops.");
+        setAlertVisible(true);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    const filterItems = () => {
+      if (selectedTab === "Products") {
         return cropData.filter((product) =>
           product.crop_name.toLowerCase().includes(searchQuery.toLowerCase())
         );
-      }
-    }
-  };
-
-  useFocusEffect(
-    React.useCallback(() => {
-      fetchShopData();
-      if (selectedTab === "Products") {
-        fetchCropData();
       } else if (selectedTab === "Categories") {
-        fetchCropCategories();
+        if (!selectedCategory) {
+          return cropCategories.filter((category) =>
+            category.crop_category_name.toLowerCase().includes(searchQuery.toLowerCase())
+          );
+        } else if (!selectedSubCategory) {
+          return cropSubCategories.filter((subCategory) =>
+            subCategory.crop_sub_category_name.toLowerCase().includes(searchQuery.toLowerCase())
+          );
+        } else if (!selectedCropVariety) {
+          return cropVarieties.filter((cropVariety) =>
+            cropVariety.crop_variety_name.toLowerCase().includes(searchQuery.toLowerCase())
+          );
+        } else {
+          return cropData.filter((product) =>
+            product.crop_name.toLowerCase().includes(searchQuery.toLowerCase())
+          );
+        }
       }
-    }, [shop_id, selectedTab])
-  );
+    };
 
-  useFocusEffect(
-    React.useCallback(() => {
-      getAsyncUserData();
-    }, [])
-  );
+    useFocusEffect(
+      React.useCallback(() => {
+        fetchShopData();
+        if (selectedTab === "Products") {
+          fetchCropData();
+        } else if (selectedTab === "Categories") {
+          fetchCropCategories();
+        }
+      }, [shop_id, selectedTab])
+    );
 
-  React.useLayoutEffect(() => {
-    navigation.setOptions({
-      headerRight: () => (
-        <View style={{ flexDirection: "row", marginRight: 15 }}>
-          <MarketIcon onPress={() => navigation.navigate("CartScreen")} />
-          <NotificationIcon onPress={() => navigation.navigate("Notifications")} />
-          <MessagesIcon onPress={() => navigation.navigate("ChatListScreen")} />
-        </View>
-      ),
-    });
-  }, [navigation]);
+    useFocusEffect(
+      React.useCallback(() => {
+        getAsyncUserData();
+      }, [])
+    );
+
+    React.useLayoutEffect(() => {
+      navigation.setOptions({
+        headerRight: () => (
+          <View style={{ flexDirection: "row", marginRight: 15 }}>
+            <MarketIcon onPress={() => navigation.navigate("CartScreen")} />
+            <NotificationIcon onPress={() => navigation.navigate("Notifications")} />
+            <MessagesIcon onPress={() => navigation.navigate("ChatListScreen")} />
+          </View>
+        ),
+      });
+    }, [navigation]);
 
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
       <ScrollView>
         <View className="px-4 py-2">
-          {/* New Search Bar */}
           <TextInput
             value={searchQuery}
             onChangeText={setSearchQuery}
-            placeholder={`Search ${selectedTab === "Products" ? "products" : "categories, subcategories, or products"}`}
+            placeholder={`Search ${selectedTab === "Products"
+                ? "products"
+                : !selectedCategory
+                  ? "categories"
+                  : !selectedSubCategory
+                    ? "subcategories"
+                    : !selectedCropVariety
+                      ? "varieties"
+                      : "products"
+              }`}
             className="bg-white p-2 rounded-lg border border-gray-300"
           />
+
         </View>
 
         <View className="relative p-4 bg-gray-100">
@@ -413,10 +442,12 @@ function SellerShopScreen({ route }) {
               </View>
             ) : (
               <>
-                {(selectedCategory || selectedSubCategory) && (
+                {(selectedCategory || selectedSubCategory || selectedCropVariety) && (
                   <TouchableOpacity
                     onPress={() => {
-                      if (selectedSubCategory) {
+                      if (selectedCropVariety) {
+                        setSelectedCropVariety(null);
+                      } else if (selectedSubCategory) {
                         setSelectedSubCategory(null);
                       } else {
                         setSelectedCategory(null);
@@ -429,7 +460,7 @@ function SellerShopScreen({ route }) {
                   </TouchableOpacity>
                 )}
 
-                {/* Display categories, subcategories, or products */}
+                {/* Display categories, subcategories, variety or products */}
                 {!selectedCategory ? (
                   <View className="flex flex-wrap flex-row p-2">
                     {filterItems().map((category) => (
@@ -454,13 +485,13 @@ function SellerShopScreen({ route }) {
                   </View>
                 ) : !selectedSubCategory ? (
                   <View className="flex flex-wrap flex-row p-2">
-                    {filterSubCategoriesWithCrops().map((subCategory) => (
+                    {filterItems().map((subCategory) => (
                       <TouchableOpacity
                         key={subCategory.crop_sub_category_id}
                         className="w-1/2 p-2"
                         onPress={() => {
                           setSelectedSubCategory(subCategory);
-                          fetchCropsBySubCategoryAndShop(subCategory.crop_sub_category_id);
+                          fetchCropVarieties(subCategory.crop_sub_category_id);
                         }}
                       >
                         <View className="bg-white border border-white rounded-lg p-2">
@@ -471,52 +502,67 @@ function SellerShopScreen({ route }) {
                           />
                           <Text className="text-sm font-bold">{subCategory.crop_sub_category_name}</Text>
                         </View>
+                      </TouchableOpacity> 
+                    ))}
+                  </View>
+                ) : !selectedCropVariety ? (
+                  <View className="flex flex-wrap flex-row p-2">
+                    {filterItems().filter((cropVariety) => 
+                      cropData.some(crop => crop.crop_variety_id === cropVariety.crop_variety_id && crop.shop_id === shopData.shop_id)
+                    ).map((cropVariety) => (
+                      <TouchableOpacity
+                        key={cropVariety.crop_variety_id}
+                        className="w-1/2 p-2"
+                        onPress={() => {
+                          setSelectedCropVariety(cropVariety);
+                          fetchCropsByCropVarietyAndShop(cropVariety.crop_variety_id);
+                        }}
+                      >
+                        <View className="bg-white border border-white rounded-lg p-2">
+                          <Image
+                            source={{ uri: cropVariety.crop_variety_image_url }}
+                            className="w-full h-32 rounded-lg mb-2"
+                            resizeMode="cover"
+                          />
+                          <Text className="text-sm font-bold">{cropVariety.crop_variety_name}</Text>
+                        </View>
                       </TouchableOpacity>
                     ))}
                   </View>
                 ) : (
                   <View className="flex flex-wrap flex-row p-2">
-                    {Array.isArray(cropData) && cropData.length > 0 ? (
-                      cropData.map((product) => (
-                        <View key={product.crop_id} className="w-1/2 p-2">
-                          <View className="bg-white border border-white rounded-lg p-2">
-                            <TouchableOpacity
-                              onPress={() => navigation.navigate("Product Details", { product })}
-                              className="bg-white border border-white rounded-lg p-2"
-                            >
-                              <Image
-                                source={{ uri: product.crop_image_url }}
-                                className="w-full h-32 rounded-lg mb-2"
-                                resizeMode="cover"
-                              />
-                              <Text className="text-sm font-bold">{product.crop_name}</Text>
-                              <Text className="text-[#00B251] text-sm font-bold mt-1">
-                                ₱{product.crop_price}
+                    {cropData.map((product) => (
+                      <View key={product.crop_id} className="w-1/2 p-2">
+                        <View className="bg-white border border-white rounded-lg p-2">
+                          <TouchableOpacity
+                            onPress={() => navigation.navigate("Product Details", { product })}
+                            className="bg-white border border-white rounded-lg p-2"
+                          >
+                            <Image
+                              source={{ uri: product.crop_image_url }}
+                              className="w-full h-32 rounded-lg mb-2"
+                              resizeMode="cover"
+                            />
+                            <Text className="text-sm font-bold">{product.crop_name}</Text>
+                            <Text className="text-[#00B251] text-sm font-bold mt-1">₱{product.crop_price}</Text>
+
+                            <Text className="text-xs text-gray-500 mt-1">{shopData?.shop_name}</Text>
+                            <Text className="text-xs text-gray-500">Class: {product.crop_class}</Text>
+                            {product.crop_size_name && (
+                              <Text className="text-xs text-gray-500">Size: {product.crop_size_name}</Text>
+                            )}
+                            <Text className="text-xs text-gray-500">Stock: {product.crop_quantity}</Text>
+                            {product.negotiation_allowed ? (
+                              <Text className="text-xs text-green-500 mt-1">
+                                Negotiable (Min: ₱{product.minimum_negotation})
                               </Text>
-                              <Text className="text-xs text-gray-500 mt-1">{shopData?.shop_name}</Text>
-                              {product.crop_class && (
-                                <Text className="text-xs text-gray-500 mt-1">Class: {product.crop_class}</Text>
-                              )}
-                              {product.crop_size_name ? (
-                                <Text className="text-xs text-gray-500">Size: {product.crop_size_name}</Text>
-                              ) : (
-                                <Text className="text-xs text-gray-500">Size: Not available</Text>
-                              )}
-                              <Text className="text-xs text-gray-500">Stock: {product.crop_quantity}</Text>
-                              {product.negotiation_allowed ? (
-                                <Text className="text-xs text-green-500 mt-1">
-                                  Negotiable (Min: ₱{product.minimum_negotation})
-                                </Text>
-                              ) : (
-                                <Text className="text-xs text-red-500 mt-1">Non-negotiable</Text>
-                              )}
-                            </TouchableOpacity>
-                          </View>
+                            ) : (
+                              <Text className="text-xs text-red-500 mt-1">Non-negotiable</Text>
+                            )}
+                          </TouchableOpacity>
                         </View>
-                      ))
-                    ) : (
-                      <Text className="text-center">No products found.</Text>
-                    )}
+                      </View>
+                    ))}
                   </View>
                 )}
               </>
