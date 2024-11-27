@@ -161,44 +161,94 @@ function EditAlternativeNumberPage() {
 
     if (loading) {
         return (
-            <p className=''>Loading</p>
+            <div className="flex justify-center items-center min-h-screen">
+                <p className="text-lg text-green-600">Loading...</p>
+            </div>
         )
     }
 
     return (
-        <div>
-            <h1>Phone Number</h1>
-            <input
-                type="text"
-                placeholder="09123456789"
-                value={newSecondaryPhone}
-                onChange={e => setNewSecondaryPhone(e.target.value)}
-                disabled={isClicked}
-            />
-            {phoneError && <p>{phoneError}</p>}
-            {!isClicked && (
-                <button onClick={handleConfirm}>
-                    Confirm
-                </button>
-            )}
-            {isClicked && (
-                <>
-                    <p>Enter your 6-digit code:</p>
-                    <input
-                        type="text"
-                        value={otp}
-                        onChange={e => setOtp(e.target.value)}
-                        placeholder="123456"
-                    />
-                    {otpError && <p>{otpError}</p>}
-                    <button onClick={handleOtp}>Submit</button>
-                    <p>- Didn’t receive the code?</p>
-                    <button onClick={handleResend} disabled={!isResendEnabled}>
-                        Resend
-                    </button>
-                    {seconds > 0 && <p>- OTP expires in {formatTime(seconds)}</p>}
-                </>
-            )}
+        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
+            <div className="bg-white shadow-md rounded-lg p-6 max-w-md w-full">
+                <h1 className="text-2xl font-bold text-center text-green-600 mb-6">
+                    Edit Alternative Phone Number
+                </h1>
+                
+                <div className="space-y-4">
+                    <div className="mb-4">
+                        <input
+                            type="text"
+                            placeholder="09123456789"
+                            value={newSecondaryPhone}
+                            onChange={e => setNewSecondaryPhone(e.target.value)}
+                            disabled={isClicked}
+                            className={`w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-green-600 transition-colors
+                                ${isClicked ? 'bg-gray-100' : 'bg-white'}`}
+                        />
+                        {phoneError && (
+                            <p className="text-red-500 text-sm mt-1">{phoneError}</p>
+                        )}
+                    </div>
+
+                    {!isClicked && (
+                        <button
+                            onClick={handleConfirm}
+                            className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors font-medium"
+                        >
+                            Confirm
+                        </button>
+                    )}
+
+                    {isClicked && (
+                        <div className="space-y-4">
+                            <div className="text-center">
+                                <p className="text-gray-700 font-medium mb-2">
+                                    Enter your 6-digit code:
+                                </p>
+                                <input
+                                    type="text"
+                                    value={otp}
+                                    onChange={e => setOtp(e.target.value)}
+                                    placeholder="123456"
+                                    maxLength="6"
+                                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-green-600 text-center text-lg tracking-wider"
+                                />
+                                {otpError && (
+                                    <p className="text-red-500 text-sm mt-1">{otpError}</p>
+                                )}
+                            </div>
+
+                            <button
+                                onClick={handleOtp}
+                                className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors font-medium"
+                            >
+                                Submit
+                            </button>
+
+                            <div className="text-center space-y-2">
+                                <p className="text-gray-600">
+                                    Didn't receive the code?
+                                </p>
+                                <button
+                                    onClick={handleResend}
+                                    disabled={!isResendEnabled}
+                                    className={`w-full py-2 rounded-lg transition-colors font-medium
+                                        ${isResendEnabled 
+                                            ? 'bg-green-100 text-green-600 hover:bg-green-200' 
+                                            : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}
+                                >
+                                    Resend
+                                </button>
+                                {seconds > 0 && (
+                                    <p className="text-gray-500 text-sm">
+                                        OTP expires in {formatTime(seconds)}
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
         </div>
     );
 }

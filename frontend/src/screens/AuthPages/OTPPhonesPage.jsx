@@ -209,81 +209,80 @@ function OTPPhonesPage() {
 
     console.log(formData)
     return (
-        <>
-            <div className=''>
-                <div className=''>
-                    <h1 className=''>Verify Your Phone Number</h1>
-                </div>
-                <div className=''>
-                    <p className=''> A 6-digit code has been sent to {formData.phone_number}</p>
-                </div>
-                <div className=''>
-                    <input className=''
-                        type='text'
-                        placeholder='123456'
-                        value={phoneNumber}
-                        onChange={(e) => setPhoneNumber(e.target.value)}
-                    />
-                </div>
-                {otpError ? (
-                    <p>{otpError}</p>
-                ) : null}
-                <div className=''>
-                    <p className=''>- Didn’t receive the code?</p>
-                    <button
-                        onClick={isResendEnabled ? handleResend : null}
-                        disabled={isResendEnabled}
-                        className={`text-${isResendEnabled ? "green-500" : "gray-400"} ${isResendEnabled ? "cursor-pointer" : "cursor-not-allowed"
-                            }`}
-                    >
-                        Resend
+        <div className="otp-container">
+            <div className="otp-card">
+                <div className="otp-content">
+                    <h1 className="otp-header">Verify Your Phone Numbers</h1>
+                    
+                    {/* First Phone Number Section */}
+                    <div className="otp-section">
+                        <p className="otp-instructions">
+                            A 6-digit code has been sent to <span className="phone-number">{formData.phone_number}</span>
+                        </p>
+                        <div className="input-group">
+                            <input 
+                                className="otp-input"
+                                type="text"
+                                placeholder="Enter 6-digit code"
+                                maxLength="6"
+                                value={phoneNumber}
+                                onChange={(e) => setPhoneNumber(e.target.value)}
+                            />
+                            {otpError && <p className="otp-error">{otpError}</p>}
+                        </div>
+                        <div className="resend-section">
+                            <span className="resend-text">Didn't receive the code?</span>
+                            <button
+                                onClick={isResendEnabled ? handleResend : null}
+                                disabled={!isResendEnabled}
+                                className="resend-button"
+                            >
+                                Resend
+                            </button>
+                        </div>
+                        {seconds > 0 && (
+                            <p className="otp-timer">Code expires in {formatTime(seconds)}</p>
+                        )}
+                    </div>
+
+                    {/* Second Phone Number Section */}
+                    <div className="otp-section">
+                        <p className="otp-instructions">
+                            A 6-digit code has been sent to <span className="phone-number">{formData.secondary_phone_number}</span>
+                        </p>
+                        <div className="input-group">
+                            <input 
+                                className="otp-input"
+                                type="text"
+                                placeholder="Enter 6-digit code"
+                                maxLength="6"
+                                value={secondaryPhoneNumber}
+                                onChange={(e) => setSecondaryPhoneNumber(e.target.value)}
+                            />
+                            {otpError2 && <p className="otp-error">{otpError2}</p>}
+                        </div>
+                        <div className="resend-section">
+                            <span className="resend-text">Didn't receive the code?</span>
+                            <button
+                                onClick={isResendEnabledSecondary ? handleResend2 : null}
+                                disabled={!isResendEnabledSecondary}
+                                className="resend-button"
+                            >
+                                Resend
+                            </button>
+                        </div>
+                        {secondsSecondary > 0 && (
+                            <p className="otp-timer">Code expires in {formatTime(secondsSecondary)}</p>
+                        )}
+                    </div>
+
+                    <button className="verify-button" onClick={handleOtp}>
+                        Verify Phone Numbers
                     </button>
                 </div>
-
-                {seconds > 0 && (
-                    <p className=''>- The OTP will expire in {formatTime(seconds)}</p>
-                )}
-
-                <div className=''>
-                    <p className=''> A 6-digit code has been sent to {formData.secondary_phone_number}</p>
-                </div>
-                <div className=''>
-                    <input className=''
-                        type='text'
-                        placeholder='123456'
-                        value={secondaryPhoneNumber}
-                        onChange={(e) => setSecondaryPhoneNumber(e.target.value)}
-                    />
-                </div>
-                {otpError2 ? (
-                    <p>{otpError2}</p>
-                ) : null}
-                <div className=''>
-                    <p className=''>- Didn’t receive the code?</p>
-                    <button
-                        onClick={isResendEnabledSecondary ? handleResend2 : null}
-                        disabled={isResendEnabledSecondary}
-                        className={`text-${isResendEnabledSecondary ? "green-500" : "gray-400"} ${isResendEnabledSecondary ? "cursor-pointer" : "cursor-not-allowed"
-                            }`}
-                    >
-                        Resend
-                    </button>
-                </div>
-
-                {seconds > 0 && (
-                    <p className=''>- The OTP will expire in {formatTime(seconds)}</p>
-                )}
-
-                <button
-                    className=''
-                    onClick={handleOtp}
-                >
-                    Verify
-                </button>
-
             </div>
-        </>
-    )
+        </div>
+    );
 }
 
 export default OTPPhonesPage;

@@ -1,0 +1,162 @@
+/* Container for the OTP page */
+.otp-container {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(to right, rgb(182, 244, 146), rgb(51, 139, 147));
+    padding: 20px;
+}
+
+/* Header for the OTP page */
+.otp-header {
+    color: #00B251;
+    font-size: 24px;
+    text-align: center;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+/* Instructions text */
+.otp-instructions {
+    color: #333;
+    font-size: 14px;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+/* Input field for OTP */
+.otp-input {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #00B251;
+    border-radius: 8px;
+    font-size: 16px;
+    text-align: center;
+    letter-spacing: 4px;
+    background: white;
+    transition: all 0.3s ease;
+}
+
+.otp-input:focus {
+    outline: none;
+    border-color: #007535;
+    box-shadow: 0 0 0 3px rgba(0, 178, 81, 0.1);
+}
+
+/* Error message styling */
+.otp-error {
+    color: #dc3545;
+    font-size: 12px;
+    margin-top: 5px;
+    text-align: center;
+}
+
+/* Resend button styling */
+.resend-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.resend-text {
+    color: #666;
+    font-size: 14px;
+}
+
+.resend-button {
+    background: none;
+    border: none;
+    color: #00B251;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 5px 10px;
+    transition: all 0.3s ease;
+}
+
+.resend-button:disabled {
+    color: #999;
+    cursor: not-allowed;
+}
+
+.resend-button:hover:not(:disabled) {
+    color: #007535;
+}
+
+/* Timer text */
+.otp-timer {
+    color: #666;
+    font-size: 12px;
+    text-align: center;
+    margin-top: 10px;
+}
+
+/* Verify button styling */
+.verify-button {
+    background-color: #00B251;
+    color: white;
+    border: none;
+    padding: 15px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    margin-top: 20px;
+}
+
+.verify-button:hover {
+    background-color: #007535;
+    transform: translateY(-2px);
+}
+
+/* Loading state */
+.loading {
+    text-align: center;
+    color: #00B251;
+    font-size: 18px;
+    padding: 20px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .otp-card {
+        padding: 20px;
+    }
+
+    .otp-header {
+        font-size: 20px;
+    }
+
+    .otp-section {
+        padding: 15px;
+    }
+
+    .otp-input {
+        font-size: 14px;
+        padding: 10px;
+    }
+
+    .verify-button {
+        padding: 12px;
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .otp-container {
+        padding: 10px;
+    }
+
+    .otp-card {
+        padding: 15px;
+    }
+
+    .resend-section {
+        flex-direction: column;
+        gap: 5px;
+    }
+}
