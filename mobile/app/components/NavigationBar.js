@@ -66,15 +66,14 @@ const NavigationBar = () => {
         if (userTypeId === 1 || userTypeId === 2) {
           const storedShopData = await AsyncStorage.getItem("shopData");
           if (storedShopData) {
-            const parsedData = JSON.parse(storedData);
+            const parsedData = JSON.parse(storedShopData);
             setShopData(Array.isArray(parsedData) ? parsedData[0] : parsedData);
             setShopId(
-              Array.isArray(parsedData.shop_id)
-                ? parsedData[0].shop_id
+              Array.isArray(parsedData) 
+                ? parsedData[0].shop_id 
                 : parsedData.shop_id
             );
           }
-        } else {
         }
       }
     } catch (error) {
@@ -268,9 +267,13 @@ const NavigationBar = () => {
                   </TouchableOpacity>
                   <TouchableOpacity
                     className="items-center bg-white border-2 border-slate-500 rounded-xl px-2 py-1 mx-2 mb-2 w-36"
-                    onPress={() =>
-                      navigation.navigate("Seller Shop", { shop_id })
-                    }
+                    onPress={() => {
+                      if (shop_id) {
+                        navigation.navigate("Seller Shop", { 
+                          shop_id: typeof shop_id === 'number' ? shop_id : Number(shop_id) 
+                        });
+                      }
+                    }}
                   >
                     <Icon name="storefront-outline" size={28} color="#00B251" />
                     <Text className="text-center">Shop View</Text>

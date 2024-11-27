@@ -139,13 +139,13 @@ function BiddingDetailsScreen({ route, navigation }) {
     return () => clearInterval(timer); // Cleanup timer on component unmount
   }, [bidData.end_date]);
 
-  
+
   if (loading) {
     return (
       <LoadingAnimation />
     );
   }
-  
+
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
       <View className="flex-1">
@@ -161,19 +161,29 @@ function BiddingDetailsScreen({ route, navigation }) {
           {/* Content Overlay */}
           <View className="bg-white/80 p-3 rounded-lg mx-5 mt-[45%] self-center w-[90%]">
             {/* Product Name and Details */}
-            <Text className="text-center text-2xl font-bold text-gray-900">
+            <Text className="text-[20px] font-bold text-gray-800 mb-2 text-center">
               {bidData.bid_name}
             </Text>
-            <Text className="text-center text-lg text-gray-500 mt-2">
-              Sold by: {bidData.shops.shop_name}
-            </Text>
-
-            {/* Current Highest Bid */}
-            <Text className="text-center text-xl font-semibold text-green-600 mt-4">
+            <TouchableOpacity onPress={() => navigation.navigate("Seller Shop", { shop_id: bidData.shops.shop_id })}>
+              <Text className="text-sm text-gray-500 mb-3 text-center">
+                Sold by: {bidData.shops.shop_name}
+              </Text>
+            </TouchableOpacity>
+            <Text className="text-lg text-green-600 mb-1 text-center">
               Current Highest Bid: ₱{bidData.bid_current_highest}
             </Text>
-
-            {/* Timer */}
+            <Text className="text-sm text-gray-500 mb-1 text-center">
+              Number of Bids: {bidData.number_of_bids}
+            </Text>
+            <Text className="text-sm text-gray-500 mb-1 text-center">
+              Ends on: {new Date(bidData.end_date).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+              })}
+            </Text>
             <Text className="text-center text-xl font-semibold text-gray-900 mt-4">
               {timeLeft.expired ? (
                 <Text className="text-xl text-red-600">Bid Expired</Text>
@@ -234,11 +244,31 @@ function BiddingDetailsScreen({ route, navigation }) {
             )}
 
             {/* Place a Bid Button */}
-            <TouchableOpacity className="bg-green-600 py-4 rounded-lg mt-6" onPress={() => navigation.navigate('Place a Bid', { data: bidData })}>
-              <Text className="text-lg font-bold text-white text-center">
-                Place a Bid
-              </Text>
-            </TouchableOpacity>
+            {/* Bid User List */}
+            <View className="mt-6">
+              <Text className="text-lg font-semibold text-gray-900 mb-3">Current Bids</Text>
+              <ScrollView className="max-h-[200px] mb-4">
+                {bidData.bid_users && bidData.bid_users
+                  .sort((a, b) => b.bid_current_highest - a.bid_current_highest)
+                  .map((user, index) => (
+                    <View key={index} className="flex-row justify-between items-center py-3 border-b border-gray-200">
+                      <Text className="text-base">User #{user.bid_user_id}</Text>
+                      <Text className="text-base font-semibold">₱{user.bid_current_highest.toLocaleString()}</Text>
+                    </View>
+                  ))
+                }
+              </ScrollView>
+
+              {/* Place Bid Button (not floating) */}
+              <TouchableOpacity
+                className="bg-[#00b251] py-4 rounded-lg w-full mt-2"
+                onPress={() => navigation.navigate('Place a Bid', { data: bidData })}
+              >
+                <Text className="text-lg font-bold text-white text-center">
+                  Place a Bid
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </ScrollView>
 

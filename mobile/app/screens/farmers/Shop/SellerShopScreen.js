@@ -1,285 +1,341 @@
-  import React, { useState, useEffect } from "react";
-  import {
-    SafeAreaView,
-    View,
-    Text,
-    Image,
-    TouchableOpacity,
-    ScrollView,
-    ActivityIndicator,
-    TextInput,
-    Modal,
-  } from "react-native";
-  import { useFocusEffect, useNavigation } from "@react-navigation/native";
-  import AsyncStorage from '@react-native-async-storage/async-storage';
-  import { Ionicons, MaterialIcons } from '@expo/vector-icons'; // Import MaterialIcons for exclamation mark
-  import michael from "../../../assets/ehh.png";
-  import SearchBarC, {
-    NotificationIcon,
-    MessagesIcon,
-    MarketIcon,
-  } from "../../../components/SearchBarC";
-  import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
+import React, { useState, useEffect } from "react";
+import {
+  SafeAreaView,
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  ScrollView,
+  ActivityIndicator,
+  TextInput,
+  Modal,
+} from "react-native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Ionicons, MaterialIcons } from '@expo/vector-icons'; // Import MaterialIcons for exclamation mark
+import michael from "../../../assets/ehh.png";
+import SearchBarC, {
+  NotificationIcon,
+  MessagesIcon,
+  MarketIcon,
+} from "../../../components/SearchBarC";
+import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 
 
-  function SellerShopScreen({ route }) {
-    const { shop_id } = route.params;
-    const primaryColor = "#00B251";
-    const [selectedTab, setSelectedTab] = useState("Products");
-    const navigation = useNavigation();
-    const [shopData, setShopData] = useState(null);
-    const [cropData, setCropData] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [cropCategories, setCropCategories] = useState([]);
-    const [selectedCategory, setSelectedCategory] = useState(null);
-    const [cropSubCategories, setCropSubCategories] = useState([]);
-    const [selectedSubCategory, setSelectedSubCategory] = useState(null);
-    const [cropVarieties, setCropVarieties] = useState([]); // Stores crop varieties for the selected subcategory
-    const [selectedCropVariety, setSelectedCropVariety] = useState(null); // For selected crop variety
-    const [searchQuery, setSearchQuery] = useState("");
-    const [userData, setUserData] = useState(null);
-    const [userId, setUserId] = useState(null);
-    const [isIncomplete, setIsIncomplete] = useState(false); // Track if the shop is incomplete
-    const [modalVisible, setModalVisible] = useState(false); // State for modal visibility
-    const [missingFields, setMissingFields] = useState([]); // Track missing fields
+function SellerShopScreen({ route }) {
+  const { shop_id } = route.params;
+  const primaryColor = "#00B251";
+  const [selectedTab, setSelectedTab] = useState("Products");
+  const navigation = useNavigation();
+  const [shopData, setShopData] = useState(null);
+  const [cropData, setCropData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [cropCategories, setCropCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [cropSubCategories, setCropSubCategories] = useState([]);
+  const [selectedSubCategory, setSelectedSubCategory] = useState(null);
+  const [cropVarieties, setCropVarieties] = useState([]); // Stores crop varieties for the selected subcategory
+  const [selectedCropVariety, setSelectedCropVariety] = useState(null); // For selected crop variety
+  const [searchQuery, setSearchQuery] = useState("");
+  const [userData, setUserData] = useState(null);
+  const [userId, setUserId] = useState(null);
+  const [isIncomplete, setIsIncomplete] = useState(false); // Track if the shop is incomplete
+  const [modalVisible, setModalVisible] = useState(false); // State for modal visibility
+  const [missingFields, setMissingFields] = useState([]); // Track missing fields
 
-    const [alertVisible, setAlertVisible] = useState(false);
-    const [alertMessage, setAlertMessage] = useState("");
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
 
-    const getAsyncUserData = async () => {
-      try {
-        const storedData = await AsyncStorage.getItem('userData');
-        if (storedData) {
-          const parsedData = JSON.parse(storedData);
-          if (Array.isArray(parsedData)) {
-            const user = parsedData[0];
-            setUserData(user);
-            setUserId(user.user_id);
-          } else {
-            setUserData(parsedData);
-          }
-        }
-      } catch (error) {
-        console.error('Failed to load user data:', error);
-      }
-    };
-
-    const fetchShopData = async () => {
-      try {
-        const shopResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/shops`, {
-          headers: {
-            "x-api-key": REACT_NATIVE_API_KEY,
-          },
-        });
-        const shopData = await shopResponse.json();
-        const shop = shopData.find((s) => s && s.shop_id === shop_id);
-        if (shop) {
-          setShopData(shop);
-          // Check if required fields are missing
-          if (!shop.tin_number || !shop.bir_image_url) {
-            setIsIncomplete(true);
-            let missing = [];
-            if (!shop.tin_number) missing.push('TIN Number');
-            if (!shop.bir_image_url) missing.push('BIR Certificate');
-            setMissingFields(missing);
-          }
-        }
-
-      } catch (error) {
-        console.error("Error fetching shop data:", error);
-        setAlertMessage("Failed to load shop information.");
-        setAlertVisible(true);
-      }
-    };
-
-    const fetchCropSizes = async () => {
-      try {
-        const cropSizesResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_sizes`, {
-          headers: {
-            "x-api-key": REACT_NATIVE_API_KEY,
-          },
-        });
-        const cropSizesData = await cropSizesResponse.json();
-        return cropSizesData.reduce((acc, size) => {
-          acc[size.crop_size_id] = size.crop_size_name;
-          return acc;
-        }, {});
-      } catch (error) {
-        console.error("Error fetching crop sizes:", error);
-        setAlertMessage("Failed to load crop sizes.");
-        setAlertVisible(true);
-        return {};
-      }
-    };
-
-    const fetchCropData = async () => {
-      try {
-        setIsLoading(true);
-
-        // Fetch crops data
-        const cropResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crops`, {
-          headers: {
-            "x-api-key": REACT_NATIVE_API_KEY,
-          },
-        });
-        const cropData = await cropResponse.json();
-        const crops = cropData.filter((c) => c && c.shop_id === shop_id);
-
-        // Fetch crop sizes and merge with crops
-        const cropSizes = await fetchCropSizes();
-        const mergedCrops = crops.map(crop => ({
-          ...crop,
-          crop_size_name: cropSizes[crop.crop_size_id] || "Unknown Size", // Fallback if size is missing
-        }));
-
-        setCropData(mergedCrops); // Set merged data to state
-      } catch (error) {
-        console.error("Error fetching crop data:", error);
-        setAlertMessage("Failed to load crop information.");
-        setAlertVisible(true);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    const fetchCropCategories = async () => {
-      try {
-        const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_categories`, {
-          headers: {
-            'x-api-key': REACT_NATIVE_API_KEY
-          }
-        });
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        const data = await response.json();
-        setCropCategories(data);
-      } catch (error) {
-        console.error('Error fetching crop categories:', error);
-      }
-    };
-
-    const fetchCropSubCategories = async (categoryId) => {
-      try {
-        const response = await fetch(
-          `${REACT_NATIVE_API_BASE_URL}/api/crop_sub_categories?category_id=${categoryId}`,
-          {
-            headers: {
-              "x-api-key": REACT_NATIVE_API_KEY,
-            },
-          }
-        );
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        const data = await response.json();
-        const filteredSubCategories = data.filter((subCategory) => subCategory.crop_category_id === categoryId);
-        setCropSubCategories(filteredSubCategories);
-      } catch (error) {
-        console.error('Error fetching crop subcategories:', error);
-      }
-    };
-
-    const fetchCropVarieties = async (subCategoryId) => {
-      try {
-        setIsLoading(true);
-        const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_varieties?sub_category_id=${subCategoryId}`,
-          {
-            headers: {
-              "x-api-key": REACT_NATIVE_API_KEY,
-            },
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-
-        const data = await response.json();
-        const filteredCropVarieties = data.filter((cropVariety) => cropVariety.crop_sub_category_id === subCategoryId);
-        setCropVarieties(filteredCropVarieties);
-      } catch (error) {
-        console.error("Error fetching crop varieties:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-
-    const fetchCropsByCropVarietyAndShop = async (cropVarietyId) => {
-      try {
-        setIsLoading(true);
-        const cropResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crops?crop_variety_id=${cropVarietyId}&shop_id=${shop_id}`, {
-          headers: {
-            "x-api-key": REACT_NATIVE_API_KEY,
-          },
-        });
-        const cropData = await cropResponse.json();
-        const filteredCrops = cropData.filter((crop) => crop.crop_variety_id === cropVarietyId && crop.shop_id === shop_id);
-        setCropData(filteredCrops);
-      } catch (error) {
-        console.error("Error fetching crops:", error);
-        setAlertMessage("Failed to load crops.");
-        setAlertVisible(true);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    const filterItems = () => {
-      if (selectedTab === "Products") {
-        return cropData.filter((product) =>
-          product.crop_name.toLowerCase().includes(searchQuery.toLowerCase())
-        );
-      } else if (selectedTab === "Categories") {
-        if (!selectedCategory) {
-          return cropCategories.filter((category) =>
-            category.crop_category_name.toLowerCase().includes(searchQuery.toLowerCase())
-          );
-        } else if (!selectedSubCategory) {
-          return cropSubCategories.filter((subCategory) =>
-            subCategory.crop_sub_category_name.toLowerCase().includes(searchQuery.toLowerCase())
-          );
-        } else if (!selectedCropVariety) {
-          return cropVarieties.filter((cropVariety) =>
-            cropVariety.crop_variety_name.toLowerCase().includes(searchQuery.toLowerCase())
-          );
+  const getAsyncUserData = async () => {
+    try {
+      const storedData = await AsyncStorage.getItem('userData');
+      if (storedData) {
+        const parsedData = JSON.parse(storedData);
+        if (Array.isArray(parsedData)) {
+          const user = parsedData[0];
+          setUserData(user);
+          setUserId(user.user_id);
         } else {
-          return cropData.filter((product) =>
-            product.crop_name.toLowerCase().includes(searchQuery.toLowerCase())
-          );
+          setUserData(parsedData);
         }
       }
-    };
+    } catch (error) {
+      console.error('Failed to load user data:', error);
+    }
+  };
 
-    useFocusEffect(
-      React.useCallback(() => {
-        fetchShopData();
-        if (selectedTab === "Products") {
-          fetchCropData();
-        } else if (selectedTab === "Categories") {
-          fetchCropCategories();
-        }
-      }, [shop_id, selectedTab])
-    );
-
-    useFocusEffect(
-      React.useCallback(() => {
-        getAsyncUserData();
-      }, [])
-    );
-
-    React.useLayoutEffect(() => {
-      navigation.setOptions({
-        headerRight: () => (
-          <View style={{ flexDirection: "row", marginRight: 15 }}>
-            <MarketIcon onPress={() => navigation.navigate("CartScreen")} />
-            <NotificationIcon onPress={() => navigation.navigate("Notifications")} />
-            <MessagesIcon onPress={() => navigation.navigate("ChatListScreen")} />
-          </View>
-        ),
+  const fetchShopData = async () => {
+    try {
+      const shopResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/shops`, {
+        headers: {
+          "x-api-key": REACT_NATIVE_API_KEY,
+        },
       });
-    }, [navigation]);
+      const shopData = await shopResponse.json();
+      const shop = shopData.find((s) => s && s.shop_id === shop_id);
+      if (shop) {
+        setShopData(shop);
+        // Check if required fields are missing
+        if (!shop.tin_number || !shop.bir_image_url) {
+          setIsIncomplete(true);
+          let missing = [];
+          if (!shop.tin_number) missing.push('TIN Number');
+          if (!shop.bir_image_url) missing.push('BIR Certificate');
+          setMissingFields(missing);
+        }
+      }
+
+    } catch (error) {
+      console.error("Error fetching shop data:", error);
+      setAlertMessage("Failed to load shop information.");
+      setAlertVisible(true);
+    }
+  };
+
+  const fetchCropSizes = async () => {
+    try {
+      const cropSizesResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_sizes`, {
+        headers: {
+          "x-api-key": REACT_NATIVE_API_KEY,
+        },
+      });
+      const cropSizesData = await cropSizesResponse.json();
+      return cropSizesData.reduce((acc, size) => {
+        acc[size.crop_size_id] = size.crop_size_name;
+        return acc;
+      }, {});
+    } catch (error) {
+      console.error("Error fetching crop sizes:", error);
+      setAlertMessage("Failed to load crop sizes.");
+      setAlertVisible(true);
+      return {};
+    }
+  };
+
+  const fetchCropData = async () => {
+    try {
+      setIsLoading(true);
+
+      // Fetch crops data
+      const cropResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crops`, {
+        headers: {
+          "x-api-key": REACT_NATIVE_API_KEY,
+        },
+      });
+      const cropData = await cropResponse.json();
+      const crops = cropData.filter((c) => c && c.shop_id === shop_id);
+
+      // Fetch crop sizes and merge with crops
+      const cropSizes = await fetchCropSizes();
+      const mergedCrops = crops.map(crop => ({
+        ...crop,
+        crop_size_name: cropSizes[crop.crop_size_id] || "Unknown Size", // Fallback if size is missing
+      }));
+
+      setCropData(mergedCrops); // Set merged data to state
+    } catch (error) {
+      console.error("Error fetching crop data:", error);
+      setAlertMessage("Failed to load crop information.");
+      setAlertVisible(true);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchCropCategories = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_categories`, {
+        headers: {
+          'x-api-key': REACT_NATIVE_API_KEY
+        }
+      });
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const data = await response.json();
+
+      // Fetch all data in parallel
+      const [subCategoriesResponse, varietiesResponse] = await Promise.all([
+        fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_sub_categories`, {
+          headers: {
+            "x-api-key": REACT_NATIVE_API_KEY,
+          },
+        }),
+        fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_varieties`, {
+          headers: {
+            "x-api-key": REACT_NATIVE_API_KEY,
+          },
+        })
+      ]);
+
+      const subCategoriesData = await subCategoriesResponse.json();
+      const varietiesData = await varietiesResponse.json();
+
+      // Only update states after all data is successfully fetched
+      setCropCategories(data);
+      setCropSubCategories(subCategoriesData);
+      setCropVarieties(varietiesData);
+    } catch (error) {
+      console.error('Error fetching crop categories:', error);
+      setAlertMessage("Failed to load categories.");
+      setAlertVisible(true);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+
+  const fetchCropSubCategories = async (categoryId) => {
+    try {
+      const response = await fetch(
+        `${REACT_NATIVE_API_BASE_URL}/api/crop_sub_categories`,
+        {
+          headers: {
+            "x-api-key": REACT_NATIVE_API_KEY,
+          },
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const data = await response.json();
+      // Store all subcategories but filter for display
+      setCropSubCategories(data);
+    } catch (error) {
+      console.error('Error fetching crop subcategories:', error);
+    }
+  };
+  const fetchCropVarieties = async (subCategoryId) => {
+    try {
+      setIsLoading(true);
+      const response = await fetch(
+        `${REACT_NATIVE_API_BASE_URL}/api/crop_varieties`,
+        {
+          headers: {
+            "x-api-key": REACT_NATIVE_API_KEY,
+          },
+        }
+      );
+  
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+  
+      const data = await response.json();
+      // Store all varieties but filter for display
+      setCropVarieties(data);
+    } catch (error) {
+      console.error("Error fetching crop varieties:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+
+  const fetchCropsByCropVarietyAndShop = async (cropVarietyId) => {
+    try {
+      setIsLoading(true);
+      const cropResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crops?crop_variety_id=${cropVarietyId}&shop_id=${shop_id}`, {
+        headers: {
+          "x-api-key": REACT_NATIVE_API_KEY,
+        },
+      });
+      const cropData = await cropResponse.json();
+      const filteredCrops = cropData.filter((crop) => crop.crop_variety_id === cropVarietyId && crop.shop_id === shop_id);
+      setCropData(filteredCrops);
+    } catch (error) {
+      console.error("Error fetching crops:", error);
+      setAlertMessage("Failed to load crops.");
+      setAlertVisible(true);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const filterItems = () => {
+    if (selectedTab === "Products") {
+      return cropData.filter((product) =>
+        product.crop_name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    } else if (selectedTab === "Categories") {
+      if (!selectedCategory) {
+        // Show only categories that have products in this shop through their varieties
+        return cropCategories.filter((category) =>
+          category.crop_category_name.toLowerCase().includes(searchQuery.toLowerCase()) &&
+          cropSubCategories.some(subCategory => 
+            subCategory.crop_category_id === category.crop_category_id &&
+            cropVarieties.some(variety =>
+              variety.crop_sub_category_id === subCategory.crop_sub_category_id &&
+              cropData.some(crop =>
+                crop.crop_variety_id === variety.crop_variety_id &&
+                crop.shop_id === shop_id
+              )
+            )
+          )
+        );
+      } else if (!selectedSubCategory) {
+        // Show only subcategories that have products in this shop through their varieties
+        return cropSubCategories.filter((subCategory) =>
+          subCategory.crop_sub_category_name.toLowerCase().includes(searchQuery.toLowerCase()) &&
+          subCategory.crop_category_id === selectedCategory.crop_category_id &&
+          cropVarieties.some(variety =>
+            variety.crop_sub_category_id === subCategory.crop_sub_category_id &&
+            cropData.some(crop =>
+              crop.crop_variety_id === variety.crop_variety_id &&
+              crop.shop_id === shop_id
+            )
+          )
+        );
+      } else if (!selectedCropVariety) {
+        // Show only varieties that have products in this shop
+        return cropVarieties.filter((variety) =>
+          variety.crop_variety_name.toLowerCase().includes(searchQuery.toLowerCase()) &&
+          variety.crop_sub_category_id === selectedSubCategory.crop_sub_category_id &&
+          cropData.some(crop =>
+            crop.crop_variety_id === variety.crop_variety_id &&
+            crop.shop_id === shop_id
+          )
+        );
+      } else {
+        // Show products for selected variety in this shop
+        return cropData.filter((product) =>
+          product.crop_name.toLowerCase().includes(searchQuery.toLowerCase()) &&
+          product.crop_variety_id === selectedCropVariety.crop_variety_id &&
+          product.shop_id === shop_id
+        );
+      }
+    }
+    return [];
+  };
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchShopData();
+      if (selectedTab === "Products") {
+        fetchCropData();
+      } else if (selectedTab === "Categories") {
+        fetchCropCategories();
+      }
+    }, [shop_id, selectedTab])
+  );
+
+  useFocusEffect(
+    React.useCallback(() => {
+      getAsyncUserData();
+    }, [])
+  );
+
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <View style={{ flexDirection: "row", marginRight: 15 }}>
+          <MarketIcon onPress={() => navigation.navigate("CartScreen")} />
+          <NotificationIcon onPress={() => navigation.navigate("Notifications")} />
+          <MessagesIcon onPress={() => navigation.navigate("ChatListScreen")} />
+        </View>
+      ),
+    });
+  }, [navigation]);
 
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
@@ -289,14 +345,14 @@
             value={searchQuery}
             onChangeText={setSearchQuery}
             placeholder={`Search ${selectedTab === "Products"
-                ? "products"
-                : !selectedCategory
-                  ? "categories"
-                  : !selectedSubCategory
-                    ? "subcategories"
-                    : !selectedCropVariety
-                      ? "varieties"
-                      : "products"
+              ? "products"
+              : !selectedCategory
+                ? "categories"
+                : !selectedSubCategory
+                  ? "subcategories"
+                  : !selectedCropVariety
+                    ? "varieties"
+                    : "products"
               }`}
             className="bg-white p-2 rounded-lg border border-gray-300"
           />
@@ -444,13 +500,19 @@
               <>
                 {(selectedCategory || selectedSubCategory || selectedCropVariety) && (
                   <TouchableOpacity
-                    onPress={() => {
+                    onPress={async () => {
                       if (selectedCropVariety) {
                         setSelectedCropVariety(null);
+                        // Refetch varieties for the current subcategory
+                        await fetchCropVarieties(selectedSubCategory.crop_sub_category_id);
                       } else if (selectedSubCategory) {
                         setSelectedSubCategory(null);
+                        // Refetch subcategories for the current category
+                        await fetchCropSubCategories(selectedCategory.crop_category_id);
                       } else {
                         setSelectedCategory(null);
+                        // Refetch all categories
+                        await fetchCropCategories();
                       }
                     }}
                     className="flex flex-row items-center p-2"
@@ -502,14 +564,12 @@
                           />
                           <Text className="text-sm font-bold">{subCategory.crop_sub_category_name}</Text>
                         </View>
-                      </TouchableOpacity> 
+                      </TouchableOpacity>
                     ))}
                   </View>
                 ) : !selectedCropVariety ? (
                   <View className="flex flex-wrap flex-row p-2">
-                    {filterItems().filter((cropVariety) => 
-                      cropData.some(crop => crop.crop_variety_id === cropVariety.crop_variety_id && crop.shop_id === shopData.shop_id)
-                    ).map((cropVariety) => (
+                    {filterItems().map((cropVariety) => (
                       <TouchableOpacity
                         key={cropVariety.crop_variety_id}
                         className="w-1/2 p-2"

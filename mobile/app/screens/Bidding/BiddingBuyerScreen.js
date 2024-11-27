@@ -220,11 +220,25 @@ const BiddingCard = ({ data, scale, opacity, navigation }) => {
           <Text className="text-[20px] font-bold text-gray-800 mb-2 text-center">
             {data.bid_name}
           </Text>
-          <Text className="text-sm text-gray-500 mb-3 text-center">
-            Sold by: {data.shops.shop_name}
-          </Text>
+          <TouchableOpacity onPress={() => navigation.navigate("Seller Shop", { shop_id: data.shops.shop_id })}>
+            <Text className="text-sm text-gray-500 mb-3 text-center">
+              Sold by: {data.shops.shop_name}
+            </Text>
+          </TouchableOpacity>
           <Text className="text-lg text-green-600 mb-1 text-center">
             Current Highest Bid: ₱{data.bid_current_highest}
+          </Text>
+          <Text className="text-sm text-gray-500 mb-1 text-center">
+            Number of Bids: {data.number_of_bids}
+          </Text>
+          <Text className="text-sm text-gray-500 mb-1 text-center">
+            Ends on: {new Date(data.end_date).toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            })}
           </Text>
           <Countdown endDate={data.end_date} />
         </View>
@@ -326,12 +340,29 @@ const CategorySection = ({ data, category, biddingData, navigation }) => {
               style={{ height: screenHeight * 0.15 }}
               resizeMode="cover"
             />
-            <View className="p-2">
-              <Text className="text-center font-bold text-gray-800">
+            <View className="p-4">
+              <Text className="text-[20px] font-bold text-gray-800 mb-2 text-center">
                 {item.bid_name}
               </Text>
-              <Text className="text-center font-bold text-green-500">
+              <TouchableOpacity onPress={() => navigation.navigate("Seller Shop", { shop_id: item.shops.shop_id })}>
+                <Text className="text-sm text-gray-500 mb-3 text-center">
+                  Sold by: {item.shops.shop_name}
+                </Text>
+              </TouchableOpacity>
+              <Text className="text-lg text-green-600 mb-1 text-center">
                 Current Highest Bid: ₱{item.bid_current_highest}
+              </Text>
+              <Text className="text-sm text-gray-500 mb-1 text-center">
+                Number of Bids: {item.number_of_bids}
+              </Text>
+              <Text className="text-sm text-gray-500 mb-1 text-center">
+                Ends on: {new Date(item.end_date).toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'long', 
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                })}
               </Text>
               <Countdown endDate={item.end_date} />
             </View>
