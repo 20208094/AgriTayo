@@ -6,6 +6,7 @@ import LoginPage from './screens/AuthPages/LoginPage';
 import LogoutButton from './screens/AuthPages/LogoutPage';
 import RegisterPage from './screens/AuthPages/RegisterPage';
 import OTPPage from './screens/AuthPages/OTPPage';
+import OTPPhonesPage from './screens/AuthPages/OTPPhonesPage';
 import UserTypePage from './screens/Users/AdminPages/CrudPages/UserTypePage';
 import UsersPage from './screens/Users/AdminPages/CrudPages/UsersPage';
 import AddressesPage from './screens/Users/AdminPages/CrudPages/AdressesPage';
@@ -37,7 +38,7 @@ import CropSubCategoryPageCRUD from './screens/Users/AdminPages/CrudPages/CropSu
 import SellerDashboardPage from './screens/Users/SellerPages/SellerDashboard';
 import BuyerDashboardPage from './screens/Users/BuyerPages/BuyerDashboard';
 import CropVarietyPageCRUD
- from './screens/Users/AdminPages/CrudPages/CropVarietyPageCRUD';
+  from './screens/Users/AdminPages/CrudPages/CropVarietyPageCRUD';
 // for market
 import CropCategoryPage from './screens/Market/CropCategoryPage';
 import CropSubCategoryPage from './screens/Market/CropSubCategoryPage';
@@ -52,6 +53,8 @@ import TopNavbar from './components/TopNavbar';
 import SubSidebar from './components/SubSidebar';
 // my account routes
 import Profile from './screens/Users/BuyerPages/Profile/Profile';
+import EditPhoneNumberPage from './screens/Users/BuyerPages/Profile/EditPhoneNumberPage';
+import EditAlternativeNumberPage from './screens/Users/BuyerPages/Profile/EditAlternativeNumberPage';
 import Addresses from './screens/Users/BuyerPages/Profile/Adresses';
 import ChangePassword from './screens/AuthPages/ChangePasswordPage';
 import ConfirmChangePassword from './screens/AuthPages/ConfirmChangePasswordPage';
@@ -203,6 +206,7 @@ function Layout({ userType, userId, refreshProfile, setRefreshProfile }) {
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
               <Route path="/otp" element={<OTPPage />} />
+              <Route path="/otpPhones" element={<OTPPhonesPage />} />
             </>
           )}
           <Route path="/logout" element={<LogoutButton />} />
@@ -239,6 +243,8 @@ function Layout({ userType, userId, refreshProfile, setRefreshProfile }) {
             <Route path="product-list/:cropSubCategoryId" element={<ProductListPage />} />
             <Route path="product-details/:productListId" element={<ProductDetailsPage />} />
             <Route path="profile" element={<Profile onProfileUpdate={() => setRefreshProfile(prev => prev + 1)} />} />
+              <Route path="editPhoneNumber" element={<EditPhoneNumberPage/>}/>
+              <Route path="editAlternativeNumber" element={<EditAlternativeNumberPage/>}/>
             <Route path="address" element={<Addresses />} />
             <Route path="change_password" element={<ChangePassword />} />
             <Route path="download" element={<DownloadAppPage />} />

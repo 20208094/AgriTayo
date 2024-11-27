@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 const API_KEY = import.meta.env.VITE_API_KEY;
 import { FaCamera } from 'react-icons/fa'; 
+import { useNavigate } from 'react-router-dom';
 
 function Profile({ onProfileUpdate }) {
     const [users, setUsers] = useState([]);
@@ -10,6 +11,7 @@ function Profile({ onProfileUpdate }) {
     const [image, setImage] = useState(null);
     const [imagePreview, setImagePreview] = useState(null); // State for the image preview
     const [notification, setNotification] = useState(''); 
+    const navigate = useNavigate();
 
     async function fetchUserSession() {
         try {
@@ -71,14 +73,6 @@ function Profile({ onProfileUpdate }) {
         }));
     };
 
-    const handleGenderChange = (e) => {
-        const { value } = e.target;
-        setFilteredUser((prevUser) => ({
-            ...prevUser,
-            gender: value,
-        }));
-    };
-
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         setImage(file);
@@ -94,10 +88,9 @@ function Profile({ onProfileUpdate }) {
             formData.append('firstname', filteredUser.firstname);
             formData.append('middlename', filteredUser.middlename);
             formData.append('lastname', filteredUser.lastname);
-            formData.append('email', filteredUser.email);
             formData.append('user_type_id', filteredUser.user_type_id);
             formData.append('phone_number', filteredUser.phone_number);
-            formData.append('gender', filteredUser.gender);
+            formData.append('secondary_phone_number', filteredUser.secondary_phone_number)
             formData.append('birthday', filteredUser.birthday);
 
             if (image) {
@@ -209,18 +202,6 @@ function Profile({ onProfileUpdate }) {
                                         className="profile-input"
                                     />
                                 </div>
-                                
-                                <div className="profile-input-group">
-                                    <label className="profile-label">Email</label>
-                                    <input
-                                        type="email"
-                                        name="email"
-                                        value={filteredUser.email}
-                                        placeholder="Email"
-                                        onChange={handleInputChange}
-                                        className="profile-input"
-                                    />
-                                </div>
 
                                 <div className="profile-input-group">
                                     <label className="profile-label">Phone Number</label>
@@ -232,45 +213,30 @@ function Profile({ onProfileUpdate }) {
                                         onChange={handleInputChange}
                                         className="profile-input"
                                     />
+                                    <button 
+                                    type='button'
+                                    onClick={() => navigate('/admin/editPhoneNumber', {state: {userId}})}
+                                    className=''>
+                                        Icon
+                                    </button>
                                 </div>
 
                                 <div className="profile-input-group">
-                                    <label className="profile-label">Gender</label>
-                                    <div className="profile-radio-group">
-                                        <label className="profile-radio-label">
-                                            <input
-                                                type="radio"
-                                                name="gender"
-                                                value="Male"
-                                                checked={filteredUser.gender === 'Male'}
-                                                onChange={handleGenderChange}
-                                                className="profile-radio-input"
-                                            />
-                                            <span className="profile-radio-text">Male</span>
-                                        </label>
-                                        <label className="profile-radio-label">
-                                            <input
-                                                type="radio"
-                                                name="gender"
-                                                value="Female"
-                                                checked={filteredUser.gender === 'Female'}
-                                                onChange={handleGenderChange}
-                                                className="profile-radio-input"
-                                            />
-                                            <span className="profile-radio-text">Female</span>
-                                        </label>
-                                        <label className="profile-radio-label">
-                                            <input
-                                                type="radio"
-                                                name="gender"
-                                                value="Other"
-                                                checked={filteredUser.gender === 'Other'}
-                                                onChange={handleGenderChange}
-                                                className="profile-radio-input"
-                                            />
-                                            <span className="profile-radio-text">Other</span>
-                                        </label>
-                                    </div>
+                                    <label className="profile-label">Alternative Phone Number</label>
+                                    <input
+                                        type="text"
+                                        name="secondary_phone_number"
+                                        value={filteredUser.secondary_phone_number}
+                                        placeholder="Secondary Phone Number"
+                                        onChange={handleInputChange}
+                                        className="profile-input"
+                                    />
+                                    <button 
+                                    type='button'
+                                    onClick={() => navigate('/admin/editAlternativeNumber', {state: {userId}})}
+                                    className=''>
+                                        Icon
+                                    </button>
                                 </div>
 
                                 <div className="profile-input-group">

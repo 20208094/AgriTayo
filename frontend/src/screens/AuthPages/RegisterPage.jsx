@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const API_KEY = import.meta.env.VITE_API_KEY;
@@ -9,7 +9,6 @@ function RegisterPage() {
         middlename: '',
         lastname: '',
         birthday: '',
-        gender: '',
         phone_number: '',
         secondary_phone_number: '',
         password: '',
@@ -19,10 +18,57 @@ function RegisterPage() {
     });
 
     console.log("console.log", formData)
-    
+
     const [errors, setErrors] = useState({});
     const [submitError, setSubmitError] = useState('');
     const navigate = useNavigate();
+
+    const [phoneNumbersList, setPhoneNumbersList] = useState([]);
+    const [phoneSecondaryNumbersList, setSecondaryPhoneNumbersList] = useState(
+        []
+    );
+
+    useEffect(() => {
+        const fetchPhoneNumbers = async () => {
+          try {
+            const response = await fetch(`/api/users`, {
+              headers: { "x-api-key": API_KEY },
+            });
+            if (response.ok) {
+              const data = await response.json();
+              const numbers = data.map((user) => user.phone_number);
+              setPhoneNumbersList(numbers);
+            } else {
+              console.error("Failed to fetch phone numbers");
+            }
+          } catch (error) {
+            console.error("Error fetching phone numbers:", error);
+          }
+        };
+    
+        fetchPhoneNumbers();
+      }, []);
+    
+      useEffect(() => {
+        const fetchSecondaryPhoneNumbers = async () => {
+          try {
+            const response = await fetch(`/api/users`, {
+              headers: { "x-api-key": API_KEY },
+            });
+            if (response.ok) {
+              const data = await response.json();
+              const numbers = data.map((user) => user.secondary_phone_number);
+              setSecondaryPhoneNumbersList(numbers);
+            } else {
+              console.error("Failed to fetch phone numbers");
+            }
+          } catch (error) {
+            console.error("Error fetching phone numbers:", error);
+          }
+        };
+    
+        fetchSecondaryPhoneNumbers();
+      }, []);
 
     // Regular expressions for validation
     const regex = {
@@ -62,8 +108,8 @@ function RegisterPage() {
 
         // Check required fields and set errors if any
         let hasError = false;
-        const requiredFields = ['firstname', 'lastname', 'birthday', 'gender', 'phone_number', 'password', 'confirm_password'];
-        
+        const requiredFields = ['firstname', 'lastname', 'birthday', 'phone_number', 'password', 'confirm_password'];
+
         requiredFields.forEach((field) => {
             if (!formData[field]) {
                 setErrors((prev) => ({ ...prev, [field]: `${field.replace("_", " ")} is required.` }));
@@ -78,8 +124,43 @@ function RegisterPage() {
 
         if (hasError) return;
 
-        navigate('/otp', { state: { formData } });
+        if (
+            formData.phone_number &&
+            formData.secondary_phone_number &&
+            (phoneNumbersList.includes(formData.phone_number) ||
+              phoneSecondaryNumbersList.includes(formData.phone_number)) &&
+            (phoneNumbersList.includes(formData.secondary_phone_number) ||
+              phoneSecondaryNumbersList.includes(formData.secondary_phone_number))
+          ) {
+            alert(
+              "Both Phone and Alternative Number are Already Registered"
+            );
+            return;
+          }
+      
+          if (
+            formData.phone_number &&
+            (phoneNumbersList.includes(formData.phone_number) ||
+              phoneSecondaryNumbersList.includes(formData.phone_number))
+          ) {
+            alert("Phone Number is Already Registered");
+            return;
+          }
+      
+          if (
+            formData.secondary_phone_number &&
+            (phoneSecondaryNumbersList.includes(formData.secondary_phone_number) ||
+              phoneNumbersList.includes( formData.secondary_phone_number))
+          ) {
+            alert("Alternative Phone Number is Already Registered");
+            return;
+          }
 
+        if (formData.secondary_phone_number) {
+            navigate('/otpPhones', { state: { formData } });
+        } else {
+            navigate('/otp', { state: { formData } });
+        }
         console.log('FormData:', formData)
 
         // try {
@@ -158,20 +239,6 @@ function RegisterPage() {
                                 />
                             </div>
                             <div className="form-group">
-                                <label>Gender: {errors.gender && <p className="text-color-red">* {errors.gender}</p>}</label>
-                                <select
-                                    name="gender"
-                                    value={formData.gender}
-                                    onChange={handleInputChange}
-                                    className="form-input"
-                                >
-                                    <option value="">Select Gender</option>
-                                    <option value="Male">Male</option>
-                                    <option value="Female">Female</option>
-                                    <option value="Others">Others</option>
-                                </select>
-                            </div>
-                            <div className="form-group">
                                 <label>Phone Number: {errors.phone_number && <p className="text-color-red">* {errors.phone_number}</p>}</label>
                                 <input
                                     type="text"
@@ -215,7 +282,7 @@ function RegisterPage() {
                             </div>
                         </div>
                         <button type="submit" className="register-button"
-                        onClick={handleSubmit}
+                            onClick={handleSubmit}
                         >Register</button>
                         <button
                             type="button"

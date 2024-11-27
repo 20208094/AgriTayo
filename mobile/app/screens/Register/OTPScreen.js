@@ -27,7 +27,8 @@ function OTPScreen({ route, navigation }) {
   const [seconds, setSeconds] = useState(10 * 60);
   const [secondsSecondary, setSecondsSecondary] = useState(10 * 60);
   const [isResendEnabled, setIsResendEnabled] = useState(false);
-  const [isResendEnabledSecondary, setIsResendEnabledSecondary] = useState(false);
+  const [isResendEnabledSecondary, setIsResendEnabledSecondary] =
+    useState(false);
 
   const socket = io(REACT_NATIVE_API_BASE_URL);
 
@@ -75,7 +76,7 @@ function OTPScreen({ route, navigation }) {
   useEffect(() => {
     generateRandomCode();
     generateRandomCode2();
-  }, [phone, secondaryPhoneNumber]); 
+  }, [phone, secondaryPhoneNumber]);
 
   useEffect(() => {
     let interval = null;
@@ -299,11 +300,13 @@ function OTPScreen({ route, navigation }) {
         <View className="flex-row items-center mb-6">
           <Text className="text-gray-600">- Didn’t receive the code? </Text>
           <TouchableOpacity
-            onPress={isResendEnabledSecondary  ? handleResend2 : null}
-            disabled={!isResendEnabledSecondary }
+            onPress={isResendEnabledSecondary ? handleResend2 : null}
+            disabled={!isResendEnabledSecondary}
           >
             <Text
-              className={`text-${isResendEnabledSecondary  ? "green-500" : "gray-400"}`}
+              className={`text-${
+                isResendEnabledSecondary ? "green-500" : "gray-400"
+              }`}
             >
               Resend
             </Text>
