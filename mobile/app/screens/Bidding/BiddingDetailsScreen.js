@@ -142,8 +142,15 @@ function BiddingDetailsScreen({ route, navigation }) {
   // Function to calculate time left
   const calculateTimeLeft = (endDate) => {
     const now = new Date();
+    // Convert the endDate to the correct timezone
     const end = new Date(endDate);
-    const difference = end - now;
+    
+    // Adjust for timezone
+    const philippinesOffset = 8 * 60; // Philippines is UTC+8
+    const localOffset = now.getTimezoneOffset();
+    const offsetDiff = (philippinesOffset + localOffset) * 60 * 1000;
+    
+    const difference = end.getTime() + offsetDiff - now.getTime();
 
     let timeLeft = {};
 
@@ -189,12 +196,14 @@ function BiddingDetailsScreen({ route, navigation }) {
           Number of Bids: {bidData.number_of_bids}
         </Text>
         <Text className="text-sm text-gray-500 mb-1 text-center">
-          Ends on: {new Date(bidData.end_date).toLocaleDateString('en-US', {
+          Ends on: {new Date(bidData.end_date).toLocaleString('en-US', {
             year: 'numeric',
             month: 'long',
             day: 'numeric',
             hour: '2-digit',
-            minute: '2-digit'
+            minute: '2-digit',
+            hour12: true,
+            timeZone: 'Asia/Manila'
           })}
         </Text>
         <Text className="text-center text-xl font-semibold text-gray-900 mt-4">

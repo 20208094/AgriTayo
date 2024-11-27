@@ -6,7 +6,8 @@ import {
   FlatList,
   SafeAreaView,
   Modal,
-  TextInput
+  TextInput,
+  ScrollView
 } from "react-native";
 import {
   useNavigation,
@@ -176,42 +177,48 @@ function CheckOutScreen() {
           Choose Shipping Method
         </Text>
         {shopDetails.delivery && (
-          <TouchableOpacity
-            className={`p-3 rounded-lg flex-row items-center justify-between mb-2 ${selectedShippingMethod === "Delivery"
-              ? "bg-[#c6f7d8] border-l-4 border-[#00b251]"
-              : "bg-white"
+          <>
+            <TouchableOpacity
+              className={`p-3 rounded-lg flex-row items-center justify-between mb-2 ${
+                selectedShippingMethod === "Delivery"
+                  ? "bg-[#c6f7d8] border-l-4 border-[#00b251]"
+                  : "bg-white"
               }`}
-            onPress={() => handleShippingOption("Delivery")}
-          >
-            <View className="flex-row items-center">
-              <Icon
-                name="truck"
-                size={24}
-                color={
-                  selectedShippingMethod === "Delivery" ? "#00b251" : "#aaa"
-                }
-              />
-              <Text className="text-gray-800 ml-2">
-                Delivery - ₱{shopDetails.delivery_price_min.toFixed(2)}   to   ₱{shopDetails.delivery_price_max.toFixed(2)}
-              </Text>
-              <Text className="text-sm mb-2 text-gray-800">
-              </Text>
-            </View>
+              onPress={() => handleShippingOption("Delivery")}
+            >
+              <View className="flex-row items-center">
+                <Icon
+                  name="truck"
+                  size={24}
+                  color={
+                    selectedShippingMethod === "Delivery" ? "#00b251" : "#aaa"
+                  }
+                />
+                <Text className="text-gray-800 ml-2">
+                  Delivery - ₱{shopDetails.delivery_price_min.toFixed(2)}   to   ₱{shopDetails.delivery_price_max.toFixed(2)}
+                </Text>
+                <Text className="text-sm mb-2 text-gray-800">
+                </Text>
+              </View>
+              {selectedShippingMethod === "Delivery" && (
+                <Icon name="check" size={24} color="#00b251" />
+              )}
+            </TouchableOpacity>
+
             {selectedShippingMethod === "Delivery" && (
-              <Icon name="check" size={24} color="#00b251" />
+              <View className="mt-1 mb-1 border-b-2 border-green-600">
+                <Text className="text-sm text-gray-800">Enter Your Address:</Text>
+                <TextInput
+                  className="w-full p-2 mb-2 bg-white rounded-lg shadow-md border border-gray-400"
+                  placeholder="#123 Barangay Maria Basa, Baguio City"
+                  value={checkOutAddress}
+                  onChangeText={setCheckOutAddress}
+                  multiline={false}
+                  autoCorrect={false}
+                />
+              </View>
             )}
-          </TouchableOpacity>
-        )}
-        {selectedShippingMethod === "Delivery" && (
-          <View className="mt-1 mb-1 border-b-2 border-green-600">
-            <Text className="text-sm text-gray-800">Enter Your Address:</Text>
-            <TextInput
-              className="w-full p-2 mb-2 bg-white rounded-lg shadow-md border border-gray-400"
-              placeholder="#123 Barangay Maria Basa, Baguio City"
-              value={checkOutAddress}
-              onChangeText={setCheckOutAddress}
-            />
-          </View>
+          </>
         )}
         {shopDetails.pickup && (
           <TouchableOpacity
@@ -360,30 +367,31 @@ function CheckOutScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-gray-100 mt-2">
-      <FlatList
-        data={checkedOutItems}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.cart_id.toString()}
+      <ScrollView 
         contentContainerStyle={{ paddingBottom: 16, paddingHorizontal: 16 }}
-        ListHeaderComponent={() => <View className="flex-1"></View>}
-        ListFooterComponent={() => (
-          <View className="flex-1">
-            {renderWarningInfo()}
-            {renderShippingMethods()}
-            {renderPaymentMethods()}
-            {renderTotalPrice()}
-            <TouchableOpacity
-              className="bg-[#00b251] py-3 rounded-lg justify-center items-center mt-2"
-              onPress={handleCompleteOrder}
-              disabled={!selectedShippingMethod || !selectedPaymentMethod} // Disable button if no options selected
-            >
-              <Text className="text-lg font-bold text-white">
-                Complete Order
-              </Text>
-            </TouchableOpacity>
+        keyboardShouldPersistTaps="always"
+      >
+        {checkedOutItems.map((item) => (
+          <View key={item.cart_id}>
+            {renderItem({ item })}
           </View>
-        )}
-      />
+        ))}
+        <View className="flex-1">
+          {renderWarningInfo()}
+          {renderShippingMethods()}
+          {renderPaymentMethods()}
+          {renderTotalPrice()}
+          <TouchableOpacity
+            className="bg-[#00b251] py-3 rounded-lg justify-center items-center mt-2"
+            onPress={handleCompleteOrder}
+            disabled={!selectedShippingMethod || !selectedPaymentMethod}
+          >
+            <Text className="text-lg font-bold text-white">
+              Complete Order
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
 
       {/* Confirmation Modal */}
       <Modal

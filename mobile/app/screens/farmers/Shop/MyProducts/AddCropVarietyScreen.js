@@ -324,9 +324,10 @@ function AddCropVarietyScreen({ navigation }) {
     <SafeAreaView className="bg-gray-100 flex-1">
       <ScrollView contentContainerStyle={{ paddingBottom: 80 }}>
         <View className="p-4">
+          {/* New Variety Input */}
           <View className="mb-4">
             <Text className="text-sm mb-2 text-gray-800">
-              Crop Variety Name <Text className="text-red-500">*</Text>
+              New Variety <Text className="text-red-500">*</Text>
               {errors.cropVarietyName && (
                 <Text className="text-red-500 text-sm mt-1">
                   {errors.cropVarietyName}
@@ -341,9 +342,11 @@ function AddCropVarietyScreen({ navigation }) {
               multiline
             />
           </View>
+
+          {/* Description */}
           <View className="mb-4">
             <Text className="text-sm mb-2 text-gray-800">
-              Crop Variety Description <Text className="text-red-500">*</Text>
+              Type a Description of the Variety{cropVarietyName && ` ${cropVarietyName}`} <Text className="text-red-500">*</Text>
               {errors.cropVarietyDescription && (
                 <Text className="text-red-500 text-sm mt-1">
                   {errors.cropVarietyDescription}
@@ -360,9 +363,11 @@ function AddCropVarietyScreen({ navigation }) {
               multiline
             />
           </View>
+
           {/* Category Selector */}
           <View className="mb-4">
-            <Text className="text-sm mb-2 text-gray-800">Crop Category <Text className="text-red-500">*</Text>
+            <Text className="text-sm mb-2 text-gray-800">
+              Select a Category for the Variety{cropVarietyName && ` ${cropVarietyName}`} <Text className="text-red-500">*</Text>
               {errors.selectedCategory && (
                 <Text className="text-red-500 text-sm mt-1">
                   {errors.selectedCategory}
@@ -399,9 +404,11 @@ function AddCropVarietyScreen({ navigation }) {
               </View>
             )}
           </View>
+
           {/* Sub-Category Selector */}
           <View className="mb-4">
-            <Text className="text-sm mb-2 text-gray-800">Sub-Category<Text className="text-red-500">*</Text>
+            <Text className="text-sm mb-2 text-gray-800">
+              Select a Sub-Category for the Variety {cropVarietyName && ` ${cropVarietyName}`} <Text className="text-red-500">*</Text>
               {errors.selectedSubCategory && (
                 <Text className="text-red-500 text-sm mt-1">
                   {errors.selectedSubCategory}
@@ -438,9 +445,11 @@ function AddCropVarietyScreen({ navigation }) {
               </View>
             )}
           </View>
+
+          {/* Image Selection */}
           <View className="mb-4">
             <Text className="text-sm mb-2 text-gray-800">
-              Crop Variety Image <Text className="text-red-500">*</Text>
+              Select an image for the Variety{cropVarietyName && ` ${cropVarietyName}`} <Text className="text-red-500">*</Text>
               {errors.cropImage && (
                 <Text className="text-red-500 text-sm mt-1">
                   {errors.cropImage}
@@ -471,6 +480,7 @@ function AddCropVarietyScreen({ navigation }) {
               </View>
             )}
           </View>
+
           {/* Modal for Image Selection */}
           <Modal visible={modalVisible} transparent={true} animationType="slide">
             <View className="flex-1 justify-center items-center bg-black/50">

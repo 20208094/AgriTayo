@@ -348,7 +348,7 @@ function AddCropSubCategoryScreen({ navigation }) {
         <View className="p-4">
           <View className="mb-4">
             <Text className="text-sm mb-2 text-gray-800">
-              Crop Sub Category Name <Text className="text-red-500">*</Text>
+              New Sub Category <Text className="text-red-500">*</Text>
               {errors.cropSubCategoryName && (
                 <Text className="text-red-500 text-sm mt-1">
                   {errors.cropSubCategoryName}
@@ -368,7 +368,7 @@ function AddCropSubCategoryScreen({ navigation }) {
 
           <View className="mb-4">
             <Text className="text-sm mb-2 text-gray-800">
-              Crop Variety Name <Text className="text-red-500">*</Text>
+              Type a Variety of {cropSubCategoryName && ` ${cropSubCategoryName}`} <Text className="text-red-500">*</Text>
               {errors.cropVarietyName && (
                 <Text className="text-red-500 text-sm mt-1">
                   {errors.cropVarietyName}
@@ -384,7 +384,8 @@ function AddCropSubCategoryScreen({ navigation }) {
             />
           </View>
           <View className="mb-4">
-            <Text className="text-sm mb-2 text-gray-800">Crop Description <Text className="text-red-500">*</Text>
+            <Text className="text-sm mb-2 text-gray-800">
+              Type a Description of the Sub Category {cropSubCategoryName && ` ${cropSubCategoryName}`} <Text className="text-red-500">*</Text>
               {errors.cropSubCategoryDescription && (
                 <Text className="text-red-500 text-sm mt-1">
                   {errors.cropSubCategoryDescription}
@@ -403,7 +404,8 @@ function AddCropSubCategoryScreen({ navigation }) {
           </View>
           {/* Category Selector */}
           <View className="mb-4">
-            <Text className="text-sm mb-2 text-gray-800">Crop Category<Text className="text-red-500">*</Text>
+            <Text className="text-sm mb-2 text-gray-800">
+              Select a Category for the Sub Category {cropSubCategoryName && ` ${cropSubCategoryName}`} <Text className="text-red-500">*</Text>
               {errors.selectedCategory && (
                 <Text className="text-red-500 text-sm mt-1">
                   {errors.selectedCategory}
@@ -442,7 +444,7 @@ function AddCropSubCategoryScreen({ navigation }) {
           </View>
           <View className="mb-4">
             <Text className="text-sm mb-2 text-gray-800">
-              Crop Sub Category Image <Text className="text-red-500">*</Text>
+              Select an image for the Sub Category {cropSubCategoryName && ` ${cropSubCategoryName}`} <Text className="text-red-500">*</Text>
               {errors.cropImage && (
                 <Text className="text-red-500 text-sm mt-1">
                   {errors.cropImage}

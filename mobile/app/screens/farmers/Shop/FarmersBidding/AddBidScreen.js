@@ -80,13 +80,17 @@ function AddBidScreen({ navigation }) {
   const [date, setDate] = useState(new Date());
   const [formattedDate, setFormattedDate] = useState("");
 
+  // Add new state variables for time
+  const [showTime, setShowTime] = useState(false);
+  const [time, setTime] = useState(new Date());
+  const [formattedTime, setFormattedTime] = useState("");
 
-
+  // Modify handleDateChange to ensure proper date formatting
   const handleDateChange = (event, selectedDate) => {
     if (event.type === "set") {
       const currentDate = selectedDate || date;
       const today = new Date();
-      today.setHours(0, 0, 0, 0); 
+      today.setHours(0, 0, 0, 0);
 
       if (currentDate < today) {
         setErrors((prev) => ({
@@ -96,12 +100,50 @@ function AddBidScreen({ navigation }) {
       } else {
         setShow(false);
         setDate(currentDate);
-        setFormattedDate(currentDate.toLocaleDateString());
-        setEndDate(currentDate.toLocaleDateString());
-        setErrors((prev) => ({ ...prev, endDate: "" })); 
+        // Format date for display
+        setFormattedDate(currentDate.toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        }));
+        setShowTime(true);
+        setErrors((prev) => ({ ...prev, endDate: "" }));
       }
     } else {
       setShow(false);
+    }
+  };
+
+  // Modify handleTimeChange to ensure proper datetime formatting
+  const handleTimeChange = (event, selectedTime) => {
+    if (event.type === "set") {
+      const currentTime = selectedTime || time;
+      setShowTime(false);
+      setTime(currentTime);
+      
+      // Format time for display with explicit timezone handling
+      const formattedTimeStr = currentTime.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true,
+        timeZone: 'Asia/Manila' // Set to Philippines timezone
+      });
+      setFormattedTime(formattedTimeStr);
+      
+      // Combine date and time with proper timezone handling
+      const combinedDateTime = new Date(date);
+      combinedDateTime.setHours(currentTime.getHours());
+      combinedDateTime.setMinutes(currentTime.getMinutes());
+      combinedDateTime.setSeconds(0);
+      combinedDateTime.setMilliseconds(0);
+
+      // Convert to UTC for storage while preserving the local time
+      const offset = combinedDateTime.getTimezoneOffset() * 60000; // Convert offset to milliseconds
+      const localISOTime = new Date(combinedDateTime.getTime() - offset).toISOString();
+      
+      setEndDate(localISOTime);
+    } else {
+      setShowTime(false);
     }
   };
 
@@ -115,6 +157,7 @@ function AddBidScreen({ navigation }) {
     setSelectedCategory(category.crop_category_name);
     setSelectedCategoryId(category.crop_category_id);
     setIsClickedCategory(false);
+    setErrors((prev) => ({ ...prev, selectedCategoryId: "" }));
     fetchSubCategories(category.crop_category_id);
   };
 
@@ -128,6 +171,7 @@ function AddBidScreen({ navigation }) {
     setSelectedSubCategory(subCategory.crop_sub_category_name);
     setSelectedSubCategoryId(subCategory.crop_sub_category_id);
     setIsClickedSubCategory(false);
+    setErrors((prev) => ({ ...prev, selectedSubCategoryId: "" }));
   };
 
   // for metric system
@@ -139,6 +183,7 @@ function AddBidScreen({ navigation }) {
     setSelectedMetricSystem(metric.metric_system_name);
     setSelectedMetricSystemId(metric.metric_system_id);
     setIsClickedMetricSystem(false);
+    setErrors((prev) => ({ ...prev, selectedMetricSystemId: "" }));
   };
 
   // for fetching
@@ -393,6 +438,7 @@ function AddBidScreen({ navigation }) {
       const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/biddings`, {
         method: "POST",
         headers: {
+          "Content-Type": "multipart/form-data",
           "x-api-key": REACT_NATIVE_API_KEY,
         },
         body: formData,
@@ -436,8 +482,10 @@ function AddBidScreen({ navigation }) {
               value={bidName}
               onChangeText={(text) => {
                 setBidName(text);
-                if (!NAME_REGEX.test(text)) {
-                  setErrors((prev) => ({ ...prev, bidName: "Product Name must be 3-50 characters long." }));
+                if (text === '') {
+                  setErrors((prev) => ({ ...prev, bidName: '' }));
+                } else if (!NAME_REGEX.test(text)) {
+                  setErrors((prev) => ({ ...prev, bidName: "Product Name must be 3-50 characters long and only letters." }));
                 } else {
                   setErrors((prev) => ({ ...prev, bidName: "" }));
                 }
@@ -457,7 +505,9 @@ function AddBidScreen({ navigation }) {
               value={bidDescription}
               onChangeText={(text) => {
                 setBidDescription(text);
-                if (!DESCRIPTION_REGEX.test(text)) {
+                if (text === '') {
+                  setErrors((prev) => ({ ...prev, bidDescription: '' }));
+                } else if (!DESCRIPTION_REGEX.test(text)) {
                   setErrors((prev) => ({ ...prev, bidDescription: "Description must be 5-200 characters." }));
                 } else {
                   setErrors((prev) => ({ ...prev, bidDescription: "" }));
@@ -615,7 +665,7 @@ function AddBidScreen({ navigation }) {
             >
               <View className='border border-gray-300 rounded-lg p-2'>
                 <Text className="text-gray-800">
-                  {formattedDate || "Select Date"}
+                  {formattedDate ? `${formattedDate} ${formattedTime}` : "Select Date and Time"}
                 </Text>
               </View>
             </TouchableOpacity>
@@ -627,6 +677,16 @@ function AddBidScreen({ navigation }) {
                 is24Hour={true}
                 display="default"
                 onChange={handleDateChange}
+              />
+            )}
+            {showTime && (
+              <DateTimePicker
+                testID="timeTimePicker"
+                value={time}
+                mode="time"
+                is24Hour={true}
+                display="default"
+                onChange={handleTimeChange}
               />
             )}
           </View>
@@ -644,7 +704,9 @@ function AddBidScreen({ navigation }) {
               value={bidStartingPrice}
               onChangeText={(text) => {
                 setBidStartingPrice(text);
-                if (!PRICE_REGEX.test(text)) {
+                if (text === '') {
+                  setErrors((prev) => ({ ...prev, bidStartingPrice: '' }));
+                } else if (!PRICE_REGEX.test(text)) {
                   setErrors((prev) => ({ ...prev, bidStartingPrice: "Enter a valid price (e.g., 100 or 100.00)." }));
                 } else {
                   setErrors((prev) => ({ ...prev, bidStartingPrice: "" }));
@@ -665,7 +727,9 @@ function AddBidScreen({ navigation }) {
               value={bidMinimumIncrement}
               onChangeText={(text) => {
                 setBidMinimumIcrement(text);
-                if (!PRICE_REGEX.test(text)) {
+                if (text === '') {
+                  setErrors((prev) => ({ ...prev, bidMinimumIncrement: '' }));
+                } else if (!PRICE_REGEX.test(text)) {
                   setErrors((prev) => ({ ...prev, bidMinimumIncrement: "Enter a valid minimum bid increment (e.g., 5 or 5.00)." }));
                 } else {
                   setErrors((prev) => ({ ...prev, bidMinimumIncrement: "" }));
