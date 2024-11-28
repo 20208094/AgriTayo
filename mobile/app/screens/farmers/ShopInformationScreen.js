@@ -48,13 +48,24 @@ function ShopInformationScreen({ route, navigation }) {
   const handleInputChange = (field, value) => {
     let error = "";
 
-    // If the value is empty, clear the error for that field
-    if (!value) {
-      setErrors((prev) => ({
-        ...prev,
-        [field]: "",
-      }));
-    }
+    // Helper function to format number to 2 decimal places
+    const formatToTwoDecimals = (value) => {
+      // Remove any non-numeric or non-decimal characters
+      let cleanValue = value.replace(/[^\d.]/g, '');
+      
+      // Ensure only one decimal point
+      const parts = cleanValue.split('.');
+      if (parts.length > 2) {
+        cleanValue = parts[0] + '.' + parts.slice(1).join('');
+      }
+      
+      // Limit to 2 decimal places
+      if (parts.length === 2 && parts[1].length > 2) {
+        cleanValue = parts[0] + '.' + parts[1].slice(0, 2);
+      }
+
+      return cleanValue;
+    };
 
     switch (field) {
       case "shopName":
@@ -80,32 +91,49 @@ function ShopInformationScreen({ route, navigation }) {
         break;
 
       case "shopDeliveryFeeMin":
-        if (
-          isCheckedDelivery &&
-          value &&
-          (!/^\d+$/.test(value) || value < 0)
-        ) {
-          error = "\n Minimum delivery fee must be a positive integer.";
+        // Format and validate minimum delivery fee
+        let minValue = formatToTwoDecimals(value);
+        if (value.startsWith('.')) minValue = `0${minValue}`;
+        const numericMin = parseFloat(minValue);
+        
+        if (isCheckedDelivery && value) {
+          if (isNaN(numericMin) || numericMin < 0) {
+            error = "\n Minimum delivery fee must be a positive number.";
+          } else if (shopDeliveryFeeMax && parseFloat(shopDeliveryFeeMax) < numericMin) {
+            error = "\n Minimum delivery fee cannot be greater than maximum delivery fee.";
+          }
         }
-        setShopDeliveryFeeMin(value);
+        setShopDeliveryFeeMin(minValue);
         break;
 
       case "shopDeliveryFeeMax":
-        if (
-          isCheckedDelivery &&
-          value &&
-          (!/^\d+$/.test(value) || value < 0)
-        ) {
-          error = "\n Maximum delivery fee must be a positive integer.";
+        // Format and validate maximum delivery fee
+        let maxValue = formatToTwoDecimals(value);
+        if (value.startsWith('.')) maxValue = `0${maxValue}`;
+        const numericMax = parseFloat(maxValue);
+        
+        if (isCheckedDelivery && value) {
+          if (isNaN(numericMax) || numericMax < 0) {
+            error = "\n Maximum delivery fee must be a positive number.";
+          } else if (shopDeliveryFeeMin && numericMax < parseFloat(shopDeliveryFeeMin)) {
+            error = "\n Maximum delivery fee cannot be less than minimum delivery fee.";
+          }
         }
-        setShopDeliveryFeeMax(value);
+        setShopDeliveryFeeMax(maxValue);
         break;
 
       case "pickupAreaFee":
-        if (isCheckedPickup && value && (!/^\d+$/.test(value) || value <= 0)) {
-          error = "Pickup area fee must be a positive integer.";
+        // Format and validate pickup area fee
+        let pickupValue = formatToTwoDecimals(value);
+        if (value.startsWith('.')) pickupValue = `0${pickupValue}`;
+        const numericPickup = parseFloat(pickupValue);
+        
+        if (isCheckedPickup && value) {
+          if (isNaN(numericPickup) || numericPickup <= 0) {
+            error = "Pickup area fee must be a positive number.";
+          }
         }
-        setPickupAreaFee(value);
+        setPickupAreaFee(pickupValue);
         break;
 
       case "shopNumber":
@@ -580,7 +608,8 @@ function ShopInformationScreen({ route, navigation }) {
                   }
                   className="w-2/5 p-2 mb-4 bg-white rounded-lg flex-1 shadow-md text-gray-800 border"
                   placeholder="Enter delivery fee"
-                  keyboardType="numeric"
+                  keyboardType="decimal-pad"
+                  maxLength={10}
                 />
                 <View className="mt-2">
                   <Ionicons
@@ -596,7 +625,8 @@ function ShopInformationScreen({ route, navigation }) {
                   }
                   className="w-2/5 p-2 mb-4 bg-white rounded-lg flex-1 shadow-md text-gray-800 border"
                   placeholder="Enter delivery fee"
-                  keyboardType="numeric"
+                  keyboardType="decimal-pad"
+                  maxLength={10}
                 />
               </View>
             </>
@@ -654,7 +684,8 @@ function ShopInformationScreen({ route, navigation }) {
                 }
                 className="w-full p-2 mb-4 bg-white rounded-lg shadow-md text-gray-800"
                 placeholder="Enter pickup area fee"
-                keyboardType="numeric"
+                keyboardType="decimal-pad"
+                maxLength={10}
               />
             </>
           )}
