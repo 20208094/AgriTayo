@@ -15,6 +15,8 @@ import './styles/DeleteAccount.css'
 import './styles/SubSidebar.css'
 import './styles/Chat.css'
 import './styles/ChatListPage.css'
+import './styles/OTPPhonesPage.css'
+import './styles/OTPPage.css'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

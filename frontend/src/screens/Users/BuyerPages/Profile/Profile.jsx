@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 const API_KEY = import.meta.env.VITE_API_KEY;
-import { FaCamera } from 'react-icons/fa'; 
+import { FaCamera, FaPencilAlt } from 'react-icons/fa'; 
 import { useNavigate } from 'react-router-dom';
 
 function Profile({ onProfileUpdate }) {
@@ -205,38 +205,46 @@ function Profile({ onProfileUpdate }) {
 
                                 <div className="profile-input-group">
                                     <label className="profile-label">Phone Number</label>
-                                    <input
-                                        type="text"
-                                        name="phone_number"
-                                        value={filteredUser.phone_number}
-                                        placeholder="Phone Number"
-                                        onChange={handleInputChange}
-                                        className="profile-input"
-                                    />
-                                    <button 
-                                    type='button'
-                                    onClick={() => navigate('/admin/editPhoneNumber', {state: {userId}})}
-                                    className=''>
-                                        Icon
-                                    </button>
+                                    <div className="profile-input-wrapper">
+                                        <input
+                                            type="text"
+                                            name="phone_number"
+                                            value={filteredUser.phone_number}
+                                            placeholder="Phone Number"
+                                            onChange={handleInputChange}
+                                            className="profile-input with-icon"
+                                            readOnly
+                                        />
+                                        <button 
+                                            type='button'
+                                            onClick={() => navigate('/admin/editPhoneNumber', {state: {userId}})}
+                                            className='edit-icon-button'
+                                        >
+                                            <FaPencilAlt className="edit-icon" />
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <div className="profile-input-group">
                                     <label className="profile-label">Alternative Phone Number</label>
-                                    <input
-                                        type="text"
-                                        name="secondary_phone_number"
-                                        value={filteredUser.secondary_phone_number}
-                                        placeholder="Secondary Phone Number"
-                                        onChange={handleInputChange}
-                                        className="profile-input"
-                                    />
-                                    <button 
-                                    type='button'
-                                    onClick={() => navigate('/admin/editAlternativeNumber', {state: {userId}})}
-                                    className=''>
-                                        Icon
-                                    </button>
+                                    <div className="profile-input-wrapper">
+                                        <input
+                                            type="text"
+                                            name="secondary_phone_number"
+                                            value={filteredUser.secondary_phone_number}
+                                            placeholder="Secondary Phone Number"
+                                            onChange={handleInputChange}
+                                            className="profile-input with-icon"
+                                            readOnly
+                                        />
+                                        <button 
+                                            type='button'
+                                            onClick={() => navigate('/admin/editAlternativeNumber', {state: {userId}})}
+                                            className='edit-icon-button'
+                                        >
+                                            <FaPencilAlt className="edit-icon" />
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <div className="profile-input-group">

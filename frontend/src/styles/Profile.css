@@ -134,6 +134,19 @@
     border: 1px solid #ddd;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     width: 100%; /* Ensure inputs take full width of their container */
+    transition: border-color 0.3s ease;
+}
+
+.profile-input:focus {
+    outline: none;
+    border-color: #00B251;
+    box-shadow: 0 0 0 2px rgba(0, 178, 81, 0.1);
+}
+
+/* Add styles for readonly inputs */
+.profile-input[readonly] {
+    background-color: #f8f8f8;
+    cursor: default;
 }
 
 /* Profile radio buttons */
@@ -242,4 +255,37 @@
     .profile-submit-button {
         padding: 0.5rem 3rem; /* Adjust button size further */
     }
+}
+
+/* Add these new styles */
+.profile-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.profile-input.with-icon {
+    padding-right: 40px; /* Make space for the icon */
+}
+
+.edit-icon-button {
+    position: absolute;
+    right: 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #00B251;
+    transition: color 0.3s ease;
+}
+
+.edit-icon-button:hover {
+    color: #008f42;
+}
+
+.edit-icon {
+    font-size: 1.2rem;
 }

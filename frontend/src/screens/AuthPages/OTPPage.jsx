@@ -128,55 +128,58 @@ function OTPPage() {
 
     if (loading) {
         return (
-            <p className=''>Loading</p>
+            <div className="loading">Loading...</div>
         )
     }
 
     return (
-        <>
-            <div className=''>
-                <div className=''>
-                    <h1 className=''>Verify Your Phone Number</h1>
-                </div>
-                <div className=''>
-                    <p className=''> A 6-digit code has been sent to {formData.phone_number}</p>
-                </div>
-                <div className=''>
-                    <input className=''
-                        type='text'
-                        placeholder='123456'
-                        value={phoneNumber}
-                        onChange={(e) => setPhoneNumber(e.target.value)}
-                    />
-                </div>
-                {otpError ? (
-                    <p>{otpError}</p>
-                ) : null}
-                <div className=''>
-                    <p className=''>- Didn’t receive the code?</p>
+        <div className="otp-container">
+            <div className="otp-card">
+                <div className="otp-content">
+                    <h1 className="otp-header">Verify Your Phone Number</h1>
+                    
+                    <p className="otp-instructions">
+                        A 6-digit code has been sent to 
+                        <span className="phone-number">{formData.phone_number}</span>
+                    </p>
+                    
+                    <div className="input-container">
+                        <input 
+                            className="otp-input"
+                            type="text"
+                            placeholder="Enter 6-digit code"
+                            maxLength="6"
+                            value={phoneNumber}
+                            onChange={(e) => setPhoneNumber(e.target.value)}
+                        />
+                        {otpError && <p className="otp-error">{otpError}</p>}
+                    </div>
+
+                    <div className="resend-container">
+                        <p className="resend-text">Didn't receive the code?</p>
+                        <button
+                            onClick={isResendEnabled ? handleResend : null}
+                            disabled={!isResendEnabled}
+                            className="resend-button"
+                        >
+                            Resend
+                        </button>
+                    </div>
+
+                    {seconds > 0 && (
+                        <p className="timer">Code expires in {formatTime(seconds)}</p>
+                    )}
+
                     <button
-                        onClick={isResendEnabled ? handleResend : null}
-                        disabled={isResendEnabled}
-                        className={`text-${isResendEnabled ? "green-500" : "gray-400"} ${isResendEnabled ? "cursor-pointer" : "cursor-not-allowed"
-                            }`}
+                        className="verify-button"
+                        onClick={handleOtp}
                     >
-                        Resend
+                        Verify
                     </button>
                 </div>
-
-                {seconds > 0 && (
-                    <p className=''>- The OTP will expire in {formatTime(seconds)}</p>
-                )}
-
-                <button
-                    className=''
-                    onClick={handleOtp}
-                >
-                    Verify
-                </button>
-
             </div>
-        </>
-    )
+        </div>
+    );
 }
+
 export default OTPPage;

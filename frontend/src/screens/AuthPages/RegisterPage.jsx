@@ -83,23 +83,83 @@ function RegisterPage() {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
 
-        // Real-time validation
-        if (name === 'firstname' && !regex.firstname.test(value)) {
-            setErrors((prev) => ({ ...prev, firstname: "Invalid First Name. Please enter at least 2 letters." }));
-        } else if (name === 'middlename' && value && !regex.middlename.test(value)) {
-            setErrors((prev) => ({ ...prev, middlename: "Invalid Middle Name. Please enter at least 2 letters." }));
-        } else if (name === 'lastname' && !regex.lastname.test(value)) {
-            setErrors((prev) => ({ ...prev, lastname: "Invalid Last Name. Please enter at least 2 letters." }));
-        } else if (name === 'phone_number' && !regex.phone.test(value)) {
-            setErrors((prev) => ({ ...prev, phone_number: "Invalid phone number. Format should start with 09 and have 11 digits." }));
-        } else if (name === 'secondary_phone_number' && value && !regex.phone.test(value)) {
-            setErrors((prev) => ({ ...prev, secondary_phone_number: "Invalid alternative phone number format." }));
-        } else if (name === 'password' && !regex.password.test(value)) {
-            setErrors((prev) => ({ ...prev, password: "Password must contain 8-30 characters, including letters and numbers." }));
-        } else if (name === 'confirm_password' && value !== formData.password) {
-            setErrors((prev) => ({ ...prev, confirm_password: "Passwords do not match." }));
-        } else {
+        // Clear error when input is empty
+        if (value === '') {
             setErrors((prev) => ({ ...prev, [name]: "" }));
+            return;
+        }
+
+        // Real-time validation
+        switch (name) {
+            case 'firstname':
+                if (!regex.firstname.test(value)) {
+                    setErrors((prev) => ({ ...prev, firstname: "Invalid First Name. Please enter at least 2 letters." }));
+                } else {
+                    setErrors((prev) => ({ ...prev, firstname: "" }));
+                }
+                break;
+            case 'middlename':
+                if (value && !regex.middlename.test(value)) {
+                    setErrors((prev) => ({ ...prev, middlename: "Invalid Middle Name. Please enter at least 2 letters." }));
+                } else {
+                    setErrors((prev) => ({ ...prev, middlename: "" }));
+                }
+                break;
+            case 'lastname':
+                if (!regex.lastname.test(value)) {
+                    setErrors((prev) => ({ ...prev, lastname: "Invalid Last Name. Please enter at least 2 letters." }));
+                } else {
+                    setErrors((prev) => ({ ...prev, lastname: "" }));
+                }
+                break;
+            case 'phone_number':
+                if (!regex.phone.test(value)) {
+                    setErrors((prev) => ({ ...prev, phone_number: "Invalid phone number. Format should start with 09 and have 11 digits." }));
+                } else {
+                    setErrors((prev) => ({ ...prev, phone_number: "" }));
+                }
+                break;
+            case 'secondary_phone_number':
+                if (value && !regex.phone.test(value)) {
+                    setErrors((prev) => ({ ...prev, secondary_phone_number: "Invalid alternative phone number format." }));
+                } else {
+                    setErrors((prev) => ({ ...prev, secondary_phone_number: "" }));
+                }
+                break;
+            case 'password':
+                if (!regex.password.test(value)) {
+                    setErrors((prev) => ({ ...prev, password: "Password must contain 8-30 characters, including letters and numbers." }));
+                } else {
+                    setErrors((prev) => ({ ...prev, password: "" }));
+                }
+                // Check confirm password match
+                if (formData.confirm_password && value !== formData.confirm_password) {
+                    setErrors((prev) => ({ ...prev, confirm_password: "Passwords do not match." }));
+                } else {
+                    setErrors((prev) => ({ ...prev, confirm_password: "" }));
+                }
+                break;
+            case 'confirm_password':
+                if (value !== formData.password) {
+                    setErrors((prev) => ({ ...prev, confirm_password: "Passwords do not match." }));
+                } else {
+                    setErrors((prev) => ({ ...prev, confirm_password: "" }));
+                }
+                break;
+            case 'birthday':
+                const selectedDate = new Date(value);
+                const today = new Date();
+                const age = today.getFullYear() - selectedDate.getFullYear();
+                const monthDiff = today.getMonth() - selectedDate.getMonth();
+                
+                if (age < 18 || (age === 18 && monthDiff < 0) || (age === 18 && monthDiff === 0 && today.getDate() < selectedDate.getDate())) {
+                    setErrors((prev) => ({ ...prev, birthday: "You must be at least 18 years old" }));
+                } else {
+                    setErrors((prev) => ({ ...prev, birthday: "" }));
+                }
+                break;
+            default:
+                break;
         }
     };
 
@@ -185,6 +245,17 @@ function RegisterPage() {
         // }
     };
 
+    // Add this function to calculate max date (18 years ago from today)
+    const calculateMaxDate = () => {
+        const today = new Date();
+        const maxDate = new Date(
+            today.getFullYear() - 18,
+            today.getMonth(),
+            today.getDate()
+        );
+        return maxDate.toISOString().split('T')[0]; // Format: YYYY-MM-DD
+    };
+
     return (
         <div className="register-page">
             <div className="register-container">
@@ -197,7 +268,10 @@ function RegisterPage() {
                     <form onSubmit={handleSubmit} className="register-form">
                         <div className="grid-container">
                             <div className="form-group">
-                                <label>First Name: {errors.firstname && <p className="text-color-red">* {errors.firstname}</p>}</label>
+                                <label>
+                                    First Name
+                                    {errors.firstname && <span className="validation-message">{errors.firstname}</span>}
+                                </label>
                                 <input
                                     type="text"
                                     name="firstname"
@@ -208,7 +282,10 @@ function RegisterPage() {
                                 />
                             </div>
                             <div className="form-group">
-                                <label>Middle Name: {errors.middlename && <p className="text-color-red">* {errors.middlename}</p>}</label>
+                                <label>
+                                    Middle Name
+                                    {errors.middlename && <span className="validation-message">{errors.middlename}</span>}
+                                </label>
                                 <input
                                     type="text"
                                     name="middlename"
@@ -218,7 +295,10 @@ function RegisterPage() {
                                 />
                             </div>
                             <div className="form-group">
-                                <label>Last Name: {errors.lastname && <p className="text-color-red">* {errors.lastname}</p>}</label>
+                                <label>
+                                    Last Name
+                                    {errors.lastname && <span className="validation-message">{errors.lastname}</span>}
+                                </label>
                                 <input
                                     type="text"
                                     name="lastname"
@@ -229,17 +309,25 @@ function RegisterPage() {
                                 />
                             </div>
                             <div className="form-group">
-                                <label>Birthday: {errors.birthday && <p className="text-color-red">* {errors.birthday}</p>}</label>
+                                <label>
+                                    Birthday
+                                    {errors.birthday && <span className="validation-message">{errors.birthday}</span>}
+                                </label>
                                 <input
                                     type="date"
                                     name="birthday"
                                     value={formData.birthday}
                                     onChange={handleInputChange}
+                                    max={calculateMaxDate()}
                                     className="form-input"
+                                    required
                                 />
                             </div>
                             <div className="form-group">
-                                <label>Phone Number: {errors.phone_number && <p className="text-color-red">* {errors.phone_number}</p>}</label>
+                                <label>
+                                    Phone Number
+                                    {errors.phone_number && <span className="validation-message">{errors.phone_number}</span>}
+                                </label>
                                 <input
                                     type="text"
                                     name="phone_number"
@@ -249,7 +337,10 @@ function RegisterPage() {
                                 />
                             </div>
                             <div className="form-group">
-                                <label>Alternative Phone Number: {errors.secondary_phone_number && <p className="text-color-red">* {errors.secondary_phone_number}</p>}</label>
+                                <label>
+                                    Alternative Phone Number
+                                    {errors.secondary_phone_number && <span className="validation-message">{errors.secondary_phone_number}</span>}
+                                </label>
                                 <input
                                     type="text"
                                     name="secondary_phone_number"
@@ -259,7 +350,10 @@ function RegisterPage() {
                                 />
                             </div>
                             <div className="form-group">
-                                <label>Password: {errors.password && <p className="text-color-red">* {errors.password}</p>}</label>
+                                <label>
+                                    Password
+                                    {errors.password && <span className="validation-message">{errors.password}</span>}
+                                </label>
                                 <input
                                     type="password"
                                     name="password"
@@ -270,7 +364,10 @@ function RegisterPage() {
                                 />
                             </div>
                             <div className="form-group">
-                                <label>Confirm Password: {errors.confirm_password && <p className="text-color-red">* {errors.confirm_password}</p>}</label>
+                                <label>
+                                    Confirm Password
+                                    {errors.confirm_password && <span className="validation-message">{errors.confirm_password}</span>}
+                                </label>
                                 <input
                                     type="password"
                                     name="confirm_password"
@@ -281,9 +378,7 @@ function RegisterPage() {
                                 />
                             </div>
                         </div>
-                        <button type="submit" className="register-button"
-                            onClick={handleSubmit}
-                        >Register</button>
+                        <button type="submit" className="register-button">Register</button>
                         <button
                             type="button"
                             onClick={() => navigate('/login')}
