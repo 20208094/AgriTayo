@@ -58,6 +58,23 @@ function BusinessInformationScreen({ navigation, route }) {
   const handleTINChange = (value) => {
     const formattedTIN = formatTIN(value);
     setTin(formattedTIN);
+    
+    // Real-time validation only for format
+    const newErrors = { ...errors };
+    if (!value) {
+      // Clear error and reset attempted submit if input is empty
+      newErrors.tin = "";
+      setErrors(newErrors);
+      setAttemptedSubmit(false);
+      return;
+    } 
+    
+    if (!/^[0-9]{3}-?[0-9]{3}-?[0-9]{3}-?[0-9]{3,5}$/.test(formattedTIN)) {
+      newErrors.tin = "TIN must be in the format 123-456-789-000";
+    } else {
+      newErrors.tin = "";
+    }
+    setErrors(newErrors);
   };
   const [isTermsAccepted, setIsTermsAccepted] = useState(false); // State for terms acceptance
   const [termsModalVisible, setTermsModalVisible] = useState(false);
@@ -77,11 +94,6 @@ function BusinessInformationScreen({ navigation, route }) {
       if (!tin) {
         newErrors.tin = "TIN is required";
         isValid = false;
-      } else if (!/^[0-9]{3}-?[0-9]{3}-?[0-9]{3}-?[0-9]{3,5}$/.test(tin)) {
-        newErrors.tin = "TIN must be in the format 123-456-789-000";
-        isValid = false;
-      } else {
-        newErrors.tin = "";
       }
 
       if (!birCertificate) {
@@ -359,8 +371,11 @@ function BusinessInformationScreen({ navigation, route }) {
             <Text className="text-lg font-semibold text-green-600">
               Taxpayer Identification Number (TIN)
               <Text className="text-red-500 text-sm">*</Text>
-              {attemptedSubmit && errors.tin && (
-                <Text className="text-sm w-4/5 text-red-500 mb-4">{errors.tin}</Text>
+              {tin && errors.tin && (
+                <Text className="text-sm text-red-500 ml-2">{errors.tin}</Text>
+              )}
+              {attemptedSubmit && selectedBusinessInformation === "now" && !tin && (
+                <Text className="text-sm text-red-500 ml-2">TIN is required</Text>
               )}
             </Text>
             <TextInput
