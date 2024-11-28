@@ -43,6 +43,8 @@ function FilterProductsScreen(route) {
   const [sizesFormData, setSizesFormData] = useState([]);
   const [metricFormData, setMetricFormData] = useState([]);
 
+  const [selectedPaymentMethods, setSelectedPaymentMethods] = useState([]);
+
   const fetchCrops = async () => {
     try {
       const cropsResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crops`, {
@@ -158,6 +160,23 @@ function FilterProductsScreen(route) {
     alignItems: 'center',
   });
 
+  const togglePaymentMethodSelection = (paymentType) => {
+    if (selectedPaymentMethods.includes(paymentType)) {
+      setSelectedPaymentMethods(selectedPaymentMethods.filter(item => item !== paymentType));
+    } else {
+      setSelectedPaymentMethods([...selectedPaymentMethods, paymentType]);
+    }
+  };
+
+  const getPaymentButtonStyle = (paymentType) => ({
+    backgroundColor: selectedPaymentMethods.includes(paymentType) ? '#00B251' : '#8f8d8d',
+    padding: 12,
+    borderRadius: 5,
+    minWidth: 80,
+    justifyContent: 'center',
+    alignItems: 'center',
+  });
+
   const quantities = [
     { label: '1-5', value: [1, 5] },
     { label: '6-10', value: [6, 10] },
@@ -203,8 +222,18 @@ function FilterProductsScreen(route) {
     const filter_size_id = selectedSize;
     const filter_price_range = priceRange;
     const filter_quantity = selectedQuantity;
+    const filter_payment_methods = selectedPaymentMethods;
 
-    navigation.navigate("Compare Shops", { filter_category_id, filter_sub_category_id, filter_variety_id, filter_class, filter_size_id, filter_price_range, filter_quantity });
+    navigation.navigate("Compare Shops", { 
+      filter_category_id, 
+      filter_sub_category_id, 
+      filter_variety_id, 
+      filter_class, 
+      filter_size_id, 
+      filter_price_range, 
+      filter_quantity,
+      filter_payment_methods 
+    });
   };
 
   const handleSelectItem = (item) => {
@@ -470,6 +499,22 @@ function FilterProductsScreen(route) {
                   }}
                 >
                   <Text className="text-white font-semibold">{qty.label}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+
+          {/* Payment Methods */}
+          <View className="mb-4">
+            <Text className="mb-2 text-lg font-semibold">Choose Payment Method:</Text>
+            <View className="flex-row justify-around">
+              {['COD', 'GCash', 'Bank'].map((paymentType) => (
+                <TouchableOpacity
+                  key={paymentType}
+                  onPress={() => togglePaymentMethodSelection(paymentType)}
+                  style={getPaymentButtonStyle(paymentType)}
+                >
+                  <Text className="text-white font-semibold">{paymentType}</Text>
                 </TouchableOpacity>
               ))}
             </View>

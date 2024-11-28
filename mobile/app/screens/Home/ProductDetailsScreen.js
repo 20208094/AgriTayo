@@ -60,23 +60,35 @@ function ProductDetailsScreen({ navigation, route }) {
   };
 
   const [shopInfo, setShopInfo] = useState({
-    shop_name: 'Unknown Shop',
+    shop_name: 'Loading...',
     shop_image_url: null,
   });
 
-  // Once shopData is populated, find the correct shop info
-  useEffect(() => {
-    if (shopData && Array.isArray(shopData)) {
-      const currentShop = shopData.find(shop => shop && shop.shop_id === product.shop_id);
+  const fetchShopInfo = async () => {
+    try {
+      const shopResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/shops`, {
+        headers: {
+          "x-api-key": REACT_NATIVE_API_KEY,
+        },
+      });
+      const shopData = await shopResponse.json();
+      setShopData(shopData);
 
+      const currentShop = shopData.find(shop => shop && shop.shop_id === product.shop_id);
       if (currentShop) {
         setShopInfo({
-          shop_name: currentShop.shop_name || 'Unknown Shop',
-          shop_image_url: currentShop.shop_image_url || null,
+          shop_name: currentShop.shop_name,
+          shop_image_url: currentShop.shop_image_url,
         });
       }
+    } catch (error) {
+      console.error("Error fetching shop info:", error);
+      setShopInfo({
+        shop_name: 'Shop Not Found',
+        shop_image_url: null,
+      });
     }
-  }, [shopData, product.shop_id]);
+  };
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -94,31 +106,17 @@ function ProductDetailsScreen({ navigation, route }) {
   const decreaseQuantity = () => setQuantity(quantity > 1 ? quantity - 1 : 1);
 
   const handleShopPress = async () => {
-    if (!product) return; // Ensure that the product exists
+    if (!product) return;
 
     try {
-      // Fetch shop data first
-      const shopResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/shops`, {
-        headers: {
-          "x-api-key": REACT_NATIVE_API_KEY,
-        },
-      });
-      const shopData = await shopResponse.json();
-      setShopData(shopData);
-
-      // Check if the shop related to the product exists
-      const shop = shopData.find((s) => s && s.shop_id === product.shop_id);
-
-      if (shop) {
-        const shop_id = shop.shop_id
-        // Navigate to the Seller Shop with the product and shop information
-        navigation.navigate('Seller Shop', { shop_id });
+      if (shopInfo.shop_name !== 'Loading...' && shopInfo.shop_name !== 'Shop Not Found') {
+        navigation.navigate('Seller Shop', { shop_id: product.shop_id });
       } else {
         setAlertMessage('No seller information available for this product.');
         setAlertVisible(true);
       }
     } catch (error) {
-      console.error("Error fetching shop data:", error);
+      console.error("Error navigating to shop:", error);
       setAlertMessage('Failed to load shop information.');
       setAlertVisible(true);
     }
@@ -169,102 +167,137 @@ function ProductDetailsScreen({ navigation, route }) {
   };
 
   const fetchCropData = async () => {
-    setLoading(true)
+    setLoading(true);
     if (!product) return;
 
     try {
-      const cropsResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crops`, {
-        headers: {
-          "x-api-key": REACT_NATIVE_API_KEY,
-        },
-      });
+      // Get the logged-in shop's data first
+      const storedShopData = await AsyncStorage.getItem("shopData");
+      const loggedInShop = storedShopData ? JSON.parse(storedShopData) : null;
+      const loggedInShopId = loggedInShop ? (Array.isArray(loggedInShop) ? loggedInShop[0].shop_id : loggedInShop.shop_id) : null;
 
-      const categoryResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_categories`, {
-        headers: {
-          "x-api-key": REACT_NATIVE_API_KEY,
-        },
-      });
+      // Fetch all necessary data
+      const [
+        cropsResponse,
+        categoryResponse,
+        subcategoryResponse,
+        varietyResponse,
+        varietySizeResponse,
+        sizeResponse,
+        metricResponse,
+        shopResponse
+      ] = await Promise.all([
+        fetch(`${REACT_NATIVE_API_BASE_URL}/api/crops`, {
+          headers: { "x-api-key": REACT_NATIVE_API_KEY }
+        }),
+        fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_categories`, {
+          headers: { "x-api-key": REACT_NATIVE_API_KEY }
+        }),
+        fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_sub_categories`, {
+          headers: { "x-api-key": REACT_NATIVE_API_KEY }
+        }),
+        fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_varieties`, {
+          headers: { "x-api-key": REACT_NATIVE_API_KEY }
+        }),
+        fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_variety_sizes`, {
+          headers: { "x-api-key": REACT_NATIVE_API_KEY }
+        }),
+        fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_sizes`, {
+          headers: { "x-api-key": REACT_NATIVE_API_KEY }
+        }),
+        fetch(`${REACT_NATIVE_API_BASE_URL}/api/metric_systems`, {
+          headers: { "x-api-key": REACT_NATIVE_API_KEY }
+        }),
+        fetch(`${REACT_NATIVE_API_BASE_URL}/api/shops`, {
+          headers: { "x-api-key": REACT_NATIVE_API_KEY }
+        })
+      ]);
 
-      const subcategoryResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_sub_categories`, {
-        headers: {
-          "x-api-key": REACT_NATIVE_API_KEY,
-        },
-      });
+      const [
+        rawcrops,
+        categories,
+        subcategories,
+        varieties,
+        variety_sizes,
+        sizes,
+        metrics,
+        shops
+      ] = await Promise.all([
+        cropsResponse.json(),
+        categoryResponse.json(),
+        subcategoryResponse.json(),
+        varietyResponse.json(),
+        varietySizeResponse.json(),
+        sizeResponse.json(),
+        metricResponse.json(),
+        shopResponse.json()
+      ]);
 
-      const varietyResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_varieties`, {
-        headers: {
-          "x-api-key": REACT_NATIVE_API_KEY,
-        },
-      });
+      // Filter out products from logged-in seller and ensure they're live
+      const filteredCrops = rawcrops.filter(crop => 
+        crop.availability === 'live' && 
+        crop.crop_quantity > 0 && 
+        crop.shop_id !== loggedInShopId
+      );
 
-      const varietySizeResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_variety_sizes`, {
-        headers: {
-          "x-api-key": REACT_NATIVE_API_KEY,
-        },
-      });
-
-      const sizeResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_sizes`, {
-        headers: {
-          "x-api-key": REACT_NATIVE_API_KEY,
-        },
-      });
-
-      const metricResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/metric_systems`, {
-        headers: {
-          "x-api-key": REACT_NATIVE_API_KEY,
-        },
-      });
-
-      const shopResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/shops`, {
-        headers: {
-          "x-api-key": REACT_NATIVE_API_KEY,
-        },
-      });
-
-      const rawcrops = await cropsResponse.json();
-      const categories = await categoryResponse.json();
-      const subcategories = await subcategoryResponse.json();
-      const varieties = await varietyResponse.json();
-      const variety_sizes = await varietySizeResponse.json();
-      const sizes = await sizeResponse.json();
-      const metrics = await metricResponse.json();
-      const shops = await shopResponse.json();
-
-      const newProduct = rawcrops.find(crop => crop.crop_id === product.crop_id);
-
-      const liveCrops = rawcrops.filter(crop => crop.availability === 'live' && crop.crop_quantity > 0 && newProduct.crop_variety_id === crop.crop_variety_id);
-
-      const combinedData = liveCrops.map(crop => {
+      const combinedData = filteredCrops.map(crop => {
         const categoryData = categories.find(cat => cat.crop_category_id === crop.category_id);
         const subcategoryData = subcategories.find(sub => sub.crop_sub_category_id === crop.sub_category_id);
         const varietyData = varieties.find(variety => variety.crop_variety_id === crop.crop_variety_id);
-        const sizeData = variety_sizes.find(varSize => varSize.crop_variety_id === crop.crop_variety_id);
-        const actualSize = sizes.find(size => size.crop_size_id === crop.crop_size_id);
+        const sizeData = sizes.find(size => size.crop_size_id === crop.crop_size_id);
         const metricData = metrics.find(metric => metric.metric_system_id === crop.metric_system_id);
         const shopData = shops.find(shop => shop.shop_id === crop.shop_id);
 
         return {
           ...crop,
-          category: categoryData ? categoryData : null,
-          subcategory: subcategoryData ? subcategoryData : null,
-          variety: varietyData ? varietyData : null,
-          size: actualSize ? actualSize : null,
-          metric: metricData ? metricData : null,
-          shop: shopData ? shopData : null
+          category: categoryData || null,
+          subcategory: subcategoryData || null,
+          variety: varietyData || null,
+          size: sizeData || null,
+          metric: metricData || null,
+          shop: shopData || null
         };
       });
 
-      const selectedProduct = combinedData.find(crop => crop.crop_id === product.crop_id);
+      // Get the current product details (from rawcrops to include all products)
+      const selectedProduct = rawcrops.find(crop => crop.crop_id === product.crop_id);
+      if (!selectedProduct) return;
 
+      // Map the selected product with its related data
+      const displayedProduct = {
+        ...selectedProduct,
+        category: categories.find(cat => cat.crop_category_id === selectedProduct.category_id) || null,
+        subcategory: subcategories.find(sub => sub.crop_sub_category_id === selectedProduct.sub_category_id) || null,
+        variety: varieties.find(variety => variety.crop_variety_id === selectedProduct.crop_variety_id) || null,
+        size: sizes.find(size => size.crop_size_id === selectedProduct.crop_size_id) || null,
+        metric: metrics.find(metric => metric.metric_system_id === selectedProduct.metric_system_id) || null,
+        shop: shops.find(shop => shop.shop_id === selectedProduct.shop_id) || null
+      };
+
+      // Filter related products
       const relatedProducts = combinedData.filter(
-        (relatedProduct) => relatedProduct.crop_id != product.crop_id
+        (relatedProduct) => 
+          relatedProduct.crop_id !== product.crop_id && 
+          relatedProduct.variety?.crop_variety_id === displayedProduct.variety?.crop_variety_id
       );
 
-      const relatedShopProducts = combinedData.filter(
-        (relatedProduct) => relatedProduct.shop_id === product.shop_id && relatedProduct.crop_id != product.crop_id
-      );
+      // Filter shop products
+      const relatedShopProducts = rawcrops
+        .filter(crop => 
+          crop.shop_id === product.shop_id && 
+          crop.crop_id !== product.crop_id
+        )
+        .map(crop => ({
+          ...crop,
+          category: categories.find(cat => cat.crop_category_id === crop.category_id) || null,
+          subcategory: subcategories.find(sub => sub.crop_sub_category_id === crop.sub_category_id) || null,
+          variety: varieties.find(variety => variety.crop_variety_id === crop.crop_variety_id) || null,
+          size: sizes.find(size => size.crop_size_id === crop.crop_size_id) || null,
+          metric: metrics.find(metric => metric.metric_system_id === crop.metric_system_id) || null,
+          shop: shops.find(shop => shop.shop_id === crop.shop_id) || null
+        }));
 
-      setCropData(selectedProduct);
+      setCropData(displayedProduct);
       setRelatedProducts(relatedProducts);
       setShopProducts(relatedShopProducts);
     } catch (error) {
@@ -279,6 +312,7 @@ function ProductDetailsScreen({ navigation, route }) {
   useFocusEffect(
     React.useCallback(() => {
       getAsyncUserData();
+      fetchShopInfo();
       fetchCropData();
     }, [product])
   );
