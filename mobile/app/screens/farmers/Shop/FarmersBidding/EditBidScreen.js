@@ -18,6 +18,11 @@ import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 import { ScrollView } from "react-native-gesture-handler";
 import Ionicons from "react-native-vector-icons/Ionicons";
 
+// Constants for validation
+const NAME_REGEX = /^[A-Za-z\s]{3,50}$/;
+const DESCRIPTION_REGEX = /^.{5,200}$/;
+const PRICE_REGEX = /^(?:\d+|\.\d{1,2}|\d+\.\d{1,2})$/;
+
 function EditBidScreen({ navigation, route }) {
     const {bidding} = route.params
   // for inputs
@@ -44,15 +49,18 @@ function EditBidScreen({ navigation, route }) {
   const [date, setDate] = useState(new Date());
   const [formattedDate, setFormattedDate] = useState("");
 
-const [errors, setErrors] = useState('')
+  const [showTime, setShowTime] = useState(false);
+  const [time, setTime] = useState(new Date());
+  const [formattedTime, setFormattedTime] = useState("");
+
+const [errors, setErrors] = useState({});
 
   const handleDateChange = (event, selectedDate) => {
     if (event.type === "set") {
       const currentDate = selectedDate || date;
       const today = new Date();
-      today.setHours(0, 0, 0, 0); // Set to start of today for accurate comparison
+      today.setHours(0, 0, 0, 0);
 
-      // Check if selected date is in the past
       if (currentDate < today) {
         setErrors((prev) => ({
           ...prev,
@@ -61,14 +69,48 @@ const [errors, setErrors] = useState('')
       } else {
         setShow(false);
         setDate(currentDate);
-        setFormattedDate(currentDate.toLocaleDateString());
-        setEndDate(currentDate.toLocaleDateString());
-        setErrors((prev) => ({ ...prev, endDate: "" })); // Clear any previous errors
+        setFormattedDate(currentDate.toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        }));
+        setShowTime(true);
+        setErrors((prev) => ({ ...prev, endDate: "" }));
       }
     } else {
       setShow(false);
     }
   };
+
+  const handleTimeChange = (event, selectedTime) => {
+    if (event.type === "set") {
+      const currentTime = selectedTime || time;
+      setShowTime(false);
+      setTime(currentTime);
+      
+      const formattedTimeStr = currentTime.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true,
+        timeZone: 'Asia/Manila'
+      });
+      setFormattedTime(formattedTimeStr);
+      
+      const combinedDateTime = new Date(date);
+      combinedDateTime.setHours(currentTime.getHours());
+      combinedDateTime.setMinutes(currentTime.getMinutes());
+      combinedDateTime.setSeconds(0);
+      combinedDateTime.setMilliseconds(0);
+      
+      const offset = combinedDateTime.getTimezoneOffset() * 60000;
+      const localISOTime = new Date(combinedDateTime.getTime() - offset).toISOString();
+      
+      setEndDate(localISOTime);
+    } else {
+      setShowTime(false);
+    }
+  };
+
   // for categories
   const [categories, setCategories] = useState([]);
   const [isClickedCategory, setIsClickedCategory] = useState(false);
@@ -292,6 +334,48 @@ const [errors, setErrors] = useState('')
   };
   
   const handleEditBid = async () => {
+    // Final validation check
+    const errors = {};
+
+    // Field presence and regex validation
+    if (!bidName) {
+      errors.bidName = "Product Name is required.";
+    } else if (!NAME_REGEX.test(bidName)) {
+      errors.bidName = "Product Name must be 3-50 characters long and only letters.";
+    }
+
+    if (!bidDescription) {
+      errors.bidDescription = "Product Description is required.";
+    } else if (!DESCRIPTION_REGEX.test(bidDescription)) {
+      errors.bidDescription = "Description must be 5-200 characters.";
+    }
+
+    if (!bidStartingPrice) {
+      errors.bidStartingPrice = "Bidding Starting Price is required.";
+    } else if (!PRICE_REGEX.test(bidStartingPrice)) {
+      errors.bidStartingPrice = "Enter a valid price (e.g., 100 or 100.00).";
+    }
+
+    if (!bidMinimumIncrement) {
+      errors.bidMinimumIncrement = "Minimum Bid Increment is required.";
+    } else if (!PRICE_REGEX.test(bidMinimumIncrement)) {
+      errors.bidMinimumIncrement = "Enter a valid minimum bid increment (e.g., 5 or 5.00).";
+    }
+
+    if (!imageUri && !bidding.bid_image) { errors.imageUri = "Select an image."; }
+    if (!endDate) errors.endDate = "Bidding End Date is required.";
+    if (!selectedCategoryId && !bidding.bid_category_id) errors.selectedCategoryId = "Select a category.";
+    if (!selectedSubCategoryId && !bidding.bid_subcategory_id) errors.selectedSubCategoryId = "Select a sub-category.";
+    if (!selectedMetricSystemId && !bidding.metric_system_id) errors.selectedMetricSystemId = "Select a metric.";
+
+    // If there are errors, show alert and return without submitting
+    if (Object.keys(errors).length > 0) {
+      setErrors(errors);
+      setAlertMessage("Please fill in all the required fields correctly.");
+      setAlertVisible(true);
+      return;
+    }
+
     // Preparing FormData for submission
     const formData = new FormData();
     formData.append("shop_id", shopData.shop_id);
@@ -359,6 +443,10 @@ const [errors, setErrors] = useState('')
         <View className="w-full max-w-md mx-auto">
               {/* Image Upload */}
           <View className="mb-4">
+            <Text className="text-sm mb-2 text-gray-800">
+              Select Image <Text className="text-red-500 text-sm">*</Text>
+              {errors.imageUri && <Text className="text-red-600 text-xs">{errors.imageUri}</Text>}
+            </Text>
             {/* Upload Image Button */}
             <TouchableOpacity
               className="rounded-lg overflow-hidden shadow"
@@ -417,32 +505,56 @@ const [errors, setErrors] = useState('')
           </View>
           {/* Product Name */}
           <View className="mb-4">
-            <Text className="text-sm mb-2 text-gray-800">Product Name 
+            <Text className="text-sm mb-2 text-gray-800">
+              Product Name <Text className="text-red-500 text-sm">*</Text>
+              {errors.bidName && <Text className="text-red-600 text-xs">{errors.bidName}</Text>}
             </Text>
             <TextInput
               placeholder="e.g. Vegetables, Potatoes, etc."
               className="w-full p-2 bg-white rounded-lg shadow-md"
               value={bidName}
-              onChangeText={setBidName}
+              onChangeText={(text) => {
+                setBidName(text);
+                if (text === '') {
+                  setErrors((prev) => ({ ...prev, bidName: '' }));
+                } else if (!NAME_REGEX.test(text)) {
+                  setErrors((prev) => ({ ...prev, bidName: "Product Name must be 3-50 characters long and only letters." }));
+                } else {
+                  setErrors((prev) => ({ ...prev, bidName: "" }));
+                }
+              }}
             />
           </View>
 
           {/* Product Description */}
           <View className="mb-4">
-            <Text className="text-sm mb-2 text-gray-800">Product Description
+            <Text className="text-sm mb-2 text-gray-800">
+              Product Description <Text className="text-red-500 text-sm">*</Text>
+              {errors.bidDescription && <Text className="text-red-600 text-xs">{errors.bidDescription}</Text>}
             </Text>
             <TextInput
               placeholder="Describe your product"
               multiline
               className="w-full p-2 bg-white rounded-lg shadow-md"
               value={bidDescription}
-              onChangeText={setBidDescription}
+              onChangeText={(text) => {
+                setBidDescription(text);
+                if (text === '') {
+                  setErrors((prev) => ({ ...prev, bidDescription: '' }));
+                } else if (!DESCRIPTION_REGEX.test(text)) {
+                  setErrors((prev) => ({ ...prev, bidDescription: "Description must be 5-200 characters." }));
+                } else {
+                  setErrors((prev) => ({ ...prev, bidDescription: "" }));
+                }
+              }}
             />
           </View>
 
           {/* Crop Category Selector */}
           <View className="mb-4">
-            <Text className="text-sm mb-2 text-gray-800">Select Crop Category
+            <Text className="text-sm mb-2 text-gray-800">
+              Select Crop Category <Text className="text-red-500 text-sm">*</Text>
+              {errors.selectedCategoryId && <Text className="text-red-600 text-xs">{errors.selectedCategoryId}</Text>}
             </Text>
             <TouchableOpacity
               className="flex-row items-center w-full p-2 bg-white rounded-lg shadow-md"
@@ -470,7 +582,9 @@ const [errors, setErrors] = useState('')
 
           {/* Sub Category Selector */}
           <View className="mb-4">
-            <Text className="text-sm mb-2 text-gray-800">Select Sub Category
+            <Text className="text-sm mb-2 text-gray-800">
+              Select Sub Category <Text className="text-red-500 text-sm">*</Text>
+              {errors.selectedSubCategoryId && <Text className="text-red-600 text-xs">{errors.selectedSubCategoryId}</Text>}
             </Text>
             <TouchableOpacity
               className="flex-row items-center w-full p-2 bg-white rounded-lg shadow-md"
@@ -499,7 +613,8 @@ const [errors, setErrors] = useState('')
           {/* Bidding End Date */}
           <View className="mb-4">
             <Text className="text-sm mb-2 text-gray-800">
-              Bidding End Date
+              Bidding End Date <Text className="text-red-500 text-sm">*</Text>
+              {errors.endDate && <Text className="text-red-600 text-xs">{errors.endDate}</Text>}
             </Text>
             <TouchableOpacity
               onPress={() => setShow(true)}
@@ -507,7 +622,18 @@ const [errors, setErrors] = useState('')
             >
               <View className='border border-gray-300 rounded-lg p-2'>
                 <Text className="text-gray-800">
-                {formattedDate ? new Date(formattedDate).toLocaleDateString() : new Date(endDate).toLocaleDateString()}
+                  {formattedDate && formattedTime 
+                    ? `${formattedDate} ${formattedTime}`
+                    : new Date(endDate).toLocaleString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: true,
+                        timeZone: 'Asia/Manila'
+                      })
+                  }
                 </Text>
               </View>
             </TouchableOpacity>
@@ -521,38 +647,72 @@ const [errors, setErrors] = useState('')
                 onChange={handleDateChange}
               />
             )}
+            {showTime && (
+              <DateTimePicker
+                testID="timeTimePicker"
+                value={time}
+                mode="time"
+                is24Hour={true}
+                display="default"
+                onChange={handleTimeChange}
+              />
+            )}
           </View>
 
 
           {/* Bidding Starting Price */}
           <View className="mb-4">
-            <Text className="text-sm mb-2 text-gray-800">Bidding Starting Price 
+            <Text className="text-sm mb-2 text-gray-800">
+              Bidding Starting Price <Text className="text-red-500 text-sm">*</Text>
+              {errors.bidStartingPrice && <Text className="text-red-600 text-xs">{errors.bidStartingPrice}</Text>}
             </Text>
             <TextInput
               placeholder="₱ 0.00"
               keyboardType="numeric"
               className="w-full p-2 bg-white rounded-lg shadow-md"
               value={bidStartingPrice}
-              onChangeText={setBidStartingPrice}
+              onChangeText={(text) => {
+                setBidStartingPrice(text);
+                if (text === '') {
+                  setErrors((prev) => ({ ...prev, bidStartingPrice: '' }));
+                } else if (!PRICE_REGEX.test(text)) {
+                  setErrors((prev) => ({ ...prev, bidStartingPrice: "Enter a valid price (e.g., 100 or 100.00)." }));
+                } else {
+                  setErrors((prev) => ({ ...prev, bidStartingPrice: "" }));
+                }
+              }}
             />
           </View>
 
           {/* Minimum Bid Increment */}
           <View className="mb-4">
-            <Text className="text-sm mb-2 text-gray-800">Enter Minimum Bid 
+            <Text className="text-sm mb-2 text-gray-800">
+              Enter Minimum Bid <Text className="text-red-500 text-sm">*</Text>
+              {errors.bidMinimumIncrement && <Text className="text-red-600 text-xs">{errors.bidMinimumIncrement}</Text>}
             </Text>
             <TextInput
               placeholder="₱ 0.00"
               keyboardType="numeric"
               className="w-full p-2 bg-white rounded-lg shadow-md"
               value={bidMinimumIncrement}
-              onChangeText={setBidMinimumIcrement}
+              onChangeText={(text) => {
+                setBidMinimumIcrement(text);
+                if (text === '') {
+                  setErrors((prev) => ({ ...prev, bidMinimumIncrement: '' }));
+                } else if (!PRICE_REGEX.test(text)) {
+                  setErrors((prev) => ({ ...prev, bidMinimumIncrement: "Enter a valid minimum bid increment (e.g., 5 or 5.00)." }));
+                } else {
+                  setErrors((prev) => ({ ...prev, bidMinimumIncrement: "" }));
+                }
+              }}
             />
           </View>
 
           {/* Metric Selector */}
           <View className="mb-4">
-            <Text className="text-sm mb-2 text-gray-800">Select Metric 
+            <Text className="text-sm mb-2 text-gray-800">
+              Select Metric <Text className="text-red-500 text-sm">*</Text>
+              {errors.selectedMetricSystemId && <Text className="text-red-600 text-xs">{errors.selectedMetricSystemId}</Text>}
             </Text>
             <TouchableOpacity
               className="flex-row items-center w-full p-2 bg-white rounded-lg shadow-md"
