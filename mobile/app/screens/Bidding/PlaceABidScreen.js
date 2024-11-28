@@ -315,6 +315,7 @@ function PlaceABid({ route, navigation }) {
             placeholder="Enter your bid amount"
             value={amount} // Pre-fill with amount (which will be minValidBid)
             onChangeText={setAmount}
+            editable={false}
           />
           <TouchableOpacity
             className="ml-2 p-2 rounded-lg"

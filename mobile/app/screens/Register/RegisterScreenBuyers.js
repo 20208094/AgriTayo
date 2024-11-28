@@ -37,11 +37,13 @@ function RegisterScreenBuyers({ navigation }) {
     useState("");
 
   const [phoneNumbersList, setPhoneNumbersList] = useState([]);
-  const [phoneSecondaryNumbersList, setSecondaryPhoneNumbersList] = useState([]);
+  const [phoneSecondaryNumbersList, setSecondaryPhoneNumbersList] = useState(
+    []
+  );
 
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-  const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] = useState(false);
-
+  const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] =
+    useState(false);
 
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
@@ -49,8 +51,10 @@ function RegisterScreenBuyers({ navigation }) {
   const [isTermsAccepted, setIsTermsAccepted] = useState(false);
   const [termsModalVisible, setTermsModalVisible] = useState(false);
 
-  const togglePasswordVisibility = () => setIsPasswordVisible(!isPasswordVisible);
-  const toggleConfirmPasswordVisibility = () => setIsConfirmPasswordVisible(!isConfirmPasswordVisible);
+  const togglePasswordVisibility = () =>
+    setIsPasswordVisible(!isPasswordVisible);
+  const toggleConfirmPasswordVisibility = () =>
+    setIsConfirmPasswordVisible(!isConfirmPasswordVisible);
 
   useEffect(() => {
     const fetchPhoneNumbers = async () => {
@@ -122,7 +126,9 @@ function RegisterScreenBuyers({ navigation }) {
     if (text === "") {
       setMiddleNameError(""); // Remove error if input is empty
     } else if (!middlename_regex.test(text)) {
-      setMiddleNameError("Invalid Middle Name. Please enter at least 2 letters.");
+      setMiddleNameError(
+        "Invalid Middle Name. Please enter at least 2 letters."
+      );
     } else {
       setMiddleNameError("");
     }
@@ -157,7 +163,9 @@ function RegisterScreenBuyers({ navigation }) {
     if (text === "") {
       setPhoneError(""); // Remove error if input is empty
     } else if (!phone_regex.test(text)) {
-      setPhoneError("Invalid phone number format. Please use 09 followed by 9 digits.");
+      setPhoneError(
+        "Invalid phone number format. Please use 09 followed by 9 digits."
+      );
     } else {
       setPhoneError("");
     }
@@ -180,7 +188,6 @@ function RegisterScreenBuyers({ navigation }) {
     }
   };
 
-
   const handleRegister = async () => {
     const formData = new FormData();
     formData.append("firstname", firstName);
@@ -192,19 +199,36 @@ function RegisterScreenBuyers({ navigation }) {
     formData.append("secondary_phone_number", secondaryPhoneNumber);
     formData.append("user_type_id", "3");
 
-    if (phone && secondaryPhoneNumber && (phoneNumbersList.includes(phone) || phoneSecondaryNumbersList.includes(phone)) && (phoneNumbersList.includes(secondaryPhoneNumber) || phoneSecondaryNumbersList.includes(secondaryPhoneNumber))) {
-      setAlertMessage("Both Phone and Alternative Number are Already Registered");
+    if (
+      phone &&
+      secondaryPhoneNumber &&
+      (phoneNumbersList.includes(phone) ||
+        phoneSecondaryNumbersList.includes(phone)) &&
+      (phoneNumbersList.includes(secondaryPhoneNumber) ||
+        phoneSecondaryNumbersList.includes(secondaryPhoneNumber))
+    ) {
+      setAlertMessage(
+        "Both Phone and Alternative Number are Already Registered"
+      );
       setAlertVisible(true);
       return;
     }
 
-    if (phone && (phoneNumbersList.includes(phone) || phoneSecondaryNumbersList.includes(phone))) {
+    if (
+      phone &&
+      (phoneNumbersList.includes(phone) ||
+        phoneSecondaryNumbersList.includes(phone))
+    ) {
       setAlertMessage("Phone Number is Already Registered");
       setAlertVisible(true);
       return;
     }
 
-    if (secondaryPhoneNumber && (phoneSecondaryNumbersList.includes(secondaryPhoneNumber) || phoneNumbersList.includes(secondaryPhoneNumber))) {
+    if (
+      secondaryPhoneNumber &&
+      (phoneSecondaryNumbersList.includes(secondaryPhoneNumber) ||
+        phoneNumbersList.includes(secondaryPhoneNumber))
+    ) {
       setAlertMessage("Alternative Phone Number is Already Registered");
       setAlertVisible(true);
       return;
@@ -222,12 +246,12 @@ function RegisterScreenBuyers({ navigation }) {
 
     if (!isTermsAccepted) {
       setAlertMessage("You must accept the Terms and Conditions to register.");
-      setAlertVisible
+      setAlertVisible;
       return;
     }
     // Proceed with registration logic
     setAlertMessage("Registration successful!");
-    setAlertVisible
+    setAlertVisible;
   };
 
   const [show, setShow] = useState(false);
@@ -477,8 +501,11 @@ function RegisterScreenBuyers({ navigation }) {
           <View className="flex-row items-center mb-6">
             <TouchableOpacity
               onPress={() => setIsTermsAccepted(!isTermsAccepted)}
-              className={`w-6 h-6 border-2 rounded-md flex items-center justify-center ${isTermsAccepted ? "bg-green-600 border-green-600" : "border-gray-400"
-                }`}
+              className={`w-6 h-6 border-2 rounded-md flex items-center justify-center ${
+                isTermsAccepted
+                  ? "bg-green-600 border-green-600"
+                  : "border-gray-400"
+              }`}
             >
               {isTermsAccepted && (
                 <Ionicons name="checkmark" size={18} color="white" />
@@ -486,23 +513,25 @@ function RegisterScreenBuyers({ navigation }) {
             </TouchableOpacity>
             <View className="ml-2 flex-1">
               <Text className="text-gray-800 leading-5">
-                By checking this box, I confirm that I have read, understood, and agree to abide by the{" "}
+                By checking this box, I confirm that I have read, understood,
+                and agree to abide by the{" "}
                 <TouchableOpacity onPress={() => setTermsModalVisible(true)}>
                   <Text className="text-[#00b251] underline">
                     Terms and Conditions
                   </Text>
                 </TouchableOpacity>{" "}
-                of AgriTayo. I acknowledge that failing to adhere to the terms may result in the suspension or termination of my account.
+                of AgriTayo. I acknowledge that failing to adhere to the terms
+                may result in the suspension or termination of my account.
               </Text>
             </View>
           </View>
 
-
           {/* Submit Button */}
           <TouchableOpacity
             onPress={handleModal} // Open registration confirmation modal
-            className={`w-full p-4 ${isTermsAccepted ? "bg-[#00B251]" : "bg-gray-300"
-              } rounded-lg shadow-md`}
+            className={`w-full p-4 ${
+              isTermsAccepted ? "bg-[#00B251]" : "bg-gray-300"
+            } rounded-lg shadow-md`}
             disabled={!isTermsAccepted} // Disable if terms are not accepted
           >
             <Text className="text-center text-white font-bold">Register</Text>
@@ -527,7 +556,9 @@ function RegisterScreenBuyers({ navigation }) {
               <View className="bg-white rounded-lg p-6 w-12/13 max-w-lg shadow-lg">
                 {/* Header Section */}
                 <View className="flex-row justify-between items-center mb-4">
-                  <Text className="text-xl font-bold text-[#00B251]">Terms and Conditions</Text>
+                  <Text className="text-xl font-bold text-[#00B251]">
+                    Terms and Conditions
+                  </Text>
                   <TouchableOpacity
                     onPress={() => setTermsModalVisible(false)}
                     className="p-2"
@@ -542,97 +573,142 @@ function RegisterScreenBuyers({ navigation }) {
                     Welcome to AgriTayo!
                   </Text>
                   <Text className="text-gray-800 text-sm mb-4">
-                    By registering as a buyer in our platform, you agree to the following Terms and Conditions. Please read them carefully before proceeding:
+                    By registering as a buyer in our platform, you agree to the
+                    following Terms and Conditions. Please read them carefully
+                    before proceeding:
                   </Text>
 
                   {/* Each term with its own class */}
                   <View className="mb-4">
-                    <Text className="text-gray-800 text-base font-bold">1. Account Registration and Security</Text>
-                    <Text className="text-gray-700 text-sm mt-2">
-                      1.1 You must provide accurate, complete, and up-to-date information during registration.
+                    <Text className="text-gray-800 text-base font-bold">
+                      1. Account Registration and Security
                     </Text>
                     <Text className="text-gray-700 text-sm mt-2">
-                      1.2 Your account is personal and non-transferable. Sharing your account with others is prohibited.
+                      1.1 You must provide accurate, complete, and up-to-date
+                      information during registration.
                     </Text>
                     <Text className="text-gray-700 text-sm mt-2">
-                      1.3 You are responsible for keeping your login credentials secure. Any activity performed under your account will be considered your responsibility.
-                    </Text>
-                  </View>
-
-                  <View className="mb-4">
-                    <Text className="text-gray-800 text-base font-bold">2. Acceptable Use of the Platform</Text>
-                    <Text className="text-gray-700 text-sm mt-2">
-                      2.1 The platform is intended solely for lawful purposes related to the purchase of agricultural products directly from farmers.
+                      1.2 Your account is personal and non-transferable. Sharing
+                      your account with others is prohibited.
                     </Text>
                     <Text className="text-gray-700 text-sm mt-2">
-                      2.2 You must not engage in fraudulent activities, impersonate others, or provide false information on the platform.
-                    </Text>
-                    <Text className="text-gray-700 text-sm mt-2">
-                      2.3 Harassment, abusive language, or any inappropriate conduct toward other users (buyers, farmers, or administrators) is strictly prohibited.
+                      1.3 You are responsible for keeping your login credentials
+                      secure. Any activity performed under your account will be
+                      considered your responsibility.
                     </Text>
                   </View>
 
                   <View className="mb-4">
-                    <Text className="text-gray-800 text-base font-bold">3. Transactions and Payments</Text>
-                    <Text className="text-gray-700 text-sm mt-2">
-                      3.1 Payments must be made using authorized payment methods integrated into the platform.
+                    <Text className="text-gray-800 text-base font-bold">
+                      2. Acceptable Use of the Platform
                     </Text>
                     <Text className="text-gray-700 text-sm mt-2">
-                      3.2 AgriTayo is not liable for losses or disputes arising from incomplete or unsatisfactory transactions between buyers and sellers.
+                      2.1 The platform is intended solely for lawful purposes
+                      related to the purchase of agricultural products directly
+                      from farmers.
                     </Text>
                     <Text className="text-gray-700 text-sm mt-2">
-                      3.3 Refunds and cancellations are subject to the policies defined by the seller and applicable laws.
-                    </Text>
-                  </View>
-
-                  <View className="mb-4">
-                    <Text className="text-gray-800 text-base font-bold">4. Buyer Responsibilities</Text>
-                    <Text className="text-gray-700 text-sm mt-2">
-                      4.1 You must review product descriptions, prices, and terms carefully before placing an order.
+                      2.2 You must not engage in fraudulent activities,
+                      impersonate others, or provide false information on the
+                      platform.
                     </Text>
                     <Text className="text-gray-700 text-sm mt-2">
-                      4.2 Ensure timely communication with farmers regarding inquiries, negotiations, or order updates.
-                    </Text>
-                    <Text className="text-gray-700 text-sm mt-2">
-                      4.3 Provide accurate delivery addresses and contact information to facilitate smooth order processing.
+                      2.3 Harassment, abusive language, or any inappropriate
+                      conduct toward other users (buyers, farmers, or
+                      administrators) is strictly prohibited.
                     </Text>
                   </View>
 
                   <View className="mb-4">
-                    <Text className="text-gray-800 text-base font-bold">5. Privacy and Data Protection</Text>
-                    <Text className="text-gray-700 text-sm mt-2">
-                      5.1 AgriTayo collects and processes personal data in compliance with the Data Privacy Act of 2012.
+                    <Text className="text-gray-800 text-base font-bold">
+                      3. Transactions and Payments
                     </Text>
                     <Text className="text-gray-700 text-sm mt-2">
-                      5.2 Your data will be used solely for account management, transaction facilitation, and service improvement.
+                      3.1 Payments must be made using authorized payment methods
+                      integrated into the platform.
                     </Text>
                     <Text className="text-gray-700 text-sm mt-2">
-                      5.3 Do not misuse other users' personal information for purposes outside the platform’s scope.
-                    </Text>
-                  </View>
-
-                  <View className="mb-4">
-                    <Text className="text-gray-800 text-base font-bold">6. Limitation of Liability</Text>
-                    <Text className="text-gray-700 text-sm mt-2">
-                      6.1 AgriTayo is a marketplace facilitator and is not liable for the quality, accuracy, or condition of products sold by farmers.
+                      3.2 AgriTayo is not liable for losses or disputes arising
+                      from incomplete or unsatisfactory transactions between
+                      buyers and sellers.
                     </Text>
                     <Text className="text-gray-700 text-sm mt-2">
-                      6.2 While we strive for uptime and accuracy, occasional errors, outages, or inaccuracies may occur.
+                      3.3 Refunds and cancellations are subject to the policies
+                      defined by the seller and applicable laws.
                     </Text>
                   </View>
 
                   <View className="mb-4">
-                    <Text className="text-gray-800 text-base font-bold">7. Suspension and Termination</Text>
-                    <Text className="text-gray-700 text-sm mt-2">
-                      7.1 AgriTayo reserves the right to suspend or terminate accounts that violate these terms or engage in prohibited activities.
+                    <Text className="text-gray-800 text-base font-bold">
+                      4. Buyer Responsibilities
                     </Text>
                     <Text className="text-gray-700 text-sm mt-2">
-                      7.2 Account restrictions, suspensions, or permanent terminations depend on the severity of the breach..
+                      4.1 You must review product descriptions, prices, and
+                      terms carefully before placing an order.
+                    </Text>
+                    <Text className="text-gray-700 text-sm mt-2">
+                      4.2 Ensure timely communication with farmers regarding
+                      inquiries, negotiations, or order updates.
+                    </Text>
+                    <Text className="text-gray-700 text-sm mt-2">
+                      4.3 Provide accurate delivery addresses and contact
+                      information to facilitate smooth order processing.
+                    </Text>
+                  </View>
+
+                  <View className="mb-4">
+                    <Text className="text-gray-800 text-base font-bold">
+                      5. Privacy and Data Protection
+                    </Text>
+                    <Text className="text-gray-700 text-sm mt-2">
+                      5.1 AgriTayo collects and processes personal data in
+                      compliance with the Data Privacy Act of 2012.
+                    </Text>
+                    <Text className="text-gray-700 text-sm mt-2">
+                      5.2 Your data will be used solely for account management,
+                      transaction facilitation, and service improvement.
+                    </Text>
+                    <Text className="text-gray-700 text-sm mt-2">
+                      5.3 Do not misuse other users' personal information for
+                      purposes outside the platform’s scope.
+                    </Text>
+                  </View>
+
+                  <View className="mb-4">
+                    <Text className="text-gray-800 text-base font-bold">
+                      6. Limitation of Liability
+                    </Text>
+                    <Text className="text-gray-700 text-sm mt-2">
+                      6.1 AgriTayo is a marketplace facilitator and is not
+                      liable for the quality, accuracy, or condition of products
+                      sold by farmers.
+                    </Text>
+                    <Text className="text-gray-700 text-sm mt-2">
+                      6.2 While we strive for uptime and accuracy, occasional
+                      errors, outages, or inaccuracies may occur.
+                    </Text>
+                  </View>
+
+                  <View className="mb-4">
+                    <Text className="text-gray-800 text-base font-bold">
+                      7. Suspension and Termination
+                    </Text>
+                    <Text className="text-gray-700 text-sm mt-2">
+                      7.1 AgriTayo reserves the right to suspend or terminate
+                      accounts that violate these terms or engage in prohibited
+                      activities.
+                    </Text>
+                    <Text className="text-gray-700 text-sm mt-2">
+                      7.2 Account restrictions, suspensions, or permanent
+                      terminations depend on the severity of the breach..
                     </Text>
                   </View>
 
                   <Text className="text-gray-800 text-sm mt-4">
-                    By proceeding with your registration, you confirm that you have read, understood, and agree to abide by these Terms and Conditions. If you do not agree, please refrain from using the platform.
+                    By proceeding with your registration, you confirm that you
+                    have read, understood, and agree to abide by these Terms and
+                    Conditions. If you do not agree, please refrain from using
+                    the platform.
                   </Text>
                 </ScrollView>
 
@@ -649,7 +725,6 @@ function RegisterScreenBuyers({ navigation }) {
             </View>
           </Modal>
 
-
           {/* Alert Modal */}
           <Modal
             animationType="fade"
@@ -659,12 +734,18 @@ function RegisterScreenBuyers({ navigation }) {
           >
             <View className="flex-1 justify-center items-center bg-black/50 bg-opacity-50">
               <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
-                <Text className="text-lg font-semibold text-gray-900 mb-4">{alertMessage}</Text>
+                <Text className="text-lg font-semibold text-gray-900 mb-4">
+                  {alertMessage}
+                </Text>
                 <TouchableOpacity
                   className="mt-4 p-2 bg-[#00B251] rounded-lg flex-row justify-center items-center"
                   onPress={() => setAlertVisible(false)}
                 >
-                  <Ionicons name="checkmark-circle-outline" size={24} color="white" />
+                  <Ionicons
+                    name="checkmark-circle-outline"
+                    size={24}
+                    color="white"
+                  />
                   <Text className="text-lg text-white ml-2">OK</Text>
                 </TouchableOpacity>
               </View>
@@ -683,7 +764,9 @@ function RegisterScreenBuyers({ navigation }) {
             <View className="flex-1 justify-center items-center bg-black/50">
               <View className="bg-white rounded-lg p-6 w-80">
                 <Text className="text-lg font-bold mb-4">Register</Text>
-                <Text className="mb-4">Confirm if all the details are correct</Text>
+                <Text className="mb-4">
+                  Confirm if all the details are correct
+                </Text>
                 <View className="flex-row justify-between">
                   <TouchableOpacity
                     onPress={() => {

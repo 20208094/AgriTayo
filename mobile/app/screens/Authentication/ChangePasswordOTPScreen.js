@@ -18,7 +18,7 @@ function ChangePasswordOTPSCreen({ navigation, route }) {
   const [generatedCode, setGeneratedCode] = useState("");
   const [isResendEnabled, setIsResendEnabled] = useState(false);
 
-  const [seconds, setSeconds] = useState(20);
+  const [seconds, setSeconds] = useState(10 * 60);
 
   const socket = io(REACT_NATIVE_API_BASE_URL);
 
