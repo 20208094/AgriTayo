@@ -18,9 +18,9 @@ import * as MediaLibrary from "expo-media-library";
 import LoadingAnimation from "../../../../components/LoadingAnimation";
 
 function FarmersProductDetailScreen({ route, navigation }) {
-  const { liveItem, reviewingItem, violationItem, delistedItem } = route.params;
+  const { liveItem, reviewingItem, violationItem, delistedItem, soldOutItem } = route.params;
 
-  const product = liveItem || reviewingItem || violationItem || delistedItem;
+  const product = liveItem || reviewingItem || violationItem || delistedItem || soldOutItem;
 
   console.log(product)
 

@@ -15,7 +15,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
 import Ionicons from "react-native-vector-icons/Ionicons";
 
-function AddCropVarietyScreen({ navigation }) {
+function AddCropVarietyScreen({ navigation, route }) {
   const [cropVarietyName, setCropVarietyName] = useState("");
   const [cropVarietyDescription, setCropVarietyDescription] = useState("");
   const [cropImage, setCropImage] = useState(null);
@@ -32,10 +32,8 @@ function AddCropVarietyScreen({ navigation }) {
 
   const [categories, setCategories] = useState([]);
   const [isClickedCategory, setIsClickedCategory] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState(
-    "Select Crop Category"
-  );
-  const [selectedCategoryId, setSelectedCategoryId] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState(route.params?.selectedCategory || "Select Crop Category");
+  const [selectedCategoryId, setSelectedCategoryId] = useState(route.params?.selectedCategoryId || null);
   const handleCategorySelect = (category) => {
     setSelectedCategory(category.crop_category_name);
     setSelectedCategoryId(category.crop_category_id);
@@ -51,10 +49,9 @@ function AddCropVarietyScreen({ navigation }) {
 
   const [subCategories, setSubCategories] = useState([]);
   const [isClickedSubCategory, setIsclickedSubCategory] = useState(false);
-  const [selectedSubCategory, setSelectedSubCategory] = useState(
-    "Select Crop Sub Category"
-  );
-  const [selectedSubCategoryId, setSelectedSubCategoryId] = useState(null);
+  const [selectedSubCategory, setSelectedSubCategory] = useState(route.params?.selectedSubCategory || "Select Crop Sub Category");
+
+  const [selectedSubCategoryId, setSelectedSubCategoryId] = useState(route.params?.selectedSubCategoryId || null);
   const handleSubCategorySelect = (subCategory) => {
     setSelectedSubCategory(subCategory.crop_sub_category_name);
     setSelectedSubCategoryId(subCategory.crop_sub_category_id);

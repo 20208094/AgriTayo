@@ -382,6 +382,7 @@ function AddProductScreen({ navigation }) {
   useFocusEffect(
     useCallback(() => {
       fetchCategories();
+      fetchSubCategories()
       fetchCropSize();
       fetchCropVariety();
       fetchMetricSystem();
@@ -661,7 +662,8 @@ function AddProductScreen({ navigation }) {
               </TouchableOpacity>
               <TouchableOpacity
                 className="ml-2 p-2 rounded-lg"
-                onPress={() => navigation.navigate("Add Crop Sub Category")}
+                onPress={() => navigation.navigate("Add Crop Sub Category", {selectedCategory: selectedCategory,
+                  selectedCategoryId: selectedCategoryId})}
               >
                 <Ionicons name="add-outline" size={24} color="#00b251" />
               </TouchableOpacity>
@@ -710,7 +712,11 @@ function AddProductScreen({ navigation }) {
               </TouchableOpacity>
               <TouchableOpacity
                 className="ml-2 p-2 rounded-lg"
-                onPress={() => navigation.navigate("Add Crop Variety")}
+                onPress={() => navigation.navigate("Add Crop Variety", {selectedCategory: selectedCategory,
+                  selectedCategoryId: selectedCategoryId,
+                  selectedSubCategory: selectedSubCategory,
+                  selectedSubCategoryId: selectedSubCategoryId
+              })}
               >
                 <Ionicons name="add-outline" size={24} color="#00b251" />
               </TouchableOpacity>
