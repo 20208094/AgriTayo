@@ -53,15 +53,14 @@ const NavigationbarComponent = () => {
         if (userTypeId === 1 || userTypeId === 2) {
           const storedShopData = await AsyncStorage.getItem("shopData");
           if (storedShopData) {
-            const parsedData = JSON.parse(storedData);
+            const parsedData = JSON.parse(storedShopData);
             setShopData(Array.isArray(parsedData) ? parsedData[0] : parsedData);
             setShopId(
-              Array.isArray(parsedData.shop_id)
+              Array.isArray(parsedData)
                 ? parsedData[0].shop_id
                 : parsedData.shop_id
             );
           }
-        } else {
         }
       }
     } catch (error) {
