@@ -27,10 +27,10 @@ function AdminSidebar() {
 
             {/* ANALYTICS ROUTES */}
             <SidebarTitle text="Analytics" />
-            <SidebarItem to="/admin/marketAnalytics" icon={FaShoppingBasket} text="Market Analytics" />
+            <SidebarItem to="/admin/MarketAnalytics" icon={FaShoppingBasket} text="Market Analytics" />
             <SidebarItem to="/admin/salesAnalytics" icon={FaMoneyBillWave} text="Sales Analytics" />
             <SidebarItem to="/admin/newUsersAnalytics" icon={HiUsers} text="Users Analytics" />
-            <SidebarItem to="/admin/ordersAnalytics" icon={FaCartShopping} text="Orders Analytics" />
+            <SidebarItem to="/admin/OrdersAnalytics" icon={FaCartShopping} text="Orders Analytics" />
             {/* <SidebarItem to="/admin/individualCropPriceChangesAnalytics" icon={IoPricetags} text="Price Changes" /> */}
             {/* <SidebarItem to="/admin/profitAnalytics" icon={FaMoneyBillTrendUp} text="Profit Analytics" /> */}
 

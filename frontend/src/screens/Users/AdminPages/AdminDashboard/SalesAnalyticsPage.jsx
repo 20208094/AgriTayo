@@ -123,7 +123,7 @@ const SalesAnalyticsPage = () => {
       labels: labels,
       datasets: [
         {
-          label: "Total Price for Status Delivered",
+          label: "Total ₱ Amount Sold Through AgriTayo",
           data: totalPriceStatus4.slice(0, labels.length),
           backgroundColor: "rgba(0, 128, 0, 0.5)",
         },
@@ -153,30 +153,31 @@ const SalesAnalyticsPage = () => {
 
   return (
     <div className="p-4">
-      <h5 className="text-xl font-bold text-center text-green-700 mb-4 pt-8">
-          Sales Analytics Summary
-        </h5>
+      <h5 className="text-3xl font-bold text-center text-green-700 pt-8">
+        Sales Analytics Summary
+      </h5>
+
       <div className="grid grid-cols-2 auto-rows-auto gap-4">
         {/* Total Price for Orders with Status Delivered Card */}
-        <div className="bg-white p-4 rounded-lg shadow-md flex flex-col justify-center items-center">
-        <h5 className="text-xl font-bold text-center text-green-500 mb-4">Total Price for Orders with Status Delivered</h5>
-        <p className="text-sm font-bold text-green-700 mb-2">
-          ₱{totalPriceStatus4.reduce((a, b) => a + b, 0).toFixed(2)}
-        </p>
-      </div>
+        {/* <div className="bg-white p-4 rounded-lg shadow-md flex flex-col justify-center items-center">
+          <h5 className="text-xl font-bold text-center text-green-500 mb-4">Total Price for Orders with Status Delivered</h5>
+          <p className="text-sm font-bold text-green-700 mb-2">
+            ₱{totalPriceStatus4.reduce((a, b) => a + b, 0).toFixed(2)}
+          </p>
+        </div>
 
-      <div className="bg-white p-4 rounded-lg shadow-md flex flex-col justify-center items-center">
-        <p className="text-xl font-bold text-center text-green-500 mb-4">Total Price for All Orders</p>
-        <p className="text-sm font-bold text-green-700 mb-2">
-          ₱{totalPriceAll.toFixed(2)}
-        </p>
-      </div>
+        <div className="bg-white p-4 rounded-lg shadow-md flex flex-col justify-center items-center">
+          <p className="text-xl font-bold text-center text-green-500 mb-4">Total Price for All Orders</p>
+          <p className="text-sm font-bold text-green-700 mb-2">
+            ₱{totalPriceAll.toFixed(2)}
+          </p>
+        </div> */}
 
         {/* Bar Graph with Filter Button */}
-        <div className="col-span-2 relative bg-white p-4 rounded-lg shadow-md">
-          <div className="flex justify-between items-center mb-4">
+        <div className="col-span-2 relative bg-white p-4 rounded-lg shadow-md ml-10 mr-10 mb-100 border-2">
+          <div className="flex justify-between items-center">
             <div>
-              <p className="text-sm font-bold text-green-500 mb-2">
+              <p className="text-lg font-bold text-green-500 mb-2">
                 Current Filter: <span className="text-green-700">{selectedFilter}</span>
               </p>
             </div>
@@ -187,6 +188,7 @@ const SalesAnalyticsPage = () => {
               Select Filter
             </button>
           </div>
+
           <Modal isOpen={modalVisible} onClose={() => setModalVisible(false)}>
             <h3 className="text-lg font-bold mb-4 text-center">Select a filter</h3>
             {["7 Days", "14 Days", "6 Months", "12 Months", "Yearly"].map((filter) => (

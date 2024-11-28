@@ -17,7 +17,7 @@ function AnalyticsPage() {
                 key={item.id}
                 className="item-button"
                 onClick={() =>
-                  navigate("/admin/marketAnalytics", {
+                  navigate("/admin/MarketAnalytics", {
                     state: {
                       category: items,
                       selectedItemId: item.id,

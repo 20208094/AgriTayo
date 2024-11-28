@@ -21,7 +21,7 @@ const sidebarMapping = {
   '/admin/reports': <DashboardSidebar />,
   // analyitcs Sidebar
   '/admin/analytics': <AnalyticsSidebar />,
-  '/admin/marketAnalytics': <AnalyticsSidebar />,
+  '/admin/MarketAnalytics': <AnalyticsSidebar />,
 
   '/seller/dashboard': <DashboardSidebar />,
   '/buyer/dashboard': <DashboardSidebar />,

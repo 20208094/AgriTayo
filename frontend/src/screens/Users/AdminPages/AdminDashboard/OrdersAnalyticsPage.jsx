@@ -33,11 +33,15 @@ const OrdersAnalyticsPage = () => {
 
   // Create a mapping between status_id and status names
   const statusMap = {
-    1: 'Placed',
-    2: 'Processed',
-    3: 'Shipped',
-    4: 'Delivered',
-    5: 'Cancelled',
+    1: 'ToConfirm',
+    2: 'Preparing',
+    3: 'Shipping',
+    4: 'Pickup',
+    5: 'ForReturn',
+    6: 'Returned',
+    7: 'ToRate',
+    8: 'Completed',
+    9: 'Rejected',
   };
 
   const fetchOrders = useCallback(async () => {
@@ -54,11 +58,15 @@ const OrdersAnalyticsPage = () => {
 
       const data = await response.json();
       const counts = {
-        Placed: [],
-        Processed: [],
-        Shipped: [],
-        Delivered: [],
-        Cancelled: [],
+        ToConfirm: [],
+        Preparing: [],
+        Shipping: [],
+        Pickup: [],
+        ForReturn: [],
+        Returned: [],
+        ToRate: [],
+        Completed: [],
+        Rejected: [],
       };
 
       // Populate counts based on status_id
@@ -70,6 +78,7 @@ const OrdersAnalyticsPage = () => {
       });
 
       setOrderCounts(counts);
+      console.log('counts :', counts);
     } catch (error) {
       console.error('Error fetching orders:', error);
     }
@@ -128,7 +137,7 @@ const OrdersAnalyticsPage = () => {
       }
       return false;
     }) || [];
-  
+
     const labels = generateLabels();
     const data = {
       labels: labels,
@@ -156,7 +165,7 @@ const OrdersAnalyticsPage = () => {
         },
       ],
     };
-  
+
     const options = {
       responsive: true,
       scales: {
@@ -175,19 +184,23 @@ const OrdersAnalyticsPage = () => {
         },
       },
     };
-  
+
     return <Line data={data} options={options} />;
   };
-  
+
   // Helper function to get color based on status
   const getStatusColor = (status) => {
     const colors = {
-      Placed: 'rgba(54, 162, 235, 0.7)',
-      Processed: 'rgba(255, 206, 86, 0.7)',
-      Shipped: 'rgba(75, 192, 192, 0.7)',
-      Delivered: 'rgba(153, 102, 255, 0.7)',
-      Cancelled: 'rgba(255, 99, 132, 0.7)',
-    };
+      ToConfirm: 'rgba(255, 159, 64, 0.7)',   // Orange
+      Preparing: 'rgba(0, 123, 255, 0.7)',    // Royal Blue
+      Shipping: 'rgba(153, 102, 255, 0.7)',   // Purple
+      Pickup: 'rgba(75, 192, 192, 0.7)',      // Teal
+      ForReturn: 'rgba(255, 128, 128, 0.7)',  // Semi-Light Red
+      Returned: 'rgba(178, 34, 34, 0.7)',     // Darker Red
+      ToRate: 'rgba(144, 238, 144, 0.7)',     // Light Green
+      Completed: 'rgba(0, 100, 0, 0.7)',      // Dark Green
+      Rejected: 'rgba(139, 0, 0, 0.7)',       // Dark Red
+    };    
     return colors[status] || 'rgba(0, 0, 0, 0.7)';
   };
 
@@ -203,11 +216,15 @@ const OrdersAnalyticsPage = () => {
           label: 'Order Status Distribution',
           data: Object.values(orderCounts).map(counts => counts.length),
           backgroundColor: [
-            'rgba(54, 162, 235, 0.7)',
-            'rgba(255, 206, 86, 0.7)',
-            'rgba(75, 192, 192, 0.7)',
-            'rgba(153, 102, 255, 0.7)',
-            'rgba(255, 99, 132, 0.7)',
+            'rgba(255, 159, 64, 0.7)',  // Orange
+            'rgba(0, 123, 255, 0.7)',   // Royal Blue
+            'rgba(153, 102, 255, 0.7)', // Purple
+            'rgba(75, 192, 192, 0.7)',  // Teal
+            'rgba(255, 128, 128, 0.7)', // Semi-Light Red
+            'rgba(178, 34, 34, 0.7)',   // Darker Red
+            'rgba(144, 238, 144, 0.7)', // Light Green
+            'rgba(0, 100, 0, 0.7)',     // Dark Green
+            'rgba(139, 0, 0, 0.7)'      // Dark Red
           ],
         },
       ],
@@ -235,87 +252,127 @@ const OrdersAnalyticsPage = () => {
 
   return (
     <div className="p-4">
-      <h5 className="text-xl font-bold text-center text-green-700 mb-4 pt-8">
+      <h5 className="text-3xl font-bold text-center text-green-700 mb-4 pt-8">
         Orders Analytics Summary
       </h5>
-      <div className="grid grid-cols-8 auto-rows-auto gap-4">
+      <div className="grid grid-cols-9 auto-rows-auto gap-4">
         {/* Total Placed */}
-        <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center">
-          <h5 className="text-xl font-bold text-green-500 mb-4">Total Placed</h5>
-          <p className="text-2xl font-bold text-green-700">
-            {orderCounts.Placed?.length || 0}
+        <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center border-2 border-2">
+          <h5 className="text-lg font-bold text-green-500 mb-3 text-center">To Confirm Orders</h5>
+          <p className="text-3xl font-bold text-green-700">
+            {orderCounts.ToConfirm?.length || 0}
           </p>
         </div>
-  
+
         {/* Total Processed */}
-        <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center">
-          <h5 className="text-xl font-bold text-green-500 mb-4">Total Processed</h5>
-          <p className="text-2xl font-bold text-green-700">
-            {orderCounts.Processed?.length || 0}
+        <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center border-2">
+          <h5 className="text-lg font-bold text-green-500 mb-4 text-center">Preparing Orders</h5>
+          <p className="text-3xl font-bold text-green-700">
+            {orderCounts.Preparing?.length || 0}
           </p>
         </div>
-  
+
         {/* Total Shipped */}
-        <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center">
-          <h5 className="text-xl font-bold text-green-500 mb-4">Total Shipped</h5>
-          <p className="text-2xl font-bold text-green-700">
-            {orderCounts.Shipped?.length || 0}
+        <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center border-2">
+          <h5 className="text-lg font-bold text-green-500 mb-4 text-center">Shipping Orders</h5>
+          <p className="text-3xl font-bold text-green-700">
+            {orderCounts.Shipping?.length || 0}
           </p>
         </div>
-  
+
         {/* Total Delivered */}
-        <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center">
-          <h5 className="text-xl font-bold text-green-500 mb-4">Total Delivered</h5>
-          <p className="text-2xl font-bold text-green-700">
-            {orderCounts.Delivered?.length || 0}
+        <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center border-2">
+          <h5 className="text-lg font-bold text-green-500 mb-4 text-center">Pickup Orders</h5>
+          <p className="text-3xl font-bold text-green-700">
+            {orderCounts.Pickup?.length || 0}
           </p>
         </div>
-  
+
         {/* Total Cancelled */}
-        <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center">
-          <h5 className="text-xl font-bold text-green-500 mb-4">Total Cancelled</h5>
-          <p className="text-2xl font-bold text-green-700">
-            {orderCounts.Cancelled?.length || 0}
+        <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center border-2">
+          <h5 className="text-lg font-bold text-green-500 mb-4 text-center">For Return Orders</h5>
+          <p className="text-3xl font-bold text-green-700">
+            {orderCounts.ForReturn?.length || 0}
           </p>
         </div>
-  
+        {/* Total Placed */}
+        <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center border-2">
+          <h5 className="text-lg font-bold text-green-500 mb-4 text-center">Returned Orders</h5>
+          <p className="text-3xl font-bold text-green-700">
+            {orderCounts.Returned?.length || 0}
+          </p>
+        </div>
+        {/* Total Placed */}
+        <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center border-2">
+          <h5 className="text-lg font-bold text-green-500 mb-4 text-center">To Rate Orders</h5>
+          <p className="text-3xl font-bold text-green-700">
+            {orderCounts.ToRate?.length || 0}
+          </p>
+        </div>
+        {/* Total Placed */}
+        <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center border-2">
+          <h5 className="text-lg font-bold text-green-500 mb-4 text-center">Completed Orders</h5>
+          <p className="text-3xl font-bold text-green-700">
+            {orderCounts.Completed?.length || 0}
+          </p>
+        </div>
+        {/* Total Placed */}
+        <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center border-2">
+          <h5 className="text-lg font-bold text-green-500 mb-4 text-center">Rejected Orders</h5>
+          <p className="text-3xl font-bold text-green-700">
+            {orderCounts.Rejected?.length || 0}
+          </p>
+        </div>
+
         {/* Filter Button */}
-        <div className=" p-4 flex flex-col items-center justify-center">
-          <p className="text-sm font-bold text-green-500 mb-2">
+        <div className="col-span-3 row-span-1 col-start-7 row-start-2 p-4 flex items-center justify-center">
+          <p className="text-lg font-bold text-green-500 mb-2">
             Current Filter: <span className="text-green-700">{selectedFilter}</span>
           </p>
           <button
             onClick={() => setModalVisible(true)}
-            className="bg-green-500 text-white p-2 rounded-lg"
+            className="bg-green-500 text-white p-2 rounded-lg ml-4"
           >
             Select Filter
           </button>
         </div>
-  
+
         {/* Line Charts */}
         <div className="col-span-2 row-span-2 row-start-2 bg-white p-4 rounded-lg shadow-md">
-          {renderOrderStatusLineChart('Placed')}
+          {renderOrderStatusLineChart('ToConfirm')}
         </div>
         <div className="col-span-2 row-span-2 col-start-3 row-start-2 bg-white p-4 rounded-lg shadow-md">
-          {renderOrderStatusLineChart('Processed')}
+          {renderOrderStatusLineChart('Preparing')}
         </div>
         <div className="col-span-2 row-span-2 col-start-5 row-start-2 bg-white p-4 rounded-lg shadow-md">
-          {renderOrderStatusLineChart('Shipped')}
+          {renderOrderStatusLineChart('Shipping')}
         </div>
-        <div className="col-span-2 row-span-2 col-start-2 row-start-4 bg-white p-4 rounded-lg shadow-md">
-          {renderOrderStatusLineChart('Delivered')}
+        <div className="col-span-2 row-span-2 row-start-4 bg-white p-4 rounded-lg shadow-md">
+          {renderOrderStatusLineChart('Pickup')}
         </div>
-        <div className="col-span-2 row-span-2 col-start-4 row-start-4 bg-white p-4 rounded-lg shadow-md">
-          {renderOrderStatusLineChart('Cancelled')}
+        <div className="col-span-2 row-span-2 col-start-3 row-start-4 bg-white p-4 rounded-lg shadow-md">
+          {renderOrderStatusLineChart('ForReturn')}
         </div>
-  
+        <div className="col-span-2 row-span-2 col-start-5 row-start-4 bg-white p-4 rounded-lg shadow-md">
+          {renderOrderStatusLineChart('Returned')}
+        </div>
+        <div className="col-span-2 row-span-2 row-start-6 bg-white p-4 rounded-lg shadow-md">
+          {renderOrderStatusLineChart('ToRate')}
+        </div>
+        <div className="col-span-2 row-span-2 col-start-3 row-start-6 bg-white p-4 rounded-lg shadow-md">
+          {renderOrderStatusLineChart('Completed')}
+        </div>
+        <div className="col-span-2 row-span-2 col-start-5 row-start-6 bg-white p-4 rounded-lg shadow-md">
+          {renderOrderStatusLineChart('Rejected')}
+        </div>
+
         {/* Pie Chart */}
-        <div className="col-span-2 row-span-4 col-start-7 row-start-2 bg-white p-4 rounded-lg shadow-md">
+        <div className="col-span-3 row-span-5 col-start-7 row-start-3 bg-white p-4 rounded-lg shadow-md">
           <h6 className="text-lg font-bold text-green-700 mb-2">Order Status Distribution</h6>
           {renderOrdersPieChart()}
         </div>
       </div>
-  
+
       {/* Modal */}
       <Modal isOpen={modalVisible} onClose={() => setModalVisible(false)}>
         <h3 className="text-lg font-bold mb-4 text-center">Select a filter</h3>
@@ -340,7 +397,7 @@ const OrdersAnalyticsPage = () => {
       </Modal>
     </div>
   );
-  
+
 };
 
 export default OrdersAnalyticsPage;

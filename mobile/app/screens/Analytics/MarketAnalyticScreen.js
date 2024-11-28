@@ -127,16 +127,13 @@ function MarketAnalyticScreen({ route }) {
           // If the key exists, accumulate the total_price and total_weight
           acc[key].total_price += product.total_price;
           acc[key].total_weight += product.total_weight;
-
           // Update highest and lowest price per weight
           acc[key].highest = Math.max(acc[key].highest, pricePerWeight);
           acc[key].lowest = Math.min(acc[key].lowest, pricePerWeight);
-
           // Accumulate sum for average calculation and increment count
           acc[key].sum_price_per_weight += pricePerWeight;
           acc[key].count += 1;
         }
-
         return acc;
       }, {});
 

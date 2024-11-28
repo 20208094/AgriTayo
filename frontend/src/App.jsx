@@ -36,8 +36,8 @@ import ProfitAnalyticsPage from './screens/Users/AdminPages/AdminDashboard/Profi
 import CropSubCategoryPageCRUD from './screens/Users/AdminPages/CrudPages/CropSubCategoryPageCRUD';
 import SellerDashboardPage from './screens/Users/SellerPages/SellerDashboard';
 import BuyerDashboardPage from './screens/Users/BuyerPages/BuyerDashboard';
-import CropVarietyPageCRUD
- from './screens/Users/AdminPages/CrudPages/CropVarietyPageCRUD';
+import CropVarietyPageCRUD from './screens/Users/AdminPages/CrudPages/CropVarietyPageCRUD';
+import SelectedVarietyAnalyticsPage from './screens/Users/AdminPages/AdminDashboard/SelectedVarietyAnalytics';
 // for market
 import CropCategoryPage from './screens/Market/CropCategoryPage';
 import CropSubCategoryPage from './screens/Market/CropSubCategoryPage';
@@ -212,10 +212,9 @@ function Layout({ userType, userId, refreshProfile, setRefreshProfile }) {
             path="/admin/*"
             element={<ProtectedRoute element={<AdminDashboardPage />} allowedUserType={1} userType={userType} />}
           >
-            <Route path='marketAnalytics' element={<MarketAnalyticsPage />} />
             <Route path='analytics' element={<AnalyticsPage />} />
             <Route path="reports" element={<ReportsPage />} />
-            <Route path="dashboard" element={<AdminDashboardPage />} />
+            <Route path="dashboard" element={<CropCategoryPage />} />
             <Route path="user_type" element={<UserTypePage />} />
             <Route path="addresses" element={<AddressesPage />} />
             <Route path="users" element={<UsersPage />} />
@@ -243,10 +242,11 @@ function Layout({ userType, userId, refreshProfile, setRefreshProfile }) {
             <Route path="change_password" element={<ChangePassword />} />
             <Route path="download" element={<DownloadAppPage />} />
             <Route path="delete_account" element={<DeleteAccount />} />
-            <Route path='marketAnalytics' element={<MarketAnalyticsPage />} />
+            <Route path='MarketAnalytics' element={<MarketAnalyticsPage />} />
+            <Route path='VarietyAnalytics/:varietyId' element={<SelectedVarietyAnalyticsPage />} />
             <Route path='salesAnalytics' element={<SalesAnalyticsPage />} />
             <Route path='newUsersAnalytics' element={<NewUsersAnalyticsPage />} />
-            <Route path='ordersAnalytics' element={<OrdersAnalyticsPage />} />
+            <Route path='OrdersAnalytics' element={<OrdersAnalyticsPage />} />
             <Route path='individualCropPriceChangesAnalytics' element={<IndividualCropPriceChangesPage />} />
             <Route path='profitAnalytics' element={<ProfitAnalyticsPage />} />
             <Route path="chatlist" element={<ChatListPage />} />
