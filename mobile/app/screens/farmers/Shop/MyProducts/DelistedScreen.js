@@ -24,6 +24,7 @@ function DelistedScreen({ navigation }) {
 
   // Function to fetch shop data and crops that are delisted
   const getAsyncShopData = async () => {
+    setLoading(true)
     try {
       const storedData = await AsyncStorage.getItem("shopData");
       if (storedData) {
@@ -272,55 +273,89 @@ function DelistedScreen({ navigation }) {
               </Text>
 
               {/* Category and Subcategory */}
-              <View className="flex-row flex-wrap gap-2 mb-1">
-                <Text className="text-xs font-medium text-red-600">
-                  Reason:{" "}
-                  <Text className="text-gray-800">
-                    {delistedItem.reason || "Unknown"}
-                  </Text>
-                </Text>
+              <View className="mb-1">
                 <Text className="text-xs font-medium text-green-600">
                   Category:{" "}
                   <Text className="text-gray-800">
                     {delistedItem.category
                       ? delistedItem.category.crop_category_name
-                      : "N/A"}
+                      : "Unknown"}
+                  </Text>
+                </Text>
+                </View>
+                <View className='mb-1'>
+                <Text className="text-xs font-medium text-green-600">
+                  Subcategory:{" "}
+                  <Text className="text-gray-800">
+                    {delistedItem.subcategory
+                      ? delistedItem.subcategory.crop_sub_category_name
+                      : "Unknown"}
                   </Text>
                 </Text>
               </View>
 
-              {/* Variety and Size */}
-              <View className="flex-row flex-wrap gap-2 mb-1">
-                <Text className="text-xs font-medium text-blue-600">
+              {/* Variety, Size, and Class */}
+              <View className="mb-1">
+                <Text className="text-xs font-medium text-green-600">
                   Variety:{" "}
                   <Text className="text-gray-800">
                     {delistedItem.variety
                       ? delistedItem.variety.crop_variety_name
-                      : "N/A"}
+                      : "Unknown"}
                   </Text>
                 </Text>
-                <Text className="text-xs font-medium text-orange-600">
+                </View>
+                <View className='mb-1'>
+                <Text className="text-xs font-medium text-green-600">
                   Size:{" "}
                   <Text className="text-gray-800">
-                    {delistedItem.size ? delistedItem.size.crop_size_name : "N/A"}
+                    {delistedItem.size
+                      ? delistedItem.size.crop_size_name
+                      : "Unknown"}
+                  </Text>
+                </Text>
+                </View>
+                <View className='mb-1'>
+                <Text className="text-xs font-medium text-green-600">
+                  Class:{" "}
+                  <Text className="text-gray-800">
+                    {delistedItem.crop_class || "Unknown"}
                   </Text>
                 </Text>
               </View>
 
-
               {/* Quantity and Negotiation */}
-              <View className="flex-row justify-between mt-2">
+              <View className="mb-1">
                 <Text className="text-xs font-medium text-[#00B251]">
                   Quantity:{" "}
                   <Text className="text-gray-800">
                     {delistedItem.crop_quantity}
                   </Text>
                 </Text>
+                </View>
+                <View className='mb-1'>
                 <Text className="text-xs font-medium text-[#00B251]">
                   Negotiation:{" "}
                   <Text className="text-gray-800">
-                    {delistedItem.negotiation_allowed ? "Allowed" : "Not Allowed"}
+                    {delistedItem.negotiation_allowed
+                      ? "Allowed"
+                      : "Not Allowed"}
                   </Text>
+                </Text>
+              </View>
+
+              {/* Price, Weight */}
+              <View className="flex-row justify-between">
+                <Text className="text-xs font-medium text-green-600">
+                  Weight:{" "}
+                  <Text className="text-gray-800">
+                    {delistedItem.metric
+                      ? `${delistedItem.metric.metric_system_name}`
+                      : "Unknown"}
+                  </Text>
+                </Text>
+                <Text className="text-sm font-semibold text-[#00B251]">
+                  ₱{delistedItem.crop_price}
                 </Text>
               </View>
             </View>

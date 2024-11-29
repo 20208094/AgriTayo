@@ -18,11 +18,13 @@ import * as MediaLibrary from "expo-media-library";
 import LoadingAnimation from "../../../../components/LoadingAnimation";
 
 function FarmersProductDetailScreen({ route, navigation }) {
-  const { liveItem, reviewingItem, violationItem, delistedItem, soldOutItem } = route.params;
+  const { liveItem, reviewingItem, violationItem, delistedItem, soldOutItem } =
+    route.params;
 
-  const product = liveItem || reviewingItem || violationItem || delistedItem || soldOutItem;
+  const product =
+    liveItem || reviewingItem || violationItem || delistedItem || soldOutItem;
 
-  console.log(product)
+  console.log(product);
 
   // for data fetching
   const [categories, setCategories] = useState([]);
@@ -47,10 +49,12 @@ function FarmersProductDetailScreen({ route, navigation }) {
     String(product.crop_quantity)
   );
 
-  const [minimumNegotiation, setMinimumNegotiation] = useState(String(product.minimum_negotiation))
+  const [minimumNegotiation, setMinimumNegotiation] = useState(
+    String(product.minimum_negotiation)
+  );
 
   const [isEnabled, setIsEnabled] = useState(product.negotiation_allowed);
-  const toggleSwitch = () => setIsEnabled(previousState => !previousState);
+  const toggleSwitch = () => setIsEnabled((previousState) => !previousState);
 
   const [loading, setLoading] = useState(true);
 
@@ -374,6 +378,7 @@ function FarmersProductDetailScreen({ route, navigation }) {
   };
 
   const handleEditProduct = async () => {
+    setLoading(true);
     const formData = new FormData();
 
     // Append form data fields
@@ -385,10 +390,10 @@ function FarmersProductDetailScreen({ route, navigation }) {
       "crop_image",
       imageSource
         ? {
-          uri: imageSource.uri,
-          type: "image/jpeg",
-          name: "product-image.jpg",
-        }
+            uri: imageSource.uri,
+            type: "image/jpeg",
+            name: "product-image.jpg",
+          }
         : product.crop_image_url
     );
     formData.append("crop_price", parseFloat(cropPrice));
@@ -400,7 +405,7 @@ function FarmersProductDetailScreen({ route, navigation }) {
     formData.append(
       "sub_category_id",
       parseInt(selectedSubCategoryId) ||
-      product.subcategory.crop_sub_category_id
+        product.subcategory.crop_sub_category_id
     );
     formData.append(
       "crop_size_id",
@@ -416,8 +421,8 @@ function FarmersProductDetailScreen({ route, navigation }) {
     );
     formData.append("crop_class", selectedCropClass);
     formData.append("crop_availability", selectedCropAvailability);
-    formData.append("negotiation_allowed", isEnabled ? 'TRUE' : 'FALSE')
-    formData.append("minimum_negotiation", parseInt(minimumNegotiation))
+    formData.append("negotiation_allowed", isEnabled ? "TRUE" : "FALSE");
+    formData.append("minimum_negotiation", parseInt(minimumNegotiation));
 
     console.log("Form Data:", formData);
 
@@ -444,9 +449,9 @@ function FarmersProductDetailScreen({ route, navigation }) {
 
       const updatedProduct = await response.json();
       console.log("Updated Product:", updatedProduct);
-      setAlertMessage("Success!, Product Updated Successfully");
+      Alert.alert("Success!, Product Updated Successfully");
       setAlertVisible(true);
-      navigation.navigate("My Products");
+      navigation.navigate("My Products", { refresh: true });
     } catch (error) {
       console.error(`Error updating product: ${error.message}`);
     }
@@ -473,7 +478,6 @@ function FarmersProductDetailScreen({ route, navigation }) {
                   />
                 </TouchableOpacity>
               </View>
-
 
               <View className="mb-4">
                 <Text className="text-sm mb-2 text-gray-800">
@@ -642,9 +646,6 @@ function FarmersProductDetailScreen({ route, navigation }) {
                 />
               </View>
 
-
-
-
               <View className="mb-4">
                 <Text className="text-sm mb-2 text-gray-800">
                   Crop Quantity
@@ -686,7 +687,9 @@ function FarmersProductDetailScreen({ route, navigation }) {
               </View>
 
               {/* Negotiation Selector */}
-              <Text className='text-sm mb-2 text-gray-800'>Open for Negotiation?</Text>
+              <Text className="text-sm mb-2 text-gray-800">
+                Open for Negotiation?
+              </Text>
               <View
                 style={{
                   flexDirection: "row",
@@ -705,7 +708,7 @@ function FarmersProductDetailScreen({ route, navigation }) {
               </View>
               {isEnabled && (
                 <>
-                  <View className='mb-4'>
+                  <View className="mb-4">
                     <Text className="text-sm mb-2 text-gray-800">
                       Crop Minimum Negotiation
                     </Text>
@@ -812,7 +815,9 @@ function FarmersProductDetailScreen({ route, navigation }) {
               className="mb-4 p-4 bg-[#00B251] rounded-lg"
               onPress={handleImagePickFromGallery}
             >
-              <Text className="text-white text-center">Choose from Gallery</Text>
+              <Text className="text-white text-center">
+                Choose from Gallery
+              </Text>
             </TouchableOpacity>
             <TouchableOpacity
               className="mb-4 p-4 bg-[#00B251] rounded-lg"

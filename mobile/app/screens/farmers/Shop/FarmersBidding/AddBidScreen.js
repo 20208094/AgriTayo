@@ -560,18 +560,24 @@ function AddBidScreen({ navigation }) {
               <Ionicons name="chevron-down" size={20} color="gray" className="ml-2" />
             </TouchableOpacity>
             {isClickedSubCategory && (
-              <View className="w-full p-2 mb-4 bg-white rounded-lg shadow-md">
-                {subCategories.map((subCategory) => (
-                  <TouchableOpacity
-                    className="p-2"
-                    onPress={() => handleSubCategorySelect(subCategory)}
-                    key={subCategory.crop_sub_category_id}
-                  >
-                    <Text className="text-base">{subCategory.crop_sub_category_name}</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            )}
+  <View className="w-full p-2 mb-4 bg-white rounded-lg shadow-md">
+    {selectedCategoryId ? (
+      subCategories.map((subCategory) => (
+        <TouchableOpacity
+          key={subCategory.crop_sub_category_id}
+          className="p-2"
+          onPress={() => handleSubCategorySelect(subCategory)}
+        >
+          <Text className="text-base">
+            {subCategory.crop_sub_category_name}
+          </Text>
+        </TouchableOpacity>
+      ))
+    ) : (
+      <Text className="text-base text-red-600">Select a category first</Text>
+    )}
+  </View>
+)}
           </View>
 
           {/* Image Upload */}
