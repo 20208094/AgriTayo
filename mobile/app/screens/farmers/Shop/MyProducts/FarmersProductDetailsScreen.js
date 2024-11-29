@@ -208,12 +208,15 @@ function FarmersProductDetailScreen({ route, navigation }) {
   // for crop size
   const [isClickedCropSize, setIsClickedCropSize] = useState(false);
   const [selectedCropSize, setSelectedCropSize] = useState(
-    product.size.crop_size_name
+    product?.size?.crop_size_name || "Select Crop Size"
   );
-  const [selectedCropSizeId, setSelectedCropSizeId] = useState(null);
-  const handleCropSizeSelect = (cropSize) => {
-    setSelectedCropSize(cropSize.crop_size_name);
-    setSelectedCropSizeId(cropSize.crop_size_id);
+  const [selectedCropSizeId, setSelectedCropSizeId] = useState(
+    product?.size?.crop_size_id || null
+  );
+  const handleCropSizeSelect = (size) => {
+    if (!size) return;
+    setSelectedCropSize(size.crop_size_name);
+    setSelectedCropSizeId(size.crop_size_id);
     setIsClickedCropSize(false);
   };
 
@@ -242,12 +245,15 @@ function FarmersProductDetailScreen({ route, navigation }) {
   // for crop variety
   const [isClickedCropVariety, setIsClickedCropVariety] = useState(false);
   const [selectedCropVariety, setSelectedCropVariety] = useState(
-    product.variety.crop_variety_name
+    product?.variety?.crop_variety_name || "Select Crop Variety"
   );
-  const [selectedCropVarietyId, setSelectedCropVarietyId] = useState(null);
-  const handleCropVarietySelect = (cropVariety) => {
-    setSelectedCropVariety(cropVariety.crop_variety_name);
-    setSelectedCropVarietyId(cropVariety.crop_variety_id);
+  const [selectedCropVarietyId, setSelectedCropVarietyId] = useState(
+    product?.variety?.crop_variety_id || null
+  );
+  const handleCropVarietySelect = (variety) => {
+    if (!variety) return;
+    setSelectedCropVariety(variety.crop_variety_name);
+    setSelectedCropVarietyId(variety.crop_variety_id);
     setIsClickedCropVariety(false);
   };
 
@@ -280,12 +286,15 @@ function FarmersProductDetailScreen({ route, navigation }) {
   // for metric
   const [isClickedCropMetric, setIsClickedCropMetric] = useState(false);
   const [selectedCropMetric, setSelectedCropMetric] = useState(
-    product.metric.metric_system_name
+    product?.metric?.metric_system_name || "Select Metric"
   );
-  const [selectedCropMetricId, setSelectedCropMetricId] = useState(null);
-  const handleCropMetricSelect = (cropMetric) => {
-    setSelectedCropMetric(cropMetric.metric_system_name);
-    setSelectedCropMetricId(cropMetric.metric_system_id);
+  const [selectedCropMetricId, setSelectedCropMetricId] = useState(
+    product?.metric?.metric_system_id || null
+  );
+  const handleCropMetricSelect = (metric) => {
+    if (!metric) return;
+    setSelectedCropMetric(metric.metric_system_name);
+    setSelectedCropMetricId(metric.metric_system_id);
     setIsClickedCropMetric(false);
   };
 
@@ -371,9 +380,10 @@ function FarmersProductDetailScreen({ route, navigation }) {
   // for crop size
   const [isClickedCropClass, setIsClickedCropClass] = useState(false);
   const [selectedCropClass, setSelectedCropClass] = useState(
-    product.crop_class
+    product?.crop_class || "Select Crop Class"
   );
   const handleCropClassSelect = (cropClass) => {
+    if (!cropClass) return;
     setSelectedCropClass(cropClass.crop_class_name);
     setIsClickedCropClass(false);
   };
@@ -457,6 +467,117 @@ function FarmersProductDetailScreen({ route, navigation }) {
     }
   };
 
+  // Add these new states for modal and search
+  const [activeField, setActiveField] = useState(null);
+  const [searchText, setSearchText] = useState('');
+  const [modalData, setModalData] = useState([]);
+
+  // Add validation regex
+  const PRICE_REGEX = /^(?:[1-9]\d*|\d+\.\d{1,2}|0\.\d{1,2})$/;
+  const QUANTITY_REGEX = /^[1-9]\d*$/;
+
+  // Add error state
+  const [errors, setErrors] = useState({});
+
+  // Add input validation handler
+  const handleInputValidation = (field, value) => {
+    let error = "";
+    
+    if (!value) {
+      setErrors(prev => {
+        const updated = { ...prev };
+        delete updated[field];
+        return updated;
+      });
+      return;
+    }
+
+    switch (field) {
+      case "cropPrice":
+        if (!PRICE_REGEX.test(value)) {
+          error = "Enter a valid price greater than 0 (e.g., 100 or 100.00).";
+        }
+        break;
+      case "cropQuantity":
+        if (!QUANTITY_REGEX.test(value)) {
+          error = "Enter a valid whole number greater than 0.";
+        }
+        break;
+      default:
+        break;
+    }
+
+    setErrors(prev => ({
+      ...prev,
+      [field]: error
+    }));
+  };
+
+  // Add new state for searchable modal
+  const [searchModalVisible, setSearchModalVisible] = useState(false);
+
+  // Update handleOpenModal function
+  const handleOpenModal = (field) => {
+    let data = [];
+    switch (field) {
+      case 'category':
+        data = categories.map(cat => ({
+          label: cat.crop_category_name,
+          value: cat.crop_category_id,
+          original: cat
+        }));
+        break;
+      case 'subcategory':
+        data = subCategories.map(sub => ({
+          label: sub.crop_sub_category_name,
+          value: sub.crop_sub_category_id,
+          original: sub
+        }));
+        break;
+      case 'variety':
+        data = cropVarieties.map(variety => ({
+          label: variety.crop_variety_name,
+          value: variety.crop_variety_id,
+          original: variety
+        }));
+        break;
+      case 'metric':
+        data = cropMetrics.map(metric => ({
+          label: metric.metric_system_name,
+          value: metric.metric_system_id,
+          original: metric
+        }));
+        break;
+    }
+    setModalData(data);
+    setActiveField(field);
+    setSearchText('');
+    setSearchModalVisible(true);
+  };
+
+  // Update handleModalItemSelect
+  const handleModalItemSelect = (item) => {
+    switch (activeField) {
+      case 'category':
+        handleCategorySelect(item.original);
+        break;
+      case 'subcategory':
+        handleSubCategorySelect(item.original);
+        break;
+      case 'variety':
+        handleCropVarietySelect(item.original);
+        break;
+      case 'metric':
+        handleCropMetricSelect(item.original);
+        break;
+    }
+    setSearchModalVisible(false);
+  };
+
+  const filteredItems = modalData.filter(item =>
+    item.label.toLowerCase().includes(searchText.toLowerCase())
+  );
+
   if (loading) {
     return <LoadingAnimation />;
   }
@@ -467,25 +588,53 @@ function FarmersProductDetailScreen({ route, navigation }) {
         <View className="p-4">
           {product ? (
             <>
+              {/* Image Section */}
               <View className="mb-4">
-                <TouchableOpacity
-                  onPress={() => setModalVisible2(true)}
-                  className="rounded-lg overflow-hidden shadow"
-                >
-                  <Image
-                    className="w-full h-72 object-cover"
-                    source={{ uri: imageSource?.uri || product.crop_image_url }}
-                  />
-                </TouchableOpacity>
+                <Text className="text-lg font-semibold mb-1">
+                  Upload Crop Image <Text className="text-red-500">*</Text>
+                  {errors.cropImage && (
+                    <Text className="text-red-600 text-xs">{errors.cropImage}</Text>
+                  )}
+                </Text>
+                {imageSource?.uri || product.crop_image_url ? (
+                  <View className="mx-2 relative">
+                    <Image
+                      source={{ uri: imageSource?.uri || product.crop_image_url }}
+                      className="w-full h-48 rounded-lg"
+                      resizeMode="cover"
+                    />
+                    <TouchableOpacity
+                      onPress={() => setModalVisible2(true)}
+                      className="absolute bottom-2 right-2 bg-[#00B251] rounded-full w-8 h-8 justify-center items-center"
+                    >
+                      <Ionicons name="camera-outline" size={24} color="white" />
+                    </TouchableOpacity>
+                  </View>
+                ) : (
+                  <TouchableOpacity
+                    className="border-2 border-dashed border-[#00B251] rounded-lg p-4 flex items-center justify-center mx-2"
+                    onPress={() => setModalVisible2(true)}
+                  >
+                    <View className="flex-row items-center">
+                      <Ionicons name="camera-outline" size={24} color="#00B251" />
+                      <Text className="text-[#00B251] mx-2 text-lg">/</Text>
+                      <Ionicons name="image-outline" size={24} color="#00B251" />
+                    </View>
+                    <Text className="text-[#00B251] mt-2">Upload Image</Text>
+                  </TouchableOpacity>
+                )}
               </View>
 
-
+              {/* Description Section */}
               <View className="mb-4">
-                <Text className="text-sm mb-2 text-gray-800">
-                  Crop Description
+                <Text className="text-lg font-semibold mb-1">
+                  Crop Description <Text className="text-red-500">*</Text>
+                  {errors.cropDescription && (
+                    <Text className="text-red-600 text-xs">{errors.cropDescription}</Text>
+                  )}
                 </Text>
                 <TextInput
-                  className="flex-row items-center w-full p-2 bg-white rounded-lg shadow-md"
+                  className="w-full p-2 bg-white rounded-lg border border-gray-500 mx-2"
                   value={cropDescription}
                   onChangeText={setCropDescription}
                   multiline
@@ -493,347 +642,320 @@ function FarmersProductDetailScreen({ route, navigation }) {
                 />
               </View>
 
+              {/* Category Section */}
               <View className="mb-4">
-                <Text className="text-sm mb-2 text-gray-800">
-                  Crop Category
+                <Text className="text-lg font-semibold mb-1">
+                  Choose Category <Text className="text-red-500">*</Text>
                 </Text>
                 <TouchableOpacity
-                  className="flex-row items-center w-full p-2 bg-white rounded-lg shadow-md"
-                  onPress={() => setIsClickedCategory(!isClickedCategory)}
+                  onPress={() => handleOpenModal('category')}
+                  className="flex-1 border border-gray-500 rounded-lg p-2 px-4 mx-2"
                 >
-                  <Text className="flex-1 text-gray-700">
-                    {selectedCategory}
+                  <Text className="text-base pl-2">
+                    {selectedCategory || "Select a category"}
                   </Text>
-                  <Ionicons name="chevron-down" size={20} color="gray" />
                 </TouchableOpacity>
-                {isClickedCategory && (
-                  <View className="bg-gray-100 p-2 rounded">
-                    {categories.map((category) => (
-                      <TouchableOpacity
-                        className="py-1"
-                        key={category.crop_category_id}
-                        onPress={() => handleCategorySelect(category)}
-                      >
-                        <Text className="text-gray-600">
-                          {category.crop_category_name}
-                        </Text>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-                )}
               </View>
 
+              {/* Sub Category Section */}
               <View className="mb-4">
-                <Text className="text-sm mb-2 text-gray-800">
-                  Crop Sub Category
+                <Text className="text-lg font-semibold mb-1">
+                  Choose Sub Category <Text className="text-red-500">*</Text>
                 </Text>
                 <TouchableOpacity
-                  className="flex-row items-center w-full p-2 bg-white rounded-lg shadow-md"
-                  onPress={() => setIsclickedSubCategory(!isClickedSubCategory)}
+                  onPress={() => handleOpenModal('subcategory')}
+                  className="flex-1 border border-gray-500 rounded-lg p-2 px-4 mx-2"
                 >
-                  <Text className="flex-1 text-gray-700">
-                    {selectedSubCategory}
+                  <Text className="text-base pl-2">
+                    {selectedSubCategory || "Select a sub category"}
                   </Text>
-                  <Ionicons name="chevron-down" size={20} color="gray" />
                 </TouchableOpacity>
-                {isClickedSubCategory && (
-                  <View className="bg-gray-100 p-2 rounded">
-                    {subCategories.map((subCategory) => (
-                      <TouchableOpacity
-                        className="py-1"
-                        key={subCategory.crop_sub_category_id}
-                        onPress={() => handleSubCategorySelect(subCategory)}
-                      >
-                        <Text className="text-gray-600">
-                          {subCategory.crop_sub_category_name}
-                        </Text>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-                )}
               </View>
 
+              {/* Variety Section */}
               <View className="mb-4">
-                <Text className="text-sm mb-2 text-gray-800">Crop Variety</Text>
+                <Text className="text-lg font-semibold mb-1">
+                  Choose Variety <Text className="text-red-500">*</Text>
+                </Text>
                 <TouchableOpacity
-                  className="flex-row items-center w-full p-2 bg-white rounded-lg shadow-md"
-                  onPress={() => setIsClickedCropVariety(!isClickedCropVariety)}
+                  onPress={() => handleOpenModal('variety')}
+                  className="flex-1 border border-gray-500 rounded-lg p-2 px-4 mx-2"
                 >
-                  <Text className="flex-1 text-gray-700">
-                    {selectedCropVariety}
+                  <Text className="text-base pl-2">
+                    {selectedCropVariety || "Select a variety"}
                   </Text>
-                  <Ionicons name="chevron-down" size={20} color="gray" />
                 </TouchableOpacity>
-                {isClickedCropVariety && (
-                  <View className="bg-gray-100 p-2 rounded ">
-                    {cropVarieties.map((cropVariety) => (
-                      <TouchableOpacity
-                        className="py-1"
-                        key={cropVariety.crop_variety_id}
-                        onPress={() => handleCropVarietySelect(cropVariety)}
-                      >
-                        <Text className="text-gray-600">
-                          {cropVariety.crop_variety_name}
-                        </Text>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-                )}
               </View>
 
+              {/* Class Selection */}
               <View className="mb-4">
-                <Text className="text-sm mb-2 text-gray-800">Crop Class</Text>
-                <TouchableOpacity
-                  className="flex-row items-center w-full p-2 bg-white rounded-lg shadow-md"
-                  onPress={() => setIsClickedCropClass(!isClickedCropClass)}
-                >
-                  <Text className="flex-1 text-gray-700">
-                    {selectedCropClass}
-                  </Text>
-                  <Ionicons name="chevron-down" size={20} color="gray" />
-                </TouchableOpacity>
-                {isClickedCropClass && (
-                  <View className="bg-gray-100 p-2 rounded">
-                    {cropClasses.map((cropClass) => (
-                      <TouchableOpacity
-                        className="py-1"
-                        key={cropClass.crop_class_id}
-                        onPress={() => handleCropClassSelect(cropClass)}
-                      >
-                        <Text className="text-gray-600">
-                          {cropClass.crop_class_name}
-                        </Text>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-                )}
+                <Text className="text-lg font-semibold mb-1">
+                  Choose Class <Text className="text-red-500">*</Text>
+                </Text>
+                <View className="flex-row flex-wrap mx-2" style={{ gap: 8 }}>
+                  {cropClasses.map((cropClass) => (
+                    <TouchableOpacity
+                      key={cropClass.crop_class_id}
+                      onPress={() => handleCropClassSelect(cropClass)}
+                      className={`px-4 py-2 rounded-lg ${
+                        selectedCropClass === cropClass.crop_class_name
+                          ? 'bg-[#00B251]'
+                          : 'bg-[#8f8d8d]'
+                      }`}
+                    >
+                      <Text className="text-white font-semibold text-center">
+                        {cropClass.crop_class_name}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
               </View>
 
+              {/* Size Selection */}
               <View className="mb-4">
-                <Text className="text-sm mb-2 text-gray-800">Crop Size</Text>
-                <TouchableOpacity
-                  className="flex-row items-center w-full p-2 bg-white rounded-lg shadow-md"
-                  onPress={() => setIsClickedCropSize(!isClickedCropSize)}
-                >
-                  <Text className="flex-1 text-gray-700">
-                    {selectedCropSize}
-                  </Text>
-                  <Ionicons name="chevron-down" size={20} color="gray" />
-                </TouchableOpacity>
-                {isClickedCropSize && (
-                  <View className="bg-gray-100 p-2 rounded">
-                    {cropSizes.map((cropSize) => (
-                      <TouchableOpacity
-                        className="py-1"
-                        key={cropSize.crop_size_id}
-                        onPress={() => handleCropSizeSelect(cropSize)}
-                      >
-                        <Text className="text-gray-600">
-                          {cropSize.crop_size_name}
-                        </Text>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-                )}
+                <Text className="text-lg font-semibold mb-1">
+                  Choose Size <Text className="text-red-500">*</Text>
+                </Text>
+                <View className="flex-row flex-wrap mx-2" style={{ gap: 8 }}>
+                  {cropSizes.map((size) => (
+                    <TouchableOpacity
+                      key={size.crop_size_id}
+                      onPress={() => handleCropSizeSelect(size)}
+                      className={`px-4 py-2 rounded-lg ${
+                        selectedCropSizeId === size.crop_size_id
+                          ? 'bg-[#00B251]'
+                          : 'bg-[#8f8d8d]'
+                      }`}
+                    >
+                      <Text className="text-white font-semibold text-center">
+                        {size.crop_size_name}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
               </View>
 
+              {/* Price Section */}
               <View className="mb-4">
-                <Text className="text-sm mb-2 text-gray-800">Crop Price</Text>
+                <Text className="text-lg font-semibold mb-1">
+                  Crop Price <Text className="text-red-500">*</Text>
+                  {errors.cropPrice && (
+                    <Text className="text-red-600 text-xs">{errors.cropPrice}</Text>
+                  )}
+                </Text>
                 <TextInput
-                  className="flex-row items-center w-full p-2 bg-white rounded-lg shadow-md"
+                  className="w-full p-2 bg-white rounded-lg border border-gray-500 mx-2"
+                  keyboardType="numeric"
+                  placeholder="₱ 0.00"
                   value={cropPrice}
-                  onChangeText={setCropPrice}
-                  keyboardType="numeric"
+                  onChangeText={(text) => {
+                    let formattedText = text;
+                    if (text.startsWith('.')) {
+                      formattedText = `0${text}`;
+                    }
+                    const parts = formattedText.split('.');
+                    if (parts[1] && parts[1].length > 2) {
+                      formattedText = `${parts[0]}.${parts[1].slice(0, 2)}`;
+                    }
+                    setCropPrice(formattedText);
+                    handleInputValidation("cropPrice", formattedText);
+                  }}
                 />
               </View>
 
-
-
-
+              {/* Quantity Section */}
               <View className="mb-4">
-                <Text className="text-sm mb-2 text-gray-800">
-                  Crop Quantity
+                <Text className="text-lg font-semibold mb-1">
+                  Crop Quantity <Text className="text-red-500">*</Text>
+                  {errors.cropQuantity && (
+                    <Text className="text-red-600 text-xs">{errors.cropQuantity}</Text>
+                  )}
                 </Text>
                 <TextInput
-                  className="flex-row items-center w-full p-2 bg-white rounded-lg shadow-md"
-                  value={cropQuantity}
-                  onChangeText={setCropQuantity}
+                  className="w-full p-2 bg-white rounded-lg border border-gray-500 mx-2"
                   keyboardType="numeric"
+                  placeholder="Enter the quantity of the crop"
+                  value={cropQuantity}
+                  onChangeText={(text) => {
+                    const numericText = text.replace(/[^0-9]/g, '');
+                    setCropQuantity(numericText);
+                    handleInputValidation("cropQuantity", numericText);
+                  }}
                 />
               </View>
 
+              {/* Metric Section */}
               <View className="mb-4">
-                <Text className="text-sm mb-2 text-gray-800">Crop Metric</Text>
+                <Text className="text-lg font-semibold mb-1">
+                  Choose Metric <Text className="text-red-500">*</Text>
+                </Text>
                 <TouchableOpacity
-                  className="flex-row items-center w-full p-2 bg-white rounded-lg shadow-md"
-                  onPress={() => setIsClickedCropMetric(!isClickedCropMetric)}
+                  onPress={() => handleOpenModal('metric')}
+                  className="w-full p-2 bg-white rounded-lg border border-gray-500 mx-2"
                 >
-                  <Text className="flex-1 text-gray-700">
-                    {selectedCropMetric}
+                  <Text className="text-base pl-2">
+                    {selectedCropMetric || "Select a metric"}
                   </Text>
-                  <Ionicons name="chevron-down" size={20} color="gray" />
                 </TouchableOpacity>
-                {isClickedCropMetric && (
-                  <View className="bg-gray-100 p-2 rounded">
-                    {cropMetrics.map((cropMetric) => (
-                      <TouchableOpacity
-                        className="py-1"
-                        key={cropMetric.metric_system_id}
-                        onPress={() => handleCropMetricSelect(cropMetric)}
-                      >
-                        <Text className="text-gray-600">
-                          {cropMetric.metric_system_name}
-                        </Text>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-                )}
               </View>
 
-              {/* Negotiation Selector */}
-              <Text className='text-sm mb-2 text-gray-800'>Open for Negotiation?</Text>
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  marginVertical: 10,
-                }}
-              >
-                <Text>{isEnabled ? "Yes" : "No"}</Text>
-                <Switch
-                  trackColor={{ false: "#767577", true: "#00b251" }}
-                  thumbColor={isEnabled ? "#f5dd4b" : "#f4f3f4"}
-                  ios_backgroundColor="#3e3e3e"
-                  onValueChange={toggleSwitch}
-                  value={isEnabled}
-                />
+              {/* Negotiation Section */}
+              <View className="mb-4">
+                <Text className="text-lg font-semibold mb-1">Open for Negotiation?</Text>
+                <View className="flex-row items-center p-2">
+                  <Text className="text-base mr-2">{isEnabled ? "Yes" : "No"}</Text>
+                  <Switch
+                    trackColor={{ false: "#767577", true: "#00b251" }}
+                    thumbColor={isEnabled ? "#f5dd4b" : "#f4f3f4"}
+                    ios_backgroundColor="#3e3e3e"
+                    onValueChange={toggleSwitch}
+                    value={isEnabled}
+                  />
+                </View>
               </View>
+
               {isEnabled && (
-                <>
-                  <View className='mb-4'>
-                    <Text className="text-sm mb-2 text-gray-800">
-                      Crop Minimum Negotiation
-                    </Text>
-                    <TextInput
-                      className="w-full p-2 bg-white rounded-lg shadow-md"
-                      keyboardType="numeric"
-                      placeholder="₱5"
-                      value={minimumNegotiation}
-                      onChangeText={setMinimumNegotiation}
-                    />
-                  </View>
-                </>
+                <View className="mb-4">
+                  <Text className="text-lg font-semibold mb-1">
+                    Minimum Quantity for Negotiation
+                  </Text>
+                  <TextInput
+                    className="w-full p-2 bg-white rounded-lg border border-gray-500 mx-2"
+                    keyboardType="numeric"
+                    placeholder="5"
+                    value={minimumNegotiation}
+                    onChangeText={setMinimumNegotiation}
+                  />
+                </View>
               )}
 
-              <View className="mb-4">
-                <Text className="text-sm mb-2 text-gray-800">
-                  Crop Availability
-                </Text>
-                <TouchableOpacity
-                  className="flex-row items-center w-full p-2 bg-white rounded-lg shadow-md"
-                  onPress={() =>
-                    setIsClickedCropAvailability(!isClickedCropAvailability)
-                  }
-                >
-                  <Text className="flex-1 text-gray-700">
-                    {selectedCropAvailability}
-                  </Text>
-                  <Ionicons name="chevron-down" size={20} color="gray" />
-                </TouchableOpacity>
-                {isClickedCropAvailability && (
-                  <View className="bg-gray-100 p-2 rounded">
-                    {cropAvailability.map((availability) => (
-                      <TouchableOpacity
-                        className="py-1"
-                        key={availability.crop_availability_id}
-                        onPress={() =>
-                          handleCropAvailabilitySelect(availability)
-                        }
-                      >
-                        <Text className="text-gray-600">
-                          {availability.crop_availability_name}
-                        </Text>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-                )}
-              </View>
-              {/* Add Product Button */}
+              {/* Submit Button */}
               <TouchableOpacity
                 className="bg-[#00B251] p-4 rounded-lg flex items-center mt-4"
                 onPress={() => setModalVisible(true)}
               >
-                <Text className="text-white text-base">Submit</Text>
+                <Text className="text-white text-base">Update Product</Text>
               </TouchableOpacity>
-
-              <Modal
-                transparent={true}
-                visible={modalVisible}
-                animationType="slide"
-                onRequestClose={() => setModalVisible(false)}
-              >
-                <View className="flex-1 justify-center items-center bg-[rgba(0,0,0,0.5)] bg-black/50">
-                  <View className="w-4/5 bg-white p-6 rounded-lg">
-                    <Text className="text-lg font-semibold text-gray-800 mb-4">
-                      Confirm Edit Product
-                    </Text>
-                    <Text className="text-gray-600 mb-6">
-                      Do you really want to edit this product?
-                    </Text>
-                    <View className="flex-row justify-end space-x-4">
-                      <TouchableOpacity
-                        className="px-4 py-2 rounded-md bg-gray-200"
-                        onPress={() => setModalVisible(false)}
-                      >
-                        <Text className="text-gray-700 text-base">No</Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        className="px-4 py-2 rounded-md bg-[#00B251]"
-                        onPress={() => {
-                          setModalVisible(false);
-                          handleEditProduct();
-                        }}
-                      >
-                        <Text className="text-white text-base">Yes</Text>
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-                </View>
-              </Modal>
             </>
           ) : (
             <Text className="text-center text-gray-600">No item available</Text>
           )}
         </View>
       </ScrollView>
-      {/* Modal for Image Selection */}
-      <Modal visible={modalVisible2} transparent={true} animationType="slide">
-        <View className="flex-1 justify-center items-center bg-black/50">
-          <View className="bg-white p-6 rounded-lg">
-            <Text className="text-lg font-semibold mb-4">
-              Select Image Source
-            </Text>
+
+      {/* Search Modal */}
+      <Modal
+        visible={searchModalVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setSearchModalVisible(false)}
+      >
+        <View className="flex-1 justify-center bg-black/50">
+          <View className="bg-white mx-4 rounded-lg p-6 shadow-lg h-screen max-h-[80%]">
+            <TextInput
+              placeholder="Search..."
+              value={searchText}
+              onChangeText={setSearchText}
+              className="border border-gray-300 p-3 rounded-lg mb-4"
+            />
+            <ScrollView>
+              {filteredItems.map(item => (
+                <TouchableOpacity
+                  key={item.value}
+                  onPress={() => handleModalItemSelect(item)}
+                  className="px-4 py-3 border-b border-gray-200"
+                >
+                  <Text className="text-base">{item.label}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
             <TouchableOpacity
-              className="mb-4 p-4 bg-[#00B251] rounded-lg"
-              onPress={handleImagePickFromGallery}
+              onPress={() => setSearchModalVisible(false)}
+              className="mt-4 bg-gray-400 p-3 rounded-lg"
             >
-              <Text className="text-white text-center">Choose from Gallery</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              className="mb-4 p-4 bg-[#00B251] rounded-lg"
-              onPress={handleImagePickFromCamera}
-            >
-              <Text className="text-white text-center">Take a Photo</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              className="p-4 bg-red-500 rounded-lg"
-              onPress={() => setModalVisible2(false)}
-            >
-              <Text className="text-white text-center">Cancel</Text>
+              <Text className="text-white text-center font-semibold">Cancel</Text>
             </TouchableOpacity>
           </View>
         </View>
       </Modal>
+
+      {/* Image Selection Modal */}
+      <Modal
+        visible={modalVisible2}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setModalVisible2(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black/50">
+          <View className="bg-white p-6 rounded-lg w-[80%]">
+            <Text className="text-lg font-semibold mb-4 text-center">
+              Select Image Source
+            </Text>
+            
+            <TouchableOpacity
+              className="bg-[#00B251] p-3 rounded-lg mb-3"
+              onPress={handleImagePickFromGallery}
+            >
+              <Text className="text-white text-center font-semibold">
+                Choose from Gallery
+              </Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity
+              className="bg-[#00B251] p-3 rounded-lg mb-3"
+              onPress={handleImagePickFromCamera}
+            >
+              <Text className="text-white text-center font-semibold">
+                Take a Photo
+              </Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity
+              className="bg-gray-400 p-3 rounded-lg"
+              onPress={() => setModalVisible2(false)}
+            >
+              <Text className="text-white text-center font-semibold">Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Confirmation Modal */}
+      <Modal
+        transparent={true}
+        visible={modalVisible}
+        animationType="slide"
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black/50">
+          <View className="w-4/5 bg-white p-6 rounded-lg">
+            <Text className="text-lg font-semibold text-gray-800 mb-4">
+              Confirm Update Product
+            </Text>
+            <Text className="text-gray-600 mb-6">
+              Do you really want to update this product?
+            </Text>
+            <View className="flex-row justify-end space-x-4">
+              <TouchableOpacity
+                className="px-4 py-2 rounded-md bg-gray-200"
+                onPress={() => setModalVisible(false)}
+              >
+                <Text className="text-gray-700 text-base">No</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                className="px-4 py-2 rounded-md bg-[#00B251]"
+                onPress={() => {
+                  setModalVisible(false);
+                  handleEditProduct();
+                }}
+              >
+                <Text className="text-white text-base">Yes</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
       {/* Alert Modal */}
       <Modal
         animationType="fade"
@@ -841,21 +963,14 @@ function FarmersProductDetailScreen({ route, navigation }) {
         visible={alertVisible}
         onRequestClose={() => setAlertVisible(false)}
       >
-        <View className="flex-1 justify-center items-center bg-black/50 bg-opacity-50">
-          <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
-            <Text className="text-lg font-semibold text-gray-900 mb-4">
-              {alertMessage}
-            </Text>
+        <View className="flex-1 justify-center items-center bg-black/50">
+          <View className="bg-white p-6 rounded-lg w-[80%]">
+            <Text className="text-lg mb-4 text-center">{alertMessage}</Text>
             <TouchableOpacity
-              className="mt-4 p-2 bg-[#00B251] rounded-lg flex-row justify-center items-center"
+              className="bg-[#00B251] p-3 rounded-lg"
               onPress={() => setAlertVisible(false)}
             >
-              <Ionicons
-                name="checkmark-circle-outline"
-                size={24}
-                color="white"
-              />
-              <Text className="text-lg text-white ml-2">OK</Text>
+              <Text className="text-white text-center font-semibold">OK</Text>
             </TouchableOpacity>
           </View>
         </View>
