@@ -34,76 +34,57 @@ function LiveScreen({ navigation }) {
         const shop = Array.isArray(parsedData) ? parsedData[0] : parsedData;
         setShopId(shop);
 
-        const cropsResponse = await fetch(
-          `${REACT_NATIVE_API_BASE_URL}/api/crops`,
-          {
-            headers: {
-              "x-api-key": REACT_NATIVE_API_KEY,
-            },
-          }
-        );
+        // Fetch all necessary data
+        const [
+          cropsResponse,
+          categoryResponse,
+          subcategoryResponse,
+          varietyResponse,
+          varietySizeResponse,
+          sizeResponse,
+          metricResponse
+        ] = await Promise.all([
+          fetch(`${REACT_NATIVE_API_BASE_URL}/api/crops`, {
+            headers: { "x-api-key": REACT_NATIVE_API_KEY }
+          }),
+          fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_categories`, {
+            headers: { "x-api-key": REACT_NATIVE_API_KEY }
+          }),
+          fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_sub_categories`, {
+            headers: { "x-api-key": REACT_NATIVE_API_KEY }
+          }),
+          fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_varieties`, {
+            headers: { "x-api-key": REACT_NATIVE_API_KEY }
+          }),
+          fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_variety_sizes`, {
+            headers: { "x-api-key": REACT_NATIVE_API_KEY }
+          }),
+          fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_sizes`, {
+            headers: { "x-api-key": REACT_NATIVE_API_KEY }
+          }),
+          fetch(`${REACT_NATIVE_API_BASE_URL}/api/metric_systems`, {
+            headers: { "x-api-key": REACT_NATIVE_API_KEY }
+          })
+        ]);
 
-        const categoryResponse = await fetch(
-          `${REACT_NATIVE_API_BASE_URL}/api/crop_categories`,
-          {
-            headers: {
-              "x-api-key": REACT_NATIVE_API_KEY,
-            },
-          }
-        );
-
-        const subcategoryResponse = await fetch(
-          `${REACT_NATIVE_API_BASE_URL}/api/crop_sub_categories`,
-          {
-            headers: {
-              "x-api-key": REACT_NATIVE_API_KEY,
-            },
-          }
-        );
-
-        const varietyResponse = await fetch(
-          `${REACT_NATIVE_API_BASE_URL}/api/crop_varieties`,
-          {
-            headers: {
-              "x-api-key": REACT_NATIVE_API_KEY,
-            },
-          }
-        );
-
-        const varietySizeResponse = await fetch(
-          `${REACT_NATIVE_API_BASE_URL}/api/crop_variety_sizes`,
-          {
-            headers: {
-              "x-api-key": REACT_NATIVE_API_KEY,
-            },
-          }
-        );
-
-        const sizeResponse = await fetch(
-          `${REACT_NATIVE_API_BASE_URL}/api/crop_sizes`,
-          {
-            headers: {
-              "x-api-key": REACT_NATIVE_API_KEY,
-            },
-          }
-        );
-
-        const metricResponse = await fetch(
-          `${REACT_NATIVE_API_BASE_URL}/api/metric_systems`,
-          {
-            headers: {
-              "x-api-key": REACT_NATIVE_API_KEY,
-            },
-          }
-        );
-
-        const crops = await cropsResponse.json();
-        const categories = await categoryResponse.json();
-        const subcategories = await subcategoryResponse.json();
-        const varieties = await varietyResponse.json();
-        const variety_sizes = await varietySizeResponse.json();
-        const sizes = await sizeResponse.json();
-        const metrics = await metricResponse.json();
+        // Parse all responses
+        const [
+          crops,
+          categories,
+          subcategories,
+          varieties,
+          variety_sizes,
+          sizes,
+          metrics
+        ] = await Promise.all([
+          cropsResponse.json(),
+          categoryResponse.json(),
+          subcategoryResponse.json(),
+          varietyResponse.json(),
+          varietySizeResponse.json(),
+          sizeResponse.json(),
+          metricResponse.json()
+        ]);
 
         const filteredLiveItems = crops.filter(
           (crop) =>
@@ -122,28 +103,40 @@ function LiveScreen({ navigation }) {
           const varietyData = varieties.find(
             (variety) => variety.crop_variety_id === crop.crop_variety_id
           );
+          
+          // Find the variety size using crop's variety_id and size_id
           const sizeData = variety_sizes.find(
-            (varSize) => varSize.crop_variety_id === crop.crop_variety_id
+            (varSize) => 
+              varSize.crop_variety_id === crop.crop_variety_id && 
+              varSize.crop_size_id === crop.crop_size_id
           );
+          
+          // Get the actual size using crop's size_id directly
           const actualSize = sizes.find(
-            (size) =>
-              size.crop_size_id === (sizeData ? sizeData.crop_size_id : null)
+            (size) => size.crop_size_id === crop.crop_size_id
           );
+
           const metricData = metrics.find(
             (metric) => metric.metric_system_id === crop.metric_system_id
           );
 
           return {
             ...crop,
-            category: categoryData ? categoryData : null,
-            subcategory: subcategoryData ? subcategoryData : null,
-            variety: varietyData ? varietyData : null,
-            size: actualSize ? actualSize : null,
-            metric: metricData ? metricData : null,
+            category: categoryData || null,
+            subcategory: subcategoryData || null,
+            variety: varietyData || null,
+            size: actualSize || null,
+            metric: metricData || null,
+            image: {
+              uri: crop.crop_image_url,
+              width: 64,
+              height: 64
+            }
           };
         });
+
         setLiveItems(combinedData);
-        setFilteredItems(combinedData); // Set both live and filtered items
+        setFilteredItems(combinedData);
       }
     } catch (error) {
       console.error("Error fetching shops:", error);
@@ -231,6 +224,8 @@ function LiveScreen({ navigation }) {
             <Image
               source={{ uri: liveItem.crop_image_url }}
               className="w-16 h-16 rounded-lg mr-4 object-cover bg-gray-200"
+              defaultSource={require('../../../../assets/placeholder.png')}
+              onError={(e) => console.log('Image loading error:', e.nativeEvent.error)}
             />
 
             {/* Crop Information */}

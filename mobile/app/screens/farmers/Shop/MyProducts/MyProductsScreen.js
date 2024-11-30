@@ -32,7 +32,7 @@ function MyProductsScreen({ route }) {
             borderRadius: 2,
           },
           tabBarLabel: ({ focused, color }) => (
-            <View className="flex-row items-center">
+            <View key={`tab-label-${route.name}`} className="flex-row items-center">
               {route.name === "Live" && (
                 <Icon
                   name="play-circle-outline"
@@ -86,11 +86,11 @@ function MyProductsScreen({ route }) {
           ),
         })}
       >
-        <Tab.Screen name="Live" component={LiveScreen} />
-        <Tab.Screen name="Sold Out" component={SoldOutScreen} />
-        <Tab.Screen name="Delisted" component={DelistedScreen} />
-        <Tab.Screen name="Violation" component={ViolationScreen} />
-        <Tab.Screen name="Reviewing" component={ReviewingScreen} />
+        <Tab.Screen name="Live" component={LiveScreen} key="live-tab" />
+        <Tab.Screen name="Sold Out" component={SoldOutScreen} key="sold-out-tab" />
+        <Tab.Screen name="Delisted" component={DelistedScreen} key="delisted-tab" />
+        <Tab.Screen name="Violation" component={ViolationScreen} key="violation-tab" />
+        <Tab.Screen name="Reviewing" component={ReviewingScreen} key="reviewing-tab" />
       </Tab.Navigator>
       <NavigationbarComponent />
     </>
