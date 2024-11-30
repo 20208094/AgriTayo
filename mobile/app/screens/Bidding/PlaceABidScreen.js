@@ -9,6 +9,7 @@ import {
   Alert,
   ActivityIndicator,
   Modal, // Import Modal
+  ScrollView,
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -30,6 +31,7 @@ function PlaceABid({ route, navigation }) {
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [bidData, setBidData] = useState([]);
+  const [userBids, setUserBids] = useState([]); // Add this new state
 
 
   // Function to calculate time left
@@ -76,22 +78,34 @@ function PlaceABid({ route, navigation }) {
   useEffect(() => {
     const enteredAmount = parseFloat(amount);
 
-    if (isNaN(enteredAmount)) {
+    if (amount === "") {
+      setError("Please enter a bid amount.");
+      setIsBidValid(false);
+    } else if (isNaN(enteredAmount)) {
       setError("Please enter a valid number.");
       setIsBidValid(false);
     } else if (enteredAmount <= bidData.bid_current_highest) {
       setError(
-        `Bid must be higher than the current highest bid of ${bidData.bid_current_highest}`
+        `Bid must be higher than the current highest bid of ₱${bidData.bid_current_highest.toLocaleString()}`
       );
       setIsBidValid(false);
     } else if (enteredAmount < minValidBid) {
       setError(
-        `Bid must be at least ${minValidBid} (${bidData.bid_current_highest} + minimum increment of ${bidData.bid_minimum_increment})`
+        `Bid must be at least ₱${minValidBid.toLocaleString()} (current bid + minimum increment)`
       );
       setIsBidValid(false);
     } else {
-      setError("");
-      setIsBidValid(true);
+      // Check if the increment is valid
+      const increment = enteredAmount - bidData.bid_current_highest;
+      if (increment % bidData.bid_minimum_increment !== 0) {
+        setError(
+          `Bid increment must be in multiples of ₱${bidData.bid_minimum_increment.toLocaleString()}`
+        );
+        setIsBidValid(false);
+      } else {
+        setError("");
+        setIsBidValid(true);
+      }
     }
   }, [
     amount,
@@ -171,6 +185,26 @@ function PlaceABid({ route, navigation }) {
       const bidSelected = combinedDataReverse.find((bid) => bid.bid_id === data.bid_id);
 
       setBidData(bidSelected);
+
+      // Add this new fetch for user bids
+      const userBidsResponse = await fetch(
+        `${REACT_NATIVE_API_BASE_URL}/api/userbids`,
+        {
+          headers: {
+            "x-api-key": REACT_NATIVE_API_KEY,
+          },
+        }
+      );
+
+      if (!userBidsResponse.ok) throw new Error("Error fetching user bids");
+      const userBidsData = await userBidsResponse.json();
+
+      // Filter user bids for current bidding
+      const relevantUserBids = userBidsData
+        .filter(bid => bid.bid_id === data.bid_id)
+        .sort((a, b) => b.price - a.price); // Sort by price descending
+
+      setUserBids(relevantUserBids);
     } catch (error) {
       setAlertMessage(`Error: ${error.message}`);
       setAlertVisible(true);
@@ -245,8 +279,10 @@ function PlaceABid({ route, navigation }) {
 
   // Function to add bid_minimum_increment to the current amount
   const addMinimumIncrement = () => {
-    const newAmount = parseFloat(amount) + parseFloat(bidData.bid_minimum_increment);
-    setAmount(newAmount.toString());
+    const currentAmount = parseFloat(amount) || minValidBid;
+    const increment = parseFloat(bidData.bid_minimum_increment);
+    const newAmount = currentAmount + increment;
+    setAmount(newAmount.toFixed(2)); // Format to 2 decimal places
   };
 
   if (loading || fetching) {
@@ -256,98 +292,192 @@ function PlaceABid({ route, navigation }) {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-white p-6">
-      {/* OTHER INFORMATIONS */}
-      <View className="border-2 border-[#00b251] rounded-xl py-4 px-4 mb-4">
-        {/* IMAGE */}
-        <View className="items-center mb-3">
-          <Image
-            source={{ uri: bidData.bid_image }}
-            className="w-11/12 h-52 rounded-lg"
-          />
-        </View>
-        <Text className="text-2xl font-bold text-gray-800 mb-1 text-center">
-          {bidData.bid_name}
-        </Text>
-        <Text className="text-base text-gray-600 mb-1">{bidData.bid_description}</Text>
-        <Text className="text-lg">
-          {timeLeft.expired ? (
-            <Text className="text-red-600">Bid Expired</Text>
-          ) : (
-            <View className="flex-row items-center">
-              <Text className="text-base font-bold text-gray-700">
-                Time Left:
-              </Text>
-              <Text className="text-xl font-bold text-[#00b251] ml-2">
-                {timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m {timeLeft.seconds}s
-              </Text>
-            </View>
-          )}
-        </Text>
-
-        <View className="flex-row items-center">
-          <Text className="text-base font-bold text-gray-700">
-            Total bids:
+    <SafeAreaView className="flex-1 bg-white">
+      <ScrollView className="p-6">
+        {/* OTHER INFORMATIONS */}
+        <View className="border-2 border-[#00b251] rounded-xl py-4 px-4 mb-4">
+          {/* IMAGE */}
+          <View className="items-center mb-3">
+            <Image
+              source={{ uri: bidData.bid_image }}
+              className="w-11/12 h-52 rounded-lg"
+            />
+          </View>
+          <Text className="text-2xl font-bold text-gray-800 mb-1 text-center">
+            {bidData.bid_name}
           </Text>
-          <Text className="text-xl font-bold text-[#00b251] ml-2">
-            {bidData.number_of_bids} bids
+          <Text className="text-base text-gray-600 mb-1">{bidData.bid_description}</Text>
+          <Text className="text-lg">
+            {timeLeft.expired ? (
+              <Text className="text-red-600">Bid Expired</Text>
+            ) : (
+              <View className="flex-row items-center">
+                <Text className="text-base font-bold text-gray-700">
+                  Time Left:
+                </Text>
+                <Text className="text-xl font-bold text-[#00b251] ml-2">
+                  {timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m {timeLeft.seconds}s
+                </Text>
+              </View>
+            )}
           </Text>
-        </View>
 
-        <View className="flex-row items-center">
-          <Text className="text-base font-bold text-gray-700">
-            Current Highest Bid:
-          </Text>
-          <Text className="text-xl font-bold text-[#00b251] ml-2">
-            ₱{bidData.bid_current_highest}.00
-          </Text>
-        </View>
-      </View>
-
-      <View className="mb-4 border-2 border-[#00b251] rounded-xl pb-3 pt-2 px-4">
-        <Text className="text-base font-bold text-gray-700">
-          Selected Amount:
-        </Text>
-        <View className="flex-row items-center">
-          <TextInput
-            className="border border-gray-400 rounded-lg p-3 text-base text-gray-800 flex-1"
-            keyboardType="numeric"
-            placeholder="Enter your bid amount"
-            value={amount} // Pre-fill with amount (which will be minValidBid)
-            onChangeText={setAmount}
-            editable={false}
-          />
-          <TouchableOpacity
-            className="ml-2 p-2 rounded-lg"
-            onPress={setToMinValidBid} // Button to reset amount to minValidBid
-          >
-            <Ionicons name="refresh-outline" size={24} color="#00b251" />
-          </TouchableOpacity>
-          <TouchableOpacity
-            className="ml-2 p-2 rounded-lg"
-            onPress={addMinimumIncrement} // Button to add minimum increment
-          >
-            <Ionicons name="add-outline" size={24} color="#00b251" />
-          </TouchableOpacity>
-        </View>
-        {error ? <Text className="text-red-600 mt-2">{error}</Text> : null}
-      </View>
-
-      <View className="items-center">
-        <TouchableOpacity
-          className={`w-full py-4 rounded-lg ${isBidValid ? "bg-[#00b251]" : "bg-gray-400"}`}
-          onPress={() => setModalVisible(true)} // Show modal instead of directly placing the bid
-          disabled={!isBidValid}
-        >
-          {loading ? (
-            <LoadingAnimation />
-          ) : (
-            <Text className="text-white text-lg font-bold text-center">
-              Place Bid
+          <View className="flex-row items-center">
+            <Text className="text-base font-bold text-gray-700">
+              Total bids:
             </Text>
-          )}
-        </TouchableOpacity>
-      </View>
+            <Text className="text-xl font-bold text-[#00b251] ml-2">
+              {bidData.number_of_bids} bids
+            </Text>
+          </View>
+
+          <View className="flex-row items-center">
+            <Text className="text-base font-bold text-gray-700">
+              Current Highest Bid:
+            </Text>
+            <Text className="text-xl font-bold text-[#00b251] ml-2">
+              ₱{bidData.bid_current_highest}.00
+            </Text>
+          </View>
+        </View>
+
+        <View className="mb-4 border-2 border-[#00b251] rounded-xl pb-3 pt-2 px-4">
+          <Text className="text-base font-bold text-gray-700">
+            Selected Amount:
+          </Text>
+          <View className="flex-row items-center">
+            <TextInput
+              className="border border-gray-400 rounded-lg p-3 text-base text-gray-800 flex-1"
+              keyboardType="numeric"
+              placeholder="Enter your bid amount"
+              value={amount}
+              onChangeText={(text) => {
+                // Only allow numeric input with up to 2 decimal places
+                if (/^\d*\.?\d{0,2}$/.test(text)) {
+                  setAmount(text);
+                }
+              }}
+              editable={true} // Make it editable
+            />
+            <TouchableOpacity
+              className="ml-2 p-2 rounded-lg"
+              onPress={setToMinValidBid}
+            >
+              <Ionicons name="refresh-outline" size={24} color="#00b251" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              className="ml-2 p-2 rounded-lg"
+              onPress={addMinimumIncrement}
+            >
+              <Ionicons name="add-outline" size={24} color="#00b251" />
+            </TouchableOpacity>
+          </View>
+          {error ? <Text className="text-red-600 mt-2">{error}</Text> : null}
+          
+          {/* Add a helper text to show the minimum bid */}
+          <Text className="text-sm text-gray-500 mt-2">
+            Minimum bid: ₱{minValidBid.toLocaleString()}
+          </Text>
+        </View>
+
+        {/* Place Bid Button */}
+        <View className="items-center mb-6">
+          <TouchableOpacity
+            className={`w-full py-4 rounded-lg ${isBidValid ? "bg-[#00b251]" : "bg-gray-400"}`}
+            onPress={() => setModalVisible(true)}
+            disabled={!isBidValid}
+          >
+            {loading ? (
+              <LoadingAnimation />
+            ) : (
+              <Text className="text-white text-lg font-bold text-center">
+                Place Bid
+              </Text>
+            )}
+          </TouchableOpacity>
+        </View>
+
+        {/* Current Bids section */}
+        <View className="border-2 border-[#00b251] rounded-xl p-4 mb-6">
+          <View className="flex-row justify-between items-center mb-4">
+            <Text className="text-lg font-semibold text-gray-900">Current Bids</Text>
+            <Text className="text-sm text-gray-500">
+              Total Bids: {userBids.length}
+            </Text>
+          </View>
+          
+          {/* Fixed height container with scroll */}
+          <View style={{ height: 300 }}> 
+            <ScrollView 
+              nestedScrollEnabled={true}
+              showsVerticalScrollIndicator={true}
+            >
+              {userBids.length > 0 ? (
+                userBids.map((item, index) => (
+                  <View
+                    key={index}
+                    className={`flex-row justify-between items-center py-4 px-5`}
+                    style={{
+                      backgroundColor: index === 0 ? '#f0fdf4' : 'transparent',
+                      borderBottomWidth: index !== userBids.length - 1 ? 1 : 0,
+                      borderBottomColor: '#f3f4f6'
+                    }}
+                  >
+                    <View className="flex-row items-center">
+                      <View 
+                        className="w-8 h-8 rounded-full items-center justify-center mr-3"
+                        style={{
+                          backgroundColor: index === 0 ? '#dcfce7' : '#f3f4f6'
+                        }}
+                      >
+                        <Text 
+                          style={{
+                            fontSize: 14,
+                            fontWeight: '600',
+                            color: index === 0 ? '#15803d' : '#4b5563'
+                          }}
+                        >
+                          {index + 1}
+                        </Text>
+                      </View>
+                      <View>
+                        <Text 
+                          style={{
+                            fontSize: 16,
+                            fontWeight: index === 0 ? '700' : '400',
+                            color: index === 0 ? '#111827' : '#374151'
+                          }}
+                        >
+                          User #{item.user_id}
+                        </Text>
+                        <Text className="text-xs text-gray-500">
+                          {new Date(item.bid_date).toLocaleString()}
+                        </Text>
+                      </View>
+                    </View>
+                    <Text 
+                      style={{
+                        fontSize: 16,
+                        fontWeight: '600',
+                        color: index === 0 ? '#16a34a' : '#111827'
+                      }}
+                    >
+                      ₱{item.price.toLocaleString()}
+                    </Text>
+                  </View>
+                ))
+              ) : (
+                <View className="py-8 items-center">
+                  <Text className="text-gray-500">No bids yet</Text>
+                  <Text className="text-sm text-gray-400 mt-1">
+                    Be the first to place a bid!
+                  </Text>
+                </View>
+              )}
+            </ScrollView>
+          </View>
+        </View>
+      </ScrollView>
 
       {/* Modal for confirmation */}
       <Modal

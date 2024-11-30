@@ -163,9 +163,7 @@ function CheckOutScreen() {
   const renderWarningInfo = () => (
     <View className="mt-1 p-4 bg-white rounded-lg shadow border-2 border-orange-400">
       <Text className="text-base font-bold text-orange-500">
-        NOTE: AgriTayo will not handle shipping and payment, this will only
-        serve as a way to inform the seller for your chosen shipping and
-        payment option.
+        NOTICE: The seller will handle all shipping and payment matters directly with you. AgriTayo only helps connect you with the seller and share your shipping and payment choices.
       </Text>
     </View>
   );
@@ -186,18 +184,21 @@ function CheckOutScreen() {
               }`}
               onPress={() => handleShippingOption("Delivery")}
             >
-              <View className="flex-row items-center">
-                <Icon
-                  name="truck"
-                  size={24}
-                  color={
-                    selectedShippingMethod === "Delivery" ? "#00b251" : "#aaa"
-                  }
-                />
-                <Text className="text-gray-800 ml-2">
-                  Delivery - ₱{shopDetails.delivery_price_min.toFixed(2)}   to   ₱{shopDetails.delivery_price_max.toFixed(2)}
-                </Text>
-                <Text className="text-sm mb-2 text-gray-800">
+              <View className="flex-1">
+                <View className="flex-row items-center">
+                  <Icon
+                    name="truck"
+                    size={24}
+                    color={
+                      selectedShippingMethod === "Delivery" ? "#00b251" : "#aaa"
+                    }
+                  />
+                  <Text className="text-gray-800 ml-2">
+                    Estimated Delivery Fee- ₱{shopDetails.delivery_price_min.toFixed(2)} to ₱{shopDetails.delivery_price_max.toFixed(2)}
+                  </Text>
+                </View>
+                <Text className="text-sm ml-8 mt-1 text-orange-600 italic">
+                  *Delivery fee will vary depending on the distance
                 </Text>
               </View>
               {selectedShippingMethod === "Delivery" && (
@@ -222,20 +223,26 @@ function CheckOutScreen() {
         )}
         {shopDetails.pickup && (
           <TouchableOpacity
-            className={`p-3 rounded-lg flex-row items-center justify-between ${selectedShippingMethod === "Pickup"
-              ? "bg-[#c6f7d8] border-l-4 border-[#00b251]"
-              : "bg-white"
-              }`}
+            className={`p-3 rounded-lg flex-row items-center justify-between ${
+              selectedShippingMethod === "Pickup"
+                ? "bg-[#c6f7d8] border-l-4 border-[#00b251]"
+                : "bg-white"
+            }`}
             onPress={() => handleShippingOption("Pickup")}
           >
-            <View className="flex-row items-center">
-              <Icon
-                name="storefront"
-                size={24}
-                color={selectedShippingMethod === "Pickup" ? "#00b251" : "#aaa"}
-              />
-              <Text className="text-gray-800 ml-2">
-                Pickup - ₱ {shopDetails.pickup_price.toFixed(2)}
+            <View className="flex-1">
+              <View className="flex-row items-center">
+                <Icon
+                  name="storefront"
+                  size={24}
+                  color={selectedShippingMethod === "Pickup" ? "#00b251" : "#aaa"}
+                />
+                <Text className="text-gray-800 ml-2">
+                  Pickup - ₱ {shopDetails.pickup_price.toFixed(2)}
+                </Text>
+              </View>
+              <Text className="text-sm ml-8 mt-1 text-orange-600 italic">
+                *Shipping fee will be paid at the pickup area
               </Text>
             </View>
             {selectedShippingMethod === "Pickup" && (

@@ -21,6 +21,11 @@ function FeaturedProductsScreen({ route }) {
 
   const fetchCrops = async () => {
     try {
+      // Get the logged-in shop's data first
+      const storedShopData = await AsyncStorage.getItem("shopData");
+      const loggedInShop = storedShopData ? JSON.parse(storedShopData) : null;
+      const loggedInShopId = loggedInShop ? (Array.isArray(loggedInShop) ? loggedInShop[0].shop_id : loggedInShop.shop_id) : null;
+
       // Fetch crops and related data (same as the original code)
       const cropsResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crops`, {
         headers: {
@@ -79,7 +84,12 @@ function FeaturedProductsScreen({ route }) {
       const metrics = await metricResponse.json();
       const shops = await shopResponse.json();
 
-      const crops = rawcrops.filter(crop => crop.availability === 'live' && crop.crop_quantity > 0);
+      // Filter crops that are live, have quantity > 0, and NOT from the logged-in shop
+      const crops = rawcrops.filter(crop => 
+        crop.availability === 'live' && 
+        crop.crop_quantity > 0 && 
+        crop.shop_id !== loggedInShopId // Filter out the seller's own products
+      );
 
       const combinedData = crops.map(crop => {
         const categoryData = categories.find(cat => cat.crop_category_id === crop.category_id);

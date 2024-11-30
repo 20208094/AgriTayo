@@ -21,7 +21,7 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 // Constants for validation
 const NAME_REGEX = /^[A-Za-z\s]{3,50}$/;
 const DESCRIPTION_REGEX = /^.{5,200}$/;
-const PRICE_REGEX = /^(?:\d+|\.\d{1,2}|\d+\.\d{1,2})$/;
+const PRICE_REGEX = /^(?:[1-9]\d*|\d+\.\d{1,2}|0\.\d{1,2})$/;
 
 function AddBidScreen({ navigation }) {
   // for inputs
@@ -60,12 +60,12 @@ function AddBidScreen({ navigation }) {
         break;
       case "bidStartingPrice":
         if (!PRICE_REGEX.test(value)) {
-          error = "Enter a valid price (e.g., 100 or 100.00).";
+          error = "Enter a valid price greater than 0 (e.g., 100 or 100.00).";
         }
         break;
       case "bidMinimumIncrement":
         if (!PRICE_REGEX.test(value)) {
-          error = "Enter a valid minimum bid increment (e.g., 5 or 5.00).";
+          error = "Enter a valid minimum bid increment greater than 0 (e.g., 5 or 5.00).";
         }
         break;
       default:
@@ -121,9 +121,9 @@ function AddBidScreen({ navigation }) {
       setShowTime(false);
       setTime(currentTime);
       
-      // Format time for display with explicit timezone handling
+      // Format time for display with AM/PM
       const formattedTimeStr = currentTime.toLocaleTimeString('en-US', {
-        hour: '2-digit',
+        hour: 'numeric',
         minute: '2-digit',
         hour12: true,
         timeZone: 'Asia/Manila' // Set to Philippines timezone
@@ -387,13 +387,13 @@ function AddBidScreen({ navigation }) {
     if (!bidStartingPrice) {
       errors.bidStartingPrice = "Bidding Starting Price is required.";
     } else if (!PRICE_REGEX.test(bidStartingPrice)) {
-      errors.bidStartingPrice = "Enter a valid price (e.g., 100 or 100.00).";
+      errors.bidStartingPrice = "Enter a valid price greater than 0 (e.g., 100 or 100.00).";
     }
 
     if (!bidMinimumIncrement) {
       errors.bidMinimumIncrement = "Minimum Bid Increment is required.";
     } else if (!PRICE_REGEX.test(bidMinimumIncrement)) {
-      errors.bidMinimumIncrement = "Enter a valid minimum bid increment (e.g., 5 or 5.00).";
+      errors.bidMinimumIncrement = "Enter a valid minimum bid increment greater than 0 (e.g., 5 or 5.00).";
     }
 
     if (!imageUri) { errors.imageUri = "Select an image."; }
@@ -674,7 +674,7 @@ function AddBidScreen({ navigation }) {
                 testID="dateTimePicker"
                 value={date}
                 mode="date"
-                is24Hour={true}
+                is24Hour={false}
                 display="default"
                 onChange={handleDateChange}
               />
@@ -684,8 +684,8 @@ function AddBidScreen({ navigation }) {
                 testID="timeTimePicker"
                 value={time}
                 mode="time"
-                is24Hour={true}
-                display="default"
+                is24Hour={false}
+                display="spinner"
                 onChange={handleTimeChange}
               />
             )}
@@ -703,11 +703,26 @@ function AddBidScreen({ navigation }) {
               className="w-full p-2 bg-white rounded-lg shadow-md"
               value={bidStartingPrice}
               onChangeText={(text) => {
-                setBidStartingPrice(text);
-                if (text === '') {
+                // Format the text if it starts with a dot
+                let formattedText = text;
+                if (text.startsWith('.')) {
+                  formattedText = `0${text}`;
+                }
+                
+                // Limit to 2 decimal places
+                const parts = formattedText.split('.');
+                if (parts[1] && parts[1].length > 2) {
+                  formattedText = `${parts[0]}.${parts[1].slice(0, 2)}`;
+                }
+                
+                setBidStartingPrice(formattedText);
+                if (formattedText === '') {
                   setErrors((prev) => ({ ...prev, bidStartingPrice: '' }));
-                } else if (!PRICE_REGEX.test(text)) {
-                  setErrors((prev) => ({ ...prev, bidStartingPrice: "Enter a valid price (e.g., 100 or 100.00)." }));
+                } else if (!PRICE_REGEX.test(formattedText)) {
+                  setErrors((prev) => ({ 
+                    ...prev, 
+                    bidStartingPrice: "Enter a valid price greater than 0 (e.g., 100 or 100.00)." 
+                  }));
                 } else {
                   setErrors((prev) => ({ ...prev, bidStartingPrice: "" }));
                 }
@@ -726,11 +741,26 @@ function AddBidScreen({ navigation }) {
               className="w-full p-2 bg-white rounded-lg shadow-md"
               value={bidMinimumIncrement}
               onChangeText={(text) => {
-                setBidMinimumIcrement(text);
-                if (text === '') {
+                // Format the text if it starts with a dot
+                let formattedText = text;
+                if (text.startsWith('.')) {
+                  formattedText = `0${text}`;
+                }
+                
+                // Limit to 2 decimal places
+                const parts = formattedText.split('.');
+                if (parts[1] && parts[1].length > 2) {
+                  formattedText = `${parts[0]}.${parts[1].slice(0, 2)}`;
+                }
+                
+                setBidMinimumIcrement(formattedText);
+                if (formattedText === '') {
                   setErrors((prev) => ({ ...prev, bidMinimumIncrement: '' }));
-                } else if (!PRICE_REGEX.test(text)) {
-                  setErrors((prev) => ({ ...prev, bidMinimumIncrement: "Enter a valid minimum bid increment (e.g., 5 or 5.00)." }));
+                } else if (!PRICE_REGEX.test(formattedText)) {
+                  setErrors((prev) => ({ 
+                    ...prev, 
+                    bidMinimumIncrement: "Enter a valid minimum bid increment greater than 0 (e.g., 5 or 5.00)." 
+                  }));
                 } else {
                   setErrors((prev) => ({ ...prev, bidMinimumIncrement: "" }));
                 }

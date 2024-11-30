@@ -10,7 +10,7 @@ import LoadingAnimation from '../../components/LoadingAnimation';
 
 function CompareShopsScreen({ route }) {
   const navigation = useNavigation();
-  const { filter_category_id, filter_sub_category_id, filter_variety_id, filter_class, filter_size_id, filter_price_range, filter_quantity } = route.params || {};
+  const { filter_category_id, filter_sub_category_id, filter_variety_id, filter_class, filter_size_id, filter_price_range, filter_quantity, filter_payment_methods } = route.params || {};
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
   const [currentSort, setCurrentSort] = useState({ method: 'price', order: 'asc' });
@@ -23,6 +23,11 @@ function CompareShopsScreen({ route }) {
 
   const fetchCrops = async () => {
     try {
+      // Get the logged-in shop's data first
+      const storedShopData = await AsyncStorage.getItem("shopData");
+      const loggedInShop = storedShopData ? JSON.parse(storedShopData) : null;
+      const loggedInShopId = loggedInShop ? (Array.isArray(loggedInShop) ? loggedInShop[0].shop_id : loggedInShop.shop_id) : null;
+
       // Fetch crops and related data (same as the original code)
       const cropsResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crops`, {
         headers: {
@@ -81,9 +86,37 @@ function CompareShopsScreen({ route }) {
       const metrics = await metricResponse.json();
       const shops = await shopResponse.json();
 
-      const crops = rawcrops.filter(crop => crop.availability === 'live' && crop.crop_quantity > 0);
+      // Filter crops that are live, have quantity > 0, and NOT from the logged-in shop
+      const crops = rawcrops.filter(crop => 
+        crop.availability === 'live' && 
+        crop.crop_quantity > 0 && 
+        crop.shop_id !== loggedInShopId // Filter out the seller's own products
+      );
 
-      const combinedData = crops.map(crop => {
+      // Filter crops based on payment methods
+      let filteredCrops = crops;
+      
+      if (filter_payment_methods && filter_payment_methods.length > 0) {
+        filteredCrops = filteredCrops.filter(crop => {
+          const shop = shops.find(shop => shop.shop_id === crop.shop_id);
+          if (!shop) return false;
+          
+          return filter_payment_methods.some(method => {
+            switch (method.toLowerCase()) {
+              case 'cod':
+                return shop.cod;
+              case 'gcash':
+                return shop.gcash;
+              case 'bank':
+                return shop.bank;
+              default:
+                return false;
+            }
+          });
+        });
+      }
+
+      const combinedData = filteredCrops.map(crop => {
         const categoryData = categories.find(cat => cat.crop_category_id === crop.category_id);
         const subcategoryData = subcategories.find(sub => sub.crop_sub_category_id === crop.sub_category_id);
         const varietyData = varieties.find(variety => variety.crop_variety_id === crop.crop_variety_id);
@@ -129,7 +162,7 @@ function CompareShopsScreen({ route }) {
   useFocusEffect(
     React.useCallback(() => {
       fetchCrops();
-    }, [filter_category_id, filter_sub_category_id, filter_variety_id, filter_class, filter_size_id, filter_price_range, filter_quantity])
+    }, [filter_category_id, filter_sub_category_id, filter_variety_id, filter_class, filter_size_id, filter_price_range, filter_quantity, filter_payment_methods])
   );
 
   const getAsyncShopData = async () => {
@@ -209,7 +242,7 @@ function CompareShopsScreen({ route }) {
         {/* Filter Button */}
         <TouchableOpacity
           className="flex w-10 h-10 items-center justify-center rounded-lg bg-[#00B251] shadow-md"
-          onPress={() => navigation.push("Filter Products", { filter_category_id, filter_sub_category_id, filter_variety_id, filter_class, filter_size_id, filter_price_range, filter_quantity })}
+          onPress={() => navigation.push("Filter Products", { filter_category_id, filter_sub_category_id, filter_variety_id, filter_class, filter_size_id, filter_price_range, filter_quantity, filter_payment_methods })}
         >
           <Icon name="filter" size={18} color="white" />
         </TouchableOpacity>
