@@ -7,6 +7,10 @@ import LogoutButton from './screens/AuthPages/LogoutPage';
 import RegisterPage from './screens/AuthPages/RegisterPage';
 import OTPPage from './screens/AuthPages/OTPPage';
 import OTPPhonesPage from './screens/AuthPages/OTPPhonesPage';
+import ForgotPasswordPage from './screens/AuthPages/ForgotPasswordPage';
+import ForgotPasswordOTPPage from './screens/AuthPages/ForgotPasswordOTPPage';
+import NewPasswordPage from './screens/AuthPages/NewPasswordPage';
+import ChangePasswordPage from './screens/Users/BuyerPages/Profile/ChangePasswordPage';
 import UserTypePage from './screens/Users/AdminPages/CrudPages/UserTypePage';
 import UsersPage from './screens/Users/AdminPages/CrudPages/UsersPage';
 import AddressesPage from './screens/Users/AdminPages/CrudPages/AdressesPage';
@@ -37,7 +41,7 @@ import ProfitAnalyticsPage from './screens/Users/AdminPages/AdminDashboard/Profi
 import CropSubCategoryPageCRUD from './screens/Users/AdminPages/CrudPages/CropSubCategoryPageCRUD';
 import SellerDashboardPage from './screens/Users/SellerPages/SellerDashboard';
 import BuyerDashboardPage from './screens/Users/BuyerPages/BuyerDashboard';
-import CropVarietyPageCRUD  from './screens/Users/AdminPages/CrudPages/CropVarietyPageCRUD';
+import CropVarietyPageCRUD from './screens/Users/AdminPages/CrudPages/CropVarietyPageCRUD';
 import SelectedVarietyAnalyticsPage from './screens/Users/AdminPages/AdminDashboard/SelectedVarietyAnalytics';
 // for market
 import CropCategoryPage from './screens/Market/CropCategoryPage';
@@ -56,7 +60,7 @@ import Profile from './screens/Users/BuyerPages/Profile/Profile';
 import EditPhoneNumberPage from './screens/Users/BuyerPages/Profile/EditPhoneNumberPage';
 import EditAlternativeNumberPage from './screens/Users/BuyerPages/Profile/EditAlternativeNumberPage';
 import Addresses from './screens/Users/BuyerPages/Profile/Adresses';
-import ChangePassword from './screens/AuthPages/ChangePasswordPage';
+// import ChangePassword from './screens/AuthPages/ChangePasswordPage';
 import ConfirmChangePassword from './screens/AuthPages/ConfirmChangePasswordPage';
 import ChangeEmail from './screens/Users/BuyerPages/Profile/ChangeEmail';
 import DeleteAccount from './screens/Users/BuyerPages/Profile/DeleteAccount';
@@ -207,6 +211,9 @@ function Layout({ userType, userId, refreshProfile, setRefreshProfile }) {
               <Route path="/register" element={<RegisterPage />} />
               <Route path="/otp" element={<OTPPage />} />
               <Route path="/otpPhones" element={<OTPPhonesPage />} />
+              <Route path='/forgotPassword' element={<ForgotPasswordPage/>}/>
+              <Route path='/forgotPasswordOTP' element={<ForgotPasswordOTPPage/>}/>
+              <Route path='/newPassword' element={<NewPasswordPage/>}/>
             </>
           )}
           <Route path="/logout" element={<LogoutButton />} />
@@ -242,10 +249,11 @@ function Layout({ userType, userId, refreshProfile, setRefreshProfile }) {
             <Route path="product-list/:cropSubCategoryId" element={<ProductListPage />} />
             <Route path="product-details/:productListId" element={<ProductDetailsPage />} />
             <Route path="profile" element={<Profile onProfileUpdate={() => setRefreshProfile(prev => prev + 1)} />} />
-              <Route path="editPhoneNumber" element={<EditPhoneNumberPage/>}/>
-              <Route path="editAlternativeNumber" element={<EditAlternativeNumberPage/>}/>
+            <Route path="editPhoneNumber" element={<EditPhoneNumberPage />} />
+            <Route path="editAlternativeNumber" element={<EditAlternativeNumberPage />} />
             <Route path="address" element={<Addresses />} />
-            <Route path="change_password" element={<ChangePassword />} />
+            {/* <Route path="change_password" element={<ChangePassword />} /> */}
+            <Route path="changePassword" element={<ChangePasswordPage />} />
             <Route path="download" element={<DownloadAppPage />} />
             <Route path="delete_account" element={<DeleteAccount />} />
             <Route path='MarketAnalytics' element={<MarketAnalyticsPage />} />
@@ -266,7 +274,7 @@ function Layout({ userType, userId, refreshProfile, setRefreshProfile }) {
           >
             <Route path="sample" element={<SamplePage />} />
             <Route path="dashboard" element={<SellerDashboardPage />} />
-            <Route path="change_password" element={<ChangePassword />} />
+            {/* <Route path="change_password" element={<ChangePassword />} /> */}
           </Route>
           {/* BUYER ROUTES */}
           <Route
@@ -275,7 +283,7 @@ function Layout({ userType, userId, refreshProfile, setRefreshProfile }) {
           >
             <Route path="sample" element={<SamplePage />} />
             <Route path="dashboard" element={<BuyerDashboardPage />} />
-            <Route path="change_password" element={<ChangePassword />} />
+            {/* <Route path="change_password" element={<ChangePassword />} /> */}
           </Route>
           {/* Default route */}
           <Route path="*" element={<Navigate to={userType === null ? "/login" : "/admin/dashboard"} />} />

@@ -28,6 +28,7 @@ const {
 const {
     getUsers,
     changePassword,
+    editPassword,
     changePhoneNumber,
     editPhoneNumber,
     editSecondaryPhoneNumber,
@@ -300,6 +301,7 @@ app.get('/api/users', getUsers);
 app.post('/api/users', addUser);
 app.put('/api/users/:id', updateUser);
 app.put('/api/changePassword/:phone_number', changePassword);
+app.put('/api/editPassword/:user_id', editPassword);
 app.put('/api/changePhoneNumber/:secondary_phone_number', changePhoneNumber);
 app.put('/api/editPhoneNumber/:user_id', editPhoneNumber);
 app.put('/api/editSecondaryPhoneNumber/:user_id', editSecondaryPhoneNumber);

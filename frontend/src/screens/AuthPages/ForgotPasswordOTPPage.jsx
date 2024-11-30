@@ -1,22 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import Modal from '../../components/Modal/Modal';
 
 const API_KEY = import.meta.env.VITE_API_KEY;
 
-function OTPPage() {
+function ForgotPasswordOTPPage() {
     const location = useLocation();
-    const formData = location.state?.formData;
+    const phone = location.state?.phone;
     const navigate = useNavigate();
 
-    console.log(formData)
-
-    const [showSuccessModal, setShowSuccessModal] = useState(false)
+    console.log(phone)
 
     const [generatedCode, setGeneratedCode] = useState("");
     const [isResendEnabled, setIsResendEnabled] = useState(false);
     const [otpError, setOtpError] = useState("");
-    const [loading, setLoading] = useState(false);
 
     const [seconds, setSeconds] = useState(10 * 60);
 
@@ -27,7 +23,7 @@ function OTPPage() {
         setGeneratedCode(code); // Store generated code in state
         const title = "AgriTayo";
         const message = `Your OTP code is: ${code}`;
-        const phone_number = formData.phone_number;
+        const phone_number = phone;
 
         try {
             const response = await fetch('/api/sms_sender', {
@@ -59,7 +55,7 @@ function OTPPage() {
 
     useEffect(() => {
         generateRandomCode(); // Generate code on component mount
-    }, [formData.phone_number]);
+    }, [phone]);
 
     console.log(generatedCode)
 
@@ -85,12 +81,6 @@ function OTPPage() {
         )}`;
     };
 
-    const handleCloseModal = () => {
-        setShowSuccessModal(false);
-        // Redirect to login page after successful registration
-        navigate('/login'); // Adjust the path as needed
-    };
-
     const handleOtp = async (e) => {
         setOtpError("")
         e.preventDefault();
@@ -102,29 +92,32 @@ function OTPPage() {
         } else if (phoneNumber !== generatedCode) {
             setOtpError("Invalid OTP. Please try again.");
         } else {
-            setLoading(true);
-            try {
-                const response = await fetch('/api/register', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'x-api-key': API_KEY // Include the API key in the request headers
-                    },
-                    body: JSON.stringify(formData)
-                });
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    alert(errorData.error + ": " + errorData.details);
-                    return;
-                }
-                setShowSuccessModal(true);
-                
-            } catch (error) {
-                console.error('Error during registration:', error);
-                alert('An error occurred. Please try again.');
-            } finally {
-                setLoading(false)
-            }
+            // setLoading(true);
+            // try {
+            //     const response = await fetch('/api/register', {
+            //         method: 'POST',
+            //         headers: {
+            //             'Content-Type': 'application/json',
+            //             'x-api-key': API_KEY // Include the API key in the request headers
+            //         },
+            //         body: JSON.stringify(formData)
+            //     });
+            //     if (!response.ok) {
+            //         const errorData = await response.json();
+            //         alert(errorData.error + ": " + errorData.details);
+            //         return;
+            //     }
+            //     alert('Registered Successfully!')
+            //     // Redirect to login page after successful registration
+            //     navigate('/login'); // Adjust the path as needed
+            // } catch (error) {
+            //     console.error('Error during registration:', error);
+            //     alert('An error occurred. Please try again.');
+            // } finally {
+            //     setLoading(false)
+            // }
+
+            navigate('/newPassword', { state: { phone } })
         }
     }
 
@@ -134,25 +127,19 @@ function OTPPage() {
         generateRandomCode();
     };
 
-    if (loading) {
-        return (
-            <div className="loading">Loading...</div>
-        )
-    }
-
     return (
         <div className="otp-container">
             <div className="otp-card">
                 <div className="otp-content">
                     <h1 className="otp-header">Verify Your Phone Number</h1>
-
+                    
                     <p className="otp-instructions">
-                        A 6-digit code has been sent to
-                        <span className="phone-number">{formData.phone_number}</span>
+                        A 6-digit code has been sent to 
+                        <span className="phone-number">{phone}</span>
                     </p>
-
+                    
                     <div className="input-container">
-                        <input
+                        <input 
                             className="otp-input"
                             type="text"
                             placeholder="Enter 6-digit code"
@@ -184,53 +171,10 @@ function OTPPage() {
                     >
                         Verify
                     </button>
-
-                    {showSuccessModal && (
-                        <Modal isOpen={true} onClose={handleCloseModal}>
-                            <div
-                                className="p-6 text-center bg-white rounded-lg shadow-lg max-w-md mx-auto"
-                                style={{ border: `2px solid #00b251` }}
-                            >
-                                <h2
-                                    className="text-2xl font-bold text-gray-800 mb-4"
-                                    style={{ color: '#00b251' }}
-                                >
-                                    Registration Successful!
-                                </h2>
-                                <p className="text-gray-600 mb-6">
-                                    Please contact the admin at{" "}
-                                    <a
-                                        href="mailto:AgriTayo@gmail.com"
-                                        className="text-blue-500 hover:underline"
-                                    >
-                                        AgriTayo@gmail.com
-                                    </a>{" "}
-                                    to send your personal information for account promotion as admin.
-                                </p>
-                                <button
-                                    onClick={handleCloseModal}
-                                    className="px-6 py-2 text-white font-medium rounded-lg"
-                                    style={{
-                                        backgroundColor: '#00b251',
-                                        border: `2px solid #00b251`,
-                                        transition: 'background-color 0.3s, border-color 0.3s',
-                                    }}
-                                    onMouseEnter={(e) =>
-                                        (e.target.style.backgroundColor = '#008c3e')
-                                    }
-                                    onMouseLeave={(e) =>
-                                        (e.target.style.backgroundColor = '#00b251')
-                                    }
-                                >
-                                    Close
-                                </button>
-                            </div>
-                        </Modal>
-                    )}
                 </div>
             </div>
         </div>
     );
 }
 
-export default OTPPage;
+export default ForgotPasswordOTPPage;
