@@ -245,9 +245,18 @@ function DelistedScreen({ navigation }) {
           <TouchableOpacity
             key={delistedItem.crop_id}
             className="bg-white p-4 mb-4 rounded-xl shadow-md flex-row items-center transition-all duration-300 hover:shadow-lg"
-            onPress={() =>
-              navigation.navigate("Farmers Product Details", { delistedItem })
-            }
+            onPress={() => {
+              const delistedItemWithDefaults = {
+                ...delistedItem,
+                category: delistedItem.category || { crop_category_name: null },
+                subcategory: delistedItem.subcategory || { crop_sub_category_name: null },
+                variety: delistedItem.variety || { crop_variety_name: null },
+                size: delistedItem.size || { crop_size_name: null, crop_size_id: null },
+                metric: delistedItem.metric || { metric_system_name: null, metric_system_id: null },
+              };
+              
+              navigation.navigate("Farmers Product Details", { delistedItem: delistedItemWithDefaults });
+            }}
           >
             {/* Delete Icon */}
             <TouchableOpacity

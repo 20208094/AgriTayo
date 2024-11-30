@@ -18,11 +18,9 @@ import * as MediaLibrary from "expo-media-library";
 import LoadingAnimation from "../../../../components/LoadingAnimation";
 
 function FarmersProductDetailScreen({ route, navigation }) {
-  const { liveItem, reviewingItem, violationItem, delistedItem, soldOutItem } =
-    route.params;
+  const { liveItem, reviewingItem, violationItem, delistedItem, soldOutItem } = route.params;
 
-  const product =
-    liveItem || reviewingItem || violationItem || delistedItem || soldOutItem;
+  const product = liveItem || reviewingItem || violationItem || delistedItem || soldOutItem;
 
   console.log(product);
 
@@ -32,6 +30,8 @@ function FarmersProductDetailScreen({ route, navigation }) {
   const [cropSizes, setCropSizes] = useState([]);
   const [cropVarieties, setCropVarieties] = useState([]);
   const [cropMetrics, setCropMetrics] = useState([]);
+  const [searchAvailability, setSearchAvailability] = useState("");
+
 
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
@@ -41,20 +41,24 @@ function FarmersProductDetailScreen({ route, navigation }) {
 
   // for user inputs
   const [cropDescription, setCropDescription] = useState(
-    product.crop_description
+    product?.crop_description || ""
   );
   const [imageSource, setImageSource] = useState(null);
-  const [cropPrice, setCropPrice] = useState(String(product.crop_price));
+  const [cropPrice, setCropPrice] = useState(
+    String(product?.crop_price || "")
+  );
   const [cropQuantity, setCropQuantity] = useState(
-    String(product.crop_quantity)
+    String(product?.crop_quantity || "")
   );
 
   const [minimumNegotiation, setMinimumNegotiation] = useState(
-    String(product.minimum_negotiation)
+    String(product?.minimum_negotiation || "")
   );
 
-  const [isEnabled, setIsEnabled] = useState(product.negotiation_allowed);
-  const toggleSwitch = () => setIsEnabled((previousState) => !previousState);
+  const [isEnabled, setIsEnabled] = useState(
+    product?.negotiation_allowed || false
+  );
+  const toggleSwitch = () => setIsEnabled(previousState => !previousState);
 
   const [loading, setLoading] = useState(true);
 
@@ -142,7 +146,7 @@ function FarmersProductDetailScreen({ route, navigation }) {
   // for crop category
   const [isClickedCategory, setIsClickedCategory] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(
-    product.category.crop_category_name
+    product?.category?.crop_category_name || "Select Category"
   );
   const [selectedCategoryId, setSelectedCategoryId] = useState(null);
   const handleCategorySelect = (category) => {
@@ -177,7 +181,7 @@ function FarmersProductDetailScreen({ route, navigation }) {
   const [selectedSubCategoryId, setSelectedSubCategoryId] = useState(null);
   const [isClickedSubCategory, setIsclickedSubCategory] = useState(false);
   const [selectedSubCategory, setSelectedSubCategory] = useState(
-    product.subcategory.crop_sub_category_name
+    product?.subcategory?.crop_sub_category_name || "Select Sub Category"
   );
   const handleSubCategorySelect = (subCategory) => {
     setSelectedSubCategory(subCategory.crop_sub_category_name);
@@ -352,14 +356,15 @@ function FarmersProductDetailScreen({ route, navigation }) {
   ];
 
   // for crop size
-  const [isClickedCropAvailability, setIsClickedCropAvailability] =
-    useState(false);
+  const [isClickedCropAvailability, setIsClickedCropAvailability] = useState(false);
   const [selectedCropAvailability, setSelectedCropAvailability] = useState(
-    product.availability
+    product?.availability || "Select Availability"
   );
-  const handleCropAvailabilitySelect = (cropAvailability) => {
-    setSelectedCropAvailability(cropAvailability.crop_availability_name);
+
+  const handleCropAvailabilitySelect = (availability) => {
+    setSelectedCropAvailability(availability.crop_availability_name);
     setIsClickedCropAvailability(false);
+    setSearchAvailability("");
   };
 
   const cropClasses = [
@@ -401,6 +406,7 @@ function FarmersProductDetailScreen({ route, navigation }) {
     formData.append("crop_id", product.crop_id);
     formData.append("shop_id", product.shop_id);
     formData.append("crop_description", cropDescription);
+    formData.append("availability", selectedCropAvailability);
     formData.append(
       "crop_image",
       imageSource
@@ -832,6 +838,84 @@ function FarmersProductDetailScreen({ route, navigation }) {
                   />
                 </View>
               )}
+
+              {/* Crop Availability Section */}
+              <View className="mb-4">
+                <Text className="text-lg font-semibold mb-1">
+                  Crop Availability <Text className="text-red-500">*</Text>
+                </Text>
+                <TouchableOpacity
+                  onPress={() => setIsClickedCropAvailability(true)}
+                  className="w-full p-2 bg-white rounded-lg border border-gray-500 mx-2"
+                >
+                  <Text className="text-base pl-2">
+                    {selectedCropAvailability}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
+              {/* Crop Availability Modal */}
+              <Modal
+                transparent={true}
+                visible={isClickedCropAvailability}
+                onRequestClose={() => {
+                  setIsClickedCropAvailability(false);
+                  setSearchAvailability("");
+                }}
+                animationType="slide"
+              >
+                <View className="flex-1 justify-center items-center bg-black/50">
+                  <View className="bg-white w-[90%] rounded-lg p-4">
+                    <Text className="text-lg font-semibold mb-4">
+                      Select Availability
+                    </Text>
+                    
+                    {/* Search Input */}
+                    <View className="mb-4">
+                      <TextInput
+                        className="border border-gray-300 rounded-lg p-2"
+                        placeholder="Search availability..."
+                        value={searchAvailability}
+                        onChangeText={setSearchAvailability}
+                      />
+                    </View>
+
+                    {/* Availability List */}
+                    <ScrollView className="max-h-64">
+                      {cropAvailability
+                        .filter(item =>
+                          item.crop_availability_name
+                            .toLowerCase()
+                            .includes(searchAvailability.toLowerCase())
+                        )
+                        .map((availability) => (
+                          <TouchableOpacity
+                            key={availability.crop_availability_id}
+                            className="py-3 border-b border-gray-200"
+                            onPress={() => handleCropAvailabilitySelect(availability)}
+                          >
+                            <Text className="text-gray-700">
+                              {availability.crop_availability_name}
+                            </Text>
+                          </TouchableOpacity>
+                        ))}
+                    </ScrollView>
+
+                    {/* Cancel Button */}
+                    <TouchableOpacity
+                      className="mt-4 bg-gray-500 p-3 rounded-lg"
+                      onPress={() => {
+                        setIsClickedCropAvailability(false);
+                        setSearchAvailability("");
+                      }}
+                    >
+                      <Text className="text-white text-center font-semibold">
+                        Cancel
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </Modal>
 
               {/* Submit Button */}
               <TouchableOpacity
