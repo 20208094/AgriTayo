@@ -977,18 +977,6 @@ function AddProductScreen({ navigation }) {
                   <Ionicons name="close-outline" size={24} color="white" />
                 </TouchableOpacity>
               </View>
-            ) : (
-              <TouchableOpacity
-                className="border-2 border-dashed border-[#00B251] rounded-lg p-4 flex items-center justify-center mx-2"
-                onPress={() => setModalVisible(true)}
-              >
-                <View className="flex-row items-center">
-                  <Ionicons name="camera-outline" size={24} color="#00B251" />
-                  <Text className="text-[#00B251] mx-2 text-lg">/</Text>
-                  <Ionicons name="image-outline" size={24} color="#00B251" />
-                </View>
-                <Text className="text-[#00B251] mt-2">Upload Image</Text>
-              </TouchableOpacity>
             )}
           </View>
 
