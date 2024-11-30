@@ -6,10 +6,32 @@ import ReviewingScreen from "./ReviewingScreen";
 import ViolationScreen from "./ViolationScreen";
 import DelistedScreen from "./DelistedScreen";
 import LiveScreen from "./LiveScreen";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons"; // For icons
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import NavigationbarComponent from "../../../../components/NavigationbarComponent";
 
 const Tab = createMaterialTopTabNavigator();
+
+function TabLabel({ focused, color, icon, label }) {
+  return (
+    <View className="flex-row items-center">
+      <Icon
+        name={icon}
+        size={16}
+        color={focused ? "#00b251" : "gray"}
+        style={{ marginRight: 4 }}
+      />
+      <Text
+        style={{
+          color,
+          fontSize: 12,
+          fontWeight: focused ? "bold" : "normal",
+        }}
+      >
+        {label}
+      </Text>
+    </View>
+  );
+}
 
 function MyProductsScreen({ route }) {
   const initialRouteName = route.params?.screen || "Live";
@@ -18,7 +40,7 @@ function MyProductsScreen({ route }) {
     <>
       <Tab.Navigator
         initialRouteName={initialRouteName}
-        screenOptions={({ route }) => ({
+        screenOptions={{
           swipeEnabled: true,
           tabBarScrollEnabled: true,
           lazy: true,
@@ -31,66 +53,78 @@ function MyProductsScreen({ route }) {
             height: 4,
             borderRadius: 2,
           },
-          tabBarLabel: ({ focused, color }) => (
-            <View key={`tab-label-${route.name}`} className="flex-row items-center">
-              {route.name === "Live" && (
-                <Icon
-                  name="play-circle-outline"
-                  size={16}
-                  color={focused ? "#00b251" : "gray"}
-                  style={{ marginRight: 4 }}
-                />
-              )}
-              {route.name === "Sold Out" && (
-                <Icon
-                  name="package-variant-closed"
-                  size={16}
-                  color={focused ? "#00b251" : "gray"}
-                  style={{ marginRight: 4 }}
-                />
-              )}
-              {route.name === "Reviewing" && (
-                <Icon
-                  name="magnify"
-                  size={16}
-                  color={focused ? "#00b251" : "gray"}
-                  style={{ marginRight: 4 }}
-                />
-              )}
-              {route.name === "Violation" && (
-                <Icon
-                  name="alert-circle"
-                  size={16}
-                  color={focused ? "#00b251" : "gray"}
-                  style={{ marginRight: 4 }}
-                />
-              )}
-              {route.name === "Delisted" && (
-                <Icon
-                  name="cancel"
-                  size={16}
-                  color={focused ? "#00b251" : "gray"}
-                  style={{ marginRight: 4 }}
-                />
-              )}
-              <Text
-                style={{
-                  color,
-                  fontSize: 12,
-                  fontWeight: focused ? "bold" : "normal",
-                }}
-              >
-                {route.name}
-              </Text>
-            </View>
-          ),
-        })}
+        }}
       >
-        <Tab.Screen name="Live" component={LiveScreen} key="live-tab" />
-        <Tab.Screen name="Sold Out" component={SoldOutScreen} key="sold-out-tab" />
-        <Tab.Screen name="Delisted" component={DelistedScreen} key="delisted-tab" />
-        <Tab.Screen name="Violation" component={ViolationScreen} key="violation-tab" />
-        <Tab.Screen name="Reviewing" component={ReviewingScreen} key="reviewing-tab" />
+        <Tab.Screen
+          name="Live"
+          component={LiveScreen}
+          options={{
+            tabBarLabel: ({ focused, color }) => (
+              <TabLabel
+                focused={focused}
+                color={color}
+                icon="play-circle-outline"
+                label="Live"
+              />
+            ),
+          }}
+        />
+        <Tab.Screen
+          name="Sold Out"
+          component={SoldOutScreen}
+          options={{
+            tabBarLabel: ({ focused, color }) => (
+              <TabLabel
+                focused={focused}
+                color={color}
+                icon="package-variant-closed"
+                label="Sold Out"
+              />
+            ),
+          }}
+        />
+        <Tab.Screen
+          name="Delisted"
+          component={DelistedScreen}
+          options={{
+            tabBarLabel: ({ focused, color }) => (
+              <TabLabel
+                focused={focused}
+                color={color}
+                icon="cancel"
+                label="Delisted"
+              />
+            ),
+          }}
+        />
+        <Tab.Screen
+          name="Violation"
+          component={ViolationScreen}
+          options={{
+            tabBarLabel: ({ focused, color }) => (
+              <TabLabel
+                focused={focused}
+                color={color}
+                icon="alert-circle"
+                label="Violation"
+              />
+            ),
+          }}
+        />
+        <Tab.Screen
+          name="Reviewing"
+          component={ReviewingScreen}
+          options={{
+            tabBarLabel: ({ focused, color }) => (
+              <TabLabel
+                focused={focused}
+                color={color}
+                icon="magnify"
+                label="Reviewing"
+              />
+            ),
+          }}
+        />
       </Tab.Navigator>
       <NavigationbarComponent />
     </>
