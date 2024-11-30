@@ -36,8 +36,12 @@ function AddCropSubCategoryScreen({ navigation, route }) {
 
   const [categories, setCategories] = useState([]);
   const [isClickedCategory, setIsClickedCategory] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState(route.params?.selectedCategory || "Select Crop Category");
-  const [selectedCategoryId, setSelectedCategoryId] = useState(route.params?.selectedCategoryId || null);
+  const [selectedCategory, setSelectedCategory] = useState(
+    route.params?.selectedCategory || "Select Crop Category"
+  );
+  const [selectedCategoryId, setSelectedCategoryId] = useState(
+    route.params?.selectedCategoryId || null
+  );
   const handleCategorySelect = (category) => {
     setSelectedCategory(category.crop_category_name);
     setSelectedCategoryId(category.crop_category_id);

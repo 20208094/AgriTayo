@@ -32,8 +32,12 @@ function AddCropVarietyScreen({ navigation, route }) {
 
   const [categories, setCategories] = useState([]);
   const [isClickedCategory, setIsClickedCategory] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState(route.params?.selectedCategory || "Select Crop Category");
-  const [selectedCategoryId, setSelectedCategoryId] = useState(route.params?.selectedCategoryId || null);
+  const [selectedCategory, setSelectedCategory] = useState(
+    route.params?.selectedCategory || "Select Crop Category"
+  );
+  const [selectedCategoryId, setSelectedCategoryId] = useState(
+    route.params?.selectedCategoryId || null
+  );
   const handleCategorySelect = (category) => {
     setSelectedCategory(category.crop_category_name);
     setSelectedCategoryId(category.crop_category_id);
@@ -49,9 +53,13 @@ function AddCropVarietyScreen({ navigation, route }) {
 
   const [subCategories, setSubCategories] = useState([]);
   const [isClickedSubCategory, setIsclickedSubCategory] = useState(false);
-  const [selectedSubCategory, setSelectedSubCategory] = useState(route.params?.selectedSubCategory || "Select Crop Sub Category");
+  const [selectedSubCategory, setSelectedSubCategory] = useState(
+    route.params?.selectedSubCategory || "Select Crop Sub Category"
+  );
 
-  const [selectedSubCategoryId, setSelectedSubCategoryId] = useState(route.params?.selectedSubCategoryId || null);
+  const [selectedSubCategoryId, setSelectedSubCategoryId] = useState(
+    route.params?.selectedSubCategoryId || null
+  );
   const handleSubCategorySelect = (subCategory) => {
     setSelectedSubCategory(subCategory.crop_sub_category_name);
     setSelectedSubCategoryId(subCategory.crop_sub_category_id);
@@ -115,7 +123,6 @@ function AddCropVarietyScreen({ navigation, route }) {
         setModalVisible(false);
       }
     }
-
   };
 
   const selectImageFromCamera = async () => {
@@ -139,7 +146,6 @@ function AddCropVarietyScreen({ navigation, route }) {
         setModalVisible(false);
       }
     }
-
   };
 
   const removeImage = () => {
@@ -335,7 +341,9 @@ function AddCropVarietyScreen({ navigation, route }) {
               className="w-full p-2  bg-white rounded-lg shadow-md"
               placeholder="Purple Potato"
               value={cropVarietyName}
-              onChangeText={(value) => handleFieldChange("cropVarietyName", value)}
+              onChangeText={(value) =>
+                handleFieldChange("cropVarietyName", value)
+              }
               multiline
             />
           </View>
@@ -343,7 +351,9 @@ function AddCropVarietyScreen({ navigation, route }) {
           {/* Description */}
           <View className="mb-4">
             <Text className="text-sm mb-2 text-gray-800">
-              Type a Description of the Variety{cropVarietyName && ` ${cropVarietyName}`} <Text className="text-red-500">*</Text>
+              Type a Description of the Variety
+              {cropVarietyName && ` ${cropVarietyName}`}{" "}
+              <Text className="text-red-500">*</Text>
               {errors.cropVarietyDescription && (
                 <Text className="text-red-500 text-sm mt-1">
                   {errors.cropVarietyDescription}
@@ -364,7 +374,9 @@ function AddCropVarietyScreen({ navigation, route }) {
           {/* Category Selector */}
           <View className="mb-4">
             <Text className="text-sm mb-2 text-gray-800">
-              Select a Category for the Variety{cropVarietyName && ` ${cropVarietyName}`} <Text className="text-red-500">*</Text>
+              Select a Category for the Variety
+              {cropVarietyName && ` ${cropVarietyName}`}{" "}
+              <Text className="text-red-500">*</Text>
               {errors.selectedCategory && (
                 <Text className="text-red-500 text-sm mt-1">
                   {errors.selectedCategory}
@@ -405,7 +417,9 @@ function AddCropVarietyScreen({ navigation, route }) {
           {/* Sub-Category Selector */}
           <View className="mb-4">
             <Text className="text-sm mb-2 text-gray-800">
-              Select a Sub-Category for the Variety {cropVarietyName && ` ${cropVarietyName}`} <Text className="text-red-500">*</Text>
+              Select a Sub-Category for the Variety{" "}
+              {cropVarietyName && ` ${cropVarietyName}`}{" "}
+              <Text className="text-red-500">*</Text>
               {errors.selectedSubCategory && (
                 <Text className="text-red-500 text-sm mt-1">
                   {errors.selectedSubCategory}
@@ -428,17 +442,23 @@ function AddCropVarietyScreen({ navigation, route }) {
             </TouchableOpacity>
             {isClickedSubCategory && (
               <View className="w-full p-2 mb-4 bg-white rounded-lg shadow-md">
-                {subCategories.map((subCategory) => (
-                  <TouchableOpacity
-                    key={subCategory.crop_sub_category_id}
-                    className="p-2"
-                    onPress={() => handleSubCategorySelect(subCategory)}
-                  >
-                    <Text className="text-base">
-                      {subCategory.crop_sub_category_name}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
+                {selectedCategoryId ? (
+                  subCategories.map((subCategory) => (
+                    <TouchableOpacity
+                      key={subCategory.crop_sub_category_id}
+                      className="p-2"
+                      onPress={() => handleSubCategorySelect(subCategory)}
+                    >
+                      <Text className="text-base">
+                        {subCategory.crop_sub_category_name}
+                      </Text>
+                    </TouchableOpacity>
+                  ))
+                ) : (
+                  <Text className="text-base text-red-600">
+                    Select a crop category first
+                  </Text>
+                )}
               </View>
             )}
           </View>
@@ -446,7 +466,9 @@ function AddCropVarietyScreen({ navigation, route }) {
           {/* Image Selection */}
           <View className="mb-4">
             <Text className="text-sm mb-2 text-gray-800">
-              Select an image for the Variety{cropVarietyName && ` ${cropVarietyName}`} <Text className="text-red-500">*</Text>
+              Select an image for the Variety
+              {cropVarietyName && ` ${cropVarietyName}`}{" "}
+              <Text className="text-red-500">*</Text>
               {errors.cropImage && (
                 <Text className="text-red-500 text-sm mt-1">
                   {errors.cropImage}
@@ -459,7 +481,12 @@ function AddCropVarietyScreen({ navigation, route }) {
             >
               <Ionicons name="camera" size={24} color="#00b251" />
               <Text className="mx-2 text-lg text-[#00b251]"> / </Text>
-              <Ionicons name="image-outline" size={24} color="#00b251" className="ml-2" />
+              <Ionicons
+                name="image-outline"
+                size={24}
+                color="#00b251"
+                className="ml-2"
+              />
             </TouchableOpacity>
 
             {cropImage && (
@@ -479,7 +506,11 @@ function AddCropVarietyScreen({ navigation, route }) {
           </View>
 
           {/* Modal for Image Selection */}
-          <Modal visible={modalVisible} transparent={true} animationType="slide">
+          <Modal
+            visible={modalVisible}
+            transparent={true}
+            animationType="slide"
+          >
             <View className="flex-1 justify-center items-center bg-black/50">
               <View className="bg-white p-6 rounded-lg">
                 <Text className="text-lg font-semibold mb-4">

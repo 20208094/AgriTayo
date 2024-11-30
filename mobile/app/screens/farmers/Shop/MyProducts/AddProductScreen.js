@@ -16,6 +16,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import LoadingAnimation from "../../../../components/LoadingAnimation";
 
 const PRICE_REGEX = /^(?:\d+|\.\d{1,2}|\d+\.\d{1,2})$/;
 
@@ -26,7 +27,7 @@ function AddProductScreen({ navigation }) {
   const [cropSizes, setCropSizes] = useState([]);
   const [cropVarieties, setCropVarieties] = useState([]);
   const [shopData, setShopData] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const API_KEY = REACT_NATIVE_API_KEY;
 
   const [cropDescription, setCropDescription] = useState("");
@@ -84,7 +85,7 @@ function AddProductScreen({ navigation }) {
     setSelectedSubCategory(subCategory.crop_sub_category_name);
     setSelectedSubCategoryId(subCategory.crop_sub_category_id);
     setIsclickedSubCategory(false);
-    fetchCropVariety(subCategory.crop_sub_category_id)
+    fetchCropVariety(subCategory.crop_sub_category_id);
 
     setErrors((prevErrors) => ({ ...prevErrors, selectedSubCategoryId: "" }));
   };
@@ -155,7 +156,6 @@ function AddProductScreen({ navigation }) {
       quality: 1,
     });
 
-
     if (!result.canceled) {
       const isValidSize = await validateImageSize(result.assets[0].uri);
       if (isValidSize) {
@@ -163,9 +163,7 @@ function AddProductScreen({ navigation }) {
         setModalVisible(false);
       }
     }
-
   };
-
 
   const removeImage = () => {
     setCropImage(null);
@@ -382,7 +380,7 @@ function AddProductScreen({ navigation }) {
   useFocusEffect(
     useCallback(() => {
       fetchCategories();
-      fetchSubCategories()
+      fetchSubCategories();
       fetchCropSize();
       fetchCropVariety();
       fetchMetricSystem();
@@ -458,7 +456,6 @@ function AddProductScreen({ navigation }) {
       [field]: error,
     }));
   };
-
 
   const handleAddProduct = async () => {
     const errors = {};
@@ -559,6 +556,10 @@ function AddProductScreen({ navigation }) {
     }
   };
 
+  if (loading) {
+    return <LoadingAnimation />;
+  }
+
   return (
     <SafeAreaView className="bg-gray-100 flex-1">
       <ScrollView contentContainerStyle={{ paddingBottom: 80 }}>
@@ -598,7 +599,7 @@ function AddProductScreen({ navigation }) {
             </Text>
             <View className="flex-row items-center">
               <TouchableOpacity
-                className="flex-row items-center w-full p-2 bg-white rounded-lg shadow flex-1"
+                className="flex-row items-center w-full mb-3 p-2 bg-white rounded-lg shadow flex-1"
                 onPress={() => setIsClickedCategory(!isClickedCategory)}
               >
                 <Text className="text-base text-gray-700 flex-1">
@@ -647,7 +648,7 @@ function AddProductScreen({ navigation }) {
             </Text>
             <View className="flex-row items-center">
               <TouchableOpacity
-                className="flex-row items-center w-full p-2 bg-white rounded-lg shadow-md flex-1"
+                className="flex-row items-center w-full mb-3 p-2 bg-white rounded-lg shadow-md flex-1"
                 onPress={() => setIsclickedSubCategory(!isClickedSubCategory)}
               >
                 <Text className="text-base text-gray-700 flex-1">
@@ -662,25 +663,35 @@ function AddProductScreen({ navigation }) {
               </TouchableOpacity>
               <TouchableOpacity
                 className="ml-2 p-2 rounded-lg"
-                onPress={() => navigation.navigate("Add Crop Sub Category", {selectedCategory: selectedCategory,
-                  selectedCategoryId: selectedCategoryId})}
+                onPress={() =>
+                  navigation.navigate("Add Crop Sub Category", {
+                    selectedCategory: selectedCategory,
+                    selectedCategoryId: selectedCategoryId,
+                  })
+                }
               >
                 <Ionicons name="add-outline" size={24} color="#00b251" />
               </TouchableOpacity>
             </View>
             {isClickedSubCategory && (
               <View className="w-full p-2 mb-4 bg-white rounded-lg shadow-md">
-                {subCategories.map((subCategory) => (
-                  <TouchableOpacity
-                    key={subCategory.crop_sub_category_id}
-                    className="p-2"
-                    onPress={() => handleSubCategorySelect(subCategory)}
-                  >
-                    <Text className="text-base">
-                      {subCategory.crop_sub_category_name}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
+                {selectedCategoryId ? (
+                  subCategories.map((subCategory) => (
+                    <TouchableOpacity
+                      key={subCategory.crop_sub_category_id}
+                      className="p-2"
+                      onPress={() => handleSubCategorySelect(subCategory)}
+                    >
+                      <Text className="text-base">
+                        {subCategory.crop_sub_category_name}
+                      </Text>
+                    </TouchableOpacity>
+                  ))
+                ) : (
+                  <Text className="text-base text-red-600">
+                    Select a crop category first
+                  </Text>
+                )}
               </View>
             )}
           </View>
@@ -712,28 +723,37 @@ function AddProductScreen({ navigation }) {
               </TouchableOpacity>
               <TouchableOpacity
                 className="ml-2 p-2 rounded-lg"
-                onPress={() => navigation.navigate("Add Crop Variety", {selectedCategory: selectedCategory,
-                  selectedCategoryId: selectedCategoryId,
-                  selectedSubCategory: selectedSubCategory,
-                  selectedSubCategoryId: selectedSubCategoryId
-              })}
+                onPress={() =>
+                  navigation.navigate("Add Crop Variety", {
+                    selectedCategory: selectedCategory,
+                    selectedCategoryId: selectedCategoryId,
+                    selectedSubCategory: selectedSubCategory,
+                    selectedSubCategoryId: selectedSubCategoryId,
+                  })
+                }
               >
                 <Ionicons name="add-outline" size={24} color="#00b251" />
               </TouchableOpacity>
             </View>
             {isClickedCropVariety && (
               <View className="w-full p-2 mb-4 bg-white rounded-lg shadow-md">
-                {cropVarieties.map((cropVariety) => (
-                  <TouchableOpacity
-                    key={cropVariety.crop_variety_id}
-                    className="p-2"
-                    onPress={() => handleCropVarietySelect(cropVariety)}
-                  >
-                    <Text className="text-base">
-                      {cropVariety.crop_variety_name}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
+                {selectedSubCategoryId ? (
+                  cropVarieties.map((cropVariety) => (
+                    <TouchableOpacity
+                      key={cropVariety.crop_variety_id}
+                      className="p-2"
+                      onPress={() => handleCropVarietySelect(cropVariety)}
+                    >
+                      <Text className="text-base">
+                        {cropVariety.crop_variety_name}
+                      </Text>
+                    </TouchableOpacity>
+                  ))
+                ) : (
+                  <Text className="text-base text-red-600">
+                    Select a sub category first
+                  </Text>
+                )}
               </View>
             )}
           </View>
@@ -960,7 +980,12 @@ function AddProductScreen({ navigation }) {
             >
               <Ionicons name="camera" size={24} color="#00b251" />
               <Text className="mx-2 text-lg text-[#00b251]"> / </Text>
-              <Ionicons name="image-outline" size={24} color="#00b251" className="ml-2" />
+              <Ionicons
+                name="image-outline"
+                size={24}
+                color="#00b251"
+                className="ml-2"
+              />
             </TouchableOpacity>
 
             {cropImage && (
@@ -1062,18 +1087,23 @@ function AddProductScreen({ navigation }) {
       >
         <View className="flex-1 justify-center items-center bg-black/50 bg-opacity-50">
           <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
-            <Text className="text-lg font-semibold text-gray-900 mb-4">{alertMessage}</Text>
+            <Text className="text-lg font-semibold text-gray-900 mb-4">
+              {alertMessage}
+            </Text>
             <TouchableOpacity
               className="mt-4 p-2 bg-[#00B251] rounded-lg flex-row justify-center items-center"
               onPress={() => setAlertVisible(false)}
             >
-              <Ionicons name="checkmark-circle-outline" size={24} color="white" />
+              <Ionicons
+                name="checkmark-circle-outline"
+                size={24}
+                color="white"
+              />
               <Text className="text-lg text-white ml-2">OK</Text>
             </TouchableOpacity>
           </View>
         </View>
       </Modal>
-
     </SafeAreaView>
   );
 }

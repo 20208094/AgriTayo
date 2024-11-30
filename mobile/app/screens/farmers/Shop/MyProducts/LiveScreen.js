@@ -26,6 +26,7 @@ function LiveScreen({ navigation }) {
 
   // Function to fetch shop data
   const getAsyncShopData = async () => {
+    setLoading(true)
     try {
       const storedData = await AsyncStorage.getItem("shopData");
       if (storedData) {
@@ -242,7 +243,7 @@ function LiveScreen({ navigation }) {
               </Text>
 
               {/* Category and Subcategory */}
-              <View className="flex-row flex-wrap gap-2 mb-1">
+              <View className="mb-1">
                 <Text className="text-xs font-medium text-[#00B251]">
                   Category:{" "}
                   <Text className="text-gray-800">
@@ -251,6 +252,8 @@ function LiveScreen({ navigation }) {
                       : "Unknown"}
                   </Text>
                 </Text>
+                </View>
+                <View className='mb-1'>
                 <Text className="text-xs font-medium text-[#00B251]">
                   Subcategory:{" "}
                   <Text className="text-gray-800">
@@ -262,7 +265,7 @@ function LiveScreen({ navigation }) {
               </View>
 
               {/* Variety, Size, and Class */}
-              <View className="flex-row flex-wrap gap-2 mb-1">
+              <View className="mb-1">
                 <Text className="text-xs font-medium text-[#00B251]">
                   Variety:{" "}
                   <Text className="text-gray-800">
@@ -271,29 +274,51 @@ function LiveScreen({ navigation }) {
                       : "Unknown"}
                   </Text>
                 </Text>
+                </View>
+                <View className='mb-1'>
                 <Text className="text-xs font-medium text-[#00B251]">
                   Size:{" "}
                   <Text className="text-gray-800">
                     {liveItem.size ? liveItem.size.crop_size_name : "Unknown"}
                   </Text>
                 </Text>
+                </View>
+                <View className='mb-1'>
                 <Text className="text-xs font-medium text-[#00B251]">
                   Class:{" "}
                   <Text className="text-gray-800">
                     {liveItem.crop_class || "Unknown"}
                   </Text>
                 </Text>
+                </View>
+                <View className='mb-1'>
                 <Text className="text-xs font-medium text-[#00B251]">
                   Quantity:{" "}
                   <Text className="text-gray-800">
                     {liveItem.crop_quantity} {liveItem.metric.metric_system_symbol}
                   </Text>
                 </Text>
+                </View>
+                <View className='mb-1'>
                 <Text className="text-xs font-medium text-[#00B251]">
                   Negotiation:{" "}
                   <Text className="text-gray-800">
                     {liveItem.negotiation_allowed ? "Allowed" : "Not Allowed"}
                   </Text>
+                </Text>
+              </View>
+              {/* Price, Weight */}
+              <View className="flex-row justify-between">
+                <Text className="text-xs font-medium text-green-600">
+                  Weight:{" "}
+                  <Text className="text-gray-800">
+                    {liveItem.metric
+                      ? `${liveItem.metric.metric_system_name}`
+                      : "Unknown"}
+                  </Text>
+                </Text>
+                <Text className="text-sm font-semibold text-[#00B251]">
+                  ₱{liveItem.crop_price}
                 </Text>
               </View>
             </View>
