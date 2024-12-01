@@ -172,6 +172,7 @@ function AddProductScreen({ navigation, route }) {
 
   const fetchCategories = async () => {
     try {
+      setLoading(true);
       const response = await fetch(
         `${REACT_NATIVE_API_BASE_URL}/api/crop_categories`,
         {
@@ -187,11 +188,14 @@ function AddProductScreen({ navigation, route }) {
     } catch (error) {
       setAlertMessage(`Error fetching crop categories: ${error.message}`);
       setAlertVisible(true);
+    } finally {
+      setLoading(false);
     }
   };
 
   const fetchSubCategories = async (categoryId) => {
     try {
+      setLoading(true);
       const response = await fetch(
         `${REACT_NATIVE_API_BASE_URL}/api/crop_sub_categories`,
         {
@@ -210,6 +214,8 @@ function AddProductScreen({ navigation, route }) {
     } catch (error) {
       setAlertMessage(`Error fetching crop subcategories: ${error.message}`);
       setAlertVisible(true);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -231,6 +237,7 @@ function AddProductScreen({ navigation, route }) {
 
   const fetchMetricSystem = async () => {
     try {
+      setLoading(true);
       const response = await fetch(
         `${REACT_NATIVE_API_BASE_URL}/api/metric_systems`,
         {
@@ -246,6 +253,8 @@ function AddProductScreen({ navigation, route }) {
     } catch (error) {
       setAlertMessage(`Error fetching metric systems: ${error.message}`);
       setAlertVisible(true);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -262,6 +271,7 @@ function AddProductScreen({ navigation, route }) {
   // fetching crop size
   const fetchCropSize = async () => {
     try {
+      setLoading(true);
       const response = await fetch(
         `${REACT_NATIVE_API_BASE_URL}/api/crop_sizes`,
         {
@@ -353,6 +363,7 @@ function AddProductScreen({ navigation, route }) {
   // fetching crop variety
   const fetchCropVariety = async (subCategoryId) => {
     try {
+      setLoading(true);
       const response = await fetch(
         `${REACT_NATIVE_API_BASE_URL}/api/crop_varieties`,
         {
