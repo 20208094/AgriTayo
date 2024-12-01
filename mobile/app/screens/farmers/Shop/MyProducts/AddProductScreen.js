@@ -21,7 +21,7 @@ import LoadingAnimation from "../../../../components/LoadingAnimation";
 const PRICE_REGEX = /^(?:[1-9]\d*|\d+\.\d{1,2}|0\.\d{1,2})$/;
 const QUANTITY_REGEX = /^[1-9]\d*$/;
 
-function AddProductScreen({ navigation }) {
+function AddProductScreen({ navigation, route }) {
   const [categories, setCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
   const [metricSystem, setMetricSystem] = useState([]);
@@ -629,6 +629,42 @@ function AddProductScreen({ navigation }) {
     item.label.toLowerCase().includes(searchText.toLowerCase())
   );
 
+  // Add this useEffect to handle all incoming new data
+  useEffect(() => {
+    // Handle new category
+    if (route.params?.newCategory) {
+      setCategories(prev => {
+        const exists = prev.some(cat => cat.crop_category_id === route.params.newCategory.crop_category_id);
+        if (!exists) return [...prev, route.params.newCategory];
+        return prev;
+      });
+      setSelectedCategory(route.params.newCategory.crop_category_name);
+      setSelectedCategoryId(route.params.newCategory.crop_category_id);
+    }
+
+    // Handle new subcategory
+    if (route.params?.newSubCategory) {
+      setSubCategories(prev => {
+        const exists = prev.some(sub => sub.crop_sub_category_id === route.params.newSubCategory.crop_sub_category_id);
+        if (!exists) return [...prev, route.params.newSubCategory];
+        return prev;
+      });
+      setSelectedSubCategory(route.params.newSubCategory.crop_sub_category_name);
+      setSelectedSubCategoryId(route.params.newSubCategory.crop_sub_category_id);
+    }
+
+    // Handle new variety
+    if (route.params?.newVariety) {
+      setCropVarieties(prev => {
+        const exists = prev.some(variety => variety.crop_variety_id === route.params.newVariety.crop_variety_id);
+        if (!exists) return [...prev, route.params.newVariety];
+        return prev;
+      });
+      setSelectedCropVariety(route.params.newVariety.crop_variety_name);
+      setSelectedCropVarietyId(route.params.newVariety.crop_variety_id);
+    }
+  }, [route.params]);
+
   if (loading) {
     return <LoadingAnimation />;
   }
@@ -658,7 +694,7 @@ function AddProductScreen({ navigation }) {
             />
           </View>
 
-          {/* Category Selection with Add Icon Button */}
+          {/* Category Selection */}
           <View className="mb-4">
             <Text className="text-lg font-semibold mb-1">
               Choose Category <Text className="text-red-500">*</Text>
@@ -666,25 +702,17 @@ function AddProductScreen({ navigation }) {
                 <Text className="text-red-600 text-xs">{errors.selectedCategoryId}</Text>
               )}
             </Text>
-            <View className="flex-row items-center">
-              <TouchableOpacity
-                onPress={() => handleOpenModal('category')}
-                className="flex-1 border border-gray-500 rounded-lg p-2 px-4 mx-2"
-              >
-                <Text className="text-base pl-2">
-                  {selectedCategory || "Select a category"}
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => navigation.navigate("Add Crop Category")}
-                className="bg-[#00B251] p-2 rounded-lg ml-2 w-10 h-10 justify-center items-center"
-              >
-                <Ionicons name="add-outline" size={24} color="white" />
-              </TouchableOpacity>
-            </View>
+            <TouchableOpacity
+              onPress={() => handleOpenModal('category')}
+              className="w-full border border-gray-500 rounded-lg p-2 px-4 mx-2"
+            >
+              <Text className="text-base pl-2">
+                {selectedCategory || "Select a category"}
+              </Text>
+            </TouchableOpacity>
           </View>
 
-          {/* Subcategory Selection with Add Icon Button */}
+          {/* Subcategory Selection */}
           <View className="mb-4">
             <Text className="text-lg font-semibold mb-1">
               Choose Subcategory <Text className="text-red-500">*</Text>
@@ -692,51 +720,17 @@ function AddProductScreen({ navigation }) {
                 <Text className="text-red-600 text-xs">{errors.selectedSubCategoryId}</Text>
               )}
             </Text>
-            <View className="flex-row items-center">
-              <TouchableOpacity
-                onPress={() => handleOpenModal('subcategory')}
-                className="flex-1 border border-gray-500 rounded-lg p-2 px-4 mx-2"
-              >
-                <Text className="text-base pl-2">
-                  {selectedSubCategory || "Select a subcategory"}
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() =>
-                  navigation.navigate("Add Crop Sub Category", {
-                    selectedCategory: selectedCategory,
-                    selectedCategoryId: selectedCategoryId,
-                  })
-                }
-                className="bg-[#00B251] p-2 rounded-lg ml-2 w-10 h-10 justify-center items-center"
-              >
-                <Ionicons name="add-outline" size={24} color="white" />
-              </TouchableOpacity>
-            </View>
-            {isClickedSubCategory && (
-              <View className="w-full p-2 mb-4 bg-white rounded-lg shadow-md">
-                {selectedCategoryId ? (
-                  subCategories.map((subCategory) => (
-                    <TouchableOpacity
-                      key={subCategory.crop_sub_category_id}
-                      className="p-2"
-                      onPress={() => handleSubCategorySelect(subCategory)}
-                    >
-                      <Text className="text-base">
-                        {subCategory.crop_sub_category_name}
-                      </Text>
-                    </TouchableOpacity>
-                  ))
-                ) : (
-                  <Text className="text-base text-red-600">
-                    Select a crop category first
-                  </Text>
-                )}
-              </View>
-            )}
+            <TouchableOpacity
+              onPress={() => handleOpenModal('subcategory')}
+              className="w-full border border-gray-500 rounded-lg p-2 px-4 mx-2"
+            >
+              <Text className="text-base pl-2">
+                {selectedSubCategory || "Select a subcategory"}
+              </Text>
+            </TouchableOpacity>
           </View>
 
-          {/* Variety Selection with Add Icon Button */}
+          {/* Variety Selection */}
           <View className="mb-4">
             <Text className="text-lg font-semibold mb-1">
               Choose Variety <Text className="text-red-500">*</Text>
@@ -744,50 +738,14 @@ function AddProductScreen({ navigation }) {
                 <Text className="text-red-600 text-xs">{errors.selectedCropVarietyId}</Text>
               )}
             </Text>
-            <View className="flex-row items-center">
-              <TouchableOpacity
-                onPress={() => handleOpenModal('variety')}
-                className="flex-1 border border-gray-500 rounded-lg p-2 px-4 mx-2"
-              >
-                <Text className="text-base pl-2">
-                  {selectedCropVariety || "Select a variety"}
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() =>
-                  navigation.navigate("Add Crop Variety", {
-                    selectedCategory: selectedCategory,
-                    selectedCategoryId: selectedCategoryId,
-                    selectedSubCategory: selectedSubCategory,
-                    selectedSubCategoryId: selectedSubCategoryId,
-                  })
-                }
-                className="bg-[#00B251] p-2 rounded-lg ml-2 w-10 h-10 justify-center items-center"
-              >
-                <Ionicons name="add-outline" size={24} color="white" />
-              </TouchableOpacity>
-            </View>
-            {isClickedCropVariety && (
-              <View className="w-full p-2 mb-4 bg-white rounded-lg shadow-md">
-                {selectedSubCategoryId ? (
-                  cropVarieties.map((cropVariety) => (
-                    <TouchableOpacity
-                      key={cropVariety.crop_variety_id}
-                      className="p-2"
-                      onPress={() => handleCropVarietySelect(cropVariety)}
-                    >
-                      <Text className="text-base">
-                        {cropVariety.crop_variety_name}
-                      </Text>
-                    </TouchableOpacity>
-                  ))
-                ) : (
-                  <Text className="text-base text-red-600">
-                    Select a sub category first
-                  </Text>
-                )}
-              </View>
-            )}
+            <TouchableOpacity
+              onPress={() => handleOpenModal('variety')}
+              className="w-full border border-gray-500 rounded-lg p-2 px-4 mx-2"
+            >
+              <Text className="text-base pl-2">
+                {selectedCropVariety || "Select a variety"}
+              </Text>
+            </TouchableOpacity>
           </View>
 
           {/* Class Selection */}
@@ -1030,37 +988,79 @@ function AddProductScreen({ navigation }) {
             animationType="slide"
             onRequestClose={() => setModalVisible2(false)}
           >
-            <View className="flex-1 justify-center bg-black/50">
-              <View className="bg-white mx-4 rounded-lg p-6 shadow-lg h-screen max-h-[80%]">
-                <TextInput
-                  placeholder="Search..."
-                  value={searchText}
-                  onChangeText={setSearchText}
-                  className="border border-gray-300 p-3 rounded-lg mb-4"
-                />
+            <View className="flex-1 justify-center items-center bg-black/50">
+              <View className="w-11/12 bg-white rounded-lg" style={{ maxHeight: '80%' }}>
+                <View className="p-4 border-b border-gray-200">
+                  <TextInput
+                    className="w-full p-2 bg-gray-100 rounded-lg"
+                    placeholder="Search..."
+                    value={searchText}
+                    onChangeText={setSearchText}
+                  />
+                </View>
+                
+                {activeField === 'category' && (
+                  <TouchableOpacity
+                    onPress={() => {
+                      setModalVisible2(false);
+                      navigation.navigate("Add Crop Category");
+                    }}
+                    className="p-4 bg-gray-100 flex-row items-center justify-center border-b border-gray-200"
+                  >
+                    <Text className="ml-2 text-[#00B251]">Missing category? Add it here</Text>
+                  </TouchableOpacity>
+                )}
+                
+                {activeField === 'subcategory' && (
+                  <TouchableOpacity
+                    onPress={() => {
+                      setModalVisible2(false);
+                      navigation.navigate("Add Crop Sub Category", {
+                        selectedCategory: selectedCategory,
+                        selectedCategoryId: selectedCategoryId,
+                      });
+                    }}
+                    className="p-4 bg-gray-100 flex-row items-center justify-center border-b border-gray-200"
+                  >
+                    <Text className="ml-2 text-[#00B251]">Missing subcategory? Add it here</Text>
+                  </TouchableOpacity>
+                )}
+                
+                {activeField === 'variety' && (
+                  <TouchableOpacity
+                    onPress={() => {
+                      setModalVisible2(false);
+                      navigation.navigate("Add Crop Variety", {
+                        selectedCategory: selectedCategory,
+                        selectedCategoryId: selectedCategoryId,
+                        selectedSubCategory: selectedSubCategory,
+                        selectedSubCategoryId: selectedSubCategoryId,
+                      });
+                    }}
+                    className="p-4 bg-gray-100 flex-row items-center justify-center border-b border-gray-200"
+                  >
+                    <Text className="ml-2 text-[#00B251]">Missing variety? Add it here</Text>
+                  </TouchableOpacity>
+                )}
+
                 <ScrollView>
-                  {filteredItems.map(item => (
+                  {filteredItems.map((item) => (
                     <TouchableOpacity
                       key={item.value}
+                      className="p-3 mx-4 border-b border-gray-200"
                       onPress={() => handleModalItemSelect(item)}
-                      className={`px-2 py-1 border-b border-gray-300 rounded-lg ${
-                        (activeField === 'category' && selectedCategory === item.label) ||
-                        (activeField === 'subcategory' && selectedSubCategory === item.label) ||
-                        (activeField === 'variety' && selectedCropVariety === item.label) ||
-                        (activeField === 'metric' && selectedMetricSystem === item.label)
-                          ? 'bg-green-300'
-                          : 'bg-white'
-                      }`}
                     >
-                      <Text className="text-lg text-black">{item.label}</Text>
+                      <Text className="text-base">{item.label}</Text>
                     </TouchableOpacity>
                   ))}
                 </ScrollView>
+
+                {/* Close button at bottom */}
                 <TouchableOpacity
                   onPress={() => setModalVisible2(false)}
-                  className="mt-4 bg-gray-400 p-3 rounded-lg"
+                  className="p-4 border-t border-gray-200"
                 >
-                  <Text className="text-white text-center">Cancel</Text>
+                  <Text className="text-center text-gray-600 font-semibold">Close</Text>
                 </TouchableOpacity>
               </View>
             </View>
