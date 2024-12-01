@@ -30,13 +30,6 @@ function BiddingDetailsScreen({ route, navigation }) {
   const [bidData, setBidData] = useState([]);
   const [userBids, setUserBids] = useState([]);
 
-  const scrollY = new Animated.Value(0);
-  const diffClamp = Animated.diffClamp(scrollY, 0, 100);
-  const translateY = diffClamp.interpolate({
-    inputRange: [0, 100],
-    outputRange: [0, -100],
-  });
-
   const onViewRef = React.useRef((viewableItems) => {
     if (viewableItems?.changed?.length > 0) {
       setActiveIndex(viewableItems.changed[0].index);
@@ -370,34 +363,18 @@ function BiddingDetailsScreen({ route, navigation }) {
           data={[{ key: 'main' }]}
           renderItem={() => renderMainContent()}
           contentContainerStyle={{ paddingBottom: 80 }}
-          onScroll={Animated.event(
-            [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-            { useNativeDriver: true }
-          )}
           scrollEventThrottle={16}
         />
 
         {/* Floating Place Bid Button */}
-        <Animated.View
-          className="absolute bottom-0 left-0 right-0 bg-transparent px-4 py-3"
-          style={{
-            transform: [{ translateY }],
-            elevation: 5,
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: -2 },
-            shadowOpacity: 0.1,
-            shadowRadius: 4,
-          }}
+        <TouchableOpacity
+          className="absolute bottom-5 left-5 right-5 bg-[#00b251] py-4 rounded-lg shadow-lg"
+          onPress={() => navigation.navigate('Place a Bid', { data: bidData })}
         >
-          <TouchableOpacity
-            className="bg-[#00b251] py-4 rounded-lg w-full"
-            onPress={() => navigation.navigate('Place a Bid', { data: bidData })}
-          >
-            <Text className="text-lg font-bold text-white text-center">
-              Place a Bid
-            </Text>
-          </TouchableOpacity>
-        </Animated.View>
+          <Text className="text-lg font-bold text-white text-center">
+            Place a Bid
+          </Text>
+        </TouchableOpacity>
 
         {/* Modal for Full-Screen Image */}
         {selectedImage && (
