@@ -371,7 +371,25 @@ function AddCropCategoryScreen({ navigation }) {
         console.log("Response data: ", responseData);
         setAlertMessage("Crop category added successfully!");
         setAlertVisible(true);
-        navigation.navigate("Add Product");
+        
+        // Navigate back with the new data
+        navigation.navigate("Add Product", {
+          newCategory: {
+            crop_category_id: responseData.categoryId, // Adjust based on your API response
+            crop_category_name: cropCategoryName
+          },
+          newSubCategory: {
+            crop_sub_category_id: responseData.subCategoryId,
+            crop_sub_category_name: cropSubCategoryName,
+            crop_category_id: responseData.categoryId
+          },
+          newVariety: {
+            crop_variety_id: responseData.varietyId,
+            crop_variety_name: cropVarietyName,
+            crop_sub_category_id: responseData.subCategoryId,
+            crop_category_id: responseData.categoryId
+          }
+        });
       } else {
         console.error("Error adding crop category: ", responseText);
         setAlertMessage("Failed to add crop category. Please try again.");

@@ -23,8 +23,11 @@ const NAME_REGEX = /^[A-Za-z\s]{3,50}$/;
 const DESCRIPTION_REGEX = /^.{5,200}$/;
 const PRICE_REGEX = /^(?:[1-9]\d*|\d+\.\d{1,2}|0\.\d{1,2})$/;
 
+// Add this constant at the top of your file, after imports
+const MAX_IMAGE_SIZE_MB = 1; // Maximum allowed image size (1 MB)
+
 function EditBidScreen({ navigation, route }) {
-    const {bidding} = route.params
+  const { bidding } = route.params
   // for inputs
   const [shopData, setShopData] = useState(null);
   const [bidCreationDate, setBidCreationDate] = useState("");
@@ -53,7 +56,7 @@ function EditBidScreen({ navigation, route }) {
   const [time, setTime] = useState(new Date());
   const [formattedTime, setFormattedTime] = useState("");
 
-const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState({});
 
   const handleDateChange = (event, selectedDate) => {
     if (event.type === "set") {
@@ -87,7 +90,7 @@ const [errors, setErrors] = useState({});
       const currentTime = selectedTime || time;
       setShowTime(false);
       setTime(currentTime);
-      
+
       // Format time for display with AM/PM
       const formattedTimeStr = currentTime.toLocaleTimeString('en-US', {
         hour: 'numeric',
@@ -96,7 +99,7 @@ const [errors, setErrors] = useState({});
         timeZone: 'Asia/Manila' // Set to Philippines timezone
       });
       setFormattedTime(formattedTimeStr);
-      
+
       // Combine date and time with proper timezone handling
       const combinedDateTime = new Date(date);
       combinedDateTime.setHours(currentTime.getHours());
@@ -107,7 +110,7 @@ const [errors, setErrors] = useState({});
       // Convert to UTC for storage while preserving the local time
       const offset = combinedDateTime.getTimezoneOffset() * 60000; // Convert offset to milliseconds
       const localISOTime = new Date(combinedDateTime.getTime() - offset).toISOString();
-      
+
       setEndDate(localISOTime);
     } else {
       setShowTime(false);
@@ -173,7 +176,7 @@ const [errors, setErrors] = useState({});
     if (metric) {
       setSelectedMetricSystem(metric.metric_system_name);
     } else {
-        setSelectedMetricSystem('Select Metric');
+      setSelectedMetricSystem('Select Metric');
     }
   }, [metricSystem, bidding.bid_category_id]);
 
@@ -274,9 +277,7 @@ const [errors, setErrors] = useState({});
   const openModal = () => setModalVisible1(true);
   const closeModal = () => setModalVisible1(false);
 
-  const MAX_IMAGE_SIZE_MB = 1; // Maximum allowed image size (1 MB)
-
-  // Helper function to validate image size
+  // Add this validation function
   const validateImageSize = async (imageUri) => {
     try {
       const response = await fetch(imageUri);
@@ -309,23 +310,23 @@ const [errors, setErrors] = useState({});
       setAlertVisible(true);
       return;
     }
-  
+
     const options = {
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       quality: 1,
       allowsEditing: true,
     };
-  
+
     let result;
     if (source === "camera") {
       result = await ImagePicker.launchCameraAsync(options);
     } else {
       result = await ImagePicker.launchImageLibraryAsync(options);
     }
-  
+
     if (!result.canceled && result.assets && result.assets.length > 0) {
       const imageUri = result.assets[0].uri;
-  
+
       // Validate the image size before setting it
       const isValidSize = await validateImageSize(imageUri);
       if (isValidSize) {
@@ -335,7 +336,7 @@ const [errors, setErrors] = useState({});
       console.log("User cancelled image picker or no image selected");
     }
   };
-  
+
   const handleEditBid = async () => {
     // Final validation check
     const errors = {};
@@ -365,11 +366,21 @@ const [errors, setErrors] = useState({});
       errors.bidMinimumIncrement = "Enter a valid minimum bid increment greater than 0 (e.g., 5 or 5.00).";
     }
 
-    if (!imageUri && !bidding.bid_image) { errors.imageUri = "Select an image."; }
-    if (!endDate) errors.endDate = "Bidding End Date is required.";
-    if (!selectedCategoryId && !bidding.bid_category_id) errors.selectedCategoryId = "Select a category.";
-    if (!selectedSubCategoryId && !bidding.bid_subcategory_id) errors.selectedSubCategoryId = "Select a sub-category.";
-    if (!selectedMetricSystemId && !bidding.metric_system_id) errors.selectedMetricSystemId = "Select a metric.";
+    if (!imageUri && !bidding.bid_image) {
+      errors.imageUri = "Select an image.";
+    }
+
+    if (!endDate) {
+      errors.endDate = "Bidding End Date is required.";
+    }
+
+    if (!selectedCategoryId && !bidding.bid_category_id) {
+      errors.selectedCategoryId = "Select a category.";
+    }
+
+    if (!selectedSubCategoryId && !bidding.bid_subcategory_id) {
+      errors.selectedSubCategoryId = "Select a sub-category.";
+    }
 
     // If there are errors, show alert and return without submitting
     if (Object.keys(errors).length > 0) {
@@ -385,13 +396,12 @@ const [errors, setErrors] = useState({});
     formData.append("creation_date", bidding.creation_date);
     formData.append("end_date", endDate);
     if (imageUri) {
-        const image = {
-          uri: imageUri.uri,
-          type: 'image/jpeg', // Adjust the type based on the image type
-          name: 'product_image.jpg', // Provide an appropriate name
-        };
-        formData.append('bid_image', image);
-      }
+      formData.append("bid_image", {
+        uri: imageUri.uri,
+        type: 'image/jpeg',
+        name: 'product_image.jpg',
+      });
+    }
     formData.append("bid_description", bidDescription);
     formData.append("bid_name", bidName);
     formData.append("bid_category_id", parseInt(selectedCategoryId) || bidding.bid_category_id);
@@ -400,12 +410,11 @@ const [errors, setErrors] = useState({});
     formData.append("bid_minimum_increment", parseInt(bidMinimumIncrement));
     formData.append("bid_current_highest", parseInt(bidStartingPrice));
     formData.append("number_of_bids", bidding.number_of_bids);
-    formData.append("metric_system_id", parseInt(selectedMetricSystemId) || bidding.metric_system_id);
 
     // Submit the form
     try {
       setLoading(true);
-      console.log("Submitting product data: ", formData);
+      console.log("Submitting bid data: ", formData);
 
       const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/biddings/${bidding.bid_id}`, {
         method: "PUT",
@@ -423,14 +432,14 @@ const [errors, setErrors] = useState({});
         console.log("Response data: ", responseData);
         setAlertMessage("Bidding updated successfully!");
         setAlertVisible(true);
-        navigation.navigate("Bidding");
+        // Navigation will happen after user clicks OK on alert
       } else {
         console.error("Error updating bidding: ", responseText);
         setAlertMessage("Failed to update bidding. Please try again.");
         setAlertVisible(true);
       }
     } catch (error) {
-      console.error(`An error occurred while adding the product: ${error.message}`);
+      console.error(`An error occurred while updating the bid: ${error.message}`);
       setAlertMessage("An error occurred. Please try again.");
       setAlertVisible(true);
     } finally {
@@ -438,207 +447,258 @@ const [errors, setErrors] = useState({});
     }
   };
 
+  // Add new state for modal and search
+  const [modalVisible2, setModalVisible2] = useState(false);
+  const [activeField, setActiveField] = useState(null);
+  const [searchText, setSearchText] = useState('');
+  const [modalData, setModalData] = useState([]);
 
+  // Helper function for modal data
+  const handleOpenModal = (field) => {
+    let data = [];
+    switch (field) {
+      case 'category':
+        data = categories.map(cat => ({
+          label: cat.crop_category_name,
+          value: cat.crop_category_id,
+          original: cat
+        }));
+        break;
+      case 'subcategory':
+        data = subCategories.map(sub => ({
+          label: sub.crop_sub_category_name,
+          value: sub.crop_sub_category_id,
+          original: sub
+        }));
+        break;
+    }
+    setModalData(data);
+    setActiveField(field);
+    setSearchText('');
+    setModalVisible2(true);
+  };
+
+  const handleModalItemSelect = (item) => {
+    switch (activeField) {
+      case 'category':
+        handleCategorySelect(item.original);
+        break;
+      case 'subcategory':
+        handleSubCategorySelect(item.original);
+        break;
+    }
+    setModalVisible2(false);
+  };
+
+  const filteredItems = modalData.filter(item =>
+    item.label.toLowerCase().includes(searchText.toLowerCase())
+  );
+
+  const handleValidation = (field, value) => {
+    // If value is empty, clear the error for this field
+    if (!value || value.trim() === '') {
+      setErrors((prevErrors) => {
+        const newErrors = { ...prevErrors };
+        delete newErrors[field];
+        return newErrors;
+      });
+      return;
+    }
+
+    let error = "";
+    switch (field) {
+      case "bidName":
+        if (!NAME_REGEX.test(value)) {
+          error = "Product Name must be 3-50 characters long and only letters.";
+        }
+        break;
+      case "bidDescription":
+        if (!DESCRIPTION_REGEX.test(value)) {
+          error = "Description must be 5-200 characters.";
+        }
+        break;
+      case "bidStartingPrice":
+        if (!PRICE_REGEX.test(value)) {
+          error = "Enter a valid price greater than 0 (e.g., 100 or 100.00).";
+        }
+        break;
+      case "bidMinimumIncrement":
+        if (!PRICE_REGEX.test(value)) {
+          error = "Enter a valid minimum bid increment greater than 0 (e.g., 5 or 5.00).";
+        }
+        break;
+      default:
+        break;
+    }
+    setErrors((prevErrors) => ({ ...prevErrors, [field]: error }));
+  };
 
   return (
     <SafeAreaView className="flex-1">
       <ScrollView contentContainerStyle={{ padding: 16 }}>
         <View className="w-full max-w-md mx-auto">
-              {/* Image Upload */}
+          {/* Image Upload Section - Original Position */}
           <View className="mb-4">
-            <Text className="text-sm mb-2 text-gray-800">
+            <Text className="text-lg font-semibold mb-1">
               Select Image <Text className="text-red-500 text-sm">*</Text>
               {errors.imageUri && <Text className="text-red-600 text-xs">{errors.imageUri}</Text>}
             </Text>
+
             {/* Upload Image Button */}
             <TouchableOpacity
               className="rounded-lg overflow-hidden shadow"
-              onPress={openModal}
+              onPress={() => setModalVisible1(true)}
             >
               <Image
-                    className="w-full h-72 object-cover"
-                    source={{ uri: imageUri?.uri || bidding.bid_image }}
-                  />
+                className="w-full h-72 object-cover"
+                source={{ uri: imageUri?.uri || bidding.bid_image }}
+              />
             </TouchableOpacity>
-
-            {/* Modal for Image Source Selection */}
-            <Modal
-              transparent={true}
-              visible={modalVisible1}
-              animationType="slide"
-              onRequestClose={closeModal}
-            >
-              <View className="flex-1 justify-center items-center bg-[rgba(0,0,0,0.5)] bg-black/50">
-                <View className="w-4/5 bg-white p-6 rounded-lg">
-                  <Text className="text-lg font-semibold text-gray-800 mb-4">
-                    Select Image Source
-                  </Text>
-                  <Text className="text-gray-600 mb-6">
-                    Choose whether to take a photo or select from gallery
-                  </Text>
-                  <View className="space-y-4">
-                    <TouchableOpacity
-                      className="px-4 py-2 rounded-md bg-[#00B251] flex items-center"
-                      onPress={() => {
-                        closeModal();
-                        selectImage("camera");
-                      }}
-                    >
-                      <Text className="text-white text-base">Camera</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      className="px-4 py-2 rounded-md bg-[#00B251] flex items-center"
-                      onPress={() => {
-                        closeModal();
-                        selectImage("gallery");
-                      }}
-                    >
-                      <Text className="text-white text-base">Gallery</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      className="px-4 py-2 rounded-md bg-gray-200 flex items-center"
-                      onPress={closeModal}
-                    >
-                      <Text className="text-gray-700 text-base">Cancel</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              </View>
-            </Modal>
           </View>
+
           {/* Product Name */}
           <View className="mb-4">
-            <Text className="text-sm mb-2 text-gray-800">
-              Product Name <Text className="text-red-500 text-sm">*</Text>
+            <Text className="text-lg font-semibold mb-1">
+              Product Name <Text className="text-red-500">*</Text>
               {errors.bidName && <Text className="text-red-600 text-xs">{errors.bidName}</Text>}
             </Text>
             <TextInput
               placeholder="e.g. Vegetables, Potatoes, etc."
-              className="w-full p-2 bg-white rounded-lg shadow-md"
+              className="w-full p-2 bg-white rounded-lg border border-gray-500 mx-2"
               value={bidName}
               onChangeText={(text) => {
                 setBidName(text);
-                if (text === '') {
-                  setErrors((prev) => ({ ...prev, bidName: '' }));
-                } else if (!NAME_REGEX.test(text)) {
-                  setErrors((prev) => ({ ...prev, bidName: "Product Name must be 3-50 characters long and only letters." }));
-                } else {
-                  setErrors((prev) => ({ ...prev, bidName: "" }));
-                }
+                handleValidation("bidName", text);
               }}
             />
           </View>
 
           {/* Product Description */}
           <View className="mb-4">
-            <Text className="text-sm mb-2 text-gray-800">
-              Product Description <Text className="text-red-500 text-sm">*</Text>
+            <Text className="text-lg font-semibold mb-1">
+              Product Description <Text className="text-red-500">*</Text>
               {errors.bidDescription && <Text className="text-red-600 text-xs">{errors.bidDescription}</Text>}
             </Text>
             <TextInput
               placeholder="Describe your product"
               multiline
-              className="w-full p-2 bg-white rounded-lg shadow-md"
+              className="w-full p-2 bg-white rounded-lg border border-gray-500 mx-2"
               value={bidDescription}
               onChangeText={(text) => {
                 setBidDescription(text);
-                if (text === '') {
-                  setErrors((prev) => ({ ...prev, bidDescription: '' }));
-                } else if (!DESCRIPTION_REGEX.test(text)) {
-                  setErrors((prev) => ({ ...prev, bidDescription: "Description must be 5-200 characters." }));
-                } else {
-                  setErrors((prev) => ({ ...prev, bidDescription: "" }));
-                }
+                handleValidation("bidDescription", text);
               }}
             />
           </View>
 
-          {/* Crop Category Selector */}
+          {/* Category Selection */}
           <View className="mb-4">
-            <Text className="text-sm mb-2 text-gray-800">
-              Select Crop Category <Text className="text-red-500 text-sm">*</Text>
+            <Text className="text-lg font-semibold mb-1">
+              Choose Category <Text className="text-red-500">*</Text>
               {errors.selectedCategoryId && <Text className="text-red-600 text-xs">{errors.selectedCategoryId}</Text>}
             </Text>
             <TouchableOpacity
-              className="flex-row items-center w-full p-2 bg-white rounded-lg shadow-md"
-              onPress={() => setIsClickedCategory(!isClickedCategory)}
+              onPress={() => handleOpenModal('category')}
+              className="w-full border border-gray-500 rounded-lg p-2 px-4 mx-2"
             >
-              <Text className="text-base text-gray-700 flex-1">
+              <Text className="text-base pl-2">
                 {selectedCategory || "Select a category"}
               </Text>
-              <Ionicons name="chevron-down" size={20} color="gray" className="ml-2" />
             </TouchableOpacity>
-            {isClickedCategory && (
-              <View className="w-full p-2 mb-4 bg-white rounded-lg shadow-md">
-                {categories.map((category) => (
-                  <TouchableOpacity
-                    className="p-2"
-                    onPress={() => handleCategorySelect(category)}
-                    key={category.crop_category_id}
-                  >
-                    <Text className="text-base">{category.crop_category_name}</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            )}
           </View>
 
-          {/* Sub Category Selector */}
+          {/* Subcategory Selection */}
           <View className="mb-4">
-            <Text className="text-sm mb-2 text-gray-800">
-              Select Sub Category <Text className="text-red-500 text-sm">*</Text>
+            <Text className="text-lg font-semibold mb-1">
+              Choose Subcategory <Text className="text-red-500">*</Text>
               {errors.selectedSubCategoryId && <Text className="text-red-600 text-xs">{errors.selectedSubCategoryId}</Text>}
             </Text>
             <TouchableOpacity
-              className="flex-row items-center w-full p-2 bg-white rounded-lg shadow-md"
-              onPress={() => setIsClickedSubCategory(!isClickedSubCategory)}
+              onPress={() => handleOpenModal('subcategory')}
+              className="w-full border border-gray-500 rounded-lg p-2 px-4 mx-2"
             >
-              <Text className="text-base text-gray-700 flex-1">
-                {selectedSubCategory || "Select a sub-category"}
+              <Text className="text-base pl-2">
+                {selectedSubCategory || "Select a subcategory"}
               </Text>
-              <Ionicons name="chevron-down" size={20} color="gray" className="ml-2" />
             </TouchableOpacity>
-            {isClickedSubCategory && (
-              <View className="w-full p-2 mb-4 bg-white rounded-lg shadow-md">
-                {subCategories.map((subCategory) => (
-                  <TouchableOpacity
-                    className="p-2"
-                    onPress={() => handleSubCategorySelect(subCategory)}
-                    key={subCategory.crop_sub_category_id}
-                  >
-                    <Text className="text-base">{subCategory.crop_sub_category_name}</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            )}
           </View>
 
-          {/* Bidding End Date */}
+          {/* Starting Price */}
           <View className="mb-4">
-            <Text className="text-sm mb-2 text-gray-800">
-              Bidding End Date <Text className="text-red-500 text-sm">*</Text>
+            <Text className="text-lg font-semibold mb-1">
+              Starting Price <Text className="text-red-500">*</Text>
+              {errors.bidStartingPrice && <Text className="text-red-600 text-xs">{errors.bidStartingPrice}</Text>}
+            </Text>
+            <TextInput
+              placeholder="₱ 0.00"
+              keyboardType="numeric"
+              className="w-full p-2 bg-white rounded-lg border border-gray-500 mx-2"
+              value={bidStartingPrice}
+              onChangeText={(text) => {
+                let formattedText = text;
+                if (text.startsWith('.')) {
+                  formattedText = `0${text}`;
+                }
+                const parts = formattedText.split('.');
+                if (parts[1] && parts[1].length > 2) {
+                  formattedText = `${parts[0]}.${parts[1].slice(0, 2)}`;
+                }
+                setBidStartingPrice(formattedText);
+                handleValidation("bidStartingPrice", formattedText);
+              }}
+            />
+          </View>
+
+          {/* Minimum Bid Increment */}
+          <View className="mb-4">
+            <Text className="text-lg font-semibold mb-1">
+              Minimum Bid Increment <Text className="text-red-500">*</Text>
+              {errors.bidMinimumIncrement && <Text className="text-red-600 text-xs">{errors.bidMinimumIncrement}</Text>}
+            </Text>
+            <TextInput
+              placeholder="₱ 0.00"
+              keyboardType="numeric"
+              className="w-full p-2 bg-white rounded-lg border border-gray-500 mx-2"
+              value={bidMinimumIncrement}
+              onChangeText={(text) => {
+                let formattedText = text;
+                if (text.startsWith('.')) {
+                  formattedText = `0${text}`;
+                }
+                const parts = formattedText.split('.');
+                if (parts[1] && parts[1].length > 2) {
+                  formattedText = `${parts[0]}.${parts[1].slice(0, 2)}`;
+                }
+                setBidMinimumIcrement(formattedText);
+                handleValidation("bidMinimumIncrement", formattedText);
+              }}
+            />
+          </View>
+
+          {/* End Date Selection */}
+          <View className="mb-4">
+            <Text className="text-lg font-semibold mb-1">
+              Bidding End Date <Text className="text-red-500">*</Text>
               {errors.endDate && <Text className="text-red-600 text-xs">{errors.endDate}</Text>}
             </Text>
             <TouchableOpacity
               onPress={() => setShow(true)}
-              className="w-full p-3 bg-white rounded-lg shadow-md"
+              className="w-full border border-gray-500 rounded-lg p-2 px-4 mx-2"
             >
-              <View className='border border-gray-300 rounded-lg p-2'>
-                <Text className="text-gray-800">
-                  {formattedDate && formattedTime 
-                    ? `${formattedDate} ${formattedTime}`
-                    : new Date(endDate).toLocaleString('en-US', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        hour12: true,
-                        timeZone: 'Asia/Manila'
-                      })
-                  }
-                </Text>
-              </View>
+              <Text className="text-base pl-2">
+                {formattedDate && formattedTime
+                  ? `${formattedDate} ${formattedTime}`
+                  : new Date(endDate).toLocaleString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true,
+                    timeZone: 'Asia/Manila'
+                  })
+                }
+              </Text>
             </TouchableOpacity>
             {show && (
               <DateTimePicker
@@ -662,177 +722,166 @@ const [errors, setErrors] = useState({});
             )}
           </View>
 
-
-          {/* Bidding Starting Price */}
-          <View className="mb-4">
-            <Text className="text-sm mb-2 text-gray-800">
-              Bidding Starting Price <Text className="text-red-500 text-sm">*</Text>
-              {errors.bidStartingPrice && <Text className="text-red-600 text-xs">{errors.bidStartingPrice}</Text>}
-            </Text>
-            <TextInput
-              placeholder="₱ 0.00"
-              keyboardType="numeric"
-              className="w-full p-2 bg-white rounded-lg shadow-md"
-              value={bidStartingPrice}
-              onChangeText={(text) => {
-                // Format the text if it starts with a dot
-                let formattedText = text;
-                if (text.startsWith('.')) {
-                  formattedText = `0${text}`;
-                }
-                
-                // Limit to 2 decimal places
-                const parts = formattedText.split('.');
-                if (parts[1] && parts[1].length > 2) {
-                  formattedText = `${parts[0]}.${parts[1].slice(0, 2)}`;
-                }
-                
-                setBidStartingPrice(formattedText);
-                if (formattedText === '') {
-                  setErrors((prev) => ({ ...prev, bidStartingPrice: '' }));
-                } else if (!PRICE_REGEX.test(formattedText)) {
-                  setErrors((prev) => ({ 
-                    ...prev, 
-                    bidStartingPrice: "Enter a valid price greater than 0 (e.g., 100 or 100.00)." 
-                  }));
-                } else {
-                  setErrors((prev) => ({ ...prev, bidStartingPrice: "" }));
-                }
-              }}
-            />
-          </View>
-
-          {/* Minimum Bid Increment */}
-          <View className="mb-4">
-            <Text className="text-sm mb-2 text-gray-800">
-              Enter Minimum Bid <Text className="text-red-500 text-sm">*</Text>
-              {errors.bidMinimumIncrement && <Text className="text-red-600 text-xs">{errors.bidMinimumIncrement}</Text>}
-            </Text>
-            <TextInput
-              placeholder="₱ 0.00"
-              keyboardType="numeric"
-              className="w-full p-2 bg-white rounded-lg shadow-md"
-              value={bidMinimumIncrement}
-              onChangeText={(text) => {
-                // Format the text if it starts with a dot
-                let formattedText = text;
-                if (text.startsWith('.')) {
-                  formattedText = `0${text}`;
-                }
-                
-                // Limit to 2 decimal places
-                const parts = formattedText.split('.');
-                if (parts[1] && parts[1].length > 2) {
-                  formattedText = `${parts[0]}.${parts[1].slice(0, 2)}`;
-                }
-                
-                setBidMinimumIcrement(formattedText);
-                if (formattedText === '') {
-                  setErrors((prev) => ({ ...prev, bidMinimumIncrement: '' }));
-                } else if (!PRICE_REGEX.test(formattedText)) {
-                  setErrors((prev) => ({ 
-                    ...prev, 
-                    bidMinimumIncrement: "Enter a valid minimum bid increment greater than 0 (e.g., 5 or 5.00)." 
-                  }));
-                } else {
-                  setErrors((prev) => ({ ...prev, bidMinimumIncrement: "" }));
-                }
-              }}
-            />
-          </View>
-
-          {/* Metric Selector */}
-          <View className="mb-4">
-            <Text className="text-sm mb-2 text-gray-800">
-              Select Metric <Text className="text-red-500 text-sm">*</Text>
-              {errors.selectedMetricSystemId && <Text className="text-red-600 text-xs">{errors.selectedMetricSystemId}</Text>}
-            </Text>
-            <TouchableOpacity
-              className="flex-row items-center w-full p-2 bg-white rounded-lg shadow-md"
-              onPress={() => setIsClickedMetricSystem(!isClickedMetricSystem)}
-            >
-              <Text className="text-base text-gray-700 flex-1">
-                {selectedMetricSystem || "Select a metric"}
-              </Text>
-              <Ionicons name="chevron-down" size={20} color="gray" className="ml-2" />
-            </TouchableOpacity>
-            {isClickedMetricSystem && (
-              <View className="w-full p-2 mb-4 bg-white rounded-lg shadow-md">
-                {metricSystem.map((metric) => (
-                  <TouchableOpacity
-                    className="p-2"
-                    onPress={() => handleMetricSelect(metric)}
-                    key={metric.metric_system_id}
-                  >
-                    <Text className="text-base">{metric.metric_system_name}</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            )}
-          </View>
-
-          {/* Add Bid Button */}
-          <TouchableOpacity className="bg-[#00B251] p-4 rounded-lg flex items-center mt-4" onPress={() => setModalVisible(true)}>
+          {/* Edit Bid Button */}
+          <TouchableOpacity
+            className="bg-[#00B251] p-4 rounded-lg flex items-center mt-4"
+            onPress={() => setModalVisible(true)}
+          >
             <Text className="text-white text-base">Edit Bid</Text>
           </TouchableOpacity>
-
-          <Modal
-            transparent={true}
-            visible={modalVisible}
-            animationType="slide"
-            onRequestClose={() => setModalVisible(false)}
-          >
-            <View className="flex-1 justify-center items-center bg-[rgba(0,0,0,0.5)] bg-black/50">
-              <View className="w-4/5 bg-white p-6 rounded-lg">
-                <Text className="text-lg font-semibold text-gray-800 mb-4">
-                  Confirm Edit Bid
-                </Text>
-                <Text className="text-gray-600 mb-6">
-                  Do you really want to Edit this bid?
-                </Text>
-                <View className="flex-row justify-end space-x-4">
-                  <TouchableOpacity
-                    className="px-4 py-2 rounded-md bg-gray-200"
-                    onPress={() => setModalVisible(false)}
-                  >
-                    <Text className="text-gray-700 text-base">No</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    className="px-4 py-2 rounded-md bg-[#00B251]"
-                    onPress={() => {
-                      setModalVisible(false);
-                      handleEditBid();
-                    }}
-                  >
-                    <Text className="text-white text-base">Yes</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </View>
-          </Modal>
-
         </View>
       </ScrollView>
+
+      {/* Image Selection Modal */}
+      <Modal
+        visible={modalVisible1}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setModalVisible1(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black/50">
+          <View className="bg-white p-6 rounded-lg w-[80%]">
+            <Text className="text-lg font-semibold mb-4 text-center">
+              Select Image Source
+            </Text>
+
+            <TouchableOpacity
+              className="bg-[#00B251] p-3 rounded-lg mb-3"
+              onPress={() => {
+                setModalVisible1(false);
+                selectImage('gallery');
+              }}
+            >
+              <Text className="text-white text-center font-semibold">
+                Choose from Gallery
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              className="bg-[#00B251] p-3 rounded-lg mb-3"
+              onPress={() => {
+                setModalVisible1(false);
+                selectImage('camera');
+              }}
+            >
+              <Text className="text-white text-center font-semibold">
+                Take a Photo
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              className="bg-gray-400 p-3 rounded-lg"
+              onPress={() => setModalVisible1(false)}
+            >
+              <Text className="text-white text-center font-semibold">Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Selection Modal */}
+      <Modal
+        visible={modalVisible2}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setModalVisible2(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black/50">
+          <View className="w-11/12 bg-white rounded-lg" style={{ maxHeight: '80%' }}>
+            <View className="p-4 border-b border-gray-200">
+              <TextInput
+                className="w-full p-2 bg-gray-100 rounded-lg"
+                placeholder="Search..."
+                value={searchText}
+                onChangeText={setSearchText}
+              />
+            </View>
+
+            <ScrollView>
+              {filteredItems.map((item) => (
+                <TouchableOpacity
+                  key={item.value}
+                  className="p-3 mx-4 border-b border-gray-200"
+                  onPress={() => handleModalItemSelect(item)}
+                >
+                  <Text className="text-base">{item.label}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+
+            <TouchableOpacity
+              onPress={() => setModalVisible2(false)}
+              className="p-4 border-t border-gray-200"
+            >
+              <Text className="text-center text-gray-600 font-semibold">Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Confirmation Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black/50">
+          <View className="bg-white p-6 rounded-lg w-[80%]">
+            <Text className="text-lg mb-4 text-center">
+              Are you sure you want to update this bid?
+            </Text>
+            <View className="flex-row justify-center space-x-4">
+              <TouchableOpacity
+                className="bg-[#00B251] px-8 py-3 rounded-lg"
+                onPress={() => {
+                  setModalVisible(false);
+                  handleEditBid();
+                }}
+              >
+                <Text className="text-white text-center font-semibold">Yes</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                className="bg-gray-400 px-8 py-3 rounded-lg"
+                onPress={() => setModalVisible(false)}
+              >
+                <Text className="text-white text-center font-semibold">No</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
       {/* Alert Modal */}
       <Modal
         animationType="fade"
         transparent={true}
         visible={alertVisible}
-        onRequestClose={() => setAlertVisible(false)}
+        onRequestClose={() => {
+          setAlertVisible(false);
+          if (alertMessage === "Bidding updated successfully!") {
+            navigation.navigate("Bidding");
+          }
+        }}
       >
-        <View className="flex-1 justify-center items-center bg-black/50 bg-opacity-50">
-          <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
-            <Text className="text-lg font-semibold text-gray-900 mb-4">{alertMessage}</Text>
+        <View className="flex-1 justify-center items-center bg-black/50">
+          <View className="bg-white p-6 rounded-lg w-[80%]">
+            <Text className="text-lg mb-4 text-center">{alertMessage}</Text>
             <TouchableOpacity
-              className="mt-4 p-2 bg-[#00B251] rounded-lg flex-row justify-center items-center"
-              onPress={() => setAlertVisible(false)}
+              className="bg-[#00B251] p-3 rounded-lg"
+              onPress={() => {
+                setAlertVisible(false);
+                if (alertMessage === "Bidding updated successfully!") {
+                  navigation.navigate("Bidding");
+                }
+              }}
             >
-              <Ionicons name="checkmark-circle-outline" size={24} color="white" />
-              <Text className="text-lg text-white ml-2">OK</Text>
+              <Text className="text-white text-center font-semibold">OK</Text>
             </TouchableOpacity>
           </View>
         </View>
       </Modal>
+
     </SafeAreaView>
   );
 }

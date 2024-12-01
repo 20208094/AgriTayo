@@ -262,34 +262,45 @@ function AddCropVarietyScreen({ navigation, route }) {
   );
 
   const handleAddCropVariety = async () => {
-    if (!validateFields()) return;
-    if (varietyList && varietyList.includes(cropVarietyName)) {
-      Alert.alert(
-        "",
-        "The variety name is already included in the app. Please try again."
-      );
+    // Validate fields first
+    if (!validateFields()) {
       return;
     }
 
-    const formData = new FormData();
-    formData.append("crop_variety_name", cropVarietyName);
-    formData.append("crop_variety_description", cropVarietyDescription);
-    if (cropImage) {
-      formData.append("image", {
-        uri: cropImage,
-        name: "shop.jpg",
-        type: "image/jpeg",
-      });
+    // Add validation for category and subcategory selection
+    if (!selectedCategoryId || !selectedSubCategoryId) {
+      console.log("Selected Category ID:", selectedCategoryId);
+      console.log("Selected SubCategory ID:", selectedSubCategoryId);
+      setAlertMessage("Please ensure both category and subcategory are selected.");
+      setAlertVisible(true);
+      return;
     }
-    formData.append("crop_category_id", parseInt(selectedCategoryId));
-    formData.append("crop_sub_category_id", parseInt(selectedSubCategoryId));
 
     try {
-      setLoading(true);
-      console.log("Submitting crop variety data: ", formData);
+      // Create FormData object
+      const formData = new FormData();
+      formData.append("crop_variety_name", cropVarietyName);
+      formData.append("crop_variety_description", cropVarietyDescription);
+      formData.append("crop_category_id", selectedCategoryId.toString());
+      formData.append("crop_sub_category_id", selectedSubCategoryId.toString());
+      
+      if (cropImage) {
+        formData.append("varietyImage", {
+          uri: cropImage,
+          name: "variety_image.jpg",
+          type: "image/jpeg",
+        });
+      }
+
+      console.log("Sending data:", {
+        crop_variety_name: cropVarietyName,
+        crop_variety_description: cropVarietyDescription,
+        crop_category_id: selectedCategoryId,
+        crop_sub_category_id: selectedSubCategoryId,
+      });
 
       const response = await fetch(
-        `${REACT_NATIVE_API_BASE_URL}/api/crop_varieties`,
+        `${REACT_NATIVE_API_BASE_URL}/api/crop_varieties_app`,
         {
           method: "POST",
           headers: {
@@ -300,28 +311,56 @@ function AddCropVarietyScreen({ navigation, route }) {
       );
 
       const responseText = await response.text();
-      console.log("Response Text: ", responseText);
+      console.log("Response Text:", responseText);
 
       if (response.ok) {
         const responseData = JSON.parse(responseText);
-        console.log("Response data: ", responseData);
+        console.log("Response data:", responseData);
+
+        const newVariety = {
+          crop_variety_id: responseData.varietyId,
+          crop_variety_name: cropVarietyName,
+          crop_sub_category_id: selectedSubCategoryId,
+          crop_category_id: selectedCategoryId,
+        };
+
+        // Navigate back with the new variety data
+        navigation.navigate("Add Product", {
+          selectedCategory: selectedCategory,
+          selectedCategoryId: selectedCategoryId,
+          selectedSubCategory: selectedSubCategory,
+          selectedSubCategoryId: selectedSubCategoryId,
+          newVariety: newVariety
+        });
+
         setAlertMessage("Crop variety added successfully!");
         setAlertVisible(true);
-        navigation.navigate("Add Product");
       } else {
-        console.error("Error adding crop variety: ", responseText);
+        console.error("Error adding crop variety:", responseText);
         setAlertMessage("Failed to add crop variety. Please try again.");
         setAlertVisible(true);
       }
     } catch (error) {
+      console.error("Error adding crop variety:", error);
       setAlertMessage(
         `An error occurred while adding the crop variety: ${error.message}`
       );
       setAlertVisible(true);
-    } finally {
-      setLoading(false);
     }
   };
+
+  // Add this useEffect to handle incoming category and subcategory data
+  useEffect(() => {
+    if (route.params?.selectedCategory && route.params?.selectedCategoryId) {
+      setSelectedCategory(route.params.selectedCategory);
+      setSelectedCategoryId(route.params.selectedCategoryId);
+    }
+
+    if (route.params?.selectedSubCategory && route.params?.selectedSubCategoryId) {
+      setSelectedSubCategory(route.params.selectedSubCategory);
+      setSelectedSubCategoryId(route.params.selectedSubCategoryId);
+    }
+  }, [route.params]);
 
   return (
     <SafeAreaView className="bg-gray-100 flex-1">
