@@ -220,7 +220,7 @@ function ProfileScreen({ fetchUserSession }) {
               </View>
               <Icon name="chevron-right" type="font-awesome" size={20} color="gray" />
             </TouchableOpacity>
-            {shopData ? (
+            {!shopData ? (
               <TouchableOpacity className="flex-row items-center justify-between" onPress={() => navigation.navigate("Welcome To Agritayo!", { userData })}>
                 <View className="flex-row items-center">
                   <Icon name="plus" type="font-awesome" size={20} color="#00B251" />
