@@ -257,8 +257,9 @@ function Profile({ onProfileUpdate }) {
                                             className="profile-input"
                                         />
                                     </div>
-                                    <div className=''>
-                                        <button onClick={() => navigate('/admin/changePassword', { state: { userId } })}>
+                                    <div className='profile-input-group'>
+                                    <label className="profile-label">Change Password</label>
+                                        <button onClick={() => navigate('/admin/changePassword', { state: { userId } })} className='bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors profile-input'>
                                             Change your password
                                         </button>
                                     </div>
