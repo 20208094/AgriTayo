@@ -77,6 +77,7 @@ function MarketAnalyticScreen({ route }) {
         return {
           ...orderProd,
           crop: cropData ? cropData : null,
+          var_id: cropData ? cropData.crop_variety_id : null,
         };
       });
       // combine orderProducts inside the orders table
@@ -96,7 +97,7 @@ function MarketAnalyticScreen({ route }) {
             total_weight: product.order_prod_total_weight,
             total_price: product.order_prod_total_price,
             order_date: order.order_date,
-            variety_id: product.crop.crop_variety_id,
+            variety_id: product.var_id,
           }))
           : []
       );
@@ -353,6 +354,8 @@ function MarketAnalyticScreen({ route }) {
     let overallAverage = parseFloat(calculateAverage(aggregatedAverage)).toFixed(2);
     let overallHighest = parseFloat(calculateMax(aggregatedHighest)).toFixed(2);
     let overallLowest = parseFloat(calculateMin(aggregatedLowest)).toFixed(2);
+
+    let printAverage, printHighest, printLowest;
     // Replace nulls with calculated values, formatted to two decimals
     printAverage = aggregatedAverage.map(val => val === null ? overallAverage : parseFloat(val).toFixed(2));
     printHighest = aggregatedHighest.map(val => val === null ? overallHighest : parseFloat(val).toFixed(2));
@@ -361,9 +364,7 @@ function MarketAnalyticScreen({ route }) {
       dates: aggregatedDates, average: aggregatedAverage, highest: aggregatedHighest, lowest: aggregatedLowest, averagep: printAverage, highestp: printHighest, lowestp: printLowest, sold: aggregatedSold,
     };
   };
-  if (loading) {
-    return <LoadingAnimation />
-  }
+
   const renderAnalyticsChart = (itemId) => {
     const itemData = getDataForItem(itemId, selectedFilter);
     if (itemData.dates.length === 0) {
@@ -458,6 +459,10 @@ function MarketAnalyticScreen({ route }) {
       </View>
     );
   };
+
+  if (loading) {
+    return <LoadingAnimation />
+  }
 
   return (
     <Tab.Navigator

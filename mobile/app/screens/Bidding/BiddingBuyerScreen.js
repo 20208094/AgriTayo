@@ -184,7 +184,7 @@ function BiddingBuyerScreen({ navigation }) {
           />
         ))}
       </ScrollView>
-      
+
     </SafeAreaView>
   );
 }
@@ -203,36 +203,55 @@ const BiddingCard = ({ data, scale, opacity, navigation }) => {
     >
       <TouchableOpacity
         onPress={() => navigation.navigate("Bidding Details", { data })}
-        className="mt-6 mx-auto bg-white rounded-[20px] border-[3px] border-[#737373] shadow-2xl shadow-black"
+        className="mt-6 mx-auto bg-white rounded-2xl border-2 border-green-600 shadow-2xl shadow-black"
       >
-        <View className="rounded-t-[15px] overflow-hidden">
+        <View className="rounded-t-xl overflow-hidden">
           <Image
             source={{ uri: data.bid_image }}
             className="w-full"
             style={{
-              height: screenHeight * 0.3,
-              width: screenWidth * 0.6,
+              height: screenHeight * 0.25,
             }}
             resizeMode="cover"
           />
         </View>
-        <View className="p-4">
-          <Text className="text-[20px] font-bold text-gray-800 mb-2 text-center">
+        <View className="pt-1 pb-3 px-4">
+          {/* NAME */}
+          <Text className="text-2xl font-bold text-gray-800 text-center ">
             {data.bid_name}
           </Text>
-          <TouchableOpacity onPress={() => navigation.navigate("Seller Shop", { shop_id: data.shops.shop_id })}>
-            <Text className="text-sm text-gray-500 mb-3 text-center">
-              Sold by: {data.shops.shop_name}
-            </Text>
+          {/* PRESSABLE SHOP */}
+          <TouchableOpacity
+            className="flex-row items-center justify-center border-2 border-green-400 rounded-md my-1 p-1 px-2"
+            onPress={() => navigation.navigate("Seller Shop", { shop_id: data.shops.shop_id })}
+          >
+            <View className="w-10 h-10 rounded-full overflow-hidden border border-gray-300">
+              <Image source={data.shops.shop_image_url ? { uri: data.shops.shop_image_url } : placeholderimg} className="w-full h-full" />
+            </View>
+            <Text className="text-base text-center ml-2 font-semibold text-gray-700">{data.shops.shop_name}</Text>
           </TouchableOpacity>
-          <Text className="text-lg text-green-600 mb-1 text-center">
-            Current Highest Bid: ₱{data.bid_current_highest}
+          {/* OTHER INFORMATIONS */}
+          <View className="flex-row items-center">
+            <Text className="text-sm text-green-700 ">
+              Current Highest Bid:
+            </Text>
+            <Text className="text-base text-gray-700 ml-1">
+              ₱{parseFloat(data.bid_current_highest).toFixed(2)}
+            </Text>
+          </View>
+          <View className="flex-row items-center">
+            <Text className="text-sm text-green-700">
+              Number of Bids:
+            </Text>
+            <Text className="text-base text-gray-700 ml-1">
+              {data.number_of_bids} Bids
+            </Text>
+          </View>
+          <Text className="text-sm text-green-700">
+            Ends On:
           </Text>
-          <Text className="text-sm text-gray-500 mb-1 text-center">
-            Number of Bids: {data.number_of_bids}
-          </Text>
-          <Text className="text-sm text-gray-500 mb-1 text-center">
-            Ends on: {new Date(data.end_date).toLocaleDateString('en-US', {
+          <Text className="text-gray-700 text-center text-base">
+            {new Date(data.end_date).toLocaleDateString('en-US', {
               year: 'numeric',
               month: 'long',
               day: 'numeric',
@@ -240,7 +259,14 @@ const BiddingCard = ({ data, scale, opacity, navigation }) => {
               minute: '2-digit'
             })}
           </Text>
-          <Countdown endDate={data.end_date} />
+          <View className="flex-col border border-white">
+            <Text className="text-sm text-green-700">
+              Time Left:
+            </Text>
+            <View className="text-base text-gray-700 items-center ml-1">
+              <Countdown endDate={data.end_date} />
+            </View>
+          </View>
         </View>
       </TouchableOpacity>
     </Animated.View>
@@ -281,7 +307,7 @@ const Countdown = ({ endDate }) => {
   }, [endDate]);
 
   return (
-    <View className="mt-2">
+    <View className="">
       {timeLeft.expired ? (
         <Text className="text-base text-red-600">Bid Expired</Text>
       ) : (
@@ -327,6 +353,9 @@ const CategorySection = ({ data, category, biddingData, navigation }) => {
         keyExtractor={(item) => item.bid_id.toString()}
         horizontal
         showsHorizontalScrollIndicator={false}
+        contentContainerStyle={{
+          paddingHorizontal: 16, // Add padding on both sides
+        }}
         renderItem={({ item }) => (
           <TouchableOpacity
             onPress={() =>
@@ -341,30 +370,57 @@ const CategorySection = ({ data, category, biddingData, navigation }) => {
               resizeMode="cover"
             />
             <View className="p-4">
-              <Text className="text-[20px] font-bold text-gray-800 mb-2 text-center">
+              {/* NAME */}
+              <Text className="text-2xl font-bold text-gray-800 text-center ">
                 {item.bid_name}
               </Text>
-              <TouchableOpacity onPress={() => navigation.navigate("Seller Shop", { shop_id: item.shops.shop_id })}>
-                <Text className="text-sm text-gray-500 mb-3 text-center">
-                  Sold by: {item.shops.shop_name}
-                </Text>
+              {/* PRESSABLE SHOP */}
+              <TouchableOpacity
+                className="flex-row items-center justify-center border-2 border-green-400 rounded-md my-1 p-1 px-2"
+                onPress={() => navigation.navigate("Seller Shop", { shop_id: item.shops.shop_id })}
+              >
+                <View className="w-10 h-10 rounded-full overflow-hidden border border-gray-300">
+                  <Image source={item.shops.shop_image_url ? { uri: item.shops.shop_image_url } : placeholderimg} className="w-full h-full" />
+                </View>
+                <Text className="text-base text-center ml-2 font-semibold text-gray-700">{item.shops.shop_name}</Text>
               </TouchableOpacity>
-              <Text className="text-lg text-green-600 mb-1 text-center">
-                Current Highest Bid: ₱{item.bid_current_highest}
+              {/* OTHER INFORMATIONS */}
+              <View className="flex-row items-center">
+                <Text className="text-sm text-green-700 ">
+                  Current Highest Bid:
+                </Text>
+                <Text className="text-base text-gray-700 ml-1">
+                  ₱{parseFloat(item.bid_current_highest).toFixed(2)}
+                </Text>
+              </View>
+              <View className="flex-row items-center">
+                <Text className="text-sm text-green-700">
+                  Number of Bids:
+                </Text>
+                <Text className="text-base text-gray-700 ml-1">
+                  {item.number_of_bids} Bids
+                </Text>
+              </View>
+              <Text className="text-sm text-green-700">
+                Ends On:
               </Text>
-              <Text className="text-sm text-gray-500 mb-1 text-center">
-                Number of Bids: {item.number_of_bids}
-              </Text>
-              <Text className="text-sm text-gray-500 mb-1 text-center">
-                Ends on: {new Date(item.end_date).toLocaleDateString('en-US', {
+              <Text className="text-gray-700 text-center text-base">
+                {new Date(item.end_date).toLocaleDateString('en-US', {
                   year: 'numeric',
-                  month: 'long', 
+                  month: 'long',
                   day: 'numeric',
                   hour: '2-digit',
                   minute: '2-digit'
                 })}
               </Text>
-              <Countdown endDate={item.end_date} />
+              <View className="flex-col border border-white">
+                <Text className="text-sm text-green-700">
+                  Time Left:
+                </Text>
+                <View className="text-base text-gray-700 items-center ml-1">
+                  <Countdown endDate={item.end_date} />
+                </View>
+              </View>
             </View>
           </TouchableOpacity>
         )}

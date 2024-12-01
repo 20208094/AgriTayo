@@ -198,7 +198,7 @@ function CheckOutScreen() {
                   </Text>
                 </View>
                 <Text className="text-sm ml-8 mt-1 text-orange-600 italic">
-                  *Delivery fee will vary depending on the distance
+                  *The delivery fee will vary based on the distance.
                 </Text>
               </View>
               {selectedShippingMethod === "Delivery" && (
@@ -242,7 +242,7 @@ function CheckOutScreen() {
                 </Text>
               </View>
               <Text className="text-sm ml-8 mt-1 text-orange-600 italic">
-                *Shipping fee will be paid at the pickup area
+                *The pickup fee will be paid at the pickup area.
               </Text>
             </View>
             {selectedShippingMethod === "Pickup" && (

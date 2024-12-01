@@ -71,9 +71,9 @@ const ShippingScreen = ({ orders, orderProducts }) => {
   const submitReturnReason = () => {
     setReturnDetailsVisible(false);
     if (selectedOrder) {
-      let updatedOrder = { ...selectedOrder, "status_id": 5, "return_reason": returnReason };
+      let updatedOrder = { ...selectedOrder, "status_id": 6, "return_reason": returnReason };
       handleUpdateOrder(updatedOrder, () => {
-        navigation.navigate("Orders", { screen: "For Return" });
+        navigation.navigate("Orders", { screen: "Returned" });
       });
     } else {
       console.error("selectedOrder is undefined");
@@ -90,6 +90,8 @@ const ShippingScreen = ({ orders, orderProducts }) => {
   }
 
   const handleUpdateOrder = async (order, onSuccess) => {
+    const currentDate = new Date(Date.now()).toISOString();
+
     if (order) {
       const bodyData = {
         status_id: order.status_id,
@@ -100,8 +102,8 @@ const ShippingScreen = ({ orders, orderProducts }) => {
         return_reason: order.return_reason,
         reject_date: order.reject_date,
         order_received_date: order.order_received_date,
-        return_date: order.return_date,
-        completed_date: order.completed_date,
+        return_date: currentDate,
+        completed_date: currentDate,
       };
 
       try {
@@ -162,18 +164,18 @@ const ShippingScreen = ({ orders, orderProducts }) => {
             {/* Buttons for confirming or returning item */}
             <View className="mt-4">
               <Text className="text-md text-gray-800">Have you received your order?</Text>
-              <View className="flex-row mt-2">
+              <View className="flex-col mt-2">
                 <TouchableOpacity
-                  className="bg-[#00B251] p-2 rounded-lg mr-2 w-1/2 items-center"
+                  className="bg-[#00B251] p-2 rounded-lg items-center mb-2"
                   onPress={() => handleConfirmReceipt(shippingOrder)}
                 >
-                  <Text className="text-white">Yes</Text>
+                  <Text className="text-white text-center font-bold">Yes, I have received my order.</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  className="bg-red-600 p-2 rounded-lg w-1/2 items-center"
+                  className="bg-red-600 p-2 rounded-lg items-center"
                   onPress={() => handleReturnItem(shippingOrder)}
                 >
-                  <Text className="text-white">Return Item</Text>
+                  <Text className="text-white text-center font-bold">No, I have returned my order.</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -218,8 +220,8 @@ const ShippingScreen = ({ orders, orderProducts }) => {
       >
         <View className="flex-1 justify-center items-center bg-black/50">
           <View className="bg-white p-6 rounded-lg">
-            <Text className="text-lg font-semibold mb-4">Confirm Receipt</Text>
-            <Text>Have you received your odrer?</Text>
+            <Text className="text-lg font-semibold mb-4">Have you received your order?</Text>
+            <Text>You will proceed to rating after confirming.</Text>
             <View className="flex-row justify-end mt-4">
               <TouchableOpacity
                 className="bg-green-500 p-2 rounded-lg mr-2"
@@ -247,13 +249,15 @@ const ShippingScreen = ({ orders, orderProducts }) => {
       >
         <View className="flex-1 justify-center items-center bg-black/50">
           <View className="bg-white p-6 rounded-lg">
-            <Text className="text-lg font-semibold mb-4">Return Item</Text>
-            <Text>Why do you want to return the item?</Text>
+            <Text className="text-lg font-semibold mb-4">Are you sure you returned your order?</Text>
+            <Text>Why did you return the item?</Text>
             <TextInput
-              className="border border-gray-300 p-2 rounded-lg mt-2"
+              className="border border-gray-300 p-2 rounded-lg mt-2 h-fit max-w-[80%] min-h-[90px]"
               placeholder="Enter reason for return"
               value={returnReason}
               onChangeText={setReturnReason}
+              multiline={true}
+              textAlignVertical="top"
             />
             <View className="flex-row justify-end mt-4">
               <TouchableOpacity

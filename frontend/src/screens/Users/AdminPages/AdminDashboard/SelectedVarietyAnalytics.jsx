@@ -11,6 +11,7 @@ const SelectedVarietyAnalyticsPage = () => {
   const [varietyMarketData, setVarietyMarketData] = useState([]);
   const [selectedFilter, setSelectedFilter] = useState('7 Days');
   const [modalVisible, setModalVisible] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const fetchData = useCallback(async () => {
     const [cropsResponse, categoryResponse, subcategoryResponse, varietyResponse, ordersResponse, orderProductsResponse] = await Promise.all([
@@ -37,6 +38,7 @@ const SelectedVarietyAnalyticsPage = () => {
       return {
         ...orderProd,
         crop: cropData ? cropData : null,
+        var_id: cropData ? cropData.crop_variety_id : null,
       };
     });
     // combine orderProducts inside the orders table
@@ -56,7 +58,7 @@ const SelectedVarietyAnalyticsPage = () => {
           total_weight: product.order_prod_total_weight,
           total_price: product.order_prod_total_price,
           order_date: order.order_date,
-          variety_id: product.crop.crop_variety_id,
+          variety_id: product.var_id,
         }))
         : []
     );
@@ -133,6 +135,9 @@ const SelectedVarietyAnalyticsPage = () => {
 
     setVarietyData(combinedProductDetails);
     setVarietyMarketData(varietiesFiltered[0]);
+    if (combinedProductDetails && varietiesFiltered[0]) {
+      setLoading(false)
+    }
   }, []);
 
   useEffect(() => {
@@ -183,13 +188,13 @@ const SelectedVarietyAnalyticsPage = () => {
       average: values.sumPricePerWeight / values.count,
     }));
   };
-  
+
   const filterData = useCallback(() => {
     const now = new Date();
     let filteredData = varietyData;
-  
+
     now.setHours(0, 0, 0, 0);
-  
+
     // Function to create dummy data for missing dates
     const createDummyData = (count, period = 'day') => {
       const dummyData = [];
@@ -229,7 +234,7 @@ const SelectedVarietyAnalyticsPage = () => {
       }
       return dummyData;
     };
-  
+
     // Filter data based on selected filter
     switch (selectedFilter) {
       case '7 Days': {
@@ -244,7 +249,7 @@ const SelectedVarietyAnalyticsPage = () => {
         });
         break;
       }
-  
+
       case '14 Days': {
         const realData = varietyData.filter(data =>
           new Date(data.order_date) >= new Date(new Date().setDate(now.getDate() - 14))
@@ -257,7 +262,7 @@ const SelectedVarietyAnalyticsPage = () => {
         });
         break;
       }
-  
+
       case '6 Months': {
         const realData = groupByMonth(
           varietyData.filter(data =>
@@ -270,7 +275,7 @@ const SelectedVarietyAnalyticsPage = () => {
         });
         break;
       }
-  
+
       case '12 Months': {
         const realData = groupByMonth(
           varietyData.filter(data =>
@@ -283,7 +288,7 @@ const SelectedVarietyAnalyticsPage = () => {
         });
         break;
       }
-  
+
       case 'Yearly': {
         const realData = groupByYear(
           varietyData.filter(data =>
@@ -296,41 +301,40 @@ const SelectedVarietyAnalyticsPage = () => {
         });
         break;
       }
-  
+
       default:
         break;
     }
-  
+
     return filteredData;
   }, [selectedFilter, varietyData]);
-  
+
 
   const renderAnalyticsChart = () => {
     const now = new Date();
     const filteredData = filterData();
-    console.log("Filtered Data:", filteredData);
-    
+
     let labels = filteredData.map(item => item.label || new Date(item.order_date).toISOString().split('T')[0]);
-  
+
     // Modify labels based on selected filter
     if (selectedFilter === '7 Days') {
       labels = labels.map((label, index) => {
         const date = new Date(now);  // Start with the current date
         date.setDate(now.getDate() - (6 - index));  // Go back for the last 7 days
-  
+
         // Manually adjust to GMT+8 by adding 8 hours to the date (in milliseconds)
-        date.setHours(date.getHours() + 8);
-  
+        // date.setHours(date.getHours() + 8);
+
         // If it's the first label (for Yesterday)
         if (index === 5) {
           return "Yesterday";
         }
-  
+
         // If it's the last label (for Today)
         if (index === 6) {
           return "Today";
         }
-  
+
         // For other days, format the date to display the day of the week (Monday, Tuesday, etc.)
         const options = { weekday: 'long' };
         return new Intl.DateTimeFormat('en-US', options).format(date);
@@ -339,46 +343,46 @@ const SelectedVarietyAnalyticsPage = () => {
       labels = labels.map((label, index) => {
         const date = new Date(now);  // Start with the current date
         date.setDate(now.getDate() - (13 - index));  // Go back for the last 14 days (13 - index)
-  
+
         // Manually adjust to GMT+8 by adding 8 hours to the date (in milliseconds)
         date.setHours(date.getHours() + 8);
-      
+
         // Format date to display the day of the week and date (e.g., "Monday-28")
         const options = { weekday: 'long', day: 'numeric' };
         const weekday = new Intl.DateTimeFormat('en-US', options).format(date);
 
-        
+
         // If it's the first label (for Yesterday)
         if (index === 12) {
           return "Yesterday";
         }
-  
+
         // If it's the last label (for Today)
         if (index === 13) {
           return "Today";
         }
-        
+
         // Format label as "Weekday-Day" (e.g., "Monday-28")
         return weekday.replace(',', '');  // Remove comma from weekday (e.g., "Monday, 28" -> "Monday-28")
       });
-      
+
     } else if (selectedFilter === '6 Months' || selectedFilter === '12 Months') {
       labels = labels.map(label => {
         const date = new Date(label);  // Convert label to date object
-        
+
         // Manually adjust to GMT+8 by adding 8 hours to the date (in milliseconds)
         date.setHours(date.getHours() + 8);
-      
+
         // Format date as "Month Year" (e.g., November 2024)
         const options = { year: 'numeric', month: 'long' };
         return new Intl.DateTimeFormat('en-US', options).format(date);
       });
     }
-  
+
     const averages = filteredData.map(item => item.average);
     const highs = filteredData.map(item => item.highest);
     const lows = filteredData.map(item => item.lowest);
-  
+
     const data = {
       labels,
       datasets: [
@@ -402,7 +406,7 @@ const SelectedVarietyAnalyticsPage = () => {
         },
       ],
     };
-  
+
     const options = {
       responsive: true,
       scales: {
@@ -411,10 +415,18 @@ const SelectedVarietyAnalyticsPage = () => {
         },
       },
     };
-  
+
     return <Line data={data} options={options} />;
   };
-  
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center space-x-2 h-full">
+        <div className="w-8 h-8 border-4 border-t-transparent border-blue-500 border-solid rounded-full animate-spin"></div>
+        <span className="text-gray-500">Loading...</span>
+      </div>
+    )
+  }
 
   return (
     <div className="bg-gray-100 p-4 pt-8">
@@ -423,20 +435,33 @@ const SelectedVarietyAnalyticsPage = () => {
         {/* Current Available Listings */}
         <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center">
           <h5 className="text-xl font-bold text-green-500 mb-4">Current Available Listings</h5>
-          <p className="text-2xl font-bold text-green-700">30 Listings</p>
+          <p className="text-2xl font-bold text-green-700">{varietyMarketData.availableListing} Listings</p>
         </div>
 
         {/* Current Highest Price/Kilo */}
         <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center">
           <h5 className="text-xl font-bold text-green-500 mb-4">Current Highest Price/Kilo</h5>
-          <p className="text-2xl font-bold text-green-700">₱70/kilo</p>
+          <p className="text-xl font-bold text-green-700">
+            {
+              isNaN(parseFloat(varietyMarketData.highestListing.crop_price)) || !varietyMarketData.highestListing.crop_price
+                ? 'No available data'
+                : `₱${parseFloat(varietyMarketData.highestListing.crop_price).toFixed(2)}/kilo`
+            }
+          </p>
         </div>
 
         {/* Current Lowest Price/Kilo */}
         <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center">
           <h5 className="text-xl font-bold text-green-500 mb-4">Current Lowest Price/Kilo</h5>
-          <p className="text-2xl font-bold text-green-700">₱50/kilo</p>
+          <p className="text-xl font-bold text-green-700">
+            {
+              isNaN(parseFloat(varietyMarketData.lowestListing.crop_price)) || !varietyMarketData.lowestListing.crop_price
+                ? 'No available data'
+                : `₱${parseFloat(varietyMarketData.lowestListing.crop_price).toFixed(2)}/kilo`
+            }
+          </p>
         </div>
+
       </div>
 
       <div className="col-span-3 row-span-2 bg-white p-4 rounded-lg shadow-md max-w-sm md:max-w-3xl lg:max-w-6xl mx-auto border-2 mt-4">
