@@ -82,7 +82,7 @@ function LoginScreen({ navigation, fetchUserSession }) {
   };
 
   const openConfirmationAlert = () => {
-    setAlertMessage("Is this really your phone number?");
+    setAlertMessage(`Is this really your phone number?\n${phoneNumber}`);
     setAlertVisible(true);
   };
 
@@ -369,7 +369,7 @@ function LoginScreen({ navigation, fetchUserSession }) {
       >
         <View className="flex-1 justify-center items-center bg-black/50 bg-opacity-50">
           <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
-            <Text className="text-lg font-semibold text-gray-900 mb-4">
+            <Text className="text-lg font-semibold text-gray-900 mb-4 text-center">
               {alertMessage}
             </Text>
             <View className="flex-row justify-between mt-4">

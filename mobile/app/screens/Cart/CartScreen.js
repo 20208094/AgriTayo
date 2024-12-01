@@ -39,6 +39,7 @@ function CartScreen() {
 
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
+  const [cartTotal, setCartTotal] = useState(0);
 
   useEffect(() => {
     if (userData) {
@@ -248,6 +249,18 @@ function CartScreen() {
     }, [userId])
   );
 
+  const calculateTotal = (shops) => {
+    const total = shops.reduce((shopTotal, shop) => {
+      return shopTotal + shop.items.reduce((itemTotal, item) => {
+        if (item.selected) {
+          return itemTotal + (item.crop_price * item.cart_total_quantity);
+        }
+        return itemTotal;
+      }, 0);
+    }, 0);
+    setCartTotal(total);
+  };
+
   const toggleShopSelection = (shopIndex) => {
     const updatedShops = shops.map((shop, sIndex) => {
       if (sIndex === shopIndex) {
@@ -260,10 +273,11 @@ function CartScreen() {
       }
       return {
         ...shop,
-        items: shop.items.map((itm) => ({ ...itm, selected: false })), // Deselect all items from other shops
+        items: shop.items.map((itm) => ({ ...itm, selected: false })),
       };
     });
     setShops(updatedShops);
+    calculateTotal(updatedShops);
   };
 
   const updateCartOnBackend = async (cart, newQuantity) => {
@@ -320,9 +334,22 @@ function CartScreen() {
   };
 
   const updateQuantity = async () => {
-    // setLoading(true);
     if (selectedItem) {
-      const updatedQuantity = newQuantity;
+      // Check if new quantity exceeds stock
+      if (parseInt(newQuantity) > selectedItem.crop_quantity) {
+        setAlertMessage(`Cannot exceed available stock (${selectedItem.crop_quantity} ${selectedItem.metric_system_symbol})`);
+        setAlertVisible(true);
+        return;
+      }
+
+      // Check if new quantity is valid
+      if (parseInt(newQuantity) <= 0) {
+        setAlertMessage("Quantity must be greater than 0");
+        setAlertVisible(true);
+        return;
+      }
+
+      const updatedQuantity = parseInt(newQuantity);
 
       // Update the local state
       const updatedShops = shops.map((shop) => {
@@ -337,10 +364,9 @@ function CartScreen() {
         };
       });
       setShops(updatedShops);
+      calculateTotal(updatedShops);
       await updateCartOnBackend(selectedItem, updatedQuantity);
-      // initializeData();
       setModalVisible(false);
-      // setLoading(false);
     }
   };
 
@@ -370,10 +396,15 @@ function CartScreen() {
     };
 
     const incrementQuantity = async () => {
+      if (item.cart_total_quantity >= item.crop_quantity) {
+        setAlertMessage(`Cannot exceed available stock (${item.crop_quantity} ${item.metric_system_symbol})`);
+        setAlertVisible(true);
+        return;
+      }
+      
       const updatedQuantity = item.cart_total_quantity + 1;
       const updatedTotalPrice = item.crop_price * updatedQuantity;
 
-      // Update state
       const updatedShops = shops.map(cartItem => {
         if (cartItem.cart_id === item.cart_id) {
           return { ...cartItem, cart_total_quantity: updatedQuantity, cart_total_price: updatedTotalPrice };
@@ -382,9 +413,8 @@ function CartScreen() {
       });
 
       setShops(updatedShops);
+      calculateTotal(updatedShops);
       await updateCartOnBackend(item, updatedQuantity);
-
-      // Reload data after successful update
       initializeData();
     };
 
@@ -415,16 +445,11 @@ function CartScreen() {
         if (sIndex === shopIndex) {
           const updatedItems = shop.items.map((itm, iIndex) => {
             if (iIndex === itemIndex) {
-              // Toggle the selected state of the current item
               const newSelectedState = !itm.selected;
-
-              // If deselecting the item, clear the selection for other shops
               if (!newSelectedState) {
-                setSelectedShopIndex(null); // Clear selected shop index
-                return { ...itm, selected: false }; // Deselect the current item
+                setSelectedShopIndex(null);
+                return { ...itm, selected: false };
               }
-
-              // If selecting, maintain the selection state
               return { ...itm, selected: true };
             }
             return itm;
@@ -433,10 +458,11 @@ function CartScreen() {
         }
         return {
           ...shop,
-          items: shop.items.map((itm) => ({ ...itm, selected: false })), // Deselect all items from other shops
+          items: shop.items.map((itm) => ({ ...itm, selected: false })),
         };
       });
       setShops(updatedShops);
+      calculateTotal(updatedShops);
     };
 
 
@@ -595,6 +621,11 @@ function CartScreen() {
         keyExtractor={(shop) => (shop.shop_id ? shop.shop_id.toString() : "")}
         contentContainerStyle={{ paddingBottom: 80 }}
       />
+      <StyledView className="bg-white px-4 py-3 border-t border-gray-200">
+        <StyledText className="text-lg font-bold text-gray-800">
+          Total: ₱ {cartTotal.toFixed(2)}
+        </StyledText>
+      </StyledView>
       {/* Checkout button */}
       <TouchableOpacity
         onPress={handleCheckout}
@@ -610,18 +641,32 @@ function CartScreen() {
         <View className="flex-1 justify-center items-center bg-gray-600/50">
           <View className="bg-white rounded-lg p-4 w-80">
             <Text className="text-lg font-bold mb-4">Edit Quantity</Text>
+            <Text className="text-sm text-gray-600 mb-2">
+              Available Stock: {selectedItem?.crop_quantity} {selectedItem?.metric_system_symbol}
+            </Text>
             <TextInput
               keyboardType="numeric"
               value={newQuantity.toString()}
-              onChangeText={setNewQuantity}
+              onChangeText={(text) => {
+                // Only allow numeric input
+                if (/^\d*$/.test(text)) {
+                  setNewQuantity(text);
+                }
+              }}
               className="border border-gray-300 p-2 rounded mb-4"
               placeholder="Enter new quantity"
             />
             <View className="flex-row justify-between">
-              <TouchableOpacity onPress={() => setModalVisible(false)} className="bg-gray-300 py-2 px-4 rounded">
+              <TouchableOpacity 
+                onPress={() => setModalVisible(false)} 
+                className="bg-gray-300 py-2 px-4 rounded"
+              >
                 <Text className="text-lg">Cancel</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={updateQuantity} className="bg-green-500 py-2 px-4 rounded">
+              <TouchableOpacity 
+                onPress={updateQuantity} 
+                className="bg-green-500 py-2 px-4 rounded"
+              >
                 <Text className="text-lg text-white">Confirm</Text>
               </TouchableOpacity>
             </View>

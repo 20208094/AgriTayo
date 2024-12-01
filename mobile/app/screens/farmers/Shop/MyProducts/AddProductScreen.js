@@ -831,44 +831,46 @@ function AddProductScreen({ navigation, route }) {
             />
           </View>
 
-          {/* Crop Quantity */}
-          <View className="mb-4">
-            <Text className="text-lg font-semibold mb-1">
-              Crop Quantity <Text className="text-red-500">*</Text>
-              {errors.cropQuantity && (
-                <Text className="text-red-600 text-xs">{errors.cropQuantity}</Text>
-              )}
-            </Text>
-            <TextInput
-              className="w-full p-2 bg-white rounded-lg border border-gray-500 mx-2"
-              keyboardType="numeric"
-              placeholder="Enter the quantity of the crop"
-              value={cropQuantity}
-              onChangeText={(text) => {
-                // Only allow whole numbers
-                const numericText = text.replace(/[^0-9]/g, '');
-                setCropQuantity(numericText);
-                handleInputValidation("cropQuantity", numericText);
-              }}
-            />
-          </View>
-
-          {/* Metric System */}
-          <View className="mb-4">
-            <Text className="text-lg font-semibold mb-1">
-              Choose Metric <Text className="text-red-500">*</Text>
-              {errors.selectedMetricSystemId && (
-                <Text className="text-red-600 text-xs">{errors.selectedMetricSystemId}</Text>
-              )}
-            </Text>
-            <TouchableOpacity
-              onPress={() => handleOpenModal('metric')}
-              className="w-full p-2 bg-white rounded-lg border border-gray-500 mx-2"
-            >
-              <Text className="text-base pl-2">
-                {selectedMetricSystem || "Select a metric"}
+          {/* Crop Quantity and Metric System Row */}
+          <View className="flex-row mb-4 mx-2" style={{ gap: 8 }}>
+            {/* Crop Quantity - Left Side */}
+            <View className="flex-1">
+              <Text className="text-lg font-semibold mb-1">
+                Crop Quantity <Text className="text-red-500">*</Text>
+                {errors.cropQuantity && (
+                  <Text className="text-red-600 text-xs">{errors.cropQuantity}</Text>
+                )}
               </Text>
-            </TouchableOpacity>
+              <TextInput
+                className="w-full p-2 bg-white rounded-lg border border-gray-500"
+                keyboardType="numeric"
+                placeholder="Enter quantity"
+                value={cropQuantity}
+                onChangeText={(text) => {
+                  const numericText = text.replace(/[^0-9]/g, '');
+                  setCropQuantity(numericText);
+                  handleInputValidation("cropQuantity", numericText);
+                }}
+              />
+            </View>
+
+            {/* Metric System - Right Side */}
+            <View className="flex-1">
+              <Text className="text-lg font-semibold mb-1">
+                Choose Metric <Text className="text-red-500">*</Text>
+                {errors.selectedMetricSystemId && (
+                  <Text className="text-red-600 text-xs">{errors.selectedMetricSystemId}</Text>
+                )}
+              </Text>
+              <TouchableOpacity
+                onPress={() => handleOpenModal('metric')}
+                className="w-full p-2 bg-white rounded-lg border border-gray-500"
+              >
+                <Text className="text-base pl-2">
+                  {selectedMetricSystem || "Select a metric"}
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
 
           {/* Negotiation Section */}
