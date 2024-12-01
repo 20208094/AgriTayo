@@ -20,14 +20,17 @@ const StyledText = styled(Text);
 const StyledTouchableOpacity = styled(TouchableOpacity);
 const StyledView = styled(View);
 
+const PRICE_REGEX = /^(?:[1-9]\d*|\d+\.\d{1,2}|0\.\d{1,2})$/;
+const QUANTITY_REGEX = /^[1-9]\d*$/;
+
 const NegotiationBuyerScreen = ({ route }) => {
   const { data: negotiationData } = route.params;
   const navigation = useNavigation();
   const [offerPrice, setOfferPrice] = useState('');
   const [amount, setAmount] = useState('');
+  const [total, setTotal] = useState('');
   const [priceError, setPriceError] = useState('');
   const [amountError, setAmountError] = useState('');
-  const [total, setTotal] = useState(0);
   const [modalVisible, setModalVisible] = useState(false);
   const [confirmationModalVisible, setConfirmationModalVisible] = useState(false);
   const [confirmationAction, setConfirmationAction] = useState(null);
@@ -37,26 +40,98 @@ const NegotiationBuyerScreen = ({ route }) => {
 
   // Effect to calculate the total price dynamically
   useEffect(() => {
-    const priceNum = parseFloat(offerPrice) || 0;
     const amountNum = parseFloat(amount) || 0;
-    setTotal((priceNum * amountNum).toFixed(2));
-  }, [offerPrice, amount]);
+    const totalNum = parseFloat(total) || 0;
+    
+    if (amountNum > 0 && totalNum > 0) {
+      const calculatedPrice = (totalNum / amountNum).toFixed(2);
+      setOfferPrice(calculatedPrice);
+    } else {
+      setOfferPrice('0.00');
+    }
+  }, [total, amount]);
+
+  // Add validation for amount
+  useEffect(() => {
+    if (amount === '') {
+      setAmountError('');
+      setOfferPrice('0.00');
+      return;
+    }
+
+    if (!QUANTITY_REGEX.test(amount)) {
+      setAmountError('Please enter a valid whole number greater than 0');
+      return;
+    }
+
+    setAmountError('');
+  }, [amount]);
+
+  // Add validation for total and calculated price
+  useEffect(() => {
+    if (total === '') {
+      setPriceError('');
+      setOfferPrice('0.00');
+      return;
+    }
+
+    if (!PRICE_REGEX.test(total)) {
+      setPriceError('Please enter a valid amount (e.g., 100 or 100.50)');
+      return;
+    }
+
+    setPriceError('');
+  }, [total, offerPrice]);
+
+  // Update the input handlers
+  const handleAmountChange = (text) => {
+    setAmount(text);
+  };
+
+  const handleTotalChange = (text) => {
+    // Handle empty input
+    if (text === '') {
+      setTotal('');
+      return;
+    }
+
+    // If input starts with decimal, add leading zero
+    if (text.startsWith('.')) {
+      text = '0' + text;
+    }
+
+    // Remove any non-numeric characters except decimal point
+    const cleanedText = text.replace(/[^0-9.]/g, '');
+    
+    // Ensure only one decimal point
+    const parts = cleanedText.split('.');
+    if (parts.length > 2) return;
+
+    // Limit decimal places to 2
+    if (parts[1] && parts[1].length > 2) {
+      parts[1] = parts[1].substring(0, 2);
+      setTotal(`${parts[0]}.${parts[1]}`);
+      return;
+    }
+
+    setTotal(cleanedText);
+  };
 
   handleMakeOffer = async () => {
-    if (!amount && !offerPrice) {
+    if (!amount && !total) {
       setAmountError('Enter Quantity');
-      setPriceError('Enter Price');
-      return
+      setPriceError('Enter Total Offer');
+      return;
     }
     if (!amount) {
       setAmountError('Enter Quantity');
       setPriceError('');
-      return
+      return;
     }
-    if (!offerPrice) {
+    if (!total) {
       setAmountError('');
-      setPriceError('Enter Price');
-      return
+      setPriceError('Enter Total Offer');
+      return;
     }
 
     const formData = new FormData();
@@ -75,7 +150,7 @@ const NegotiationBuyerScreen = ({ route }) => {
     if (isSuccess) {
       navigation.navigate("Buyer Negotiation List", { screen: "Ongoing" });
     } else {
-      alert('Failed to decline the offer. Please try again.');
+      alert('Failed to update the offer. Please try again.');
     }
   }
 
@@ -273,48 +348,45 @@ const NegotiationBuyerScreen = ({ route }) => {
 
                 {/* Your Offer Section */}
                 <View className="flex-1 border border-[#00B251] rounded-md p-4 bg-white shadow-md">
-                  <Text
-                    className={`text-lg font-semibold text-gray-800 mb-2`}
-                  >
+                  <Text className={`text-lg font-semibold text-gray-800 mb-2`}>
                     Your New Offer:
                   </Text>
-                  <View className="">
-                    <Text className={`text-base font-bold text-gray-800`} >
-                      Price:
-                      {priceError ? (
-                        <Text className="text-sm font-bold text-red-500"> {priceError}</Text>
-                      ) : (
-                        <></>
-                      )}
-                    </Text>
-                    <TextInput
-                      className="border border-gray-300 rounded-md p-2 text-gray-800"
-                      keyboardType="numeric"
-                      placeholder={`₱${negotiationData.user_price}`}
-                      value={offerPrice}
-                      onChangeText={setOfferPrice}
-                      style={{ fontSize: width > 400 ? 18 : 16 }}
-                    />
-                    <Text className={`text-base font-bold text-gray-800`} >
+                  <View>
+                    <Text className={`text-base font-bold text-gray-800`}>
                       Quantity:
                       {amountError ? (
                         <Text className="text-sm font-bold text-red-500"> {amountError}</Text>
-                      ) : (
-                        <></>
-                      )}
+                      ) : null}
                     </Text>
                     <TextInput
                       className="border border-gray-300 rounded-md p-2 text-gray-800"
                       keyboardType="numeric"
                       placeholder={`${negotiationData.user_amount} ${negotiationData.metric_system.metric_system_symbol}`}
                       value={amount}
-                      onChangeText={setAmount}
-                      style={{ fontSize: width > 400 ? 18 : 16 }} // Adjust font size
+                      onChangeText={handleAmountChange}
+                      style={{ fontSize: width > 400 ? 18 : 16 }}
                     />
-                    <Text
-                      className={`text-base font-bold text-gray-800 mt-1`}
-                    >
-                      Total: ₱{total}
+
+                    <Text className={`text-base font-bold text-gray-800 mt-2`}>
+                      Total Offer:
+                      {priceError ? (
+                        <Text className="text-sm font-bold text-red-500"> {priceError}</Text>
+                      ) : null}
+                    </Text>
+                    <TextInput
+                      className="border border-gray-300 rounded-md p-2 text-gray-800"
+                      keyboardType="numeric"
+                      placeholder="₱00.00"
+                      placeholderTextColor="#9CA3AF"
+                      value={total}
+                      onChangeText={handleTotalChange}
+                    />
+
+                    <Text className={`text-base font-bold text-gray-800 mt-2`}>
+                      Calculated Price per {negotiationData.metric_system.metric_system_symbol}:
+                    </Text>
+                    <Text className="text-xl font-bold text-[#00B251]">
+                      ₱ {offerPrice || '0.00'}
                     </Text>
 
                     {/* New Toggle Switch */}
