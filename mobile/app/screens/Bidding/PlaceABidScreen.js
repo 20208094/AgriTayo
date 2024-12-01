@@ -357,7 +357,7 @@ function PlaceABid({ route, navigation }) {
                   setAmount(text);
                 }
               }}
-              editable={true} // Make it editable
+              editable={true}
             />
             <TouchableOpacity
               className="ml-2 p-2 rounded-lg"
@@ -374,9 +374,12 @@ function PlaceABid({ route, navigation }) {
           </View>
           {error ? <Text className="text-red-600 mt-2">{error}</Text> : null}
           
-          {/* Add a helper text to show the minimum bid */}
+          {/* Add these lines to show minimum bid and increment */}
           <Text className="text-sm text-gray-500 mt-2">
             Minimum bid: ₱{minValidBid.toLocaleString()}
+          </Text>
+          <Text className="text-sm text-gray-500">
+            Minimum increment: ₱{bidData.bid_minimum_increment?.toLocaleString()}
           </Text>
         </View>
 
