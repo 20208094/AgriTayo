@@ -127,7 +127,7 @@ function LoginPage() {
                     <button type="submit" className="login-button">Login</button>
                     <button className="register-button1" onClick={() => navigate('/register')}>Register</button>
                 </form>
-                <p className="forgot-password" onClick={() => navigate('/forgot-password')}>Forgot Password? Click Here</p>
+                <p className="forgot-password" onClick={() => navigate('/forgotPassword')}>Forgot Password? Click Here</p>
             </div>
         </div>
     );

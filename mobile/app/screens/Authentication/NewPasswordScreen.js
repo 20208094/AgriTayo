@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { styled } from "nativewind";
@@ -6,26 +6,27 @@ import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 import GoBack from "../../components/GoBack";
 
 function NewPasswordScreen({ navigation, route }) {
+  const { phoneNumber } = route.params;
 
-  const {phoneNumber} = route.params
-
-  const [newPassword, setNewPassword] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [newPassword, setNewPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const [passwordError, setPasswordError] = useState("");
   const password_regex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,30}$/;
 
   useEffect(() => {
     if (newPassword && !password_regex.test(newPassword)) {
-      setPasswordError("Invalid Password. Please enter 8-30 characters, including letters and numbers.");
+      setPasswordError(
+        "Invalid Password. Please enter 8-30 characters, including letters and numbers."
+      );
     } else {
       setPasswordError("");
     }
   }, [newPassword]);
 
-  console.log(phoneNumber)
+  console.log(phoneNumber);
 
-  const handleNewPassword = async() => {
+  const handleNewPassword = async () => {
     setPasswordError("");
 
     let hasError = false;
@@ -34,44 +35,49 @@ function NewPasswordScreen({ navigation, route }) {
       setPasswordError("Enter your password");
       hasError = true;
     } else if (!password_regex.test(newPassword)) {
-      setPasswordError("Invalid Password. Please enter 8-30 characters, including letters and numbers");
+      setPasswordError(
+        "Invalid Password. Please enter 8-30 characters, including letters and numbers"
+      );
       return;
     }
 
     const formData = new FormData();
-    formData.append("pass", newPassword)
+    formData.append("pass", newPassword);
 
-      setLoading(true);
-      try {
-        const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/changePassword/${phoneNumber}`, {
+    setLoading(true);
+    try {
+      const response = await fetch(
+        `${REACT_NATIVE_API_BASE_URL}/api/changePassword/${phoneNumber}`,
+        {
           method: "PUT",
           headers: {
             "x-api-key": REACT_NATIVE_API_KEY,
           },
           body: formData,
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          console.log("Successfully Updated Password")
-          Alert.alert("Success!", "Successfully Updated Password")
-          navigation.navigate("Login");
-        } else {
-          const errorData = await response.json();
-          console.error("Updating new password failed:", errorData);
-          alert("Updating the New Password Failed. Please Try Again");
         }
-      } catch (error) {
-        console.error("Error during updating the new password:", error);
-        alert("An error occurred. Please try again.");
-      } finally {
-        setLoading(false);
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Successfully Updated Password");
+        Alert.alert("Success!", "Successfully Updated Password");
+        navigation.navigate("Login");
+      } else {
+        const errorData = await response.json();
+        console.error("Updating new password failed:", errorData);
+        alert("Updating the New Password Failed. Please Try Again");
       }
+    } catch (error) {
+      console.error("Error during updating the new password:", error);
+      alert("An error occurred. Please try again.");
+    } finally {
+      setLoading(false);
     }
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
-      <GoBack navigation={navigation}/>
+      <GoBack navigation={navigation} />
       <View className="flex-1 justify-center items-center px-5">
         <View className="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
           <Text className="text-2xl font-bold text-green-700 mb-4 text-center">
@@ -86,9 +92,9 @@ function NewPasswordScreen({ navigation, route }) {
             value={newPassword}
             onChangeText={setNewPassword}
           />
-           {passwordError ? (
-        <Text className="w-4/5 text-red-500 mb-4">{passwordError}</Text>
-      ) : null}
+          {passwordError ? (
+            <Text className="w-4/5 text-red-500 mb-4">{passwordError}</Text>
+          ) : null}
           <TouchableOpacity
             onPress={() => {
               Alert.alert(

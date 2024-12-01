@@ -346,14 +346,14 @@ async function changePhoneNumber(req, res) {
   const getSingleValue = (value) => (Array.isArray(value) ? value[0] : value);
 }
 
-async function changePassword(req, res) {
+async function editPassword(req, res) {
   try {
-    const { phone_number } = req.params;
+    const { user_id } = req.params;
 
-    if (!phone_number) {
+    if (!user_id) {
       return res
         .status(400)
-        .json({ error: "Phone Number is required for update" });
+        .json({ error: "User ID is required for update" });
     }
 
     const form = new formidable.IncomingForm({ multiples: true });
@@ -379,7 +379,7 @@ async function changePassword(req, res) {
       const { data, error } = await supabase
         .from("users")
         .update(updateData)
-        .eq("phone_number", phone_number);
+        .eq("user_id", user_id);
 
       if (error) {
         console.error("Supabase query failed:", error.message);
@@ -550,6 +550,7 @@ module.exports = {
   updateUser,
   deleteUser,
   changePassword,
+  editPassword,
   changePhoneNumber,
   editPhoneNumber,
   editSecondaryPhoneNumber,
