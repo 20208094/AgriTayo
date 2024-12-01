@@ -20,43 +20,127 @@ const StyledText = styled(Text);
 const StyledTouchableOpacity = styled(TouchableOpacity);
 const StyledView = styled(View);
 
+const PRICE_REGEX = /^(?:[1-9]\d*|\d+\.\d{1,2}|0\.\d{1,2})$/;
+const QUANTITY_REGEX = /^[1-9]\d*$/;
+
 const NegotiationSellerScreen = ({ route }) => {
   const { data: negotiationData } = route.params;
   const navigation = useNavigation();
   const [offerPrice, setOfferPrice] = useState('');
   const [amount, setAmount] = useState('');
+  const [total, setTotal] = useState('');
   const [priceError, setPriceError] = useState('');
   const [amountError, setAmountError] = useState('');
-  const [total, setTotal] = useState(0);
   const [modalVisible, setModalVisible] = useState(false);
   const [confirmationModalVisible, setConfirmationModalVisible] = useState(false);
   const [confirmationAction, setConfirmationAction] = useState(null);
   const [isReadMore, setIsReadMore] = useState(true);
   const toggleSwitch = () => setIsChecked(!isChecked);
   const [isChecked, setIsChecked] = useState(true);
+  const [isCalculating, setIsCalculating] = useState(false);
 
-  // Effect to calculate the total price dynamically
+  // Effect to calculate price based on amount and total
   useEffect(() => {
-    const priceNum = parseFloat(offerPrice) || 0;
+    if (isCalculating) return; // Prevent recursive updates
+    
     const amountNum = parseFloat(amount) || 0;
-    setTotal((priceNum * amountNum).toFixed(2));
-  }, [offerPrice, amount]);
+    const totalNum = parseFloat(total) || 0;
+    
+    if (amountNum > 0 && totalNum > 0) {
+      setIsCalculating(true);
+      const calculatedPrice = (totalNum / amountNum).toFixed(2);
+      setOfferPrice(calculatedPrice);
+      setIsCalculating(false);
+    } else {
+      setOfferPrice('0.00');
+    }
+  }, [total, amount]);
+
+  // Updated total input handler
+  const handleTotalChange = (text) => {
+    // Handle empty input
+    if (text === '') {
+      setTotal('');
+      return;
+    }
+
+    // If input starts with decimal, add leading zero
+    if (text.startsWith('.')) {
+      text = '0' + text;
+    }
+
+    // Remove any non-numeric characters except decimal point
+    const cleanedText = text.replace(/[^0-9.]/g, '');
+    
+    // Ensure only one decimal point
+    const parts = cleanedText.split('.');
+    if (parts.length > 2) return;
+
+    // Limit decimal places to 2
+    if (parts[1] && parts[1].length > 2) {
+      parts[1] = parts[1].substring(0, 2);
+      setTotal(`${parts[0]}.${parts[1]}`);
+      return;
+    }
+
+    setTotal(cleanedText);
+  };
+
+  // Handle amount input
+  const handleAmountChange = (text) => {
+    const cleanedText = text.replace(/[^0-9]/g, '');
+    setAmount(cleanedText);
+  };
+
+  // Add validation for amount
+  useEffect(() => {
+    if (amount === '') {
+      setAmountError('');
+      setOfferPrice('0.00');
+      return;
+    }
+
+    if (!QUANTITY_REGEX.test(amount)) {
+      setAmountError('Please enter a valid whole number greater than 0');
+      return;
+    }
+
+    // Add any additional quantity validations here if needed
+    setAmountError('');
+  }, [amount]);
+
+  // Add validation for total and calculated price
+  useEffect(() => {
+    if (total === '') {
+      setPriceError('');
+      setOfferPrice('0.00');
+      return;
+    }
+
+    if (!PRICE_REGEX.test(total)) {
+      setPriceError('Please enter a valid amount (e.g., 100 or 100.50)');
+      return;
+    }
+
+    // Add any additional price validations here if needed
+    setPriceError('');
+  }, [total, offerPrice]);
 
   handleMakeOffer = async () => {
-    if (!amount && !offerPrice) {
+    if (!amount && !total) {
       setAmountError('Enter Quantity');
-      setPriceError('Enter Price');
-      return
+      setPriceError('Enter Total Offer');
+      return;
     }
     if (!amount) {
       setAmountError('Enter Quantity');
       setPriceError('');
-      return
+      return;
     }
-    if (!offerPrice) {
+    if (!total) {
       setAmountError('');
-      setPriceError('Enter Price');
-      return
+      setPriceError('Enter Total Offer');
+      return;
     }
     const formData = new FormData();
     formData.append("shop_amount", amount);
@@ -272,48 +356,44 @@ const NegotiationSellerScreen = ({ route }) => {
 
                 {/* Your Offer Section */}
                 <View className="flex-1 border border-[#00B251] rounded-md p-4 bg-white shadow-md">
-                  <Text
-                    className={`text-lg font-semibold text-gray-800 mb-2`}
-                  >
+                  <Text className="text-lg font-semibold text-gray-800 mb-2">
                     Your Offer:
                   </Text>
-                  <View className="">
-                    <Text className={`text-base font-bold text-gray-800`} >
-                      Price:
-                      {priceError ? (
-                        <Text className="text-sm font-bold text-red-500"> {priceError}</Text>
-                      ) : (
-                        <></>
-                      )}
-                    </Text>
-                    <TextInput
-                      className="border border-gray-300 rounded-md p-2 text-gray-800"
-                      keyboardType="numeric"
-                      placeholder={`₱${negotiationData.shop_price}`}
-                      value={offerPrice}
-                      onChangeText={setOfferPrice}
-                      style={{ fontSize: width > 400 ? 18 : 16 }}
-                    />
-                    <Text className={`text-base font-bold text-gray-800`} >
+                  <View>
+                    <Text className="text-base font-bold text-gray-800">
                       Quantity:
                       {amountError ? (
                         <Text className="text-sm font-bold text-red-500"> {amountError}</Text>
-                      ) : (
-                        <></>
-                      )}
+                      ) : null}
                     </Text>
                     <TextInput
                       className="border border-gray-300 rounded-md p-2 text-gray-800"
                       keyboardType="numeric"
-                      placeholder={`${negotiationData.shop_amount} ${negotiationData.metric_system.metric_system_symbol}`}
+                      placeholder={`Enter quantity`}
                       value={amount}
-                      onChangeText={setAmount}
-                      style={{ fontSize: width > 400 ? 18 : 16 }} // Adjust font size
+                      onChangeText={handleAmountChange}
                     />
-                    <Text
-                      className={`text-base font-bold text-gray-800`}
-                    >
-                      Total: ₱{total}
+
+                    <Text className="text-base font-bold text-gray-800 mt-2">
+                      Total Offer:
+                      {priceError ? (
+                        <Text className="text-sm font-bold text-red-500"> {priceError}</Text>
+                      ) : null}
+                    </Text>
+                    <TextInput
+                      className="border border-gray-300 rounded-md p-2 text-gray-800"
+                      keyboardType="numeric"
+                      placeholder="Enter total offer"
+                      placeholderTextColor="#9CA3AF"
+                      value={total}
+                      onChangeText={handleTotalChange}
+                    />
+
+                    <Text className="text-base font-bold text-gray-800 mt-2">
+                      Calculated Price per {negotiationData.metric_system.metric_system_symbol}:
+                    </Text>
+                    <Text className="text-xl font-bold text-[#00B251]">
+                      {offerPrice ? `₱ ${offerPrice}` : ''}
                     </Text>
 
                     {/* New Toggle Switch */}

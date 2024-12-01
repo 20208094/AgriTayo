@@ -24,6 +24,9 @@ const StyledTouchableOpacity = styled(TouchableOpacity);
 const StyledView = styled(View);
 const StyledModal = styled(Modal);
 
+const PRICE_REGEX = /^(?:[1-9]\d*|\d+\.\d{1,2}|0\.\d{1,2})$/;
+const QUANTITY_REGEX = /^[1-9]\d*$/;
+
 function NegotiationBuyerScreen({ navigation, route }) {
   const [loading, setLoading] = useState(true);
   const [price, setPrice] = useState("");
@@ -72,32 +75,92 @@ function NegotiationBuyerScreen({ navigation, route }) {
 
 
   useEffect(() => {
-    const priceNum = parseFloat(price) || 0;
     const amountNum = parseFloat(amount) || 0;
-    setTotal((priceNum * amountNum).toFixed(2));
-  }, [price, amount]);
-
-  useEffect(() => {
-    if (parseFloat(amount) < product.minimum_negotiation) {
-      setQuantityError(`\nMinimum quantity for negotiation is ${product.minimum_negotiation}`);
+    const totalNum = parseFloat(total) || 0;
+    
+    if (amountNum > 0 && totalNum > 0) {
+      const calculatedPrice = (totalNum / amountNum).toFixed(2);
+      setPrice(calculatedPrice);
     } else {
-      setQuantityError("");
+      setPrice('0.00');
     }
-  }, [amount]);
+  }, [total, amount]);
 
   useEffect(() => {
+    if (amount === '') {
+      setQuantityError('');
+      setPrice('0.00');
+      return;
+    }
+
+    if (!QUANTITY_REGEX.test(amount)) {
+      setQuantityError('Please enter a valid whole number greater than 0');
+      return;
+    }
+
+    const numericValue = parseInt(amount, 10);
+
+    if (numericValue > product.crop_quantity) {
+      setQuantityError(`Quantity cannot exceed available stock (${product.crop_quantity})`);
+      return;
+    }
+
+    if (numericValue < product.minimum_negotiation) {
+      setQuantityError(`Minimum quantity for negotiation is ${product.minimum_negotiation}`);
+      return;
+    }
+
+    setQuantityError('');
+  }, [amount, product.crop_quantity, product.minimum_negotiation]);
+
+  useEffect(() => {
+    if (total === '') {
+      setPriceError('');
+      setPrice('0.00');
+      return;
+    }
+
+    if (!PRICE_REGEX.test(total)) {
+      setPriceError('Please enter a valid amount (e.g., 100 or 100.50)');
+      return;
+    }
+
     if (parseFloat(price) <= (product.crop_price * 0.7)) {
-      setPriceError(`\nPlease enter a price higher than 70% of the original price.`);
-    } else {
-      setPriceError("");
+      setPriceError(`Minimum price per ${product.metric.metric_system_symbol}: ₱${(product.crop_price * 0.7).toFixed(2)} (70% of ₱${product.crop_price})`);
+      return;
     }
-  }, [price]);
+
+    setPriceError('');
+  }, [total, price, product.crop_price, product.metric.metric_system_symbol]);
 
   const handleSubmit = () => {
+    // Check for empty fields
+    if (!amount || !total) {
+      setAlertMessage("Please fill in all required fields (Quantity and Total Offer)");
+      setAlertVisible(true);
+      return;
+    }
+
+    // Check for validation errors
+    if (quantityError || priceError) {
+      setAlertMessage("Please fix the validation errors before proceeding");
+      setAlertVisible(true);
+      return;
+    }
+
+    // If all validations pass, show confirmation modal
     setConfirmationModalVisible(true);
   };
 
   const handleCreateNegotiation = async (negotiationDetails) => {
+    // Validate required fields again before API call
+    if (!negotiationDetails.user_amount || !negotiationDetails.user_total) {
+      setAlertMessage("Missing required fields. Please fill in all information.");
+      setAlertVisible(true);
+      setConfirmationModalVisible(false);
+      return;
+    }
+
     console.log('Initiating API call to create negotiation with details:', negotiationDetails);
 
     try {
@@ -110,26 +173,24 @@ function NegotiationBuyerScreen({ navigation, route }) {
         body: JSON.stringify(negotiationDetails),
       });
 
-      // Log the response status for debugging
       console.log('API response status:', response.status);
 
       if (response.ok) {
         navigation.pop();
-        navigation.navigate("Buyer Negotiation List")
+        navigation.navigate("Buyer Negotiation List");
       } else {
-        const errorResponse = await response.text(); // Capture the response body
+        const errorResponse = await response.json(); // Changed from response.text()
         console.error('Failed to place negotiation. Status:', response.status, 'Status Text:', response.statusText);
         console.error('Error response from server:', errorResponse);
-        setAlertMessage('Failed to place negotiation. Please try again.');
+        setAlertMessage(errorResponse.error || 'Failed to place negotiation. Please try again.');
         setAlertVisible(true);
       }
     } catch (error) {
-      // Log the full error object for better debugging
       console.error('Error placing negotiation:', error);
       setAlertMessage('Network error. Please try again later.');
       setAlertVisible(true);
     } finally {
-      setConfirmationModalVisible(false); // Close the confirmation modal after request
+      setConfirmationModalVisible(false);
     }
   };
 
@@ -148,6 +209,24 @@ function NegotiationBuyerScreen({ navigation, route }) {
     };
 
     handleCreateNegotiation(negotiationDetails);
+  };
+
+  const handleAmountChange = (text) => {
+    setAmount(text);
+  };
+
+  const handleTotalChange = (text) => {
+    let formattedText = text;
+    if (text.startsWith('.')) {
+      formattedText = `0${text}`;
+    }
+
+    const parts = formattedText.split('.');
+    if (parts[1] && parts[1].length > 2) {
+      formattedText = `${parts[0]}.${parts[1].slice(0, 2)}`;
+    }
+
+    setTotal(formattedText);
   };
 
   if (loading) {
@@ -192,47 +271,60 @@ function NegotiationBuyerScreen({ navigation, route }) {
       {/* Price and Quantity Input */}
       <StyledView className="mx-1 mb-2 p-3 py-2 bg-white rounded-lg shadow-lg border-2 border-green-600">
         <StyledView className="pb-3 mx-2 border-b-2 border-gray-500">
-          <StyledText className="text-lg font-medium text-gray-800 mb-1">
-            Enter the Price per {product.metric.metric_system_name}:
-          {priceError ? (
-            <Text className="text-red-500 text-sm mt-2">
-              {priceError}
-            </Text>
-          ) : null}
-          </StyledText>
-          <StyledTextInput
-            className="border-2  text-lg border-[#00B251] rounded-lg p-3 text-gray-600"
-            keyboardType="numeric"
-            placeholder="₱00.00"
-            value={price}
-            onChangeText={setPrice}
-          />
+          <View>
+            {/* Available Stock */}
+            <StyledText className="text-base text-gray-600 mb-2 text-right">
+              Available: {product.crop_quantity} {product?.metric?.metric_system_symbol || 'unit'}/s
+            </StyledText>
+            
+            {/* Quantity Section */}
+            <View className="mb-4">
+              <StyledText className="text-lg font-medium text-gray-800">
+                Enter the Quantity:
+              </StyledText>
+              {quantityError && (
+                <Text className="text-red-500 text-sm mt-1">
+                  {quantityError}
+                </Text>
+              )}
+              <StyledTextInput
+                className="border-2 text-lg border-[#00B251] rounded-lg p-3 text-gray-600 mt-2"
+                keyboardType="numeric"
+                placeholder="0"
+                value={amount}
+                onChangeText={handleAmountChange}
+              />
+            </View>
 
-          <StyledText className="text-lg  font-medium text-gray-800 mt-2 mb-1">
-            Enter the Quantity:
-          {quantityError ? (
-            <Text className="text-red-500 text-sm mt-2">
-              {quantityError}
-            </Text>
-          ) : null}
-          </StyledText>
-          <StyledTextInput
-            className="border-2 text-lg border-[#00B251] rounded-lg p-3 text-gray-600"
-            keyboardType="numeric"
-            placeholder="0"
-            value={amount}
-            onChangeText={setAmount}
-          />
-        </StyledView>
+            {/* Total Offer Section */}
+            <View className="mb-4">
+              <StyledText className="text-lg font-medium text-gray-800">
+                Enter Your Total Offer:
+              </StyledText>
+              <StyledText className="text-sm text-gray-600 mt-1">
+                Minimum price per {product.metric.metric_system_symbol}: ₱{(product.crop_price * 0.7).toFixed(2)} (70% of ₱{product.crop_price})
+              </StyledText>
+              {priceError && (
+                <Text className="text-red-500 text-sm mt-1">
+                  {priceError}
+                </Text>
+              )}
+              <StyledTextInput
+                className="border-2 text-lg border-[#00B251] rounded-lg p-3 text-gray-600 mt-2"
+                keyboardType="numeric"
+                placeholder="₱00.00"
+                value={total}
+                onChangeText={handleTotalChange}
+              />
+            </View>
 
-        {/* Total Display */}
-        <StyledView className="flex flex-row justify-between items-center bg-[#F7FAFC] px-4 py-3 rounded-lg shadow-sm">
-          <StyledText className="text-xl font-semibold text-gray-800">
-            Total:
-          </StyledText>
-          <StyledText className="text-xl font-bold text-[#00B251]">
-            ₱ {total}
-          </StyledText>
+            <StyledText className="text-lg font-medium text-gray-800 mt-4">
+              Calculated Price per {product.metric.metric_system_name}:
+            </StyledText>
+            <StyledText className="text-xl font-bold text-[#00B251] mt-2">
+              ₱ {price || '0.00'}
+            </StyledText>
+          </View>
         </StyledView>
       </StyledView>
 
