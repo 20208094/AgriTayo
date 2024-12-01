@@ -46,6 +46,8 @@ function SellerShopScreen({ route }) {
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
 
+  const [isOwnShop, setIsOwnShop] = useState(false);
+
   const getAsyncUserData = async () => {
     try {
       const storedData = await AsyncStorage.getItem('userData');
@@ -55,6 +57,16 @@ function SellerShopScreen({ route }) {
           const user = parsedData[0];
           setUserData(user);
           setUserId(user.user_id);
+          
+          // Check if user has a shop and if it matches the current shop_id
+          const storedShopData = await AsyncStorage.getItem('shopData');
+          if (storedShopData) {
+            const parsedShopData = JSON.parse(storedShopData);
+            const userShopId = Array.isArray(parsedShopData) 
+              ? parsedShopData[0].shop_id 
+              : parsedShopData.shop_id;
+            setIsOwnShop(userShopId === shop_id);
+          }
         } else {
           setUserData(parsedData);
         }
@@ -385,23 +397,25 @@ function SellerShopScreen({ route }) {
               </TouchableOpacity>
             )}
           </View>
-          <View className="absolute top-4 right-4">
-            <TouchableOpacity
-              className="px-4 py-1 bg-[#00B251] rounded-md"
-              onPress={() =>
-                navigation.navigate("ChatScreen", {
-                  senderId: userId,
-                  receiverId: shopData.shop_id,
-                  receiverName: shopData.shop_name,
-                  receiverType: "Shop",
-                  senderType: "User",
-                  receiverImage: shopData.shop_image_url,
-                })
-              }
-            >
-              <Text className="text-white font-bold text-center">Chat</Text>
-            </TouchableOpacity>
-          </View>
+          {!isOwnShop && (
+            <View className="absolute top-4 right-4">
+              <TouchableOpacity
+                className="px-4 py-1 bg-[#00B251] rounded-md"
+                onPress={() =>
+                  navigation.navigate("ChatScreen", {
+                    senderId: userId,
+                    receiverId: shopData.shop_id,
+                    receiverName: shopData.shop_name,
+                    receiverType: "Shop",
+                    senderType: "User",
+                    receiverImage: shopData.shop_image_url,
+                  })
+                }
+              >
+                <Text className="text-white font-bold text-center">Chat</Text>
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
 
         {/* Modal to show incomplete shop information */}
