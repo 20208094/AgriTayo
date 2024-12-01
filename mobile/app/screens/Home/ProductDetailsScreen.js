@@ -26,6 +26,7 @@ function ProductDetailsScreen({ navigation, route }) {
   const [senderId, setSenderId] = useState(null);
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
+  const [isOwnProduct, setIsOwnProduct] = useState(false);
 
   const scrollViewRef = useRef(null);
 
@@ -40,18 +41,21 @@ function ProductDetailsScreen({ navigation, route }) {
   const getAsyncUserData = async () => {
     try {
       const storedData = await AsyncStorage.getItem('userData');
+      const storedShopData = await AsyncStorage.getItem('shopData');
 
       if (storedData) {
         const parsedData = JSON.parse(storedData);
+        const user = Array.isArray(parsedData) ? parsedData[0] : parsedData;
+        setUserData(user);
+        setUserId(user.user_id);
+        setSenderId(user.user_id);
 
-        if (Array.isArray(parsedData)) {
-          const user = parsedData[0];
-          setUserData(user);
-          setUserId(user.user_id);
-          setSenderId(user.user_id);
-        } else {
-          setUserData(parsedData);
-          setUserId(parsedData.user_id);
+        if (storedShopData) {
+          const parsedShopData = JSON.parse(storedShopData);
+          const userShopId = Array.isArray(parsedShopData) 
+            ? parsedShopData[0].shop_id 
+            : parsedShopData.shop_id;
+          setIsOwnProduct(userShopId === product.shop_id);
         }
       }
     } catch (error) {
@@ -443,33 +447,34 @@ function ProductDetailsScreen({ navigation, route }) {
                 </View>
               </View>
 
-              <View className="space-x-2 gap-2">
-                {displayedProduct.negotiation_allowed ? (
+              {!isOwnProduct && (
+                <View className="space-x-2 gap-2">
+                  {displayedProduct.negotiation_allowed ? (
+                    <TouchableOpacity
+                      className="bg-white border border-green-600 px-2.5 md:px-3 py-1 rounded-md items-center flex-row"
+                      onPress={handleNegotiatePress}
+                    >
+                      <FontAwesome5 name="handshake" size={14} color="#00B251" />
+                      <Text className="text-green-600 ml-1 text-xs md:text-sm">Negotiate</Text>
+                    </TouchableOpacity>
+                  ) : (
+                    <View
+                      className="bg-gray-300 border border-gray-500 px-2.5 md:px-3 py-1 rounded-md items-center flex-row opacity-50"
+                    >
+                      <FontAwesome5 name="handshake" size={14} color="#B0B0B0" />
+                      <Text className="text-gray-700 ml-1 text-xs md:text-sm">Unavailable</Text>
+                    </View>
+                  )}
+
                   <TouchableOpacity
-                    className="bg-white border border-green-600 px-2.5 md:px-3 py-1 rounded-md items-center flex-row"
-                    onPress={handleNegotiatePress}
+                    className="bg-[#00B251] px-2.5 md:px-3 py-1 rounded-md items-center flex-row"
+                    onPress={handleMessageSeller}
                   >
-                    <FontAwesome5 name="handshake" size={14} color="#00B251" />
-                    <Text className="text-green-600 ml-1 text-xs md:text-sm">Negotiate</Text>
+                    <FontAwesome name="comment" size={14} color="#FFF" />
+                    <Text className="text-white ml-1 text-xs md:text-sm">Message Seller</Text>
                   </TouchableOpacity>
-                ) : (
-                  <View
-                    className="bg-gray-300 border border-gray-500 px-2.5 md:px-3 py-1 rounded-md items-center flex-row opacity-50"
-                  >
-                    <FontAwesome5 name="handshake" size={14} color="#B0B0B0" />
-                    <Text className="text-gray-700 ml-1 text-xs md:text-sm">Unavailable</Text>
-                  </View>
-                )}
-
-
-                <TouchableOpacity
-                  className="bg-[#00B251] px-2.5 md:px-3 py-1 rounded-md items-center flex-row"
-                  onPress={handleMessageSeller}
-                >
-                  <FontAwesome name="comment" size={14} color="#FFF" />
-                  <Text className="text-white ml-1 text-xs md:text-sm">Message Seller</Text>
-                </TouchableOpacity>
-              </View>
+                </View>
+              )}
             </View>
 
             {/* Display Related Products */}
@@ -531,43 +536,45 @@ function ProductDetailsScreen({ navigation, route }) {
         </ScrollView>
         
         {/* Enhanced Sticky Bottom Bar */}
-        <View className="absolute bottom-0 left-0 right-0 flex-row mb-12 h-12 px-1">
-          <TouchableOpacity
-            className="flex-1 w-12 items-center justify-center border border-green-600 bg-green-100 rounded-lg"
-            onPress={handleMessageSeller}  // Message seller logic
-          >
-            <FontAwesome name="comment" size={20} color="#00B251" />
-          </TouchableOpacity>
-
-          {/* Separator */}
-          <View className="w-1" />
-          {displayedProduct.negotiation_allowed ? (
+        {!isOwnProduct && (
+          <View className="absolute bottom-0 left-0 right-0 flex-row mb-12 h-12 px-1">
             <TouchableOpacity
-              className="flex-1 flex-row items-center justify-center bg-white border border-green-600 rounded-lg"
-              onPress={handleNegotiatePress}
+              className="flex-1 w-12 items-center justify-center border border-green-600 bg-green-100 rounded-lg"
+              onPress={handleMessageSeller}
             >
-              <FontAwesome5 name="handshake" size={20} color="#00B251" />
+              <FontAwesome name="comment" size={20} color="#00B251" />
             </TouchableOpacity>
-          ) : (
-            <View
-              className="flex-1 flex-row items-center justify-center bg-gray-300 border border-gray-500 rounded-lg"
+
+            {/* Separator */}
+            <View className="w-1" />
+            {displayedProduct.negotiation_allowed ? (
+              <TouchableOpacity
+                className="flex-1 flex-row items-center justify-center bg-white border border-green-600 rounded-lg"
+                onPress={handleNegotiatePress}
+              >
+                <FontAwesome5 name="handshake" size={20} color="#00B251" />
+              </TouchableOpacity>
+            ) : (
+              <View
+                className="flex-1 flex-row items-center justify-center bg-gray-300 border border-gray-500 rounded-lg"
+              >
+                <FontAwesome5 name="handshake" size={20} color="gray" />
+              </View>
+            )}
+
+            {/* Separator */}
+            <View className="w-1" />
+
+            <TouchableOpacity
+              className="flex-1 flex-row items-center justify-center border border-green-600 bg-green-600 rounded-lg"
+              onPress={handleAddToCart}
+              style={{ paddingVertical: 10, minWidth: 150 }}
             >
-              <FontAwesome5 name="handshake" size={20} color="gray" />
-            </View>
-          )}
-
-          {/* Separator */}
-          <View className="w-1" />
-
-          <TouchableOpacity
-            className="flex-1 flex-row items-center justify-center border border-green-600 bg-green-600 rounded-lg"
-            onPress={handleAddToCart}
-            style={{ paddingVertical: 10, minWidth: 150 }}
-          >
-            <FontAwesome name="shopping-cart" size={20} color="white" />
-            <Text className="text-white font-bold text-mg ml-2">Add to Cart</Text>
-          </TouchableOpacity>
-        </View>
+              <FontAwesome name="shopping-cart" size={20} color="white" />
+              <Text className="text-white font-bold text-mg ml-2">Add to Cart</Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
         <NavigationbarComponent/>
         {/* Alert Modal */}

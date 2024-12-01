@@ -203,9 +203,9 @@ function AddProductScreen({ navigation, route }) {
       if (!response.ok) throw new Error("Network response was not ok");
 
       const data = await response.json();
-      const filteredData = data.filter(
-        (subCategory) => subCategory.crop_category_id === categoryId
-      );
+      const filteredData = categoryId 
+        ? data.filter(subCategory => subCategory.crop_category_id === categoryId)
+        : data;
       setSubCategories(filteredData);
     } catch (error) {
       setAlertMessage(`Error fetching crop subcategories: ${error.message}`);
@@ -364,12 +364,12 @@ function AddProductScreen({ navigation, route }) {
       if (!response.ok) throw new Error("Network response was not ok");
 
       const data = await response.json();
-      const filteredData = data.filter(
-        (subCategory) => subCategory.crop_sub_category_id === subCategoryId
-      );
+      const filteredData = subCategoryId
+        ? data.filter(variety => variety.crop_sub_category_id === subCategoryId)
+        : data;
       setCropVarieties(filteredData);
     } catch (error) {
-      setAlertMessage(`Error fetching crop categories: ${error.message}`);
+      setAlertMessage(`Error fetching crop varieties: ${error.message}`);
       setAlertVisible(true);
     } finally {
       setLoading(false);

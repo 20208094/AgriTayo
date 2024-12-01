@@ -259,7 +259,7 @@ function AddCropSubCategoryScreen({ navigation, route }) {
     if (route.params?.newCategory) {
       setSelectedCategory(route.params.newCategory.crop_category_name);
       setSelectedCategoryId(route.params.newCategory.crop_category_id);
-      
+
       // Update categories list if you maintain one
       setCategories(prevCategories => {
         const exists = prevCategories.some(
@@ -296,7 +296,7 @@ function AddCropSubCategoryScreen({ navigation, route }) {
       formData.append("crop_category_id", selectedCategoryId.toString());
       formData.append("crop_variety_name", cropVarietyName);
       formData.append("crop_variety_description", cropVarietyDescription);
-      
+
       if (cropImage) {
         formData.append("subImage", {
           uri: cropImage,
@@ -372,6 +372,48 @@ function AddCropSubCategoryScreen({ navigation, route }) {
     <SafeAreaView className="bg-gray-100 flex-1">
       <ScrollView contentContainerStyle={{ paddingBottom: 80 }}>
         <View className="p-4">
+          {/* Category Selector */}
+          <View className="mb-4">
+            <Text className="text-sm mb-2 text-gray-800">
+              Select a Category for the Sub Category{" "}
+              {cropSubCategoryName && ` ${cropSubCategoryName}`}{" "}
+              <Text className="text-red-500">*</Text>
+              {errors.selectedCategory && (
+                <Text className="text-red-500 text-sm mt-1">
+                  {errors.selectedCategory}
+                </Text>
+              )}
+            </Text>
+            <TouchableOpacity
+              className="flex-row items-center w-full p-2 bg-white rounded-lg shadow-md"
+              onPress={() => setIsClickedCategory(!isClickedCategory)}
+            >
+              <Text className="text-base text-gray-700 flex-1">
+                {selectedCategory}
+              </Text>
+              <Ionicons
+                name="chevron-down"
+                size={20}
+                color="gray"
+                className="ml-2"
+              />
+            </TouchableOpacity>
+            {isClickedCategory && (
+              <View className="w-full p-2 mb-4 bg-white rounded-lg shadow-md">
+                {categories.map((category) => (
+                  <TouchableOpacity
+                    key={category.crop_category_id}
+                    className="p-2"
+                    onPress={() => handleCategorySelect(category)}
+                  >
+                    <Text className="text-base">
+                      {category.crop_category_name}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
+          </View>
           <View className="mb-4">
             <Text className="text-sm mb-2 text-gray-800">
               New Sub Category <Text className="text-red-500">*</Text>
@@ -434,48 +476,7 @@ function AddCropSubCategoryScreen({ navigation, route }) {
               multiline
             />
           </View>
-          {/* Category Selector */}
-          <View className="mb-4">
-            <Text className="text-sm mb-2 text-gray-800">
-              Select a Category for the Sub Category{" "}
-              {cropSubCategoryName && ` ${cropSubCategoryName}`}{" "}
-              <Text className="text-red-500">*</Text>
-              {errors.selectedCategory && (
-                <Text className="text-red-500 text-sm mt-1">
-                  {errors.selectedCategory}
-                </Text>
-              )}
-            </Text>
-            <TouchableOpacity
-              className="flex-row items-center w-full p-2 bg-white rounded-lg shadow-md"
-              onPress={() => setIsClickedCategory(!isClickedCategory)}
-            >
-              <Text className="text-base text-gray-700 flex-1">
-                {selectedCategory}
-              </Text>
-              <Ionicons
-                name="chevron-down"
-                size={20}
-                color="gray"
-                className="ml-2"
-              />
-            </TouchableOpacity>
-            {isClickedCategory && (
-              <View className="w-full p-2 mb-4 bg-white rounded-lg shadow-md">
-                {categories.map((category) => (
-                  <TouchableOpacity
-                    key={category.crop_category_id}
-                    className="p-2"
-                    onPress={() => handleCategorySelect(category)}
-                  >
-                    <Text className="text-base">
-                      {category.crop_category_name}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            )}
-          </View>
+
           <View className="mb-4">
             <Text className="text-sm mb-2 text-gray-800">
               Select an image for the Sub Category{" "}

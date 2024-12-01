@@ -283,7 +283,7 @@ function AddCropVarietyScreen({ navigation, route }) {
       formData.append("crop_variety_description", cropVarietyDescription);
       formData.append("crop_category_id", selectedCategoryId.toString());
       formData.append("crop_sub_category_id", selectedSubCategoryId.toString());
-      
+
       if (cropImage) {
         formData.append("varietyImage", {
           uri: cropImage,
@@ -366,50 +366,6 @@ function AddCropVarietyScreen({ navigation, route }) {
     <SafeAreaView className="bg-gray-100 flex-1">
       <ScrollView contentContainerStyle={{ paddingBottom: 80 }}>
         <View className="p-4">
-          {/* New Variety Input */}
-          <View className="mb-4">
-            <Text className="text-sm mb-2 text-gray-800">
-              New Variety <Text className="text-red-500">*</Text>
-              {errors.cropVarietyName && (
-                <Text className="text-red-500 text-sm mt-1">
-                  {errors.cropVarietyName}
-                </Text>
-              )}
-            </Text>
-            <TextInput
-              className="w-full p-2  bg-white rounded-lg shadow-md"
-              placeholder="Purple Potato"
-              value={cropVarietyName}
-              onChangeText={(value) =>
-                handleFieldChange("cropVarietyName", value)
-              }
-              multiline
-            />
-          </View>
-
-          {/* Description */}
-          <View className="mb-4">
-            <Text className="text-sm mb-2 text-gray-800">
-              Type a Description of the Variety
-              {cropVarietyName && ` ${cropVarietyName}`}{" "}
-              <Text className="text-red-500">*</Text>
-              {errors.cropVarietyDescription && (
-                <Text className="text-red-500 text-sm mt-1">
-                  {errors.cropVarietyDescription}
-                </Text>
-              )}
-            </Text>
-            <TextInput
-              className="w-full p-2  bg-white rounded-lg shadow-md"
-              placeholder="Describe the crop you want to sell."
-              value={cropVarietyDescription}
-              onChangeText={(value) =>
-                handleFieldChange("cropVarietyDescription", value)
-              }
-              multiline
-            />
-          </View>
-
           {/* Category Selector */}
           <View className="mb-4">
             <Text className="text-sm mb-2 text-gray-800">
@@ -501,6 +457,52 @@ function AddCropVarietyScreen({ navigation, route }) {
               </View>
             )}
           </View>
+
+          {/* New Variety Input */}
+          <View className="mb-4">
+            <Text className="text-sm mb-2 text-gray-800">
+              New Variety <Text className="text-red-500">*</Text>
+              {errors.cropVarietyName && (
+                <Text className="text-red-500 text-sm mt-1">
+                  {errors.cropVarietyName}
+                </Text>
+              )}
+            </Text>
+            <TextInput
+              className="w-full p-2  bg-white rounded-lg shadow-md"
+              placeholder="Purple Potato"
+              value={cropVarietyName}
+              onChangeText={(value) =>
+                handleFieldChange("cropVarietyName", value)
+              }
+              multiline
+            />
+          </View>
+
+          {/* Description */}
+          <View className="mb-4">
+            <Text className="text-sm mb-2 text-gray-800">
+              Type a Description of the Variety
+              {cropVarietyName && ` ${cropVarietyName}`}{" "}
+              <Text className="text-red-500">*</Text>
+              {errors.cropVarietyDescription && (
+                <Text className="text-red-500 text-sm mt-1">
+                  {errors.cropVarietyDescription}
+                </Text>
+              )}
+            </Text>
+            <TextInput
+              className="w-full p-2  bg-white rounded-lg shadow-md"
+              placeholder="Describe the crop you want to sell."
+              value={cropVarietyDescription}
+              onChangeText={(value) =>
+                handleFieldChange("cropVarietyDescription", value)
+              }
+              multiline
+            />
+          </View>
+
+
 
           {/* Image Selection */}
           <View className="mb-4">
