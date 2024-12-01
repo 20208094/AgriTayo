@@ -116,23 +116,36 @@ function SellerShopScreen({ route }) {
     try {
       setIsLoading(true);
 
-      // Fetch crops data
-      const cropResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crops`, {
-        headers: {
-          "x-api-key": REACT_NATIVE_API_KEY,
-        },
-      });
-      const cropData = await cropResponse.json();
+      // Fetch both crops and metric systems data
+      const [cropResponse, metricResponse] = await Promise.all([
+        fetch(`${REACT_NATIVE_API_BASE_URL}/api/crops`, {
+          headers: {
+            "x-api-key": REACT_NATIVE_API_KEY,
+          },
+        }),
+        fetch(`${REACT_NATIVE_API_BASE_URL}/api/metric_systems`, {
+          headers: {
+            "x-api-key": REACT_NATIVE_API_KEY,
+          },
+        })
+      ]);
+
+      const [cropData, metricData] = await Promise.all([
+        cropResponse.json(),
+        metricResponse.json()
+      ]);
+
       const crops = cropData.filter((c) => c && c.shop_id === shop_id);
 
       // Fetch crop sizes and merge with crops
       const cropSizes = await fetchCropSizes();
       const mergedCrops = crops.map(crop => ({
         ...crop,
-        crop_size_name: cropSizes[crop.crop_size_id] || "Unknown Size", // Fallback if size is missing
+        crop_size_name: cropSizes[crop.crop_size_id] || "Unknown Size",
+        metric: metricData.find(m => m.metric_system_id === crop.metric_system_id) || null,
       }));
 
-      setCropData(mergedCrops); // Set merged data to state
+      setCropData(mergedCrops);
     } catch (error) {
       console.error("Error fetching crop data:", error);
       setAlertMessage("Failed to load crop information.");
@@ -468,10 +481,10 @@ function SellerShopScreen({ route }) {
                           ) : (
                             <Text className="text-xs text-gray-500">Size: Not available</Text>
                           )}
-                          <Text className="text-xs text-gray-500">Stock: {product.crop_quantity}</Text>
+                          <Text className="text-xs text-gray-500">Stock: {product.crop_quantity} {product?.metric?.metric_system_symbol || 'unit'}/s</Text>
                           {product.negotiation_allowed ? (
                             <Text className="text-xs text-green-500 mt-1">
-                              Negotiable (Min: ₱{product.minimum_negotation})
+                              Negotiable (Min: {product.minimum_negotiation})
                             </Text>
                           ) : (
                             <Text className="text-xs text-red-500 mt-1">Non-negotiable</Text>
@@ -611,10 +624,10 @@ function SellerShopScreen({ route }) {
                             {product.crop_size_name && (
                               <Text className="text-xs text-gray-500">Size: {product.crop_size_name}</Text>
                             )}
-                            <Text className="text-xs text-gray-500">Stock: {product.crop_quantity}</Text>
+                            <Text className="text-xs text-gray-500">Stock: {product.crop_quantity} {product?.metric?.metric_system_symbol || 'unit'}/s</Text>
                             {product.negotiation_allowed ? (
                               <Text className="text-xs text-green-500 mt-1">
-                                Negotiable (Min: ₱{product.minimum_negotation})
+                                Negotiable (Min: {product.minimum_negotiation})
                               </Text>
                             ) : (
                               <Text className="text-xs text-red-500 mt-1">Non-negotiable</Text>
