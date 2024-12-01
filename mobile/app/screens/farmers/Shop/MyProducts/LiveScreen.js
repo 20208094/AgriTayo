@@ -26,7 +26,6 @@ function LiveScreen({ navigation }) {
 
   // Function to fetch shop data
   const getAsyncShopData = async () => {
-    setLoading(true)
     try {
       const storedData = await AsyncStorage.getItem("shopData");
       if (storedData) {

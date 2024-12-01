@@ -670,29 +670,9 @@ function AddProductScreen({ navigation, route }) {
   }
 
   return (
-    <SafeAreaView className="bg-gray-100 flex-1">
+    <SafeAreaView className="bg-gray-100 ">
       <ScrollView contentContainerStyle={{ paddingBottom: 80 }}>
-        <View className="p-4">
-          {/* Crop Description */}
-          <View className="mb-4">
-            <Text className="text-lg font-semibold mb-1">
-              Crop Description <Text className="text-red-500">*</Text>
-              {errors.cropDescription && (
-                <Text className="text-red-600 text-xs">{errors.cropDescription}</Text>
-              )}
-            </Text>
-            <TextInput
-              className="w-full p-2 bg-white rounded-lg border border-gray-500 mx-2"
-              placeholder="Describe the crop you want to sell."
-              value={cropDescription}
-              onChangeText={(text) => {
-                setCropDescription(text);
-                handleInputValidation("cropDescription", text);
-              }}
-              multiline
-              numberOfLines={3}
-            />
-          </View>
+        <View className="p-4 ml-2 mr-4">
 
           {/* Category Selection */}
           <View className="mb-4">
@@ -748,6 +728,28 @@ function AddProductScreen({ navigation, route }) {
             </TouchableOpacity>
           </View>
 
+          
+          {/* Crop Description */}
+          <View className="mb-4">
+            <Text className="text-lg font-semibold mb-1">
+              Crop Description <Text className="text-red-500">*</Text>
+              {errors.cropDescription && (
+                <Text className="text-red-600 text-xs">{errors.cropDescription}</Text>
+              )}
+            </Text>
+            <TextInput
+              className="w-full p-2 bg-white rounded-lg border border-gray-500 mx-2"
+              placeholder="Describe the crop you want to sell."
+              value={cropDescription}
+              onChangeText={(text) => {
+                setCropDescription(text);
+                handleInputValidation("cropDescription", text);
+              }}
+              multiline
+              numberOfLines={3}
+            />
+          </View>
+
           {/* Class Selection */}
           <View className="mb-4">
             <Text className="text-lg font-semibold mb-1">
@@ -761,7 +763,7 @@ function AddProductScreen({ navigation, route }) {
                 <TouchableOpacity
                   key={cropClass.crop_class_id}
                   onPress={() => handleCropClassSelect(cropClass)}
-                  className={`px-4 py-2 rounded-lg ${selectedCropClass === cropClass.crop_class_name
+                  className={`px-4 py-2 flex-1 rounded-lg ${selectedCropClass === cropClass.crop_class_name
                       ? 'bg-[#00B251]'
                       : 'bg-[#8f8d8d]'
                     }`}
@@ -871,12 +873,12 @@ function AddProductScreen({ navigation, route }) {
 
           {/* Negotiation Section */}
           <View className="mb-4">
-            <Text className="text-lg font-semibold mb-1">Open for Negotiation?</Text>
-            <View className="flex-row items-center p-2">
+            <Text className="text-lg font-semibold">Open for Negotiation?</Text>
+            <View className="flex-row items-center px-2">
               <Text className="text-base mr-2">{isEnabled ? "Yes" : "No"}</Text>
               <Switch
-                trackColor={{ false: "#767577", true: "#00b251" }}
-                thumbColor={isEnabled ? "#f5dd4b" : "#f4f3f4"}
+                trackColor={{ false: "#767577", true: "#7edeaa" }}
+                thumbColor={isEnabled ? "#00b251" : "#f4f3f4"}
                 ios_backgroundColor="#3e3e3e"
                 onValueChange={toggleSwitch}
                 value={isEnabled}
