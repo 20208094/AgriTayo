@@ -72,11 +72,11 @@ function ChangePasswordPage() {
     }
 
     return (
-        <div className=''>
-            <div className=''>
-                <h1 className=''>Enter your new password</h1>
-            </div>
-            <div className=''>
+        <div className='flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4'>
+            <div className='bg-white shadow-md rounded-lg p-6 max-w-md w-full'>
+                <h1 className='text-2xl font-bold text-center text-green-600 mb-4'>Enter your new password</h1>
+            
+            <div className='mb-4'>
                 <input
                     type="password"
                     name="password"
@@ -84,14 +84,15 @@ function ChangePasswordPage() {
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     required
-                    className=""
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-green-600"
                 />
-                {passwordError && <p className=''>{passwordError}</p>}
+                {passwordError && <p className='text-red-500 text-sm mt-1'>{passwordError}</p>}
             </div>
-            <div className=''>
-                <button onClick={handleSubmit} className=''>
+            <div className='mb-4'>
+                <button onClick={handleSubmit} className='w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition-colors'>
                     Submit
                 </button>
+            </div>
             </div>
         </div>
     )
