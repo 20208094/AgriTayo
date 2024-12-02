@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   SafeAreaView,
   ScrollView,
@@ -15,6 +15,7 @@ import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 import placeholderimg from "../../../../assets/placeholder.png";
 import LoadingAnimation from "../../../../components/LoadingAnimation";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import { useFocusEffect } from "@react-navigation/native";
 
 function DelistedScreen({ navigation }) {
   const [delistedItems, setDelistedItems] = useState([]); // State to hold delisted items
@@ -24,7 +25,6 @@ function DelistedScreen({ navigation }) {
 
   // Function to fetch shop data and crops that are delisted
   const getAsyncShopData = async () => {
-    setLoading(true)
     try {
       const storedData = await AsyncStorage.getItem("shopData");
       if (storedData) {
@@ -150,9 +150,11 @@ function DelistedScreen({ navigation }) {
     }
   };
 
-  useEffect(() => {
-    getAsyncShopData();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      getAsyncShopData();
+    }, [])
+  );
 
   useEffect(() => {
     setFilteredItems(delistedItems); // Initialize filteredItems on first load

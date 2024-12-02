@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   SafeAreaView,
   ScrollView,
@@ -15,6 +15,7 @@ import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 import placeholderimg from "../../../../assets/placeholder.png";
 import LoadingAnimation from "../../../../components/LoadingAnimation";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import { useFocusEffect } from "@react-navigation/native";
 
 function ViolationScreen({ navigation }) {
   const [violationItems, setViolationItems] = useState([]);
@@ -24,7 +25,6 @@ function ViolationScreen({ navigation }) {
 
   // Function to fetch shop data and crops under violation
   const getAsyncShopData = async () => {
-    setLoading(true)
     try {
       const storedData = await AsyncStorage.getItem("shopData");
       if (storedData) {
@@ -130,9 +130,11 @@ function ViolationScreen({ navigation }) {
     }
   };
 
-  useEffect(() => {
-    getAsyncShopData();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      getAsyncShopData();
+    }, [])
+  );
 
   useEffect(() => {
     setFilteredItems(violationItems); // Initialize filteredItems with all violationItems
