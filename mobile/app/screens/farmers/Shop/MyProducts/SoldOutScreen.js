@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   SafeAreaView,
   ScrollView,
@@ -13,6 +13,7 @@ import Reports from "../../../../components/Reports";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env"; // Import API constants
 import LoadingAnimation from "../../../../components/LoadingAnimation";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import { useFocusEffect } from "@react-navigation/native";
 
 function SoldOutScreen({ navigation }) {
   const [soldOutItems, setSoldOutItems] = useState([]); // State to hold sold-out items
@@ -22,7 +23,6 @@ function SoldOutScreen({ navigation }) {
 
   // Function to fetch shop data and sold-out crops
   const getAsyncShopData = async () => {
-    setLoading(true)
     try {
       const storedData = await AsyncStorage.getItem("shopData");
       if (storedData) {
@@ -153,9 +153,11 @@ function SoldOutScreen({ navigation }) {
     }
   };
 
-  useEffect(() => {
-    getAsyncShopData();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      getAsyncShopData();
+    }, [])
+  );
 
   if (loading) {
     return <LoadingAnimation />;

@@ -50,7 +50,7 @@ async function addUser(req, res) {
 
       const userTypeId = parseInt(getSingleValue(user_type_id), 10);
       if (isNaN(userTypeId))
-        return res.status(400).json({ error: "Invalid user_type_id" });;
+        return res.status(400).json({ error: "Invalid user_type_id" });
 
       const passwordString = getSingleValue(password);
       if (typeof passwordString !== "string")
@@ -351,9 +351,7 @@ async function editPassword(req, res) {
     const { user_id } = req.params;
 
     if (!user_id) {
-      return res
-        .status(400)
-        .json({ error: "User ID is required for update" });
+      return res.status(400).json({ error: "User ID is required for update" });
     }
 
     const form = new formidable.IncomingForm({ multiples: true });

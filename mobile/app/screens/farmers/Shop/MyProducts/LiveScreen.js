@@ -23,9 +23,11 @@ function LiveScreen({ navigation }) {
   const [loading, setLoading] = useState(true); // Loading state
   const [shopId, setShopId] = useState(null);
   const [searchTerm, setSearchTerm] = useState(""); // State to capture search input
+  const [checkedItems, setCheckedItems] = useState({});
 
   // Function to fetch shop data
   const getAsyncShopData = async () => {
+    setLoading(true)
     try {
       const storedData = await AsyncStorage.getItem("shopData");
       if (storedData) {
@@ -41,29 +43,29 @@ function LiveScreen({ navigation }) {
           varietyResponse,
           varietySizeResponse,
           sizeResponse,
-          metricResponse
+          metricResponse,
         ] = await Promise.all([
           fetch(`${REACT_NATIVE_API_BASE_URL}/api/crops`, {
-            headers: { "x-api-key": REACT_NATIVE_API_KEY }
+            headers: { "x-api-key": REACT_NATIVE_API_KEY },
           }),
           fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_categories`, {
-            headers: { "x-api-key": REACT_NATIVE_API_KEY }
+            headers: { "x-api-key": REACT_NATIVE_API_KEY },
           }),
           fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_sub_categories`, {
-            headers: { "x-api-key": REACT_NATIVE_API_KEY }
+            headers: { "x-api-key": REACT_NATIVE_API_KEY },
           }),
           fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_varieties`, {
-            headers: { "x-api-key": REACT_NATIVE_API_KEY }
+            headers: { "x-api-key": REACT_NATIVE_API_KEY },
           }),
           fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_variety_sizes`, {
-            headers: { "x-api-key": REACT_NATIVE_API_KEY }
+            headers: { "x-api-key": REACT_NATIVE_API_KEY },
           }),
           fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_sizes`, {
-            headers: { "x-api-key": REACT_NATIVE_API_KEY }
+            headers: { "x-api-key": REACT_NATIVE_API_KEY },
           }),
           fetch(`${REACT_NATIVE_API_BASE_URL}/api/metric_systems`, {
-            headers: { "x-api-key": REACT_NATIVE_API_KEY }
-          })
+            headers: { "x-api-key": REACT_NATIVE_API_KEY },
+          }),
         ]);
 
         // Parse all responses
@@ -74,7 +76,7 @@ function LiveScreen({ navigation }) {
           varieties,
           variety_sizes,
           sizes,
-          metrics
+          metrics,
         ] = await Promise.all([
           cropsResponse.json(),
           categoryResponse.json(),
@@ -82,7 +84,7 @@ function LiveScreen({ navigation }) {
           varietyResponse.json(),
           varietySizeResponse.json(),
           sizeResponse.json(),
-          metricResponse.json()
+          metricResponse.json(),
         ]);
 
         const filteredLiveItems = crops.filter(
@@ -102,14 +104,14 @@ function LiveScreen({ navigation }) {
           const varietyData = varieties.find(
             (variety) => variety.crop_variety_id === crop.crop_variety_id
           );
-          
+
           // Find the variety size using crop's variety_id and size_id
           const sizeData = variety_sizes.find(
-            (varSize) => 
-              varSize.crop_variety_id === crop.crop_variety_id && 
+            (varSize) =>
+              varSize.crop_variety_id === crop.crop_variety_id &&
               varSize.crop_size_id === crop.crop_size_id
           );
-          
+
           // Get the actual size using crop's size_id directly
           const actualSize = sizes.find(
             (size) => size.crop_size_id === crop.crop_size_id
@@ -129,8 +131,8 @@ function LiveScreen({ navigation }) {
             image: {
               uri: crop.crop_image_url,
               width: 64,
-              height: 64
-            }
+              height: 64,
+            },
           };
         });
 
@@ -173,6 +175,120 @@ function LiveScreen({ navigation }) {
     }, [])
   );
 
+  const toggleCheck = (cropId) => {
+    setCheckedItems((prevState) => ({
+      ...prevState,
+      [cropId]: !prevState[cropId],
+    }));
+  };
+
+  const getCheckedItemsData = () => {
+    return filteredItems.filter((item) => checkedItems[item.crop_id]);
+  };
+
+  const handleDelistedProducts = async () => {
+    const checkedItems = getCheckedItemsData(); // Retrieve the checked items
+    if (checkedItems.length === 0) {
+      Alert.alert("No items selected", "Please select items to delist.");
+      return;
+    }
+
+    setLoading(true); // Set loading state
+
+    try {
+      for (const product of checkedItems) {
+        const formData = new FormData();
+
+        // Append form data fields
+        formData.append("crop_name", product.crop_name);
+        formData.append("crop_id", product.crop_id);
+        formData.append("shop_id", product.shop_id);
+        formData.append("crop_description", product.crop_description);
+        formData.append("availability", "delisted");
+        formData.append("crop_availability", "delisted");
+        formData.append(
+          "crop_image",
+          product.crop_image_url
+            ? {
+                uri: product.crop_image_url,
+                type: "image/jpeg",
+                name: "product-image.jpg",
+              }
+            : null
+        );
+        formData.append("crop_price", parseFloat(product.crop_price));
+        formData.append("crop_quantity", parseInt(product.crop_quantity));
+        formData.append(
+          "crop_category_id",
+          parseInt(product.category?.crop_category_id || 0)
+        );
+        formData.append(
+          "sub_category_id",
+          parseInt(product.subcategory?.crop_sub_category_id || 0)
+        );
+        formData.append(
+          "crop_size_id",
+          parseInt(product.size?.crop_size_id || 0)
+        );
+        formData.append(
+          "crop_variety_id",
+          parseInt(product.variety?.crop_variety_id || 0)
+        );
+        formData.append(
+          "metric_system_id",
+          parseInt(product.metric?.metric_system_id || 0)
+        );
+        formData.append("crop_class", product.crop_class || "");
+        formData.append(
+          "negotiation_allowed",
+          product.negotiation_allowed ? "TRUE" : "FALSE"
+        );
+
+        console.log("Form Data:", formData);
+
+        const response = await fetch(
+          `${REACT_NATIVE_API_BASE_URL}/api/crops/${product.crop_id}`,
+          {
+            method: "PUT",
+            headers: {
+              "x-api-key": REACT_NATIVE_API_KEY,
+            },
+            body: formData,
+          }
+        );
+
+        console.log(`Response for ${product.crop_id}:`, response.status);
+
+        if (!response.ok) {
+          const errorDetails = await response.json();
+          console.error(`Error for ${product.crop_id}:`, errorDetails);
+          throw new Error(`Failed to update product ${product.crop_name}`);
+        }
+
+        const updatedProduct = await response.json();
+        console.log(`Updated Product ${product.crop_id}:`, updatedProduct);
+      }
+
+      Alert.alert("Success!", "Selected products have been delisted.");
+      navigation.navigate("My Products", { screen: "Delisted" });
+    } catch (error) {
+      console.error("Error updating products:", error.message);
+      Alert.alert("Error", "Failed to delist some products. Please try again.");
+    } finally {
+      setLoading(false); // Reset loading state
+    }
+  };
+
+  useEffect(() => {
+    setCheckedItems((prevState) => {
+        const newState = {};
+        liveItems.forEach((item) => {
+            newState[item.crop_id] = prevState[item.crop_id] || false;
+        });
+        return newState;
+    });
+}, [liveItems]);
+
   if (loading) {
     return <LoadingAnimation />;
   }
@@ -209,6 +325,86 @@ function LiveScreen({ navigation }) {
         />
       </View>
 
+      <View className="flex-row justify-around items-center bg-white p-4 rounded-lg shadow-md mx-2 mb-4">
+        {/* Select All / Deselect All Button */}
+        <TouchableOpacity
+          onPress={() => {
+            const allChecked = filteredItems.every(
+                (item) => checkedItems[item.crop_id]
+            );
+            const updatedCheckedItems = {};
+            (allChecked ? liveItems : filteredItems).forEach((item) => {
+                updatedCheckedItems[item.crop_id] = !allChecked;
+            });
+            setCheckedItems(updatedCheckedItems);
+        }}
+          className="flex-1 flex-row items-center justify-center mx-2"
+        >
+          <Ionicons
+            name={
+              filteredItems.every((item) => checkedItems[item.crop_id])
+                ? "close-circle"
+                : "checkmark-circle"
+            }
+            size={20}
+            color={
+              filteredItems.every((item) => checkedItems[item.crop_id])
+                ? "red"
+                : "green"
+            }
+            className="mr-2"
+          />
+          <Text
+            className={`font-semibold ${
+              filteredItems.every((item) => checkedItems[item.crop_id])
+                ? "text-red-500"
+                : "text-green-500"
+            }`}
+          >
+            {filteredItems.every((item) => checkedItems[item.crop_id])
+              ? "Deselect All"
+              : "Select All"}
+          </Text>
+        </TouchableOpacity>
+
+        {/* Featured Product Button */}
+        <TouchableOpacity
+          onPress={() => {
+            const checkedData = getCheckedItemsData();
+            console.log("Checked items for featured product:", checkedData); // Handle as needed
+          }}
+          className="flex-1 flex-row items-center justify-center mx-2"
+        >
+          <Ionicons name="star" size={20} color="blue" className="mr-2" />
+          <Text className="text-blue-500 font-semibold">Feature Product</Text>
+        </TouchableOpacity>
+
+        {/* Move to Delisted Button */}
+        <TouchableOpacity
+          onPress={() => {
+            Alert.alert(
+              "Confirm Delisted Product/s",
+              "Do you really want to move this product to delisted?",
+              [
+                {
+                  text: "No",
+                  onPress: () => console.log("Delist Cancelled"),
+                  style: "cancel",
+                },
+                {
+                  text: "Yes",
+                  onPress: handleDelistedProducts,
+                },
+              ],
+              { cancelable: false }
+            );
+          }}
+          className="flex-1 flex-row items-center justify-center mx-2"
+        >
+          <Ionicons name="trash-bin" size={20} color="red" className="mr-2" />
+          <Text className="text-red-500 font-semibold">Move to Delisted</Text>
+        </TouchableOpacity>
+      </View>
 
       {/* Scroll view for live items */}
       <ScrollView className="p-4 mb-16">
@@ -220,11 +416,26 @@ function LiveScreen({ navigation }) {
               navigation.navigate("Farmers Product Details", { liveItem })
             }
           >
+            {/* Check/Uncheck Icon */}
+            <TouchableOpacity
+              className="absolute top-4 left-4 z-10"
+              onPress={() => toggleCheck(liveItem.crop_id)}
+            >
+              <Ionicons
+                name={
+                  checkedItems[liveItem.crop_id] ? "checkbox" : "square-outline"
+                }
+                size={24}
+                color={checkedItems[liveItem.crop_id] ? "#00B251" : "#888"}
+              />
+            </TouchableOpacity>
             <Image
               source={{ uri: liveItem.crop_image_url }}
               className="w-16 h-16 rounded-lg mr-4 object-cover bg-gray-200"
-              defaultSource={require('../../../../assets/placeholder.png')}
-              onError={(e) => console.log('Image loading error:', e.nativeEvent.error)}
+              defaultSource={require("../../../../assets/placeholder.png")}
+              onError={(e) =>
+                console.log("Image loading error:", e.nativeEvent.error)
+              }
             />
 
             {/* Crop Information */}
@@ -246,8 +457,8 @@ function LiveScreen({ navigation }) {
                       : "Unknown"}
                   </Text>
                 </Text>
-                </View>
-                <View className='mb-1'>
+              </View>
+              <View className="mb-1">
                 <Text className="text-xs font-medium text-[#00B251]">
                   Subcategory:{" "}
                   <Text className="text-gray-800">
@@ -268,32 +479,33 @@ function LiveScreen({ navigation }) {
                       : "Unknown"}
                   </Text>
                 </Text>
-                </View>
-                <View className='mb-1'>
+              </View>
+              <View className="mb-1">
                 <Text className="text-xs font-medium text-[#00B251]">
                   Size:{" "}
                   <Text className="text-gray-800">
                     {liveItem.size ? liveItem.size.crop_size_name : "Unknown"}
                   </Text>
                 </Text>
-                </View>
-                <View className='mb-1'>
+              </View>
+              <View className="mb-1">
                 <Text className="text-xs font-medium text-[#00B251]">
                   Class:{" "}
                   <Text className="text-gray-800">
                     {liveItem.crop_class || "Unknown"}
                   </Text>
                 </Text>
-                </View>
-                <View className='mb-1'>
+              </View>
+              <View className="mb-1">
                 <Text className="text-xs font-medium text-[#00B251]">
                   Quantity:{" "}
                   <Text className="text-gray-800">
-                    {liveItem.crop_quantity} {liveItem.metric.metric_system_symbol}
+                    {liveItem.crop_quantity}{" "}
+                    {liveItem.metric.metric_system_symbol}
                   </Text>
                 </Text>
-                </View>
-                <View className='mb-1'>
+              </View>
+              <View className="mb-1">
                 <Text className="text-xs font-medium text-[#00B251]">
                   Negotiation:{" "}
                   <Text className="text-gray-800">

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   SafeAreaView,
   ScrollView,
@@ -14,16 +14,16 @@ import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env"; // Impor
 import placeholderimg from "../../../../assets/placeholder.png";
 import LoadingAnimation from "../../../../components/LoadingAnimation";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import { useFocusEffect } from "@react-navigation/native";
 
 function ReviewingScreen({ navigation }) {
   const [reviewingItems, setReviewingItems] = useState([]); // State to hold reviewing items
-  const [loading, setLoading] = useState(false); // Loading state
+  const [loading, setLoading] = useState(true); // Loading state
   const [searchTerm, setSearchTerm] = useState(""); // State for search input
   const [filteredItems, setFilteredItems] = useState([]); // State for filtered items
 
   // Function to fetch shop data and crops under review
   const getAsyncShopData = async () => {
-    setLoading(true);
     try {
       const storedData = await AsyncStorage.getItem("shopData");
       if (storedData) {
@@ -148,9 +148,11 @@ function ReviewingScreen({ navigation }) {
     }
   };
 
-  useEffect(() => {
-    getAsyncShopData();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      getAsyncShopData();
+    }, [])
+  );
 
   useEffect(() => {
     setFilteredItems(reviewingItems); // Initialize filteredItems with all reviewingItems
