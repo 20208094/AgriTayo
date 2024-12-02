@@ -1,5 +1,5 @@
 import React from "react";
-import { Text, View } from "react-native";
+import { Text, View, LogBox } from "react-native";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import SoldOutScreen from "./SoldOutScreen";
 import ReviewingScreen from "./ReviewingScreen";
@@ -8,6 +8,10 @@ import DelistedScreen from "./DelistedScreen";
 import LiveScreen from "./LiveScreen";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import NavigationbarComponent from "../../../../components/NavigationbarComponent";
+
+LogBox.ignoreLogs([
+  'Warning: A props object containing a "key" prop is being spread into JSX',
+]);
 
 const Tab = createMaterialTopTabNavigator();
 
