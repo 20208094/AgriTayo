@@ -142,9 +142,8 @@ function HomePageScreen() {
               <Text className="text-green-600">View All</Text>
             </TouchableOpacity>
           </View>
-          {/* Add Featured Products Logic Here */}
           <View className="flex-row flex-wrap justify-between">
-            {categories.map((category) => (
+            {categories.slice(0, 6).map((category) => (
               <View key={category.crop_category_id} className="w-[48%]">
                 <MarketCategoryCard cropCategory={category} />
               </View>

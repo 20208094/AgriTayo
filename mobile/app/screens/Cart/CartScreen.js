@@ -581,7 +581,11 @@ function CartScreen() {
             onClick={() => toggleShopSelection(shopIndex)}
           />
         </StyledView>
-        <StyledText className="text-xl font-bold text-gray-800">{shop.shop_name}</StyledText>
+        <TouchableOpacity 
+          onPress={() => navigation.navigate("Seller Shop", { shop_id: shop.shop_id })}
+        >
+          <StyledText className="text-xl font-bold text-gray-800">{shop.shop_name}</StyledText>
+        </TouchableOpacity>
       </StyledView>
 
       <FlatList
