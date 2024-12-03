@@ -62,7 +62,7 @@ const SalesAnalyticsPage = () => {
       });
 
       filteredOrders.forEach(order => {
-        if (order.status_id === 4) {
+        if (order.status_id === 7 || order.status_id === 8) {
           const orderDate = new Date(order.order_date);
           const month = orderDate.getMonth(); // Get month index (0-11)
           totalStatus4[month] += parseFloat(order.total_price);
@@ -79,6 +79,20 @@ const SalesAnalyticsPage = () => {
 
   useEffect(() => {
     fetchOrdersAndCalculateTotalPrices();
+  }, [fetchOrdersAndCalculateTotalPrices]);
+
+  useEffect(() => {
+    fetchOrdersAndCalculateTotalPrices(); // Fetch data initially
+  
+    // Polling for new data every 30 seconds
+    const pollingInterval = setInterval(() => {
+      fetchOrdersAndCalculateTotalPrices();
+    }, 10000);
+  
+    // Clean up the interval on unmount
+    return () => {
+      clearInterval(pollingInterval);
+    };
   }, [fetchOrdersAndCalculateTotalPrices]);
 
   const generateLabels = () => {
@@ -159,8 +173,8 @@ const SalesAnalyticsPage = () => {
 
       <div className="grid grid-cols-2 auto-rows-auto gap-4">
         {/* Total Price for Orders with Status Delivered Card */}
-        {/* <div className="bg-white p-4 rounded-lg shadow-md flex flex-col justify-center items-center">
-          <h5 className="text-xl font-bold text-center text-green-500 mb-4">Total Price for Orders with Status Delivered</h5>
+        <div className="bg-white p-4 rounded-lg shadow-md flex flex-col justify-center items-center">
+          <h5 className="text-xl font-bold text-center text-green-500 mb-4">Total Price for Orders with Status Completed or To Rate</h5>
           <p className="text-sm font-bold text-green-700 mb-2">
             ₱{totalPriceStatus4.reduce((a, b) => a + b, 0).toFixed(2)}
           </p>
@@ -171,7 +185,7 @@ const SalesAnalyticsPage = () => {
           <p className="text-sm font-bold text-green-700 mb-2">
             ₱{totalPriceAll.toFixed(2)}
           </p>
-        </div> */}
+        </div>
 
         {/* Bar Graph with Filter Button */}
         <div className="col-span-2 relative bg-white p-4 rounded-lg shadow-md ml-10 mr-10 mb-100 border-2">
