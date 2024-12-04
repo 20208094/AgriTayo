@@ -11,7 +11,7 @@ const GenerateAllReports = ({ shopId, dataType = "Crops Report" }) => {
   // Fetch all crop data filtered by shop_id
   const fetchShopCropsData = async () => {
     if (!shopId || !shopId.shop_id) {
-      Alert.alert("Error", "Shop ID is missing. Unable to generate report.");
+      Alert.alert("Error", "Shop is missing. Unable to generate report.");
       return;
     }
   
@@ -57,15 +57,23 @@ const GenerateAllReports = ({ shopId, dataType = "Crops Report" }) => {
       }
 
       // Get the keys from the first object for table header
-      const headers = Object.keys(shopCropsData[0]);
+      const headers = ['crop_name', 'crop_description', 'crop_price', 'crop_quantity', 'availability'];
 
-      // Table header
-      const tableHeader = `
-        <table border="1" cellpadding="5" cellspacing="0" style="width: 100%; border-collapse: collapse;">
-          <tr style="background-color: #00B251; color: white;">
-            ${headers.map(header => `<th style="padding: 8px;">${header.charAt(0).toUpperCase() + header.slice(1)}</th>`).join('')}
-          </tr>
-      `;
+      const headerLabels = {
+        crop_name: "Crop Name",
+        crop_description: "Description",
+        crop_price: "Price",
+        crop_quantity: "Quantity",
+        availability: "Availability",
+      };
+
+      // Generate table header with selected columns
+    const tableHeader = `
+    <table border="1" cellpadding="5" cellspacing="0" style="width: 100%; border-collapse: collapse;">
+      <tr style="background-color: #00B251; color: white;">
+        ${headers.map(header => `<th style="padding: 8px;">${headerLabels[header]}</th>`).join('')}
+      </tr>
+  `;
 
       // Dynamically generate table rows from the data
       const tableRows = shopCropsData

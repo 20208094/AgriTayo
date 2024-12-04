@@ -14,15 +14,23 @@ const Reports = ({ data, dataType }) => {
       }
 
       // Get the keys from the first object for the table header
-      const headers = Object.keys(data[0]);
+      const headers = ['crop_name', 'crop_description', 'crop_price', 'crop_quantity', 'availability'];
+
+      const headerLabels = {
+        crop_name: "Crop Name",
+        crop_description: "Description",
+        crop_price: "Price",
+        crop_quantity: "Quantity",
+        availability: "Availability",
+      };
 
       // Table header
       const tableHeader = `
-        <table border="1" cellpadding="5" cellspacing="0" style="width: 100%; border-collapse: collapse;">
-          <tr style="background-color: #00B251; color: white;">
-            ${headers.map(header => `<th style="padding: 8px;">${header.charAt(0).toUpperCase() + header.slice(1)}</th>`).join('')}
-          </tr>
-      `;
+    <table border="1" cellpadding="5" cellspacing="0" style="width: 100%; border-collapse: collapse;">
+      <tr style="background-color: #00B251; color: white;">
+        ${headers.map(header => `<th style="padding: 8px;">${headerLabels[header]}</th>`).join('')}
+      </tr>
+  `;
 
       // Dynamically generate table rows from the data
       const tableRows = data
