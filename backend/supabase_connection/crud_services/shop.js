@@ -64,6 +64,9 @@ async function addShop(req, res) {
       const tin_number = getSingleValue(fields.tin_number);
       const pickup_address = getSingleValue(fields.pickup_address);
 
+      const shop_rating = parseFloat(getSingleValue(fields.shop_rating), 10);
+      const shop_total_rating = parseFloat(getSingleValue(fields.shop_total_rating), 10);
+
       const shopImageFile = files.shop_image ? files.shop_image[0] : null;
       console.log(shopImageFile);
       let shop_image_url = null;
@@ -116,6 +119,8 @@ async function addShop(req, res) {
           tin_number: tin_number,
           bir_image_url: bir_image_url,
           pickup_address: pickup_address,
+          shop_rating: shop_rating,
+          shop_total_rating: shop_total_rating,
         },
       ]);
 
@@ -186,6 +191,9 @@ async function updateShop(req, res) {
       const submit_later = getSingleValue(fields.submit_later);
       const tin_number = getSingleValue(fields.tin_number);
       const pickup_address = getSingleValue(fields.pickup_address);
+
+      const shop_rating = parseFloat(getSingleValue(fields.shop_rating), 10);
+      const shop_total_rating = parseFloat(getSingleValue(fields.shop_total_rating), 10);
 
       //shop image upload
       const shopImageFile = files.image ? files.image[0] : null;
@@ -301,6 +309,8 @@ async function updateShop(req, res) {
         tin_number: tin_number,
         bir_image_url: bir_image_url,
         pickup_address: pickup_address,
+        shop_rating: shop_rating,
+        shop_total_rating: shop_total_rating,
       };
 
       const { data, error } = await supabase

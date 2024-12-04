@@ -143,7 +143,7 @@ const ShippingScreen = ({ orders, orderProducts }) => {
         {shippingOrders.map((shippingOrder) => (
           <View key={shippingOrder.order_id} className="p-4 mb-6 bg-white border border-[#00B251] rounded-lg shadow-md">
             <View className="flex-row items-center mb-2">
-              <Ionicons name="airplane-outline" size={24} color="#32CD32" />
+              <Ionicons name="car-outline" size={24} color="#32CD32" />
               <Text className="text-lg font-semibold text-gray-800 ml-2">Order On The Way</Text>
             </View>
             <Text className="text-md text-gray-600">Order placed on: {formatDate(shippingOrder.order_date)} at {formatTime(shippingOrder.order_date)}</Text>
@@ -190,7 +190,7 @@ const ShippingScreen = ({ orders, orderProducts }) => {
                     onPress={() => navigation.navigate('Order Details', { item })}
                   >
                     <View className="flex-1">
-                      <Text className="text-lg font-semibold text-gray-800">Item Name: {item.item_name}</Text>
+                      <Text className="text-lg font-semibold text-gray-800">Item Name: {item.orig_prod_name}</Text>
                       <View className="flex-row mt-2">
                         <Text className="w-1/3 text-sm text-gray-600">Total Quantity:</Text>
                         <Text className="text-sm text-gray-600">{item.order_prod_total_weight} {item.orig_prod_metric_symbol}</Text>

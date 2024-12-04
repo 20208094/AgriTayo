@@ -83,6 +83,27 @@ async function updateOrderStat(req, res) {
     }
 }
 
+async function orderShopRate(req, res){
+    const { id } = req.params;
+    const { review_image_id, review_id, image_url, shop_id, order_id, ratings, review, shop_rating, shop_total_rating } = req.body;
+    try {
+        const { data, error } = await supabase
+            .from('orders')
+            .update({ review_image_id, review_id, image_url, shop_id, order_id, ratings, review, shop_rating, shop_total_rating })
+            .eq('order_id', id);
+
+        if (error) {
+            console.error('Supabase query failed:', error.message);
+            return res.status(500).json({ error: 'Internal server error' });
+        }
+
+        res.status(200).json({ message: 'Order updated successfully', data });
+    } catch (err) {
+        console.error('Error executing Supabase query:', err.message);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
 async function deleteOrder(req, res) {
     try {
         const { id } = req.params;
@@ -108,5 +129,6 @@ module.exports = {
     addOrder,
     updateOrder,
     updateOrderStat,
-    deleteOrder
+    deleteOrder,
+    orderShopRate
 };
