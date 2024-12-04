@@ -113,12 +113,14 @@ const ForReturnScreen = ({ orders, orderProducts }) => {
       updatedOrder.allow_return = accept;
 
       await handleUpdateOrder(updatedOrder, () => {
-        // Optionally navigate or show success message
-        Alert.alert("Success", `Return has been ${accept ? "accepted" : "rejected"}.`);
+        setAlertMessage(`Return has been ${accept ? "accepted" : "rejected"}.`);
+        setAlertVisible(true);
         assembleForReturnOrders(); // Refresh the orders
       });
     } else {
       console.error("selectedOrder is undefined");
+      setAlertMessage("Error: Order data is missing");
+      setAlertVisible(true);
     }
   };
 

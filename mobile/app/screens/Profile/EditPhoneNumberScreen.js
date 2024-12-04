@@ -28,6 +28,7 @@ function EditPhoneNumberScreen({ navigation, route }) {
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [isOtpVisible, setIsOtpVisible] = useState(false);
+  const [confirmModalVisible, setConfirmModalVisible] = useState(false);
 
   const socket = io(REACT_NATIVE_API_BASE_URL);
 
@@ -53,7 +54,8 @@ function EditPhoneNumberScreen({ navigation, route }) {
         phoneNumbersList.includes(newPhone) ||
         phoneNumbers2List.includes(newPhone)
       ) {
-        Alert.alert("", "Phone Number is already registered");
+        setAlertMessage("Phone Number is already registered");
+        setAlertVisible(true);
         setIsClicked(false);
       } else {
         const generateRandomCode = () => {
@@ -66,11 +68,11 @@ function EditPhoneNumberScreen({ navigation, route }) {
           socket.emit("sms sender", { title, message, phone_number });
         };
 
-        generateRandomCode(); // Generate OTP when isCLicked is true
+        generateRandomCode();
         setIsOtpVisible(true);
       }
     }
-  }, [isCLicked, newPhone, phoneNumbersList, phoneNumbers2List]); // Runs when the OTP button is clicked
+  }, [isCLicked, newPhone, phoneNumbersList, phoneNumbers2List]);
 
   useEffect(() => {
     const fetchPhoneNumbers = async () => {
@@ -324,7 +326,7 @@ function EditPhoneNumberScreen({ navigation, route }) {
             <TouchableOpacity
               className="mt-4 p-2 bg-[#00B251] rounded-lg flex-row justify-center items-center"
               onPress={() => {
-                setAlertVisible(false); // Close the alert modal
+                setAlertVisible(false);
                 if (updatedUserData) {
                   navigation.navigate("View Profile", {
                     userData: updatedUserData,
@@ -332,11 +334,7 @@ function EditPhoneNumberScreen({ navigation, route }) {
                 }
               }}
             >
-              <Ionicons
-                name="checkmark-circle-outline"
-                size={24}
-                color="white"
-              />
+              <Ionicons name="checkmark-circle-outline" size={24} color="white" />
               <Text className="text-lg text-white ml-2">OK</Text>
             </TouchableOpacity>
           </View>

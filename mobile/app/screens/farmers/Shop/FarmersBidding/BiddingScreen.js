@@ -6,7 +6,7 @@ import {
   View,
   TouchableOpacity,
   Image,
-  Alert
+  Modal
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
@@ -19,6 +19,10 @@ function BiddingScreen({ navigation }) {
   const [completedBiddingData, setCompletedBiddingData] = useState([]);
   const [currentTab, setCurrentTab] = useState("ongoing");
   const [shopId, setShopId] = useState(null);
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [confirmModalVisible, setConfirmModalVisible] = useState(false);
+  const [selectedBidId, setSelectedBidId] = useState(null);
 
   // Function to fetch shop data
   const getAsyncShopData = async () => {
@@ -106,35 +110,29 @@ function BiddingScreen({ navigation }) {
           },
         }
       );
+
       if (!response.ok) throw new Error("Failed to delete the bid");
 
       // Update state to reflect the deletion
       setBiddingData((prevData) =>
         prevData.filter((bidding) => bidding.bid_id !== bidId)
       );
-      Alert.alert("Success", "Bid deleted successfully.");
+
+      // Fetch fresh data from server
+      fetchBiddings();
+
+      setAlertMessage("Bid deleted successfully");
+      setAlertVisible(true);
     } catch (error) {
-      alert(`Error deleting the bid: ${error.message}`);
+      setAlertMessage(`Error deleting bid: ${error.message}`);
+      setAlertVisible(true);
     }
   };
 
   const handleDeleteConfirmation = (bidId) => {
-    Alert.alert(
-      "Confirm Deletion",
-      "Are you sure you want to delete this bid?",
-      [
-        {
-          text: "No",
-          onPress: () => console.log("Deletion canceled"),
-          style: "cancel",
-        },
-        {
-          text: "Yes",
-          onPress: () => deleteBidding(bidId),
-        },
-      ],
-      { cancelable: true }
-    );
+    setSelectedBidId(bidId);
+    setAlertMessage("Are you sure you want to delete this bid?");
+    setConfirmModalVisible(true);
   };
 
   useFocusEffect(
@@ -277,6 +275,62 @@ function BiddingScreen({ navigation }) {
         {renderBidData()}
       </SafeAreaView>
       <NavigationbarComponent />
+
+      {/* Confirmation Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={confirmModalVisible}
+        onRequestClose={() => setConfirmModalVisible(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black/50 bg-opacity-50">
+          <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
+            <Text className="text-lg font-semibold text-gray-900 mb-4 text-center">
+              {alertMessage}
+            </Text>
+            <View className="flex-row justify-between mt-4">
+              <TouchableOpacity
+                className="p-2 bg-gray-300 rounded-lg flex-row justify-center items-center w-1/3"
+                onPress={() => setConfirmModalVisible(false)}
+              >
+                <Text className="text-lg text-gray-800 text-center">No</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                className="p-2 bg-[#00B251] rounded-lg flex-row justify-center items-center w-1/3"
+                onPress={() => {
+                  setConfirmModalVisible(false);
+                  deleteBidding(selectedBidId);
+                }}
+              >
+                <Text className="text-lg text-white text-center">Yes</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Alert Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={alertVisible}
+        onRequestClose={() => setAlertVisible(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black/50 bg-opacity-50">
+          <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
+            <Text className="text-lg font-semibold text-gray-900 mb-4">
+              {alertMessage}
+            </Text>
+            <TouchableOpacity
+              className="mt-4 p-2 bg-[#00B251] rounded-lg flex-row justify-center items-center"
+              onPress={() => setAlertVisible(false)}
+            >
+              <Ionicons name="checkmark-circle-outline" size={24} color="white" />
+              <Text className="text-lg text-white ml-2">OK</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </>
   );
 }

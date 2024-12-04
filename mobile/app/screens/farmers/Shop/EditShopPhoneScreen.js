@@ -4,7 +4,6 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  Alert,
   Modal,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -28,6 +27,7 @@ function EditShopPhoneScreen({ navigation, route }) {
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [isOtpVisible, setIsOtpVisible] = useState(false);
+  const [confirmModalVisible, setConfirmModalVisible] = useState(false);
 
   const socket = io(REACT_NATIVE_API_BASE_URL);
 
@@ -70,24 +70,25 @@ function EditShopPhoneScreen({ navigation, route }) {
   useEffect(() => {
     if (isCLicked) {
       if (phoneNumbersList.includes(newPhone)) {
-        Alert.alert("", "Shop Phone Number is already registered");
+        setAlertMessage("Shop Phone Number is already registered");
+        setAlertVisible(true);
         setIsClicked(false);
       } else {
         const generateRandomCode = () => {
           const code = Math.floor(100000 + Math.random() * 900000).toString();
           setGeneratedCode(code);
-          console.log("Generated OTP code:", code); // For debugging
+          console.log("Generated OTP code:", code);
           const title = "AgriTayo";
           const message = `Your OTP code is: ${code}`;
           const phone_number = newPhone;
           socket.emit("sms sender", { title, message, phone_number });
         };
 
-        generateRandomCode(); // Generate OTP when isCLicked is true
+        generateRandomCode();
         setIsOtpVisible(true);
       }
     }
-  }, [isCLicked, newPhone, phoneNumbersList]); // Runs when the OTP button is clicked
+  }, [isCLicked, newPhone, phoneNumbersList]);
 
   useEffect(() => {
     let interval = null;
@@ -184,15 +185,15 @@ function EditShopPhoneScreen({ navigation, route }) {
       );
       return;
     } else {
-      setIsClicked(true); // Enable OTP generation and countdown
+      setIsClicked(true);
     }
   };
 
   const handleResend = () => {
-    setIsClicked(false); // Temporarily set to false to retrigger OTP generation
+    setIsClicked(false);
     setSeconds(10 * 60);
     setIsResendEnabled(false);
-    setTimeout(() => setIsClicked(true), 0); // Set back to true to generate a new OTP
+    setTimeout(() => setIsClicked(true), 0);
   };
 
   const handleEditPhone = () => {
@@ -285,6 +286,38 @@ function EditShopPhoneScreen({ navigation, route }) {
           </>
         )}
       </View>
+      {/* Confirmation Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={confirmModalVisible}
+        onRequestClose={() => setConfirmModalVisible(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black/50 bg-opacity-50">
+          <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
+            <Text className="text-lg font-semibold text-gray-900 mb-4 text-center">
+              {alertMessage}
+            </Text>
+            <View className="flex-row justify-between mt-4">
+              <TouchableOpacity
+                className="p-2 bg-gray-300 rounded-lg flex-row justify-center items-center w-1/3"
+                onPress={() => setConfirmModalVisible(false)}
+              >
+                <Text className="text-lg text-gray-800 text-center">No</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                className="p-2 bg-[#00B251] rounded-lg flex-row justify-center items-center w-1/3"
+                onPress={() => {
+                  setConfirmModalVisible(false);
+                  handleConfirm();
+                }}
+              >
+                <Text className="text-lg text-white text-center">Yes</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
       {/* Alert Modal */}
       <Modal
         animationType="fade"
@@ -300,15 +333,11 @@ function EditShopPhoneScreen({ navigation, route }) {
             <TouchableOpacity
               className="mt-4 p-2 bg-[#00B251] rounded-lg flex-row justify-center items-center"
               onPress={() => {
-                setAlertVisible(false); // Close the alert modal
+                setAlertVisible(false);
                 navigation.navigate("View Shop");
               }}
             >
-              <Ionicons
-                name="checkmark-circle-outline"
-                size={24}
-                color="white"
-              />
+              <Ionicons name="checkmark-circle-outline" size={24} color="white" />
               <Text className="text-lg text-white ml-2">OK</Text>
             </TouchableOpacity>
           </View>
