@@ -40,6 +40,10 @@ function LoginScreen({ navigation, fetchUserSession }) {
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
 
+  // Add a new state for the second confirmation modal
+  const [confirmModalVisible, setConfirmModalVisible] = useState(false);
+  const [confirmModalMessage, setConfirmModalMessage] = useState("");
+
   useEffect(() => {
     const fetchPhoneNumbers = async () => {
       try {
@@ -77,7 +81,8 @@ function LoginScreen({ navigation, fetchUserSession }) {
       setAlertMessage("Phone Number Confirmed");
       setAlertVisible(true);
     } else {
-      Alert.alert("", "Phone number not found. Please try again.");
+      setAlertMessage("Phone number not found. Please try again.");
+      setAlertVisible(true);
     }
   };
 
@@ -120,10 +125,15 @@ function LoginScreen({ navigation, fetchUserSession }) {
       return;
     } else if (secondaryPhoneNumbersList.includes(secondaryPhoneNumber)) {
       navigation.navigate("Lost Phone Number OTP", { secondaryPhoneNumber });
-      // Alert.alert("Success!", "Secondary Phone Number Confirmed");
     } else {
-      Alert.alert("", "Phone number not found. Please try again.");
+      setAlertMessage("Phone number not found. Please try again.");
+      setAlertVisible(true);
     }
+  };
+
+  const openSecondaryPhoneConfirmation = () => {
+    setConfirmModalMessage("Is this really your alternative phone number?");
+    setConfirmModalVisible(true);
   };
 
   useEffect(() => {
@@ -425,23 +435,7 @@ function LoginScreen({ navigation, fetchUserSession }) {
                 <Text className="text-gray-700 font-bold">Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                onPress={() => {
-                  Alert.alert(
-                    "Confirm Alternative Phone Number",
-                    "Is this really your alternative phone number?",
-                    [
-                      {
-                        text: "No",
-                        style: "cancel",
-                      },
-                      {
-                        text: "Yes",
-                        onPress: handleConfirm,
-                      },
-                    ],
-                    { cancelable: false }
-                  );
-                }}
+                onPress={openSecondaryPhoneConfirmation}
                 className="bg-[#00B251] px-4 py-2 rounded-lg"
               >
                 <Text className="text-white font-bold text-center">
@@ -454,6 +448,39 @@ function LoginScreen({ navigation, fetchUserSession }) {
               registration, please contact the admin at this email
               (AgriTayo@gmail.com) and send your information.
             </Text>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Secondary Phone Number Confirmation Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={confirmModalVisible}
+        onRequestClose={() => setConfirmModalVisible(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black/50 bg-opacity-50">
+          <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
+            <Text className="text-lg font-semibold text-gray-900 mb-4 text-center">
+              {confirmModalMessage}
+            </Text>
+            <View className="flex-row justify-between mt-4">
+              <TouchableOpacity
+                className="p-2 bg-gray-300 rounded-lg flex-row justify-center items-center w-1/3"
+                onPress={() => setConfirmModalVisible(false)}
+              >
+                <Text className="text-lg text-gray-800 text-center">No</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                className="p-2 bg-[#00B251] rounded-lg flex-row justify-center items-center w-1/3"
+                onPress={() => {
+                  setConfirmModalVisible(false);
+                  handleConfirm();
+                }}
+              >
+                <Text className="text-lg text-white text-center">Yes</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>

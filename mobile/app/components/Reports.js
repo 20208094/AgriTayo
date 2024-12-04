@@ -1,15 +1,20 @@
-import React from 'react';
-import { TouchableOpacity, SafeAreaView, Text, Alert, View } from 'react-native';
+import React, { useState } from 'react';
+import { TouchableOpacity, SafeAreaView, Text, View, Modal } from 'react-native';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import * as FileSystem from 'expo-file-system';
+import { Ionicons } from "@expo/vector-icons";
 
 const Reports = ({ data, dataType }) => {
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+
   const generatePdf = async () => {
     try {
       // Check if there is data
       if (data.length === 0) {
-        Alert.alert('Error', `No ${dataType} to generate report.`);
+        setAlertMessage(`No ${dataType} to generate report.`);
+        setAlertVisible(true);
         return;
       }
 
@@ -67,19 +72,21 @@ const Reports = ({ data, dataType }) => {
         to: newPath,
       });
 
-      // Display success message
-      Alert.alert('Success', `${dataType.charAt(0).toUpperCase() + dataType.slice(1)} PDF file saved to your Documents folder.`);
+      // Change success message
+      setAlertMessage(`${dataType.charAt(0).toUpperCase() + dataType.slice(1)} PDF file saved to your Documents folder.`);
+      setAlertVisible(true);
 
       // Share the PDF file
       await Sharing.shareAsync(newPath);
     } catch (error) {
       console.error(error);
-      Alert.alert('Error', `Could not generate or save the ${dataType} PDF file.`);
+      setAlertMessage(`Could not generate or save the ${dataType} PDF file.`);
+      setAlertVisible(true);
     }
   };
 
   return (
-    <SafeAreaView className="flex flex-row justify-end  mt-4">
+    <SafeAreaView className="flex flex-row justify-end mt-4">
       <TouchableOpacity
         className="bg-[#00B251] py-3 px-4 rounded-lg shadow-lg"
         onPress={generatePdf}
@@ -89,6 +96,27 @@ const Reports = ({ data, dataType }) => {
           Generate PDF
         </Text>
       </TouchableOpacity>
+
+      {/* Alert Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={alertVisible}
+        onRequestClose={() => setAlertVisible(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black/50 bg-opacity-50">
+          <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
+            <Text className="text-lg font-semibold text-gray-900 mb-4">{alertMessage}</Text>
+            <TouchableOpacity
+              className="mt-4 p-2 bg-[#00B251] rounded-lg flex-row justify-center items-center"
+              onPress={() => setAlertVisible(false)}
+            >
+              <Ionicons name="checkmark-circle-outline" size={24} color="white" />
+              <Text className="text-lg text-white ml-2">OK</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
