@@ -60,7 +60,8 @@ const ToRateScreen = ({ orders, orderProducts }) => {
     }
 
     try {
-        const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/shopRate`, {
+        // First submit the rating
+        const ratingResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/shopRate`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -76,14 +77,28 @@ const ToRateScreen = ({ orders, orderProducts }) => {
             }),
         });
 
-        if (!response.ok) {
-            const errorData = await response.json();
+        if (!ratingResponse.ok) {
+            const errorData = await ratingResponse.json();
             throw new Error(errorData.error || 'Failed to submit rating');
         }
 
-        const data = await response.json();
-        console.log("Rating submitted successfully:", data);
-        
+        // Then update the order status to completed (status_id: 8)
+        const statusResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/orderStatus/${selectedItem.order_id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': REACT_NATIVE_API_KEY,
+            },
+            body: JSON.stringify({
+                status_id: 8, // Update to completed status
+                completed_date: new Date().toISOString()
+            }),
+        });
+
+        if (!statusResponse.ok) {
+            throw new Error('Failed to update order status');
+        }
+
         // Show success message
         setAlertMessage("Rating submitted successfully!");
         setAlertVisible(true);
@@ -93,8 +108,9 @@ const ToRateScreen = ({ orders, orderProducts }) => {
         setReviewText('');
         setModalVisible(false);
         
-        // Refresh the orders list
-        assembleToRateOrders();
+        // Navigate to Completed screen
+        navigation.navigate("Orders", { screen: "Completed" });
+        
     } catch (error) {
         console.error("Error submitting rating:", error);
         setAlertMessage(error.message || "Failed to submit rating");
