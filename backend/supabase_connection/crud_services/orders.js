@@ -88,9 +88,9 @@ async function orderShopRate(req, res){
     const { review_image_id, review_id, image_url, shop_id, order_id, ratings, review, shop_rating, shop_total_rating } = req.body;
     try {
         const { data, error } = await supabase
-            .from('orders')
+            .from('review_images')
             .update({ review_image_id, review_id, image_url, shop_id, order_id, ratings, review, shop_rating, shop_total_rating })
-            .eq('order_id', id);
+            .eq('review_image_id', id);
 
         if (error) {
             console.error('Supabase query failed:', error.message);
