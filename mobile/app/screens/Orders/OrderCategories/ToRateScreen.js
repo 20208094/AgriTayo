@@ -168,7 +168,7 @@ const ToRateScreen = ({ orders, orderProducts }) => {
           <View key={toRateOrder.order_id} className="p-4 mb-6 bg-white border border-[#00B251] rounded-lg shadow-md">
             <View className="flex-row items-center mb-2">
               <Ionicons name="star-outline" size={24} color="#FFD700" />
-              <Text className="text-lg font-semibold text-gray-800 ml-2">Rate Your Products</Text>
+              <Text className="text-lg font-semibold text-gray-800 ml-2">Rate The Shop</Text>
             </View>
             <Text className="text-md text-gray-600">
               Order completed on: {formatDate(toRateOrder.completed_date)} at {formatTime(toRateOrder.completed_date)}
@@ -200,7 +200,7 @@ const ToRateScreen = ({ orders, orderProducts }) => {
                       className="bg-[#00B251] p-2 rounded-lg mt-2"
                       onPress={() => handleRateProduct(item)}
                     >
-                      <Text className="text-white text-center">Rate Product</Text>
+                      <Text className="text-white text-center">Rate Shop</Text>
                     </TouchableOpacity>
                   </View>
                 ))
@@ -222,7 +222,7 @@ const ToRateScreen = ({ orders, orderProducts }) => {
         <View className="flex-1 justify-center items-center bg-black/50">
           <View className="bg-white p-6 rounded-lg w-11/12 max-w-md shadow-lg">
             <Text className="text-lg font-bold mb-4 text-center text-[#00B251]">
-              Rate Your Product
+              Rate The Shop
             </Text>
             <Text className="text-md font-semibold">Rating:</Text>
             <Slider
