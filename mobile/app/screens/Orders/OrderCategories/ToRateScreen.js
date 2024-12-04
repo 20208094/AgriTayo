@@ -4,6 +4,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import Slider from '@react-native-community/slider'; // Import the slider component
 import * as ImagePicker from 'expo-image-picker'; // Import the Expo Image Picker
+import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env"; // Import environment variables
 
 const ToRateScreen = ({ orders, orderProducts }) => {
   const [toRateOrders, setToRateOrders] = useState([]);
@@ -11,7 +12,6 @@ const ToRateScreen = ({ orders, orderProducts }) => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [rating, setRating] = useState(0);
   const [reviewText, setReviewText] = useState('');
-  const [images, setImages] = useState([]);
 
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
@@ -52,104 +52,53 @@ const ToRateScreen = ({ orders, orderProducts }) => {
     setModalVisible(true);
   };
 
-  const submitRating = () => {
-    // Logic to submit the rating and review (to be implemented)
-    console.log("Submitting review for item:", selectedItem);
-    console.log("Rating:", rating);
-    console.log("Review Text:", reviewText);
-    console.log("Images:", images);
-
-    // Reset state after submission
-    setRating(0);
-    setReviewText('');
-    setImages([]);
-    setModalVisible(false);
-  };
-
-  const MAX_IMAGE_SIZE_MB = 1; // Maximum allowed image size (1 MB)
-
-  // Helper function to validate image size
-  const validateImageSize = async (imageUri) => {
-    try {
-      const response = await fetch(imageUri);
-      const blob = await response.blob();
-      const sizeInMB = blob.size / (1024 * 1024); // Convert bytes to MB
-
-      if (sizeInMB > MAX_IMAGE_SIZE_MB) {
-        setAlertMessage(
-          `The selected image is too large (${sizeInMB.toFixed(
-            2
-          )} MB). Please choose an image smaller than ${MAX_IMAGE_SIZE_MB} MB.`
-        );
+  const submitRating = async () => {
+    if (!selectedItem || !rating) {
+        setAlertMessage("Please provide a rating");
         setAlertVisible(true);
-        return false;
-      }
+        return;
+    }
 
-      return true;
+    try {
+        const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/shopRate`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': REACT_NATIVE_API_KEY,
+            },
+            body: JSON.stringify({
+                shop_id: selectedItem.orig_prod_shop_id,
+                order_id: selectedItem.order_id,
+                ratings: rating,
+                review: reviewText,
+                shop_rating: rating,
+                shop_total_rating: rating
+            }),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to submit rating');
+        }
+
+        const data = await response.json();
+        console.log("Rating submitted successfully:", data);
+        
+        // Show success message
+        setAlertMessage("Rating submitted successfully!");
+        setAlertVisible(true);
+        
+        // Reset state after submission
+        setRating(0);
+        setReviewText('');
+        setModalVisible(false);
+        
+        // Refresh the orders list
+        assembleToRateOrders();
     } catch (error) {
-      setAlertMessage("Failed to check image size. Please try again.");
-      setAlertVisible(true);
-      return false;
-    }
-  };
-
-  // Select images from gallery
-  const selectImages = async () => {
-    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-
-    if (permissionResult.granted === false) {
-      setAlertMessage("Permission to access camera roll is required!");
-      setAlertVisible(true);
-      return;
-    }
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true, // Enables cropping
-      aspect: [4, 3], // Crop aspect ratio
-      quality: 1,
-    });
-
-    if (!result.canceled && result.assets && result.assets.length > 0) {
-      const imageUri = result.assets[0].uri;
-
-      // Validate the cropped image size
-      const isValidSize = await validateImageSize(imageUri);
-      if (isValidSize) {
-        setImages((prevImages) => {
-          const combinedImages = [...prevImages, imageUri];
-          return combinedImages.slice(0, 3); // Limit to 3 images
-        });
-      }
-    }
-  };
-
-  // Select images from camera
-  const selectImagesFromCamera = async () => {
-    const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
-
-    if (permissionResult.granted === false) {
-      setAlertMessage("Permission to access the camera is required!");
-      setAlertVisible(true);
-      return;
-    }
-
-    const result = await ImagePicker.launchCameraAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      quality: 1,
-    });
-
-    if (!result.canceled) {
-      const imageUri = result.assets[0].uri;
-
-      const isValidSize = await validateImageSize(imageUri);
-      if (isValidSize) {
-        setImages((prevImages) => {
-          const combinedImages = [...prevImages, imageUri];
-          return combinedImages.slice(0, 3);
-        });
-      }
+        console.error("Error submitting rating:", error);
+        setAlertMessage(error.message || "Failed to submit rating");
+        setAlertVisible(true);
     }
   };
 
@@ -244,43 +193,6 @@ const ToRateScreen = ({ orders, orderProducts }) => {
               className="border border-gray-300 rounded p-2 mb-4"
               style={{ height: 80 }} // Set a fixed height for better appearance
             />
-            <Text className="mt-4 text-md font-semibold">Upload Images (up to 3):</Text>
-
-            {/* Options for Camera and Gallery */}
-            <TouchableOpacity
-              className="bg-[#00B251] p-2 rounded-lg mt-2 mb-2"
-              onPress={selectImages}
-            >
-              <Text className="text-white text-center font-semibold">
-                Select from Gallery
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              className="bg-[#00B251] p-2 rounded-lg mt-2 mb-4"
-              onPress={selectImagesFromCamera}
-            >
-              <Text className="text-white text-center font-semibold">Take a Photo</Text>
-            </TouchableOpacity>
-
-            {/* Display selected images */}
-            <View className="flex-row mt-2">
-              {images.map((uri, index) => (
-                <View key={index} className="relative mr-2">
-                  <Image
-                    source={{ uri }}
-                    style={{ width: 70, height: 70, borderRadius: 5 }}
-                  />
-                  <TouchableOpacity
-                    className="absolute top-0 right-0 bg-red-500 rounded-full w-6 h-6 justify-center items-center"
-                    onPress={() =>
-                      setImages((prevImages) => prevImages.filter((_, i) => i !== index))
-                    }
-                  >
-                    <Text className="text-white text-xs font-bold">X</Text>
-                  </TouchableOpacity>
-                </View>
-              ))}
-            </View>
             <View className="flex-row justify-end mt-4">
               <TouchableOpacity
                 className="bg-green-500 p-2 rounded-lg mr-2"

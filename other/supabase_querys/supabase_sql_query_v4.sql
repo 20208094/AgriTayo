@@ -1,3 +1,5 @@
+SQL SUPABASE
+
 -- Create user_type table
 CREATE TABLE user_type (
     user_type_id SERIAL PRIMARY KEY,
@@ -51,23 +53,25 @@ CREATE TABLE shop (
     shop_id SERIAL PRIMARY KEY,
     shop_name VARCHAR(100) NOT NULL,
     shop_address TEXT,
-    -- shop_location GEOGRAPHY(POINT, 4326) NOT NULL,
     shop_description TEXT,
     user_id INT,
     shop_image_url VARCHAR(255),
     delivery BOOLEAN DEFAULT FALSE,
     pickup BOOLEAN DEFAULT FALSE,
-    delivery_price INT,
-    -- delivery_address INT,
-    pickup_price INT,
+    delivery_price_min DECIMAL(10, 2),
+    pickup_price DECIMAL(10, 2),
     gcash BOOLEAN DEFAULT FALSE,
     cod BOOLEAN DEFAULT FALSE,
     bank BOOLEAN DEFAULT FALSE,
     shop_number VARCHAR(20),
-    submit_later BOOLEAN DEFAULT null,
+    submit_later BOOLEAN DEFAULT NULL,
     tin_number TEXT,
     bir_image_url TEXT,
     pickup_address TEXT,
+    secondary_shop_number VARCHAR(20),
+    delivery_price_max DECIMAL(10, 2),
+    shop_rating DECIMAL(3, 2),
+    shop_total_rating INT,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE SET NULL
 );
 
@@ -223,9 +227,12 @@ CREATE TABLE orders (
     reject_date TIMESTAMP DEFAULT NULL,
     order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     order_received_date TIMESTAMP DEFAULT NULL,
-return_date TIMESTAMP DEFAULT NULL,
-completed_date TIMESTAMP DEFAULT NULL,
+    return_date TIMESTAMP DEFAULT NULL,
+    completed_date TIMESTAMP DEFAULT NULL,
     order_metric_system_id INT,
+    shipping_address TEXT,
+    ratings DECIMAL(2, 1),
+    review TEXT,
     FOREIGN KEY (status_id) REFERENCES order_status(order_status_id) ON DELETE SET NULL,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE SET NULL,
     FOREIGN KEY (shop_id) REFERENCES shop(shop_id) ON DELETE SET NULL,
@@ -298,16 +305,22 @@ CREATE TABLE reviews (
 CREATE INDEX idx_reviews_crop_id ON reviews(crop_id);
 CREATE INDEX idx_reviews_user_id ON reviews(user_id);
 
--- Create review_images table (to handle up to 3 images per review)
+-- Create review_images table
 CREATE TABLE review_images (
     review_image_id SERIAL PRIMARY KEY,
     review_id INT,
     image_url VARCHAR(255) NOT NULL,
     uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (review_id) REFERENCES reviews(review_id) ON DELETE CASCADE
+    shop_id INT,
+    order_id INT,
+    FOREIGN KEY (review_id) REFERENCES reviews(review_id) ON DELETE CASCADE,
+    FOREIGN KEY (shop_id) REFERENCES shop(shop_id) ON DELETE SET NULL,
+    FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE SET NULL
 );
 
 CREATE INDEX idx_review_images_review_id ON review_images(review_id);
+CREATE INDEX idx_review_images_shop_id ON review_images(shop_id);
+CREATE INDEX idx_review_images_order_id ON review_images(order_id);
 
 -- Create order_tracking table
 -- CREATE TABLE order_tracking (

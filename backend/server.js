@@ -368,7 +368,7 @@ app.get('/api/orders', getOrders);
 app.post('/api/orders', addOrder);
 app.put('/api/orders/:id', updateOrder);
 app.put('/api/orderStatus/:id', updateOrderStat);
-app.put('/api/shopRate/:id', orderShopRate);
+app.post('/api/shopRate', orderShopRate);
 app.delete('/api/orders/:id', deleteOrder);
 
 // API route for checkout of order
