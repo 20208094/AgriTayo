@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { Line } from 'react-chartjs-2';
 import Modal from '../../../../components/Modal/Modal';
+import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 
 const API_KEY = import.meta.env.VITE_API_KEY;
 
@@ -421,82 +422,126 @@ const SelectedVarietyAnalyticsPage = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center space-x-2 h-full">
-        <div className="w-8 h-8 border-4 border-t-transparent border-blue-500 border-solid rounded-full animate-spin"></div>
-        <span className="text-gray-500">Loading...</span>
+      <div className="fixed inset-0 bg-gradient-to-r from-[rgb(182,244,146)] to-[rgb(51,139,147)] flex items-center justify-center">
+        <div className="bg-white/30 backdrop-blur-md p-8 rounded-2xl shadow-2xl flex items-center space-x-4">
+          <div className="animate-spin h-8 w-8 text-white">
+            <svg className="w-full h-full" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+            </svg>
+          </div>
+          <span className="text-lg font-semibold text-white">Loading analytics...</span>
+        </div>
       </div>
-    )
+    );
   }
 
   return (
-    <div className="bg-gray-100 p-4 pt-8">
-      <h5 className="text-3xl font-bold text-green-700 text-center mb-2">{varietyMarketData.crop_variety_name} Analytics</h5>
-      <div className="grid grid-cols-3 auto-rows-auto gap-4">
-        {/* Current Available Listings */}
-        <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center">
-          <h5 className="text-xl font-bold text-green-500 mb-4">Current Available Listings</h5>
-          <p className="text-2xl font-bold text-green-700">{varietyMarketData.availableListing} Listings</p>
-        </div>
-
-        {/* Current Highest Price/Kilo */}
-        <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center">
-          <h5 className="text-xl font-bold text-green-500 mb-4">Current Highest Price/Kilo</h5>
-          <p className="text-xl font-bold text-green-700">
-            {
-              isNaN(parseFloat(varietyMarketData.highestListing.crop_price)) || !varietyMarketData.highestListing.crop_price
-                ? 'No available data'
-                : `₱${parseFloat(varietyMarketData.highestListing.crop_price).toFixed(2)}/kilo`
-            }
-          </p>
-        </div>
-
-        {/* Current Lowest Price/Kilo */}
-        <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center">
-          <h5 className="text-xl font-bold text-green-500 mb-4">Current Lowest Price/Kilo</h5>
-          <p className="text-xl font-bold text-green-700">
-            {
-              isNaN(parseFloat(varietyMarketData.lowestListing.crop_price)) || !varietyMarketData.lowestListing.crop_price
-                ? 'No available data'
-                : `₱${parseFloat(varietyMarketData.lowestListing.crop_price).toFixed(2)}/kilo`
-            }
-          </p>
-        </div>
-
-      </div>
-
-      <div className="col-span-3 row-span-2 bg-white p-4 rounded-lg shadow-md max-w-sm md:max-w-3xl lg:max-w-6xl mx-auto border-2 mt-4">
-        <div className="flex justify-between items-center mb-4">
-          <h5 className="text-xl font-bold text-green-700">{varietyMarketData.crop_variety_name}: {selectedFilter} Analytics</h5>
-          <button
-            onClick={() => setModalVisible(true)}
-            className="bg-green-500 text-white p-2 rounded-lg"
-          >
-            Select Filter
-          </button>
-        </div>
-        <Modal isOpen={modalVisible} onClose={() => setModalVisible(false)}>
-          <h3 className="text-lg font-bold mb-4 text-center">Select a filter</h3>
-          {['7 Days', '14 Days', '6 Months', '12 Months', 'Yearly'].map(filter => (
-            <button
-              key={filter}
-              className={`p-2 rounded-lg mb-2 w-full ${selectedFilter === filter ? "bg-green-500 text-white" : "bg-gray-200 text-green-700"
-                }`}
-              onClick={() => {
-                setSelectedFilter(filter);
-                setModalVisible(false);
-              }}
+    <div className="min-h-screen bg-gradient-to-r from-[rgb(182,244,146)] to-[rgb(51,139,147)]">
+      <div className="max-w-7xl mx-auto p-6 md:p-8">
+        {/* Header */}
+        <div className="mb-8">
+            <Link
+                to="/admin/MarketAnalytics"
+                className="inline-flex items-center px-4 py-2 rounded-lg bg-white/20 hover:bg-white/30 
+                    backdrop-blur-sm border border-white/30 text-white transition-all duration-200
+                    hover:shadow-lg group mb-6"
             >
-              {filter}
+                <ArrowLeftIcon className="h-5 w-5 mr-2 group-hover:-translate-x-1 transition-transform duration-200" />
+                <span className="font-medium">Back to Market</span>
+            </Link>
+            <div className="flex items-center justify-between mb-4">
+                <div className="flex-1">
+                    <h1 className="text-4xl font-bold text-white drop-shadow-md mb-2">
+                        {varietyMarketData.crop_variety_name} Analytics
+                    </h1>
+                    <p className="text-white/80 text-lg font-medium">
+                        View detailed analytics for this variety
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          {/* Current Available Listings */}
+          <div className="bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-xl">
+            <h2 className="text-lg font-semibold text-green-600 mb-2">Current Available Listings</h2>
+            <p className="text-3xl font-bold text-gray-900">{varietyMarketData.availableListing} Listings</p>
+          </div>
+
+          {/* Current Highest Price */}
+          <div className="bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-xl">
+            <h2 className="text-lg font-semibold text-green-600 mb-2">Current Highest Price/Kilo</h2>
+            <p className="text-3xl font-bold text-gray-900">
+              {isNaN(parseFloat(varietyMarketData.highestListing.crop_price)) || !varietyMarketData.highestListing.crop_price
+                ? 'No data'
+                : `₱${parseFloat(varietyMarketData.highestListing.crop_price).toFixed(2)}`}
+            </p>
+          </div>
+
+          {/* Current Lowest Price */}
+          <div className="bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-xl">
+            <h2 className="text-lg font-semibold text-green-600 mb-2">Current Lowest Price/Kilo</h2>
+            <p className="text-3xl font-bold text-gray-900">
+              {isNaN(parseFloat(varietyMarketData.lowestListing.crop_price)) || !varietyMarketData.lowestListing.crop_price
+                ? 'No data'
+                : `₱${parseFloat(varietyMarketData.lowestListing.crop_price).toFixed(2)}`}
+            </p>
+          </div>
+        </div>
+
+        {/* Chart Section */}
+        <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-6">
+          <div className="flex flex-col sm:flex-row justify-between items-center mb-6">
+            <h2 className="text-xl font-bold text-gray-900 mb-4 sm:mb-0">
+              Price Trends: {selectedFilter}
+            </h2>
+            <button
+              onClick={() => setModalVisible(true)}
+              className="bg-green-600 text-white px-4 py-2 rounded-xl font-semibold
+                hover:bg-green-700 active:bg-green-800 transform hover:scale-[1.02]
+                transition-all duration-200 shadow-lg hover:shadow-xl"
+            >
+              Change Time Range
             </button>
-          ))}
-          <button
-            onClick={() => setModalVisible(false)}
-            className="bg-gray-300 text-green-700 p-2 rounded-lg w-full"
-          >
-            Close
-          </button>
+          </div>
+          
+          <div className="bg-white rounded-xl p-4">
+            {renderAnalyticsChart()}
+          </div>
+        </div>
+
+        {/* Filter Modal */}
+        <Modal isOpen={modalVisible} onClose={() => setModalVisible(false)}>
+          <div className="bg-white rounded-2xl p-6">
+            <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">Select Time Range</h3>
+            <div className="space-y-3">
+              {['7 Days', '14 Days', '6 Months', '12 Months', 'Yearly'].map(filter => (
+                <button
+                  key={filter}
+                  className={`w-full p-3 rounded-xl font-semibold transition-all duration-200
+                    ${selectedFilter === filter 
+                      ? "bg-green-600 text-white shadow-lg" 
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`}
+                  onClick={() => {
+                    setSelectedFilter(filter);
+                    setModalVisible(false);
+                  }}
+                >
+                  {filter}
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={() => setModalVisible(false)}
+              className="w-full mt-6 p-3 bg-gray-100 text-gray-700 rounded-xl font-semibold
+                hover:bg-gray-200 transition-all duration-200"
+            >
+              Cancel
+            </button>
+          </div>
         </Modal>
-        {renderAnalyticsChart()}
       </div>
     </div>
   );

@@ -11,6 +11,38 @@ import { IoMdClose } from "react-icons/io"; // For close icon
 const API_KEY = import.meta.env.VITE_API_KEY;
 let socket;
 
+const ImageWithFallback = ({ src, alt, className }) => {
+    const [error, setError] = useState(false);
+
+    const generateInitials = (name) => {
+        return name
+            ?.split(' ')
+            .map(word => word[0])
+            .join('')
+            .toUpperCase()
+            .slice(0, 2) || '??';
+    };
+
+    if (error || !src) {
+        return (
+            <div className={`${className} bg-green-100 flex items-center justify-center`}>
+                <span className="text-green-700 font-semibold text-lg">
+                    {generateInitials(alt)}
+                </span>
+            </div>
+        );
+    }
+
+    return (
+        <img
+            src={src}
+            alt={alt}
+            className={className}
+            onError={() => setError(true)}
+        />
+    );
+};
+
 function ChatPage() {
   const [messages, setMessages] = useState([]);
   const [users, setUsers] = useState([]);
@@ -475,9 +507,9 @@ function ChatPage() {
                 navigate(`/admin/chat/${item.user_id || item.shop_id}/${selectedType === "User" ? "User" : "Shop"}`);
               }}
             >
-              <img
+              <ImageWithFallback
                 src={item.user_image_url || item.shop_image_url}
-                alt={item.firstname ? `${item.firstname}'s avatar` : `${item.shop_name}'s image`}
+                alt={item.firstname || item.shop_name || 'User'}
                 className="w-10 h-10 rounded-full mr-4"
               />
               <div className="flex-1">
@@ -499,9 +531,9 @@ function ChatPage() {
         {/* Header */}
         {receiverData && (
           <div className="flex items-center bg-white p-4 shadow-sm">
-            <img
-              src={receiverData.user_image_url || receiverData.shop_image_url || "default-avatar.png"}
-              alt="Receiver Avatar"
+            <ImageWithFallback
+              src={receiverData.user_image_url || receiverData.shop_image_url}
+              alt={receiverData.firstname || receiverData.shop_name || 'User'}
               className="w-12 h-12 rounded-full mr-4"
             />
             <div>
@@ -528,11 +560,9 @@ function ChatPage() {
                     }`}
                 >
                   {!isSentByUser && (
-                    <img
-                      src={
-                        receiverData?.user_image_url || receiverData.shop_image_url || "default-avatar.png"
-                      }
-                      alt="Avatar"
+                    <ImageWithFallback
+                      src={receiverData?.user_image_url || receiverData?.shop_image_url}
+                      alt={receiverData?.firstname || receiverData?.shop_name || 'User'}
                       className="w-8 h-8 rounded-full mr-2"
                     />
                   )}

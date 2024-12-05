@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import { ArrowLeftIcon, StarIcon, ChatBubbleLeftIcon, PhoneIcon } from '@heroicons/react/24/outline';
+import { StarIcon as StarSolidIcon } from '@heroicons/react/24/solid';
+
 const API_KEY = import.meta.env.VITE_API_KEY;
 
 function ProductDetailsPage() {
@@ -166,10 +169,15 @@ function ProductDetailsPage() {
 
     if (loading) {
         return (
-            <div className="flex justify-center items-center h-screen bg-gray-100">
-                <div className="text-center">
-                    <div className="text-lg font-semibold mb-2">Loading...</div>
-                    <div className="spinner-border animate-spin w-8 h-8 border-4 border-t-transparent border-blue-500 rounded-full"></div>
+            <div className="fixed inset-0 bg-gradient-to-r from-[rgb(182,244,146)] to-[rgb(51,139,147)] flex items-center justify-center">
+                <div className="bg-white/30 backdrop-blur-md p-8 rounded-2xl shadow-2xl flex items-center space-x-4">
+                    <div className="animate-spin h-8 w-8 text-white">
+                        <svg className="w-full h-full" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                        </svg>
+                    </div>
+                    <span className="text-lg font-semibold text-white">Loading product details...</span>
                 </div>
             </div>
         );
@@ -177,9 +185,23 @@ function ProductDetailsPage() {
 
     if (error) {
         return (
-            <div className="flex justify-center items-center h-screen bg-gray-100">
-                <div className="text-red-500 text-lg font-semibold">
-                    Error loading data: {error.message}
+            <div className="min-h-screen bg-gradient-to-r from-[rgb(182,244,146)] to-[rgb(51,139,147)] flex items-center justify-center p-4">
+                <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-2xl p-8 max-w-md w-full">
+                    <div className="text-red-500 flex justify-center mb-6">
+                        <svg className="h-16 w-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <h3 className="text-2xl font-bold text-gray-900 text-center mb-3">Error Loading Product</h3>
+                    <p className="text-gray-600 text-center mb-6">{error.message}</p>
+                    <button 
+                        onClick={() => window.location.reload()}
+                        className="w-full bg-green-600 text-white py-3 rounded-xl font-semibold
+                            hover:bg-green-700 active:bg-green-800 transform hover:scale-[1.02]
+                            transition-all duration-200 shadow-lg hover:shadow-xl"
+                    >
+                        Try Again
+                    </button>
                 </div>
             </div>
         );
@@ -198,95 +220,147 @@ function ProductDetailsPage() {
     }
 
     return (
-        <div className="container mx-auto px-4 py-6">
-            {filteredProductDetails.map((crop) => {
-                const shop = shops.find((shop) => shop.shop_id === crop.shop_id);
-                const shopImageUrl = shop?.shop_image_url;
-
-                return (
-                    <div key={crop.crop_id} className="bg-white p-8 rounded-lg shadow-lg grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div>
-                            <img
-                                src={crop.crop_image_url}
-                                alt={crop.crop_name}
-                                className="w-full h-auto rounded-lg object-cover mb-6"
-                            />
+        <div className="min-h-screen bg-gradient-to-r from-[rgb(182,244,146)] to-[rgb(51,139,147)]">
+            <div className="max-w-7xl mx-auto p-4 md:p-6">
+                {/* Back Navigation */}
+                <div className="mb-8">
+                    <Link
+                        to="/admin/crop-category"
+                        className="inline-flex items-center px-4 py-2 rounded-lg bg-white/20 hover:bg-white/30 
+                            backdrop-blur-sm border border-white/30 text-white transition-all duration-200
+                            hover:shadow-lg group mb-6"
+                    >
+                        <ArrowLeftIcon className="h-5 w-5 mr-2 group-hover:-translate-x-1 transition-transform duration-200" />
+                        <span className="font-medium">Back to Products</span>
+                    </Link>
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="flex-1">
+                            <h1 className="text-4xl font-bold text-white drop-shadow-md mb-2">
+                                Product Details
+                            </h1>
+                            <p className="text-white/80 text-lg font-medium">
+                                View detailed information about this product
+                            </p>
                         </div>
-                        <div>
-                            <div className="flex justify-between items-center">
-                                <h1 className="text-3xl font-bold text-gray-800 mb-4">{crop.crop_name}</h1>
-                                <button
-                                    className="text-sm bg-[#00B251] text-white px-4 py-2 rounded-md"
-                                    onClick={() => openUnlistModal(crop.crop_id)}
-                                >
-                                    Mark as Unlisted
-                                </button>
-                            </div>
-                            <p className="text-xl text-green-600 font-semibold mb-2">₱ {crop.crop_price}</p>
-                            <p className="text-gray-700 mb-4">Available in stock</p>
-                            <p className="text-gray-700 mb-6">⭐ {crop.crop_rating} (192 reviews)</p>
+                    </div>
+                </div>
 
-                            <h2 className="text-xl font-semibold mb-2">Description</h2>
-                            <p className="text-gray-700 leading-relaxed mb-6">{crop.crop_description}</p>
+                {filteredProductDetails.map((crop) => {
+                    const shop = shops.find((shop) => shop.shop_id === crop.shop_id);
+                    const shopImageUrl = shop?.shop_image_url;
 
-                            {/* Shop Info Section with clickable image and buttons */}
-                            <div className="border border-green-600 flex items-center justify-between p-3 rounded-lg mb-5">
-                                <div className="flex items-center">
-                                    {shopImageUrl && (
+                    return (
+                        <div key={crop.crop_id} className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-2xl overflow-hidden">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                {/* Product Image Section */}
+                                <div className="p-6">
+                                    <div className="relative rounded-xl overflow-hidden shadow-lg">
                                         <img
-                                            src={shopImageUrl}
-                                            alt={shop?.shop_name || "Shop"}
-                                            className="w-20 h-20 rounded-full object-cover cursor-pointer"
-                                            onClick={() => navigate(`/seller-shop/${shop?.shop_id}`)}
+                                            src={crop.crop_image_url}
+                                            alt={crop.crop_name}
+                                            className="w-full h-[400px] object-cover"
                                         />
-                                    )}
-                                    <div className="ml-6">
-                                        <h3 className="text-lg font-bold">{shop?.shop_name || "Unknown Shop"}</h3>
-                                        <p className="text-sm text-gray-500">Active 3 Minutes Ago</p>
+                                        <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1.5 
+                                            flex items-center space-x-1 shadow-lg">
+                                            <StarSolidIcon className="h-5 w-5 text-yellow-400" />
+                                            <span className="text-sm font-bold">{crop.crop_rating}</span>
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-1 grid-rows-2 gap-4">
-                                    <button
-                                        className="border border-green-600 bg-white px-20 py-1 rounded-md flex items-center justify-center text-green-600 font-bold"
-                                        onClick={() => openMessageModal(shop.shop_number)}
-                                    >
-                                        Send SMS
-                                    </button>
-                                    <button
-                                        className="border border-green-600 bg-white px-20 py-1 rounded-md flex items-center justify-center text-green-600 font-bold"
-                                        onClick={() => handleMessageButtonClick(shop.shop_name)}
-                                    >
-                                        Message
-                                    </button>
+                                {/* Product Details Section */}
+                                <div className="p-6">
+                                    <div className="flex justify-between items-start mb-4">
+                                        <div>
+                                            <h1 className="text-3xl font-bold text-gray-900 mb-2">{crop.crop_name}</h1>
+                                            <p className="text-2xl font-bold text-green-600">₱{crop.crop_price}</p>
+                                        </div>
+                                        <button
+                                            onClick={() => openUnlistModal(crop.crop_id)}
+                                            className="bg-red-100 text-red-600 px-4 py-2 rounded-xl font-semibold
+                                                hover:bg-red-200 transition-all duration-200"
+                                        >
+                                            Mark as Unlisted
+                                        </button>
+                                    </div>
+
+                                    <div className="space-y-6">
+                                        <div>
+                                            <h2 className="text-xl font-semibold text-gray-900 mb-2">Description</h2>
+                                            <p className="text-gray-700 leading-relaxed">{crop.crop_description}</p>
+                                        </div>
+
+                                        {/* Shop Info Card */}
+                                        <div className="bg-green-50 rounded-xl p-6 space-y-4">
+                                            <div className="flex items-center space-x-4">
+                                                {shopImageUrl && (
+                                                    <img
+                                                        src={shopImageUrl}
+                                                        alt={shop?.shop_name}
+                                                        className="w-16 h-16 rounded-full object-cover ring-2 ring-green-500 
+                                                            cursor-pointer transform hover:scale-105 transition-all duration-200"
+                                                        onClick={() => navigate(`/seller-shop/${shop?.shop_id}`)}
+                                                    />
+                                                )}
+                                                <div>
+                                                    <h3 className="text-lg font-bold text-gray-900">{shop?.shop_name}</h3>
+                                                    <p className="text-sm text-gray-500">Active 3 Minutes Ago</p>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex space-x-4">
+                                                <button
+                                                    onClick={() => openMessageModal(shop.shop_number)}
+                                                    className="flex-1 flex items-center justify-center space-x-2 bg-white 
+                                                        border-2 border-green-600 text-green-600 py-2 rounded-xl font-semibold
+                                                        hover:bg-green-50 transition-all duration-200"
+                                                >
+                                                    <PhoneIcon className="h-5 w-5" />
+                                                    <span>Send SMS</span>
+                                                </button>
+                                                <button
+                                                    onClick={() => handleMessageButtonClick(shop.shop_name)}
+                                                    className="flex-1 flex items-center justify-center space-x-2 bg-green-600 
+                                                        text-white py-2 rounded-xl font-semibold hover:bg-green-700 
+                                                        transition-all duration-200"
+                                                >
+                                                    <ChatBubbleLeftIcon className="h-5 w-5" />
+                                                    <span>Message</span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                );
-            })}
+                    );
+                })}
+            </div>
 
-            {/* Unlist Modal */}
+            {/* Modals */}
             {isModalOpen && (
-                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-10 z-50">
-                    <div className="bg-white rounded-lg p-6 w-full max-w-lg mx-4">
-                        <h2 className="text-xl font-semibold mb-4">Mark as Unlisted</h2>
-                        <p className="text-gray-700 mb-4">Please provide a reason for marking this product as unlisted:</p>
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+                    <div className="bg-white rounded-2xl p-6 w-full max-w-lg mx-4 shadow-2xl">
+                        <h2 className="text-2xl font-bold text-gray-900 mb-4">Mark as Unlisted</h2>
                         <textarea
                             value={unlistReason}
                             onChange={(e) => setUnlistReason(e.target.value)}
                             placeholder="Enter reason..."
-                            className="w-full p-3 border border-gray-300 rounded-md mb-4"
+                            className="w-full p-3 border border-gray-300 rounded-xl mb-4 focus:ring-2 
+                                focus:ring-green-500 focus:border-transparent transition-all duration-200"
+                            rows="4"
                         />
                         <div className="flex justify-end space-x-4">
                             <button
-                                className="px-4 py-2 text-gray-600 bg-gray-200 rounded-md"
+                                className="px-6 py-2 text-gray-700 bg-gray-100 rounded-xl font-semibold
+                                    hover:bg-gray-200 transition-all duration-200"
                                 onClick={closeUnlistModal}
                             >
                                 Cancel
                             </button>
                             <button
-                                className="px-4 py-2 bg-[#00B251] text-white rounded-md"
+                                className="px-6 py-2 bg-green-600 text-white rounded-xl font-semibold
+                                    hover:bg-green-700 transition-all duration-200"
                                 onClick={handleUnlistSubmit}
                             >
                                 Submit
@@ -296,35 +370,38 @@ function ProductDetailsPage() {
                 </div>
             )}
 
-            {/* Message Input Modal */}
+            {/* Message Modal */}
             {isMessageModalOpen && (
-                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-10 z-50">
-                    <div className="bg-white rounded-lg p-6 w-full max-w-lg mx-4">
-                        <h2 className="text-xl font-semibold mb-4">Send Message</h2>
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+                    <div className="bg-white rounded-2xl p-6 w-full max-w-lg mx-4 shadow-2xl">
+                        <h2 className="text-2xl font-bold text-gray-900 mb-4">Send Message</h2>
                         <textarea
                             value={message}
                             onChange={(e) => setMessage(e.target.value)}
                             placeholder="Enter your message..."
-                            className="w-full p-3 border border-gray-300 rounded-md mb-4"
+                            className="w-full p-3 border border-gray-300 rounded-xl mb-4 focus:ring-2 
+                                focus:ring-green-500 focus:border-transparent transition-all duration-200"
+                            rows="4"
                         />
                         <div className="flex justify-end space-x-4">
                             <button
-                                className="px-4 py-2 text-gray-600 bg-gray-200 rounded-md"
+                                className="px-6 py-2 text-gray-700 bg-gray-100 rounded-xl font-semibold
+                                    hover:bg-gray-200 transition-all duration-200"
                                 onClick={closeMessageModal}
                             >
                                 Cancel
                             </button>
                             <button
-                                className="px-4 py-2 bg-[#00B251] text-white rounded-md"
+                                className="px-6 py-2 bg-green-600 text-white rounded-xl font-semibold
+                                    hover:bg-green-700 transition-all duration-200"
                                 onClick={handleMessageSubmit}
                             >
-                                Submit
+                                Send
                             </button>
                         </div>
                     </div>
                 </div>
             )}
-
         </div>
     );
 }

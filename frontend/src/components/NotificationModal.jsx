@@ -6,7 +6,7 @@ let socket;
 
 function NotificationDropdown({ userId, isOpen, onClose }) {
     const [notifications, setNotifications] = useState([]);
-    const [view, setView] = useState('unread'); // Track current view
+    const [view, setView] = useState('unread');
 
     useEffect(() => {
         socket = io();
@@ -79,74 +79,117 @@ function NotificationDropdown({ userId, isOpen, onClose }) {
         }
     };
 
-    if (!isOpen) return null; // Don't render if modal is closed
+    if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-            <div className="bg-white rounded-lg shadow-lg w-96 max-w-full relative">
-                {/* Close button in the top-right corner */}
-                <button
-                    className="absolute top-2 right-2 text-gray-400 hover:text-gray-700"
-                    onClick={onClose}
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
+        <div className="fixed inset-0 flex items-center justify-center z-50 p-4 bg-black bg-opacity-50 backdrop-blur-sm">
+            <div className="bg-white rounded-xl shadow-2xl w-full max-w-md transform transition-all duration-300 scale-100">
+                {/* Header Section */}
+                <div className="relative border-b border-gray-100">
+                    {/* Close button */}
+                    <button
+                        className="absolute right-4 top-4 text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                        onClick={onClose}
+                        aria-label="Close notifications"
+                    >
+                        <svg 
+                            xmlns="http://www.w3.org/2000/svg" 
+                            className="h-6 w-6" 
+                            fill="none" 
+                            viewBox="0 0 24 24" 
+                            stroke="currentColor"
+                        >
+                            <path 
+                                strokeLinecap="round" 
+                                strokeLinejoin="round" 
+                                strokeWidth={2} 
+                                d="M6 18L18 6M6 6l12 12" 
+                            />
+                        </svg>
+                    </button>
 
-                {/* Modal Header with Tabs */}
-                <div className="flex justify-between border-b border-gray-200">
-                    <button
-                        className={`py-2 w-full text-center ${view === 'unread' ? 'font-bold' : 'text-gray-500'}`}
-                        onClick={() => setView('unread')}
-                    >
-                        Unread
-                    </button>
-                    <button
-                        className={`py-2 w-full text-center ${view === 'read' ? 'font-bold' : 'text-gray-500'}`}
-                        onClick={() => setView('read')}
-                    >
-                        Read
-                    </button>
+                    {/* Tabs */}
+                    <div className="flex">
+                        {['unread', 'read'].map((tab) => (
+                            <button
+                                key={tab}
+                                className={`flex-1 py-4 px-6 text-sm font-medium transition-colors duration-200
+                                    ${view === tab 
+                                        ? 'text-green-600 border-b-2 border-green-600' 
+                                        : 'text-gray-500 hover:text-gray-700'
+                                    }`}
+                                onClick={() => setView(tab)}
+                            >
+                                {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                            </button>
+                        ))}
+                    </div>
                 </div>
 
-                {/* Mark All as Read button */}
-                <div className="p-4 flex justify-end">
+                {/* Action Button Section */}
+                <div className="p-4 bg-gray-50">
                     <button
-                        className="bg-green-600 text-white rounded px-4 py-2"
+                        className="w-full bg-green-600 hover:bg-green-700 text-white rounded-lg px-4 py-2 
+                            transition-colors duration-200 font-medium text-sm focus:outline-none 
+                            focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
                         onClick={markAllAsRead}
                     >
                         Mark All as Read
                     </button>
                 </div>
 
-                {/* Notification list */}
-                <div className="p-4 max-h-60 overflow-y-auto">
+                {/* Notifications List */}
+                <div className="overflow-y-auto max-h-[60vh] p-4 space-y-3">
                     {notifications.length > 0 ? (
                         notifications
                             .filter((notif) => (view === 'unread' ? !notif.is_read : notif.is_read))
                             .map((notification) => (
                                 <div
                                     key={notification.notification_id}
-                                    className={`notification-item flex justify-between items-center p-2 my-2 rounded ${notification.is_read ? 'bg-gray-100' : 'bg-blue-50'}`}
+                                    className={`rounded-lg p-4 transition-all duration-200 
+                                        ${notification.is_read 
+                                            ? 'bg-gray-50 hover:bg-gray-100' 
+                                            : 'bg-green-50 hover:bg-green-100'
+                                        }`}
                                 >
-                                    <div>
-                                        <p className="font-semibold">{notification.title}</p>
-                                        <small className="text-gray-600">{notification.message}</small>
+                                    <div className="flex justify-between items-start gap-4">
+                                        <div className="flex-1 min-w-0">
+                                            <h3 className="font-semibold text-gray-900 truncate">
+                                                {notification.title}
+                                            </h3>
+                                            <p className="mt-1 text-sm text-gray-600 line-clamp-2">
+                                                {notification.message}
+                                            </p>
+                                            <span className="mt-2 text-xs text-gray-500">
+                                                {new Date(notification.created_at).toLocaleString()}
+                                            </span>
+                                        </div>
+                                        {!notification.is_read && (
+                                            <button
+                                                className="flex-shrink-0 text-sm font-medium text-green-600 
+                                                    hover:text-green-700 transition-colors duration-200"
+                                                onClick={() => markAsRead(notification.notification_id)}
+                                            >
+                                                Mark as Read
+                                            </button>
+                                        )}
                                     </div>
-                                    {!notification.is_read && (
-                                        <button
-                                            className="ml-2 text-green-600 hover:text-blue-700"
-                                            onClick={() => markAsRead(notification.notification_id)}
-                                        >
-                                            Mark as Read
-                                        </button>
-                                    )}
                                 </div>
                             ))
                     ) : (
-                        <p className="text-center text-gray-500">No notifications</p>
+                        <div className="text-center py-8">
+                            <p className="text-gray-500 text-sm">
+                                No {view} notifications
+                            </p>
+                        </div>
                     )}
+                </div>
+
+                {/* Footer - Optional */}
+                <div className="p-4 border-t border-gray-100 bg-gray-50">
+                    <p className="text-xs text-center text-gray-500">
+                        You're all caught up!
+                    </p>
                 </div>
             </div>
         </div>
