@@ -59,6 +59,7 @@ import SubSidebar from './components/SubSidebar';
 import Profile from './screens/Users/BuyerPages/Profile/Profile';
 import EditPhoneNumberPage from './screens/Users/BuyerPages/Profile/EditPhoneNumberPage';
 import EditAlternativeNumberPage from './screens/Users/BuyerPages/Profile/EditAlternativeNumberPage';
+import ChangePasswordOTPPage from './screens/Users/BuyerPages/Profile/ChangePasswordOTPPage';
 import Addresses from './screens/Users/BuyerPages/Profile/Adresses';
 // import ChangePassword from './screens/AuthPages/ChangePasswordPage';
 import ConfirmChangePassword from './screens/AuthPages/ConfirmChangePasswordPage';
@@ -251,6 +252,7 @@ function Layout({ userType, userId, refreshProfile, setRefreshProfile }) {
             <Route path="profile" element={<Profile onProfileUpdate={() => setRefreshProfile(prev => prev + 1)} />} />
             <Route path="editPhoneNumber" element={<EditPhoneNumberPage />} />
             <Route path="editAlternativeNumber" element={<EditAlternativeNumberPage />} />
+            <Route path="changePasswordOTP" element={<ChangePasswordOTPPage />} />
             <Route path="address" element={<Addresses />} />
             {/* <Route path="change_password" element={<ChangePassword />} /> */}
             <Route path="changePassword" element={<ChangePasswordPage />} />

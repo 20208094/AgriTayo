@@ -76,6 +76,7 @@ import ShopOTPScreen from "./app/screens/farmers/ShopOTPScreen";
 import EditShopPhoneInformationScreen from "./app/screens/farmers/EditShopPhoneInformationScreen";
 import EditShopAlternativePhoneInformationScreen from "./app/screens/farmers/EditShopAlternativePhoneInformationScreen";
 import ChangePasswordScreen from "./app/screens/Profile/ChangePasswordScreen";
+import EditPasswordOTPScreen from "./app/screens/Profile/EditPasswordOTPScreen";
 // for farmers
 import ShopScreen from "./app/screens/farmers/Shop/ShopScreen";
 import ViewShopScreen from "./app/screens/farmers/Shop/ViewShopScreen";
@@ -339,6 +340,11 @@ function App() {
             <Stack.Screen
               name="View Profile"
               component={ViewProfileScreen}
+              options={screenOptions}
+            />
+            <Stack.Screen
+              name="Edit Password"
+              component={EditPasswordOTPScreen}
               options={screenOptions}
             />
             <Stack.Screen
