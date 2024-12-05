@@ -10,7 +10,8 @@ import {
 import pic from "../../assets/emailotp.png";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 import { io } from "socket.io-client";
-import GoBack from "../../components/GoBack";
+import GoBack from "../../components/GoBack"
+import { Ionicons } from '@expo/vector-icons'; 
 
 function LostPhoneNumberOTPScreen({ navigation, route }) {
   const { secondaryPhoneNumber } = route.params;
@@ -107,7 +108,12 @@ function LostPhoneNumberOTPScreen({ navigation, route }) {
 
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
-      <GoBack navigation={navigation} />
+      <TouchableOpacity
+      className="absolute top-4 left-4"
+      onPress={() => navigation.replace("Login")} // Navigate back on press
+    >
+      <Ionicons name="arrow-back-outline" size={24} color="#00b251" />
+    </TouchableOpacity>
       <View className="flex-1 justify-center items-center p-6">
         <Image source={pic} className="w-3/4 h-1/4 mb-6" resizeMode="contain" />
 
@@ -159,10 +165,9 @@ function LostPhoneNumberOTPScreen({ navigation, route }) {
 
         {seconds > 0 && (
           <Text className="text-gray-600 mb-4">
-          - The OTP will expire in {formatTime(seconds)}
-        </Text>
+            - The OTP will expire in {formatTime(seconds)}
+          </Text>
         )}
-        
 
         <TouchableOpacity
           onPress={handleOtp}

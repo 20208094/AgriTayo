@@ -4,6 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { styled } from "nativewind";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 import GoBack from "../../components/GoBack";
+import { Ionicons } from '@expo/vector-icons';
 
 function NewPhoneNumberScreen({ navigation, route }) {
 
@@ -57,7 +58,7 @@ function NewPhoneNumberScreen({ navigation, route }) {
           const data = await response.json();
           console.log("Successfully Updated Phone Number and Password", data)
           Alert.alert("Success!", "Successfully Added Phone Number and Password")
-          navigation.navigate("Login");
+          navigation.replace("Login");
         } else {
           const errorData = await response.json();
           console.error("Adding new phone number and password failed:", errorData);
@@ -74,7 +75,12 @@ function NewPhoneNumberScreen({ navigation, route }) {
 
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
-      <GoBack navigation={navigation}/>
+      <TouchableOpacity
+      className="absolute top-4 left-4"
+      onPress={() => navigation.replace("Login")} // Navigate back on press
+    >
+      <Ionicons name="arrow-back-outline" size={24} color="#00b251" />
+    </TouchableOpacity>
       <View className="flex-1 justify-center items-center px-5">
         <View className="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
           <Text className="text-2xl font-bold text-green-700 mb-4 text-center">

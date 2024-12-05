@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -36,7 +36,7 @@ const NewUsersAnalyticsPage = () => {
   const [totalBuyersCount, setTotalBuyersCount] = useState(0);
   const [totalSellersCount, setTotalSellersCount] = useState(0);
 
-  const fetchNewUsersData = async (filter) => {
+  const fetchNewUsersData =  useCallback(async (filter) => {
     try {
       const response = await fetch(`/api/users?filter=${filter}`, {
         headers: {
@@ -96,11 +96,17 @@ const NewUsersAnalyticsPage = () => {
     } catch (error) {
       console.error('Error fetching new users data:', error);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchNewUsersData(selectedFilter);
-  }, [selectedFilter]);
+  
+    const interval = setInterval(() => {
+      fetchNewUsersData(selectedFilter);
+    }, 5000);
+  
+    return () => clearInterval(interval);
+  }, [selectedFilter, fetchNewUsersData]);
 
   const generateLabels = () => {
     const currentDate = new Date();

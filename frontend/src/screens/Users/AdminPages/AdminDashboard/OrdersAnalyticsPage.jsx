@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -32,7 +32,7 @@ const OrdersAnalyticsPage = () => {
   const [orderCounts, setOrderCounts] = useState({});
 
   // Create a mapping between status_id and status names
-  const statusMap = {
+  const statusMap = useMemo(() => ({
     1: 'ToConfirm',
     2: 'Preparing',
     3: 'Shipping',
@@ -42,7 +42,7 @@ const OrdersAnalyticsPage = () => {
     7: 'ToRate',
     8: 'Completed',
     9: 'Rejected',
-  };
+  }), []);
 
   const fetchOrders = useCallback(async () => {
     try {
@@ -51,11 +51,11 @@ const OrdersAnalyticsPage = () => {
           'x-api-key': API_KEY,
         },
       });
-
+  
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
-
+  
       const data = await response.json();
       const counts = {
         ToConfirm: [],
@@ -68,7 +68,7 @@ const OrdersAnalyticsPage = () => {
         Completed: [],
         Rejected: [],
       };
-
+  
       // Populate counts based on status_id
       data.forEach(order => {
         const statusName = statusMap[order.status_id];
@@ -76,17 +76,33 @@ const OrdersAnalyticsPage = () => {
           counts[statusName].push(order);
         }
       });
-
+  
       setOrderCounts(counts);
       console.log('counts :', counts);
     } catch (error) {
       console.error('Error fetching orders:', error);
     }
-  }, []);
+  }, [statusMap]); // <-- Add statusMap as a dependency
+   
 
   useEffect(() => {
     fetchOrders();
   }, [fetchOrders]);
+
+  useEffect(() => {
+    fetchOrders(); // Fetch data initially
+  
+    // Polling for new data every 30 seconds
+    const pollingInterval = setInterval(() => {
+      fetchOrders();
+    }, 10000);
+  
+    // Clean up the interval on unmount
+    return () => {
+      clearInterval(pollingInterval);
+    };
+  }, [fetchOrders]);
+  
 
   const generateLabels = () => {
     const currentDate = new Date();
