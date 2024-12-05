@@ -215,7 +215,7 @@ const { login } = require('./supabase_connection/user_auth_services/login');
 const { loginMobile } = require('./supabase_connection/user_auth_services/loginMobile');
 const { register } = require('./supabase_connection/user_auth_services/register');
 const { logout } = require('./supabase_connection/user_auth_services/logout');
-const { notifySeller } = require('./supabase_connection/crud_services/notify.js')
+const { notifyUser } = require('./supabase_connection/crud_services/notify.js')
 const { checkoutOrder } = require('./supabase_connection/crud_services/checkoutOrder.js');
 const { smsSender } = require('./supabase_connection/sms_sender.js')
 
@@ -283,7 +283,7 @@ app.post('/api/register', register);
 // API for logout
 app.post('/api/logout', logout);
 
-app.post('/api/notifySeller', notifySeller)
+app.post('/api/notifyUser', notifyUser)
 
 // API routes for sample data
 app.get('/api/data/sample', getSampleData);

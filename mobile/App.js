@@ -1,4 +1,5 @@
 import * as React from "react";
+import * as Notifications from "expo-notifications";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { useEffect, useState } from "react";
@@ -105,10 +106,10 @@ import EditBidScreen from "./app/screens/farmers/Shop/FarmersBidding/EditBidScre
 // for chat
 import ChatScreen from "./app/screens/Chat/ChatScreen";
 import ChatListScreen from "./app/screens/Chat/ChatListScreen";
-import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 import { SafeAreaView } from "react-native-safe-area-context";
 import FilterProductsScreen from "./app/screens/Market/FilterProductsScreen";
 import CompareShopsScreen from "./app/screens/Market/CompareShospScreen";
+import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 const SOCKET_URL = REACT_NATIVE_API_BASE_URL;
 
 const Stack = createStackNavigator();
@@ -153,6 +154,7 @@ function App() {
       if (response.ok) {
         const data = await response.json();
         setUserSession(data);
+        setUserData(data);
         await fetchUsers(data);
         if ((data.user_type_id = 2 || 1)) {
           await fetchShops(data);
@@ -247,6 +249,13 @@ function App() {
     socket.on("connect", () => {
       console.log("WebSocket connected:", socket.id);
     });
+
+    socket.on("mobilePushNotification", (notificationData) => {
+      if (notificationData.user_id === userData.user_id){
+        triggerNotification(notificationData);
+      } 
+    });
+    
     socket.on("disconnect", () => {
       console.log("WebSocket disconnected");
     });
@@ -262,6 +271,65 @@ function App() {
     }, 10000);
   }, []);
 
+  // PUSH NOTIFICATIONS
+  useEffect(() => {
+    // Request notification permissions
+    async function requestPermissions() {
+      const { status } = await Notifications.requestPermissionsAsync();
+      console.log("Notification Permission Status:", status);
+      if (status !== "granted") {
+        alert("Permission to receive notifications was denied");
+      }
+    }
+
+    requestPermissions();
+
+    // Notification handler for foreground notifications
+    Notifications.setNotificationHandler({
+      handleNotification: async (notification) => {
+        console.log("Foreground notification received:", notification);
+        return {
+          shouldShowAlert: true, // Shows the notification alert
+          shouldPlaySound: true, // Plays sound when notification is triggered
+          shouldSetBadge: false, // No badge count
+        };
+      },
+    });
+
+    // Handle notifications received in the foreground
+    const notificationListener = Notifications.addNotificationReceivedListener((notification) => {
+      console.log("Notification received in foreground:", notification);
+    });
+
+    const responseListener = Notifications.addNotificationResponseReceivedListener((response) => {
+      console.log("Notification response received:", response);
+      const screen = response.notification.request.content.data.screen;
+      if (screen) {
+        console.log(' navigating to:', screen);
+        navigationRef.current?.navigate(screen);
+      }
+    });
+
+    return () => {
+      Notifications.removeNotificationSubscription(notificationListener);
+      Notifications.removeNotificationSubscription(responseListener);
+    };
+  }, []);
+
+
+  const triggerNotification = async (notificationData) => {
+    console.log("Triggering notification with data:", notificationData);
+
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: notificationData.title || "Default Title", // Customize the title
+        body: notificationData.body || "Default Body",  // Customize the body
+        data: { screen: "Biddings" },
+      },
+      trigger: null,  // Trigger immediately
+    });
+  };
+
   const screenOptions = {
     headerTitleStyle: {
       color: "#00B251",
@@ -271,7 +339,7 @@ function App() {
   };
 
   return (
-    <NavigationContainer>
+    <NavigationContainer ref={navigationRef}>
       <Stack.Navigator initialRouteName="Splash">
         {isLoading ? (
           <Stack.Screen

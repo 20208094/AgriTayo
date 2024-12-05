@@ -11,6 +11,10 @@ import LogoutModal from './LogoutModal';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { RiPushpinFill, RiUnpinFill } from "react-icons/ri";
 import { TiThMenu } from "react-icons/ti";
+import io from 'socket.io-client';
+
+
+const socket = io('http://localhost:8080');
 
 function LeftSidebar({ userType }) {
     const [windowWidth, setWindowWidth] = useState(window.innerWidth); // Track window width
@@ -68,6 +72,17 @@ function LeftSidebar({ userType }) {
         }
     }, [location]);
 
+    const sendPushNotification = () => {
+        const sampleNotification = {
+            user_id: 95, // Example user ID
+            title: "Sample Notification Title",
+            message: "This is a sample push notification message.",
+            screen: "Notifications",
+        };
+        // Emit the notification to the socket
+        socket.emit('mobilePushNotification', sampleNotification);
+    };
+
     return (
         <>
             {/* Hide Button for Mobile */}
@@ -118,6 +133,16 @@ function LeftSidebar({ userType }) {
                 ) : (
                     <SidebarItem className='align-bottom' to="/login" icon={IoLogIn} text="Login" />
                 )}
+
+                {/* Trigger Notification Button */}
+                {/* <div className="p-4">
+                    <button
+                        onClick={sendPushNotification}
+                        className="bg-green-500 text-white px-4 py-2 rounded shadow hover:bg-green-600"
+                    >
+                        Trigger Notification
+                    </button>
+                </div> */}
 
                 {/* Pin Toggle Button */}
                 <button onClick={handlePinToggle} className={`pin-button ${window.innerWidth <= 767 ? 'hidden' : ''}`}>

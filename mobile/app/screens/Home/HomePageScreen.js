@@ -143,7 +143,7 @@ function HomePageScreen() {
             </TouchableOpacity>
           </View>
           <View className="flex-row flex-wrap justify-between">
-            {categories.slice(0, 6).map((category) => (
+            {categories.map((category) => (
               <View key={category.crop_category_id} className="w-[48%]">
                 <MarketCategoryCard cropCategory={category} />
               </View>

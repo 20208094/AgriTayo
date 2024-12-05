@@ -63,6 +63,21 @@ function initializeSocket(server) {
                 console.error('Error handling notification:', error);
             }
         });
+
+        socket.on('mobilePushNotification', (notif) => {
+            console.log('triggering mobile push notification')
+            try {
+                // Emit the notification to all connected clients
+                io.emit('mobilePushNotification', {
+                    user_id: notif.user_id, // Target user ID
+                    title: notif.title || "Default Notification Title", // Notification title
+                    body: notif.message || "Default notification message", // Notification body
+                    screen: notif.screen || "Notifications",
+                });
+            } catch (error) {
+                console.error('Error handling notification:', error);
+            }
+        });
         
         socket.on('requestActiveUsers', () => {
             // Emit the current list of active users to the requesting client
@@ -92,12 +107,6 @@ function initializeSocket(server) {
                 console.log('SMS request received:', title, message, phone_number);
 
                 socket.broadcast.emit('sms sender', { title, message, phone_number });
-                // Here you can add the logic for sending the SMS
-                // This can be forwarded to the device with the SIM card or an SMS service.
-                // For now, we'll just log it.
-                
-                // Example:
-                // sendSmsToDevice({ title, message }); // Forward the SMS request to your device with SIM card
 
                 // Emit a confirmation or error response back to the sender (if needed)
                 socket.emit('sms status', { status: 'SMS received', title, message, phone_number });
