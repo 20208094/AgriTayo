@@ -221,8 +221,6 @@ function ViewProfileScreen({ route, navigation }) {
     }
   };
 
-
-
   // Handle form submission
   const handleSubmit = async () => {
     if (!validateFields()) {

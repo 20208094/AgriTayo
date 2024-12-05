@@ -34,6 +34,7 @@ async function addCropCategory(req, res) {
       const crop_category_name = fields.crop_category_name[0];
       const crop_category_description = fields.crop_category_description[0];
       const image = files.image ? files.image[0] : null;
+      console.log('image :', image);
 
       let crop_category_image_url = null;
 

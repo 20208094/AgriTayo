@@ -22,6 +22,7 @@ async function getReviewImages(req, res) {
 }
 
 async function addReviewImage(req, res) {
+    console.log('went to addReviewImage :', );
     try {
         const form = new formidable.IncomingForm({ multiples: true });
 
@@ -31,17 +32,21 @@ async function addReviewImage(req, res) {
                 return res.status(500).json({ error: 'Form parsing error' });
             }
 
-            const review_id = fields.review_id[0];
+            const shop_id = fields.shop_id[0];
+            console.log('shop_id :', shop_id);
+            const order_id = fields.order_id[0];
+            console.log('order_id :', order_id);
             const image = files.image ? files.image[0] : null;
+            console.log('image :', image);
 
-            if (!review_id || !image) {
-                return res.status(400).json({ error: 'Review ID and image are required' });
+            if (!shop_id || !order_id || !image) {
+                return res.status(400).json({ error: 'Shop ID, Order ID and image are required' });
             }
 
-            let image_url;
+            let review_image_url;
 
             try {
-                image_url = await imageHandler.uploadImage(image);
+                review_image_url = await imageHandler.uploadImage(image);
             } catch (uploadError) {
                 console.error('Image upload error:', uploadError.message);
                 return res.status(500).json({ error: 'Image upload failed' });
@@ -50,7 +55,7 @@ async function addReviewImage(req, res) {
             try {
                 const { data, error } = await supabase
                     .from('review_images')
-                    .insert([{ review_id, image_url }]);
+                    .insert([{ shop_id, review_image_url, order_id }]);
 
                 if (error) {
                     console.error('Supabase query failed:', error.message);
