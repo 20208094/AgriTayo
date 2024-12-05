@@ -28,9 +28,13 @@ function OTPPhonesPage() {
     const [phoneNumber, setPhoneNumber] = useState('')
     const [secondaryPhoneNumber, setSecondaryPhoneNumber] = useState('')
 
+    const [showModal, setShowModal] = useState(false);
+    const [modalMessage, setModalMessage] = useState('');
+    const [modalType, setModalType] = useState('success');
+
     const generateRandomCode = async () => {
         const code = Math.floor(100000 + Math.random() * 900000).toString();
-        setGeneratedCode(code); // Store generated code in state
+        setGeneratedCode(code);
         const title = "AgriTayo";
         const message = `Your OTP code is: ${code}`;
         const phone_number = formData.phone_number;
@@ -55,17 +59,21 @@ function OTPPhonesPage() {
 
             const data = await response.json();
             console.log('SMS sent successfully:', data);
-            alert('Message sent successfully!');
+            setModalType('success');
+            setModalMessage('Message sent successfully!');
+            setShowModal(true);
 
         } catch (error) {
             console.error('Error sending SMS:', error);
-            alert('Failed to send the message.');
+            setModalType('error');
+            setModalMessage('Failed to send the message.');
+            setShowModal(true);
         }
     };
 
     const generateRandomCode2 = async () => {
         const code = Math.floor(100000 + Math.random() * 900000).toString();
-        setGeneratedCode2(code); // Store generated code in state
+        setGeneratedCode2(code);
         const title = "AgriTayo";
         const message = `Your OTP code is: ${code}`;
         const phone_number = formData.secondary_phone_number;
@@ -90,11 +98,15 @@ function OTPPhonesPage() {
 
             const data = await response.json();
             console.log('SMS sent successfully:', data);
-            alert('Message sent successfully!');
+            setModalType('success');
+            setModalMessage('Message sent successfully!');
+            setShowModal(true);
 
         } catch (error) {
             console.error('Error sending SMS:', error);
-            alert('Failed to send the message.');
+            setModalType('error');
+            setModalMessage('Failed to send the message.');
+            setShowModal(true);
         }
     };
 
@@ -220,7 +232,7 @@ function OTPPhonesPage() {
 
     console.log(formData)
     return (
-        <div className="fixed inset-0" style={{ background: 'linear-gradient(to right, rgb(182, 244, 146), rgb(51, 139, 147))' }}>
+        <div className="fixed inset-0 bg-gradient-to-r from-[rgb(182,244,146)] to-[rgb(51,139,147)]">
             <div className="absolute inset-0 flex items-center justify-center p-4">
                 <div className="w-full max-w-2xl bg-white/90 backdrop-blur-sm rounded-2xl shadow-2xl overflow-hidden">
                     {/* Header Section */}
@@ -371,6 +383,32 @@ function OTPPhonesPage() {
                     </div>
                 </div>
             </div>
+
+            {/* Add Modal */}
+            {showModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+                    <div className="bg-white rounded-lg p-6 max-w-sm w-full">
+                        <div className="flex items-center justify-center mb-4">
+                            {modalType === 'success' ? (
+                                <svg className="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                </svg>
+                            ) : (
+                                <svg className="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            )}
+                        </div>
+                        <p className="text-center text-gray-700 mb-4">{modalMessage}</p>
+                        <button
+                            onClick={() => setShowModal(false)}
+                            className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition-colors duration-200"
+                        >
+                            Close
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

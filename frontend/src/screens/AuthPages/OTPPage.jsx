@@ -13,6 +13,9 @@ function OTPPage() {
     console.log(formData)
 
     const [showSuccessModal, setShowSuccessModal] = useState(false)
+    const [showModal, setShowModal] = useState(false);
+    const [modalMessage, setModalMessage] = useState('');
+    const [modalType, setModalType] = useState('success');
 
     const [generatedCode, setGeneratedCode] = useState("");
     const [isResendEnabled, setIsResendEnabled] = useState(false);
@@ -25,7 +28,7 @@ function OTPPage() {
 
     const generateRandomCode = async () => {
         const code = Math.floor(100000 + Math.random() * 900000).toString();
-        setGeneratedCode(code); // Store generated code in state
+        setGeneratedCode(code);
         const title = "AgriTayo";
         const message = `Your OTP code is: ${code}`;
         const phone_number = formData.phone_number;
@@ -50,11 +53,15 @@ function OTPPage() {
 
             const data = await response.json();
             console.log('SMS sent successfully:', data);
-            alert('Message sent successfully!');
+            setModalType('success');
+            setModalMessage('Message sent successfully!');
+            setShowModal(true);
 
         } catch (error) {
             console.error('Error sending SMS:', error);
-            alert('Failed to send the message.');
+            setModalType('error');
+            setModalMessage('Failed to send the message.');
+            setShowModal(true);
         }
     };
 
@@ -109,20 +116,24 @@ function OTPPage() {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'x-api-key': API_KEY // Include the API key in the request headers
+                        'x-api-key': API_KEY
                     },
                     body: JSON.stringify(formData)
                 });
                 if (!response.ok) {
                     const errorData = await response.json();
-                    alert(errorData.error + ": " + errorData.details);
+                    setModalType('error');
+                    setModalMessage(`${errorData.error}: ${errorData.details}`);
+                    setShowModal(true);
                     return;
                 }
                 setShowSuccessModal(true);
                 
             } catch (error) {
                 console.error('Error during registration:', error);
-                alert('An error occurred. Please try again.');
+                setModalType('error');
+                setModalMessage('An error occurred. Please try again.');
+                setShowModal(true);
             } finally {
                 setLoading(false)
             }
@@ -238,7 +249,33 @@ function OTPPage() {
                 </div>
             </div>
 
-            {/* Success Modal */}
+            {/* Add Modal for general messages */}
+            {showModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+                    <div className="bg-white rounded-lg p-6 max-w-sm w-full">
+                        <div className="flex items-center justify-center mb-4">
+                            {modalType === 'success' ? (
+                                <svg className="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                </svg>
+                            ) : (
+                                <svg className="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            )}
+                        </div>
+                        <p className="text-center text-gray-700 mb-4">{modalMessage}</p>
+                        <button
+                            onClick={() => setShowModal(false)}
+                            className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition-colors duration-200"
+                        >
+                            Close
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {/* Keep existing Success Modal for registration */}
             {showSuccessModal && (
                 <Modal isOpen={true} onClose={handleCloseModal}>
                     <div className="bg-white/90 backdrop-blur-sm p-8 rounded-2xl shadow-2xl max-w-md mx-auto">

@@ -20,6 +20,10 @@ function ForgotPasswordOTPPage() {
 
     const [phoneNumber, setPhoneNumber] = useState('')
 
+    const [showModal, setShowModal] = useState(false);
+    const [modalMessage, setModalMessage] = useState('');
+    const [modalType, setModalType] = useState('success'); // 'success' or 'error'
+
     const generateRandomCode = async () => {
         const code = Math.floor(100000 + Math.random() * 900000).toString();
         setGeneratedCode(code); // Store generated code in state
@@ -47,11 +51,15 @@ function ForgotPasswordOTPPage() {
 
             const data = await response.json();
             console.log('SMS sent successfully:', data);
-            alert('Message sent successfully!');
+            setModalType('success');
+            setModalMessage('Message sent successfully!');
+            setShowModal(true);
 
         } catch (error) {
             console.error('Error sending SMS:', error);
-            alert('Failed to send the message.');
+            setModalType('error');
+            setModalMessage('Failed to send the message.');
+            setShowModal(true);
         }
     };
 
@@ -244,6 +252,32 @@ function ForgotPasswordOTPPage() {
                     </div>
                 </div>
             </div>
+
+            {/* Add Modal */}
+            {showModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+                    <div className="bg-white rounded-lg p-6 max-w-sm w-full">
+                        <div className="flex items-center justify-center mb-4">
+                            {modalType === 'success' ? (
+                                <svg className="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                </svg>
+                            ) : (
+                                <svg className="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            )}
+                        </div>
+                        <p className="text-center text-gray-700 mb-4">{modalMessage}</p>
+                        <button
+                            onClick={() => setShowModal(false)}
+                            className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition-colors duration-200"
+                        >
+                            Close
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
