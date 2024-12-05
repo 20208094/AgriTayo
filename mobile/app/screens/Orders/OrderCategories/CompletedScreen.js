@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { View, Text, ScrollView, TouchableOpacity, SafeAreaView } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import PurchaseHistoryReports from "../../../components/PurchaseHistoryReports";
 
 const CompletedScreen = ({ orders, orderProducts }) => {
   const [completedOrders, setCompletedOrders] = useState([]);
@@ -36,6 +37,19 @@ const CompletedScreen = ({ orders, orderProducts }) => {
     assembleCompletedOrders();
   }, [orders, orderProducts]);
 
+  const transformToReportData = () => {
+    return completedOrders.flatMap((order) =>
+      order.items.map((item) => ({
+        item_name: item.item_name,
+        total_price: `₱${item.order_prod_total_price}`,
+        order_date: formatDate(order.order_date),
+        receive_date: formatDate(order.completed_date),
+        shipping_method: order.shipping_method || "N/A",
+        payment_method: order.payment_method || "N/A",
+      }))
+    );
+  };
+
   if (completedOrders.length === 0) {
     return (
       <SafeAreaView>
@@ -46,6 +60,7 @@ const CompletedScreen = ({ orders, orderProducts }) => {
 
   return (
     <SafeAreaView className="bg-gray-100">
+       <PurchaseHistoryReports purchaseHistory={transformToReportData()} />
       <ScrollView className="p-5">
         {completedOrders.map((completedOrder) => (
           <View key={completedOrder.order_id} className="p-4 mb-6 bg-white border border-[#00B251] rounded-lg shadow-md">
