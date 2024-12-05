@@ -83,21 +83,44 @@ async function updateOrderStat(req, res) {
     }
 }
 
-async function orderShopRate(req, res){
-    const { id } = req.params;
-    const { review_image_id, review_id, image_url, shop_id, order_id, ratings, review, shop_rating, shop_total_rating } = req.body;
+async function orderShopRate(req, res) {
     try {
-        const { data, error } = await supabase
-            .from('orders')
-            .update({ review_image_id, review_id, image_url, shop_id, order_id, ratings, review, shop_rating, shop_total_rating })
-            .eq('order_id', id);
+        const { shop_id, order_id, ratings, review, shop_rating, shop_total_rating } = req.body;
 
-        if (error) {
-            console.error('Supabase query failed:', error.message);
-            return res.status(500).json({ error: 'Internal server error' });
+        // First update the order with the rating and review
+        const { data: orderData, error: orderError } = await supabase
+            .from('orders')
+            .update({ 
+                ratings: ratings,
+                review: review 
+            })
+            .eq('order_id', order_id)
+            .select();
+
+        if (orderError) {
+            console.error('Failed to update order rating:', orderError.message);
+            return res.status(500).json({ error: 'Failed to update order rating' });
         }
 
-        res.status(200).json({ message: 'Order updated successfully', data });
+        // Then update the shop's rating
+        const { data: shopData, error: shopError } = await supabase
+            .from('shop')
+            .update({ 
+                shop_rating: shop_rating,
+                shop_total_rating: shop_total_rating 
+            })
+            .eq('shop_id', shop_id)
+            .select();
+
+        if (shopError) {
+            console.error('Failed to update shop rating:', shopError.message);
+            return res.status(500).json({ error: 'Failed to update shop rating' });
+        }
+
+        res.status(200).json({ 
+            message: 'Rating submitted successfully', 
+            data: { order: orderData, shop: shopData } 
+        });
     } catch (err) {
         console.error('Error executing Supabase query:', err.message);
         res.status(500).json({ error: 'Internal server error' });
