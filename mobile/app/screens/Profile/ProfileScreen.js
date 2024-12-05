@@ -237,7 +237,7 @@ function ProfileScreen({ fetchUserSession }) {
           </TouchableOpacity>
           <TouchableOpacity
             className="flex-row items-center justify-between"
-            onPress={() => navigation.navigate("Change Password", { userData })}
+            onPress={() => navigation.navigate("Edit Password", { userData })}
           >
             <View className="flex-row items-center">
               <Icon name="lock-reset" type="material-community" size={20} color="#00B251" />

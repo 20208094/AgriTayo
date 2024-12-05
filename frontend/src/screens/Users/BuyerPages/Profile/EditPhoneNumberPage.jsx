@@ -161,65 +161,91 @@ function EditPhoneNumberPage() {
 
     if (loading) {
         return (
-            <div className="flex justify-center items-center min-h-screen">
-                <p className="text-lg text-green-600">Loading...</p>
+            <div className="min-h-screen bg-gradient-to-br from-[rgb(182,244,146)] to-[rgb(51,139,147)] flex justify-center items-center">
+                <div className="loading text-white text-xl">Loading...</div>
             </div>
-        )
+        );
     }
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
-            <div className="bg-white shadow-md rounded-lg p-6 max-w-md w-full">
-                <h1 className="text-2xl font-bold text-center text-green-600 mb-4">Edit Phone Number</h1>
-                <div className="mb-4">
-                    <input
-                        type="text"
-                        placeholder="09123456789"
-                        value={newPhone}
-                        onChange={e => setNewPhone(e.target.value)}
-                        disabled={isClicked}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-green-600"
-                    />
-                    {phoneError && <p className="text-red-500 text-sm mt-1">{phoneError}</p>}
-                </div>
-                {!isClicked && (
-                    <button
-                        onClick={handleConfirm}
-                        className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition-colors"
-                    >
-                        Confirm
-                    </button>
-                )}
-                {isClicked && (
-                    <>
-                        <p className="text-center mt-4">Enter your 6-digit code:</p>
-                        <div className="mb-4">
-                            <input
-                                type="text"
-                                value={otp}
-                                onChange={e => setOtp(e.target.value)}
-                                placeholder="123456"
-                                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-green-600"
-                            />
-                            {otpError && <p className="text-red-500 text-sm mt-1">{otpError}</p>}
+        <div className="min-h-screen bg-gradient-to-br from-[rgb(182,244,146)] to-[rgb(51,139,147)] flex items-center justify-center p-4">
+            <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 max-w-md w-full backdrop-blur-lg bg-opacity-90">
+                <div className="text-center">
+                    <h1 className="text-3xl font-bold text-gray-800 mb-2">Edit Phone Number</h1>
+                    <p className="text-gray-600 mb-6">Update your contact information</p>
+
+                    {!isClicked ? (
+                        <div className="space-y-4">
+                            <div className="relative">
+                                <input
+                                    type="text"
+                                    placeholder="Enter new phone number"
+                                    value={newPhone}
+                                    onChange={(e) => setNewPhone(e.target.value)}
+                                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                                />
+                                {phoneError && (
+                                    <p className="text-red-500 text-sm mt-1">{phoneError}</p>
+                                )}
+                            </div>
+                            <button
+                                onClick={handleConfirm}
+                                className="w-full bg-gradient-to-r from-green-500 to-teal-500 text-white py-3 rounded-lg hover:from-green-600 hover:to-teal-600 transition-all transform hover:scale-[1.02] font-medium"
+                            >
+                                Confirm
+                            </button>
                         </div>
-                        <button
-                            onClick={handleOtp}
-                            className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition-colors"
-                        >
-                            Submit
-                        </button>
-                        <p className="text-center mt-4">- Didn’t receive the code?</p>
-                        <button
-                            onClick={handleResend}
-                            disabled={!isResendEnabled}
-                            className={`w-full py-2 mt-2 rounded-lg ${isResendEnabled ? 'bg-green-600 text-white hover:bg-green-700' : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`}
-                        >
-                            Resend
-                        </button>
-                        {seconds > 0 && <p className="text-center mt-2 text-sm text-gray-600">- OTP expires in {formatTime(seconds)}</p>}
-                    </>
-                )}
+                    ) : (
+                        <div className="space-y-4">
+                            <p className="text-gray-600 mb-4">
+                                A 6-digit code has been sent to
+                                <span className="font-semibold block">{newPhone}</span>
+                            </p>
+
+                            <div className="relative">
+                                <input
+                                    type="text"
+                                    placeholder="Enter 6-digit code"
+                                    maxLength="6"
+                                    value={otp}
+                                    onChange={(e) => setOtp(e.target.value)}
+                                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                                />
+                                {otpError && (
+                                    <p className="text-red-500 text-sm mt-1">{otpError}</p>
+                                )}
+                            </div>
+
+                            <button
+                                onClick={handleOtp}
+                                className="w-full bg-gradient-to-r from-green-500 to-teal-500 text-white py-3 rounded-lg hover:from-green-600 hover:to-teal-600 transition-all transform hover:scale-[1.02] font-medium"
+                            >
+                                Verify
+                            </button>
+
+                            <div className="text-center space-y-2">
+                                <p className="text-gray-600">Didn't receive the code?</p>
+                                <button
+                                    onClick={handleResend}
+                                    disabled={!isResendEnabled}
+                                    className={`w-full py-2 rounded-lg transition-all ${
+                                        isResendEnabled
+                                            ? 'bg-gradient-to-r from-green-500 to-teal-500 text-white hover:from-green-600 hover:to-teal-600 transform hover:scale-[1.02]'
+                                            : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                                    }`}
+                                >
+                                    Resend
+                                </button>
+                            </div>
+
+                            {seconds > 0 && (
+                                <p className="text-gray-600 text-sm text-center">
+                                    Code expires in {formatTime(seconds)}
+                                </p>
+                            )}
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );

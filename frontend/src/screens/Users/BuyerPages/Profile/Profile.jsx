@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 const API_KEY = import.meta.env.VITE_API_KEY;
-import { FaCamera, FaPencilAlt } from 'react-icons/fa';
+import { FaCamera, FaPencilAlt, FaSpinner, FaEye, FaEyeSlash, FaUser, FaPhone, FaCalendar } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 
 function Profile({ onProfileUpdate }) {
@@ -11,6 +11,7 @@ function Profile({ onProfileUpdate }) {
     const [image, setImage] = useState(null);
     const [imagePreview, setImagePreview] = useState(null); // State for the image preview
     const [notification, setNotification] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
 
     async function fetchUserSession() {
@@ -128,156 +129,187 @@ function Profile({ onProfileUpdate }) {
         }
     };
 
+    const togglePasswordVisibility = () => {
+        setShowPassword(!showPassword);
+    };
+
     return (
-        <>
+        <div className="min-h-screen bg-gradient-to-br from-[rgb(182,244,146)] to-[rgb(51,139,147)]">
             {loading ? (
-                <div className="profile-loading-container">
-                    <div className="profile-loading-text">Loading...</div>
+                <div className="flex items-center justify-center min-h-screen">
+                    <FaSpinner className="w-12 h-12 text-white animate-spin" />
                 </div>
             ) : (
-                <div className="profile-page-container">
-                    <div className="profile-content-container">
-                        <h1 className="profile-title">My Profile</h1>
-                        <p className="profile-subtitle">Manage and protect your account</p>
+                <div className="container mx-auto px-4 py-8">
+                    <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 max-w-4xl mx-auto backdrop-blur-lg bg-opacity-90">
+                        <h1 className="text-3xl font-bold text-gray-800 mb-2">My Profile</h1>
+                        <p className="text-gray-600 mb-6">Manage and protect your account</p>
 
                         {notification && (
-                            <div className={`notification ${notification.includes('successfully') ? 'success' : 'error'}`}>
+                            <div className={`p-4 mb-6 rounded-lg ${
+                                notification.includes('successfully') 
+                                    ? 'bg-green-100 text-green-700 border-l-4 border-green-500'
+                                    : 'bg-red-100 text-red-700 border-l-4 border-red-500'
+                            }`}>
                                 {notification}
                             </div>
                         )}
-                        {filteredUser ? (
-                            <form onSubmit={handleSubmit} className="profile-form" encType="multipart/form-data">
-                                <div className="profile-form-grid">
 
-                                    <div className="profile-input-group">
-                                        <div className="profile-photo-container">
+                        {filteredUser ? (
+                            <form onSubmit={handleSubmit} className="space-y-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    {/* Profile Photo Section */}
+                                    <div className="col-span-full flex flex-col items-center space-y-4">
+                                        <div className="relative group">
                                             <img
                                                 src={imagePreview || '/default-profile.png'}
                                                 alt="Profile"
-                                                className="profile-photo"
+                                                className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg transition-transform group-hover:scale-105"
                                             />
-                                        </div>
-                                        <div className="profile-input-group">
-                                            <label className="profile-label">Change Photo</label>
-                                            <label htmlFor="file-input" className="custom-file-input">
-                                                <FaCamera className="camera-icon" /> Choose Photo
+                                            <label htmlFor="file-input" 
+                                                className="absolute bottom-0 right-0 bg-white rounded-full p-2 shadow-lg cursor-pointer hover:bg-gray-50 transition-all">
+                                                <FaCamera className="w-5 h-5 text-gray-600" />
                                                 <input
                                                     type="file"
                                                     name="image"
                                                     accept="image/*"
                                                     id="file-input"
                                                     onChange={handleImageChange}
-                                                    className="file-input"
+                                                    className="hidden"
                                                 />
                                             </label>
                                         </div>
                                     </div>
 
-                                    <div className="profile-input-group">
-                                        <label className="profile-label">First Name</label>
-                                        <input
-                                            type="text"
-                                            name="firstname"
-                                            value={filteredUser.firstname}
-                                            placeholder="First Name"
-                                            onChange={handleInputChange}
-                                            className="profile-input"
-                                        />
-                                        <label className="profile-label">Middle Name</label>
-                                        <input
-                                            type="text"
-                                            name="middlename"
-                                            value={filteredUser.middlename}
-                                            placeholder="Middle Name"
-                                            onChange={handleInputChange}
-                                            className="profile-input"
-                                        />
-                                        <label className="profile-label">Last Name</label>
-                                        <input
-                                            type="text"
-                                            name="lastname"
-                                            value={filteredUser.lastname}
-                                            placeholder="Last Name"
-                                            onChange={handleInputChange}
-                                            className="profile-input"
-                                        />
+                                    {/* Name Fields */}
+                                    <div className="space-y-4">
+                                        <div className="relative">
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+                                            <div className="flex items-center">
+                                                <FaUser className="absolute ml-3 text-gray-400" />
+                                                <input
+                                                    type="text"
+                                                    name="firstname"
+                                                    value={filteredUser.firstname}
+                                                    onChange={handleInputChange}
+                                                    className="w-full pl-10 px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="relative">
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">Middle Name</label>
+                                            <div className="flex items-center">
+                                                <FaUser className="absolute ml-3 text-gray-400" />
+                                                <input
+                                                    type="text"
+                                                    name="middlename"
+                                                    value={filteredUser.middlename}
+                                                    onChange={handleInputChange}
+                                                    className="w-full pl-10 px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="relative">
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+                                            <div className="flex items-center">
+                                                <FaUser className="absolute ml-3 text-gray-400" />
+                                                <input
+                                                    type="text"
+                                                    name="lastname"
+                                                    value={filteredUser.lastname}
+                                                    onChange={handleInputChange}
+                                                    className="w-full pl-10 px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                                                />
+                                            </div>
+                                        </div>
                                     </div>
 
-                                    <div className="profile-input-group">
-                                        <label className="profile-label">Phone Number</label>
-                                        <div className="profile-input-wrapper">
-                                            <input
-                                                type="text"
-                                                name="phone_number"
-                                                value={filteredUser.phone_number}
-                                                placeholder="Phone Number"
-                                                onChange={handleInputChange}
-                                                className="profile-input with-icon"
-                                                readOnly
-                                            />
+                                    {/* Contact Information */}
+                                    <div className="space-y-4">
+                                        <div className="relative">
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                                            <div className="flex items-center relative">
+                                                <FaPhone className="absolute ml-3 text-gray-400" />
+                                                <input
+                                                    type="text"
+                                                    name="phone_number"
+                                                    value={filteredUser.phone_number}
+                                                    readOnly
+                                                    className="w-full pl-10 px-4 py-2 rounded-lg border border-gray-300 bg-gray-50"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => navigate('/admin/editPhoneNumber', { state: { userId } })}
+                                                    className="absolute right-2 top-1/2 -translate-y-1/2 p-2 hover:bg-gray-100 rounded-full transition-colors"
+                                                >
+                                                    <FaPencilAlt className="w-4 h-4 text-gray-600" />
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div className="relative">
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">Alternative Phone Number</label>
+                                            <div className="flex items-center relative">
+                                                <FaPhone className="absolute ml-3 text-gray-400" />
+                                                <input
+                                                    type="text"
+                                                    name="secondary_phone_number"
+                                                    value={filteredUser.secondary_phone_number}
+                                                    readOnly
+                                                    className="w-full pl-10 px-4 py-2 rounded-lg border border-gray-300 bg-gray-50"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => navigate('/admin/editAlternativeNumber', { state: { userId } })}
+                                                    className="absolute right-2 top-1/2 -translate-y-1/2 p-2 hover:bg-gray-100 rounded-full transition-colors"
+                                                >
+                                                    <FaPencilAlt className="w-4 h-4 text-gray-600" />
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div className="relative">
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">&nbsp;</label>
                                             <button
-                                                type='button'
-                                                onClick={() => navigate('/admin/editPhoneNumber', { state: { userId } })}
-                                                className='edit-icon-button'
+                                                type="button"
+                                                onClick={() => navigate('/admin/changePasswordOTP', { state: { userId, filteredUser } })}
+                                                className="w-full pl-10 px-6 py-2 bg-gradient-to-r from-green-500 to-teal-500 text-white rounded-lg hover:from-green-600 hover:to-teal-600 transition-all transform hover:scale-[1.02]"
                                             >
-                                                <FaPencilAlt className="edit-icon" />
+                                                Change Password
                                             </button>
                                         </div>
                                     </div>
 
-                                    <div className="profile-input-group">
-                                        <label className="profile-label">Alternative Phone Number</label>
-                                        <div className="profile-input-wrapper">
-                                            <input
-                                                type="text"
-                                                name="secondary_phone_number"
-                                                value={filteredUser.secondary_phone_number}
-                                                placeholder="Secondary Phone Number"
-                                                onChange={handleInputChange}
-                                                className="profile-input with-icon"
-                                                readOnly
-                                            />
-                                            <button
-                                                type='button'
-                                                onClick={() => navigate('/admin/editAlternativeNumber', { state: { userId } })}
-                                                className='edit-icon-button'
-                                            >
-                                                <FaPencilAlt className="edit-icon" />
-                                            </button>
+                                    {/* Additional Fields */}
+                                    <div className="space-y-4">
+                                        <div className="relative">
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">Birthday</label>
+                                            <div className="flex items-center">
+                                                <FaCalendar className="absolute ml-3 text-gray-400" />
+                                                <input
+                                                    type="date"
+                                                    name="birthday"
+                                                    value={filteredUser.birthday}
+                                                    onChange={handleInputChange}
+                                                    className="w-full pl-10 px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                                                />
+                                            </div>
                                         </div>
-                                    </div>
-
-                                    <div className="profile-input-group">
-                                        <label className="profile-label">Birthday</label>
-                                        <input
-                                            type="date"
-                                            name="birthday"
-                                            value={filteredUser.birthday}
-                                            onChange={handleInputChange}
-                                            className="profile-input"
-                                        />
-                                    </div>
-                                    <div className='profile-input-group'>
-                                    <label className="profile-label">Change Password</label>
-                                        <button onClick={() => navigate('/admin/changePassword', { state: { userId } })} className='bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors profile-input'>
-                                            Change your password
-                                        </button>
                                     </div>
                                 </div>
+
                                 <button
                                     type="submit"
-                                    className="profile-submit-button"
+                                    className="w-full bg-gradient-to-r from-green-500 to-teal-500 text-white py-3 rounded-lg hover:from-green-600 hover:to-teal-600 transition-all transform hover:scale-[1.02] font-medium"
                                 >
-                                    Submit
+                                    Save Changes
                                 </button>
                             </form>
                         ) : (
-                            <p className="profile-no-data">No user data found</p>
+                            <div className="text-center py-8 text-gray-600">No user data found</div>
                         )}
                     </div>
                 </div>
             )}
-        </>
+        </div>
     );
 }
 

@@ -157,7 +157,11 @@ function ChangePasswordScreen({ navigation, route }) {
               className="bg-[#00B251] p-3 rounded-lg flex-row justify-center items-center"
               onPress={() => setAlertVisible(false)}
             >
-              <Ionicons name="checkmark-circle-outline" size={24} color="white" />
+              <Ionicons
+                name="checkmark-circle-outline"
+                size={24}
+                color="white"
+              />
               <Text className="text-white text-center font-semibold ml-2">
                 OK
               </Text>
