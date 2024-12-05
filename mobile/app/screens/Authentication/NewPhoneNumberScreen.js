@@ -5,7 +5,6 @@ import { styled } from "nativewind";
 import { Ionicons } from "@expo/vector-icons";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 import GoBack from "../../components/GoBack";
-import { Ionicons } from '@expo/vector-icons';
 
 function NewPhoneNumberScreen({ navigation, route }) {
 
