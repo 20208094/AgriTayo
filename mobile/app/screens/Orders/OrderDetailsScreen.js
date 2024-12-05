@@ -10,7 +10,8 @@ function OrderDetailsScreen({ route }) {
   const quantity = item.order_prod_total_weight || "0";
   const metricSymbol = item.orig_prod_metric_symbol || "";
   const totalPrice = item.order_prod_total_price || "0.00";
-  const description = item.orig_prod_description || "Description not available.";
+  const description =
+    item.orig_prod_description || "Description not available.";
   const imageUrl = item.orig_prod_image_url || null;
 
   return (
@@ -21,9 +22,7 @@ function OrderDetailsScreen({ route }) {
           <Text className="text-2xl font-bold text-white" numberOfLines={2}>
             {productName}
           </Text>
-          <Text className="text-base text-white/90 mt-2">
-            {shopName}
-          </Text>
+          <Text className="text-base text-white/90 mt-2">{shopName}</Text>
         </View>
       </View>
 
@@ -62,7 +61,7 @@ function OrderDetailsScreen({ route }) {
           <View className="flex-1 bg-gray-50 rounded-2xl p-4">
             <Text className="text-sm text-gray-500 mb-1">Price per Unit</Text>
             <Text className="text-xl font-bold text-[#00B251]">
-              ₱{pricePerQuantity}
+              ₱{pricePerQuantity} {metricSymbol}
             </Text>
           </View>
           <View className="flex-1 bg-gray-50 rounded-2xl p-4">
