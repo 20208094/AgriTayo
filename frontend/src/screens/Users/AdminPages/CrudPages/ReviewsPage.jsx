@@ -115,6 +115,7 @@ function ReviewsPage() {
             });
             setIsEdit(false);
             setIsModalOpen(false);
+            setCreateModalOpen(false);
         } catch (error) {
             console.error('Error submitting form:', error);
         }
@@ -236,280 +237,331 @@ function ReviewsPage() {
 
 
     return (
-        <div className="p-6 max-w-7xl mx-auto">
-            <h1 className="text-3xl font-semibold mb-6 text-center text-[#00B251]">Reviews Management</h1>
-
-            {/* Button */}
-            <button
-                onClick={() => handleCreate(true)}
-                className="p-3 bg-[#00B251] text-white font-semibold rounded-lg shadow-md hover:bg-green-600 transition duration-300 mb-6"
-            >
-                + Review
-            </button>
-
-            {createModalOpen && (
-                <div className="fixed inset-0  bg-black bg-opacity-50 flex justify-center items-center z-50">
-                    <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
-                        <h2 className="text-2xl text-[#00B251] font-semibold">Add Review</h2>
-                        <form className="space-y-4" onSubmit={(e) => handleSubmit(e)}>
-                            <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
-                            <p className="text-l font-bold mb-4" style={{ marginTop: '20px',marginBottom: '-20px' }}>Crop Name</p>
-                                <select
-                                    name="crop_id"
-                                    value={formData.crop_id}
-                                    onChange={handleInputChange}
-                                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                                    required
-                                >
-                                    <option value="">Select Crop</option>
-                                    {crops.map((crop) => (
-                                        <option key={crop.crop_id} value={crop.crop_id}>
-                                            {crop.crop_name}
-                                        </option>
-                                    ))}
-                                </select>
-                            <p className="text-l font-bold mb-4" style={{ marginBottom: '-20px' }}>User</p>
-                                <select
-                                    name="user_id"
-                                    value={formData.user_id}
-                                    onChange={handleInputChange}
-                                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                                    required
-                                >
-                                    <option value="">Select User</option>
-                                    {users.map((user) => (
-                                        <option key={user.user_id} value={user.user_id}>
-                                            {user.firstname} {user.lastname}
-                                        </option>
-                                    ))}
-                                </select>
-                            <p className="text-l font-bold mb-4" style={{ marginBottom: '-20px' }}>Rating</p>
-                                <input
-                                    type="number"
-                                    name="rating"
-                                    value={formData.rating}
-                                    onChange={handleInputChange}
-                                    placeholder="Rating (1-5)"
-                                    min="1"
-                                    max="5"
-                                    step="0.1"
-                                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                                    required
-                                />
+        <div className="min-h-screen bg-gradient-to-r from-[rgb(182,244,146)] to-[rgb(51,139,147)]">
+            <div className="max-w-7xl mx-auto p-6 md:p-8">
+                {/* Header */}
+                <div className="mb-8">
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="flex-1">
+                            <h1 className="text-4xl font-bold text-white drop-shadow-md mb-2">
+                                Reviews Management
+                            </h1>
+                            <p className="text-white/80 text-lg font-medium">
+                                Manage and review user feedback
+                            </p>
+                        </div>
+                        <div className="hidden md:flex items-center space-x-4">
+                            <div className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/30">
+                                <span className="text-white font-medium">
+                                    {filteredReviews.length} Reviews
+                                </span>
                             </div>
-
-                            <p className="text-l font-bold mb-4" style={{ marginTop: '20px',marginBottom: '-20px' }}>Review Text</p>
-                                <textarea
-                                    name="review_text"
-                                    value={formData.review_text}
-                                    onChange={handleInputChange}
-                                    placeholder="Review Text"
-                                    className="w-full mt-6 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                                    required
-                                ></textarea>
-                        </form>
-                        <div className="flex justify-end mt-4">
-                            <button
-                                type="button"
-                                onClick={() => setCreateModalOpen(false)}
-                                className="bg-gray-400 text-white p-2 rounded mr-2"
-                            >
-                                Cancel
-                            </button>
-
-                            <button
-                                type="button"
-                                onClick={(e) => {
-                                    handleSubmit(e); 
-                                    setCreateModalOpen(false); 
-                                }}
-                                className="bg-green-600 text-white p-2 rounded"
-                            >
-                                Create
-                            </button>
                         </div>
                     </div>
                 </div>
-            )}
 
-            {/* Search, Filter, and Export Section */}
-            <div className="flex flex-col sm:flex-row justify-between items-center mb-6">
-                {/* Search Input */}
-                <input
-                    type="text"
-                    value={searchTerm}
-                    onChange={handleSearchChange}
-                    placeholder="Search reviews..."
-                    className="p-3 w-full sm:w-1/3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 mb-4 sm:mb-0"
-                />
+                {/* Search, Filter, and Export Section */}
+                <div className="flex flex-col sm:flex-row justify-between items-center mb-6">
+                    {/* Search Input */}
+                    <input
+                        type="text"
+                        value={searchTerm}
+                        onChange={handleSearchChange}
+                        placeholder="Search reviews..."
+                        className="bg-white/90 backdrop-blur-sm border-0 rounded-xl p-2 w-full sm:w-1/3
+                            focus:ring-2 focus:ring-white/50 transition-all duration-200 shadow-lg mb-4 sm:mb-0"
+                    />
 
-                {/* Filter Dropdown for Crops */}
-                <select
-                    className="p-3 w-full sm:w-1/6 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 mb-4 sm:mb-0"
-                    onChange={handleFilterChange} // <-- New filter change handler
-                >
-                    <option value="">Filter by Crop</option>
-                    {crops.map((crop) => (
-                        <option key={crop.crop_id} value={crop.crop_id}>
-                            {crop.crop_name}
-                        </option>
-                    ))}
-                </select>
-
-                {/* Filter Dropdown for Ratings */}
-                <select
-                    className="p-3 w-full sm:w-1/6 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 mb-4 sm:mb-0"
-                    onChange={handleRatingFilterChange} // <-- New rating filter change handler
-                >
-                    <option value="">Filter by Rating</option>
-                    <option value="5">5 Stars</option>
-                    <option value="4">4 Stars</option>
-                    <option value="3">3 Stars</option>
-                    <option value="2">2 Stars</option>
-                    <option value="1">1 Star</option>
-                </select>
-
-                {/* Export to PDF Button */}
-                <button onClick={exportToPDF} className="p-3 w-full sm:w-auto bg-[#00B251] text-white font-semibold rounded-lg shadow-md hover:bg-green-600 transition duration-300">
-                    Export to PDF
-                </button>
-            </div>
-
-            {/* Table Section */}
-            <div className="overflow-x-auto">
-                <table className="min-w-full border border-gray-300 rounded-lg overflow-hidden">
-                    <thead className="bg-[#00B251] text-white">
-                        <tr>
-                            <th className="p-3 border border-gray-300">ID</th>
-                            <th className="p-3 border border-gray-300">Crop</th>
-                            <th className="p-3 border border-gray-300">User</th>
-                            <th className="p-3 border border-gray-300">Rating</th>
-                            <th className="p-3 border border-gray-300">Review Text</th>
-                            <th className="p-3 border border-gray-300">Review Date</th>
-                            <th className="p-3 border border-gray-300">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {filteredReviews.map((review) => (
-                            <tr key={review.review_id} className="bg-white hover:bg-gray-100 transition duration-300">
-                                <td className="p-3 border border-gray-300">{review.review_id}</td>
-                                <td className="p-3 border border-gray-300">{crops.find((crop) => crop.crop_id === review.crop_id)?.crop_name}</td>
-                                <td className="p-3 border border-gray-300">{users.find((user) => user.user_id === review.user_id)?.firstname} {users.find((user) => user.user_id === review.user_id)?.lastname}</td>
-                                <td className="p-3 border border-gray-300">{review.rating}</td>
-                                <td className="p-3 border border-gray-300">{review.review_text}</td>
-                                <td className="p-3 border border-gray-300">{new Date(review.review_date).toLocaleString()}</td>
-                                <td className="p-2 border border-gray-200 text-center space-x-2">
-                                    <button onClick={() => handleEdit(review)} className="bg-green-600 text-white p-2 rounded mr-2">Edit</button>
-                                    <button onClick={() => { setIsDeleteModalOpen(true); setDeleteId(review.review_id); }} className="bg-red-500 text-white p-2 rounded">Delete</button>
-                                </td>
-                            </tr>
+                    {/* Filter Dropdown for Crops */}
+                    <select
+                        className="bg-white/90 backdrop-blur-sm border-0 rounded-xl p-2 w-full sm:w-1/6
+                            focus:ring-2 focus:ring-white/50 transition-all duration-200 shadow-lg mb-4 sm:mb-0"
+                        onChange={handleFilterChange}
+                    >
+                        <option value="">Filter by Crop</option>
+                        {crops.map((crop) => (
+                            <option key={crop.crop_id} value={crop.crop_id}>
+                                {crop.crop_name}
+                            </option>
                         ))}
-                    </tbody>
-                </table>
-            </div>
+                    </select>
 
-            {/* Edit Modal */}
-            {isModalOpen && (
-                <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex justify-center items-center z-50">
-                    <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
-                    <h2 className="text-2xl text-[#00B251] font-semibold">Edit Review</h2>
-                        <form onSubmit={handleSubmit}>
-                            <div className="grid grid-cols-1 gap-6">
-                                <p className="text-l font-bold mb-4" style={{ marginTop: '20px',marginBottom: '-20px' }}>Crop Name</p>
-                                <select
-                                    name="crop_id"
-                                    value={formData.crop_id}
-                                    onChange={handleInputChange}
-                                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                                    style={{ marginBottom: '-10px' }}
-                                    required
-                                >
-                                    <option value="">Select Crop</option>
-                                    {crops.map((crop) => (
-                                        <option key={crop.crop_id} value={crop.crop_id}>
-                                            {crop.crop_name}
-                                        </option>
-                                    ))}
-                                </select>
-                                <p className="text-l font-bold mb-4" style={{ marginBottom: '-20px' }}>User</p>
-                                <select
-                                    name="user_id"
-                                    value={formData.user_id}
-                                    onChange={handleInputChange}
-                                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                                    style={{ marginBottom: '-10px' }}
-                                    required
-                                >
-                                    <option value="">Select User</option>
-                                    {users.map((user) => (
-                                        <option key={user.user_id} value={user.user_id}>
-                                            {user.firstname} {user.lastname}
-                                        </option>
-                                    ))}
-                                </select>
-                                <p className="text-l font-bold mb-4" style={{ marginBottom: '-20px' }}>Rating</p>
-                                <input
-                                    type="number"
-                                    name="rating"
-                                    value={formData.rating}
-                                    onChange={handleInputChange}
-                                    placeholder="Rating (1-5)"
-                                    min="1"
-                                    max="5"
-                                    step="0.1"
-                                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                                    style={{ marginBottom: '-10px' }}
-                                    required
-                                />
-                                <p className="text-l font-bold mb-4" style={{ marginBottom: '-20px' }}>Review Text</p>
-                                <textarea
-                                    name="review_text"
-                                    value={formData.review_text}
-                                    onChange={handleInputChange}
-                                    placeholder="Review Text"
-                                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                                    required
-                                ></textarea>
-                            </div>
-                            <div className="flex justify-end mt-4">
-                                <button
-                                    type="button"
-                                    onClick={() => setIsModalOpen(false)}
-                                    className="bg-gray-400 text-white p-2 rounded mr-2">
-                                Cancel
-                                </button>
-                                <button type="submit" className="bg-green-600 text-white p-2 rounded">
-                                    {isEdit ? 'Save' : 'Create'}
-                                </button>
-                            </div>
-                        </form>
-                    </div>
+                    {/* Filter Dropdown for Ratings */}
+                    <select
+                        className="bg-white/90 backdrop-blur-sm border-0 rounded-xl p-2 w-full sm:w-1/6
+                            focus:ring-2 focus:ring-white/50 transition-all duration-200 shadow-lg mb-4 sm:mb-0"
+                        onChange={handleRatingFilterChange}
+                    >
+                        <option value="">Filter by Rating</option>
+                        <option value="5">5 Stars</option>
+                        <option value="4">4 Stars</option>
+                        <option value="3">3 Stars</option>
+                        <option value="2">2 Stars</option>
+                        <option value="1">1 Star</option>
+                    </select>
+
+                    {/* Add Review Button */}
+                    <button
+                        onClick={handleCreate}
+                        className="bg-white/90 backdrop-blur-sm text-green-600 font-semibold py-2 px-4 rounded-xl
+                            hover:bg-white transition-all duration-200 shadow-lg hover:shadow-xl w-full sm:w-auto mr-2"
+                    >
+                        + Review
+                    </button>
+
+                    {/* Export to PDF Button */}
+                    <button
+                        onClick={exportToPDF}
+                        className="bg-white/90 backdrop-blur-sm text-green-600 font-semibold py-2 px-4 rounded-xl
+                            hover:bg-white transition-all duration-200 shadow-lg hover:shadow-xl w-full sm:w-auto"
+                    >
+                        Export to PDF
+                    </button>
                 </div>
-            )}
 
-            {/* Delete Modal */}
-            {isDeleteModalOpen && (
-                <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex justify-center items-center z-50">
-                    <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
-                        <h2 className="text-xl font-bold mb-4">Confirm Delete</h2>
-                        <p>Are you sure you want to delete this review?</p>
-                        <div className="mt-6 flex justify-between">
-                            <button
-                                onClick={handleDelete}
-                                className="p-3 bg-red-500 text-white font-semibold rounded-lg shadow-md hover:bg-red-600 transition duration-300"
-                            >
-                                Delete
-                            </button>
-                            <button
-                                onClick={() => setIsDeleteModalOpen(false)}
-                                className="p-3 bg-gray-500 text-white font-semibold rounded-lg shadow-md hover:bg-gray-600 transition duration-300"
-                            >
-                                Cancel
-                            </button>
+                {/* Table Section */}
+                <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl overflow-hidden">
+                    <table className="min-w-full">
+                        <thead className="bg-green-600 text-white">
+                            <tr>
+                                {['ID', 'Crop', 'User', 'Rating', 'Review Text', 'Review Date', 'Actions'].map((header) => (
+                                    <th key={header} className="px-6 py-4 text-center">{header}</th>
+                                ))}
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200">
+                            {filteredReviews.map((review) => (
+                                <tr key={review.review_id} className="hover:bg-white/50 transition-colors duration-150">
+                                    <td className="px-6 py-4 text-center">{review.review_id}</td>
+                                    <td className="px-6 py-4 text-center">{crops.find((crop) => crop.crop_id === review.crop_id)?.crop_name}</td>
+                                    <td className="px-6 py-4 text-center">{users.find((user) => user.user_id === review.user_id)?.firstname} {users.find((user) => user.user_id === review.user_id)?.lastname}</td>
+                                    <td className="px-6 py-4 text-center">{review.rating}</td>
+                                    <td className="px-6 py-4 text-center">{review.review_text}</td>
+                                    <td className="px-6 py-4 text-center">{new Date(review.review_date).toLocaleString()}</td>
+                                    <td className="px-6 py-4">
+                                        <div className="flex justify-center gap-2">
+                                            <button
+                                                onClick={() => handleEdit(review)}
+                                                className="bg-green-600 text-white px-4 py-2 rounded-xl hover:bg-green-700
+                                                    transition-colors duration-200"
+                                            >
+                                                Edit
+                                            </button>
+                                            <button
+                                                onClick={() => { setIsDeleteModalOpen(true); setDeleteId(review.review_id); }}
+                                                className="bg-red-500 text-white px-4 py-2 rounded-xl hover:bg-red-600
+                                                    transition-colors duration-200"
+                                            >
+                                                Delete
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+
+                {/* Create Modal */}
+                {createModalOpen && (
+                    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50">
+                        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg m-4">
+                            <div className="p-6">
+                                <h2 className="text-2xl font-bold text-gray-900 mb-6">Create Review</h2>
+                                <form onSubmit={handleSubmit} className="space-y-4">
+                                    <div className="grid grid-cols-1 gap-6">
+                                        <p className="text-l font-bold mb-4" style={{ marginTop: '20px',marginBottom: '-20px' }}>Crop Name</p>
+                                        <select
+                                            name="crop_id"
+                                            value={formData.crop_id}
+                                            onChange={handleInputChange}
+                                            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                                            style={{ marginBottom: '-10px' }}
+                                            required
+                                        >
+                                            <option value="">Select Crop</option>
+                                            {crops.map((crop) => (
+                                                <option key={crop.crop_id} value={crop.crop_id}>
+                                                    {crop.crop_name}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        <p className="text-l font-bold mb-4" style={{ marginBottom: '-20px' }}>User</p>
+                                        <select
+                                            name="user_id"
+                                            value={formData.user_id}
+                                            onChange={handleInputChange}
+                                            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                                            style={{ marginBottom: '-10px' }}
+                                            required
+                                        >
+                                            <option value="">Select User</option>
+                                            {users.map((user) => (
+                                                <option key={user.user_id} value={user.user_id}>
+                                                    {user.firstname} {user.lastname}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        <p className="text-l font-bold mb-4" style={{ marginBottom: '-20px' }}>Rating</p>
+                                        <input
+                                            type="number"
+                                            name="rating"
+                                            value={formData.rating}
+                                            onChange={handleInputChange}
+                                            placeholder="Rating (1-5)"
+                                            min="1"
+                                            max="5"
+                                            step="0.1"
+                                            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                                            style={{ marginBottom: '-10px' }}
+                                            required
+                                        />
+                                        <p className="text-l font-bold mb-4" style={{ marginBottom: '-20px' }}>Review Text</p>
+                                        <textarea
+                                            name="review_text"
+                                            value={formData.review_text}
+                                            onChange={handleInputChange}
+                                            placeholder="Review Text"
+                                            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                                            required
+                                        ></textarea>
+                                    </div>
+                                    <div className="flex justify-end gap-3 mt-6">
+                                        <button
+                                            type="button"
+                                            onClick={() => setCreateModalOpen(false)}
+                                            className="px-4 py-2 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200
+                                                transition-colors duration-200"
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button
+                                            type="submit"
+                                            className="px-4 py-2 rounded-xl bg-green-600 text-white hover:bg-green-700
+                                                transition-colors duration-200"
+                                        >
+                                            Create
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )}
+
+                {/* Edit Modal */}
+                {isModalOpen && (
+                    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50">
+                        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg m-4">
+                            <div className="p-6">
+                                <h2 className="text-2xl font-bold text-gray-900 mb-6">Edit Review</h2>
+                                <form onSubmit={handleSubmit} className="space-y-4">
+                                    <div className="grid grid-cols-1 gap-6">
+                                        <p className="text-l font-bold mb-4" style={{ marginTop: '20px',marginBottom: '-20px' }}>Crop Name</p>
+                                        <select
+                                            name="crop_id"
+                                            value={formData.crop_id}
+                                            onChange={handleInputChange}
+                                            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                                            style={{ marginBottom: '-10px' }}
+                                            required
+                                        >
+                                            <option value="">Select Crop</option>
+                                            {crops.map((crop) => (
+                                                <option key={crop.crop_id} value={crop.crop_id}>
+                                                    {crop.crop_name}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        <p className="text-l font-bold mb-4" style={{ marginBottom: '-20px' }}>User</p>
+                                        <select
+                                            name="user_id"
+                                            value={formData.user_id}
+                                            onChange={handleInputChange}
+                                            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                                            style={{ marginBottom: '-10px' }}
+                                            required
+                                        >
+                                            <option value="">Select User</option>
+                                            {users.map((user) => (
+                                                <option key={user.user_id} value={user.user_id}>
+                                                    {user.firstname} {user.lastname}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        <p className="text-l font-bold mb-4" style={{ marginBottom: '-20px' }}>Rating</p>
+                                        <input
+                                            type="number"
+                                            name="rating"
+                                            value={formData.rating}
+                                            onChange={handleInputChange}
+                                            placeholder="Rating (1-5)"
+                                            min="1"
+                                            max="5"
+                                            step="0.1"
+                                            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                                            style={{ marginBottom: '-10px' }}
+                                            required
+                                        />
+                                        <p className="text-l font-bold mb-4" style={{ marginBottom: '-20px' }}>Review Text</p>
+                                        <textarea
+                                            name="review_text"
+                                            value={formData.review_text}
+                                            onChange={handleInputChange}
+                                            placeholder="Review Text"
+                                            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                                            required
+                                        ></textarea>
+                                    </div>
+                                    <div className="flex justify-end gap-3 mt-6">
+                                        <button
+                                            type="button"
+                                            onClick={() => setIsModalOpen(false)}
+                                            className="px-4 py-2 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200
+                                                transition-colors duration-200"
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button
+                                            type="submit"
+                                            className="px-4 py-2 rounded-xl bg-green-600 text-white hover:bg-green-700
+                                                transition-colors duration-200"
+                                        >
+                                            Save
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Delete Confirmation Modal */}
+                {isDeleteModalOpen && (
+                    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50">
+                        <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm m-4">
+                            <h2 className="text-xl font-bold text-gray-900 mb-4">Confirm Delete</h2>
+                            <p className="text-gray-600 mb-6">Are you sure you want to delete this review?</p>
+                            <div className="flex justify-end gap-3">
+                                <button
+                                    onClick={handleDelete}
+                                    className="px-4 py-2 rounded-xl bg-red-500 text-white hover:bg-red-600
+                                        transition-colors duration-200"
+                                >
+                                    Delete
+                                </button>
+                                <button
+                                    onClick={() => setIsDeleteModalOpen(false)}
+                                    className="px-4 py-2 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200
+                                        transition-colors duration-200"
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
         </div>
     );
 }

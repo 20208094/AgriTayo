@@ -245,177 +245,249 @@ function ShopsPage() {
     };
 
     return (
-        <div className="p-10">
-            <h1 className="text-3xl font-bold mb-5 text-center text-green-600">Shop Management</h1>
-            <div className="flex flex-wrap gap-4 my-4">
-                <button onClick={handleCreateShop} className="px-4 py-2 bg-green-600 text-white rounded-md">+ Shop</button>
-            </div>
-
-            <div className="mb-4 flex flex-wrap space-x-2">
-                {['delivery', 'pickup', 'gcash', 'cod', 'bank'].map(filterKey => (
-                    <select
-                        key={filterKey}
-                        name={filterKey}
-                        value={filter[filterKey]}
-                        onChange={handleFilterChange}
-                        className="p-1 border rounded-md mt-2 md:mt-0"
-                    >
-                        <option value="">{filterKey.charAt(0).toUpperCase() + filterKey.slice(1)}</option>
-                        <option value="Yes">Yes</option>
-                        <option value="No">No</option>
-                    </select>
-                ))}
-                
-                <input
-                    type="text"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    placeholder="Search by shop name"
-                    className="p-2 border rounded-md w-72"
-                />
-                <button onClick={exportToPDF} className="ml-2 px-4 py-2 bg-green-600 text-white rounded-md">Export to PDF</button>
-            </div>
-
-            <div className="overflow-x-auto">
-                <table className="min-w-full table-auto bg-white">
-                    <thead>
-                        <tr className="bg-green-600 text-white">
-                            <th className="py-2 px-4 text-xs sm:text-sm">ID</th>
-                            <th className="py-2 px-4 text-xs sm:text-sm">Shop Name</th>
-                            <th className="py-2 px-4 text-xs sm:text-sm">Address</th>
-                            <th className="py-2 px-4 text-xs sm:text-sm">Description</th>
-                            <th className="py-2 px-4 text-xs sm:text-sm">User</th>
-                            <th className="py-2 px-4 text-xs sm:text-sm">Delivery</th>
-                            <th className="py-2 px-4 text-xs sm:text-sm">Pickup</th>
-                            <th className="py-2 px-4 text-xs sm:text-sm">Delivery Price</th>
-                            <th className="py-2 px-4 text-xs sm:text-sm">Pickup Price</th>
-                            <th className="py-2 px-4 text-xs sm:text-sm">GCash</th>
-                            <th className="py-2 px-4 text-xs sm:text-sm">COD</th>
-                            <th className="py-2 px-4 text-xs sm:text-sm">Bank</th>
-                            <th className="py-2 px-4 text-xs sm:text-sm">Shop Number</th>
-                            <th className="py-2 px-4 text-xs sm:text-sm">TIN Number</th>
-                            <th className="py-2 px-4 text-xs sm:text-sm">Pickup Address</th>
-                            <th className="py-2 px-4 text-xs sm:text-sm">BIR Image</th>
-                            <th className="py-2 px-4 text-xs sm:text-sm">Shop Image</th>
-                            <th className="py-2 px-4 text-xs sm:text-sm">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {filteredShops.map((shop) => (
-                            <tr key={shop.shop_id}>
-                                <td className="border px-4 py-2 text-xs sm:text-sm">{shop.shop_id}</td>
-                                <td className="border px-4 py-2 text-xs sm:text-sm">{shop.shop_name}</td>
-                                <td className="border px-4 py-2 text-xs sm:text-sm">{shop.shop_address}</td>
-                                <td className="border px-4 py-2 text-xs sm:text-sm">{shop.shop_description}</td>
-                                <td className="p-2">
-                                    {(() => {
-                                        const user = users.find(user => user.user_id === shop.user_id);
-                                        return user ? `${user.firstname} ${user.lastname}` : 'N/A';
-                                    })()}
-                                </td>
-                                <td className="border px-4 py-2 text-xs sm:text-sm">{shop.delivery ? 'Yes' : 'No'}</td>
-                                <td className="border px-4 py-2 text-xs sm:text-sm">{shop.pickup ? 'Yes' : 'No'}</td>
-                                <td className="border px-4 py-2 text-xs sm:text-sm">{shop.delivery_price}</td>
-                                <td className="border px-4 py-2 text-xs sm:text-sm">{shop.pickup_price}</td>
-                                <td className="border px-4 py-2 text-xs sm:text-sm">{shop.gcash ? 'Yes' : 'No'}</td>
-                                <td className="border px-4 py-2 text-xs sm:text-sm">{shop.cod ? 'Yes' : 'No'}</td>
-                                <td className="border px-4 py-2 text-xs sm:text-sm">{shop.bank ? 'Yes' : 'No'}</td>
-                                <td className="border px-4 py-2 text-xs sm:text-sm">{shop.shop_number}</td>
-                                <td className="border px-4 py-2 text-xs sm:text-sm">{shop.tin_number}</td>
-                                <td className="border px-4 py-2 text-xs sm:text-sm">{shop.pickup_address}</td>
-                                <td className="border py-2 px-4 text-xs sm:text-sm">
-                                    {shop.bir_image_url && (
-                                        <img src={shop.bir_image_url} alt={shop.shop_name} className="w-20 h-auto" />
-                                    )}
-                                </td>
-                                <td className="border py-2 px-4 text-xs sm:text-sm">
-                                    {shop.shop_image_url && (
-                                        <img src={shop.shop_image_url} alt={shop.shop_name} className="w-20 h-auto" />
-                                    )}
-                                </td>
-                                <td className="border py-2 px-4 space-y-2 text-xs sm:text-sm">
-                                    <button onClick={() => handleEdit(shop)} className="flex items-center justify-center px-5 py-1 bg-green-600 text-white rounded-md">Edit</button>
-                                    <button onClick={() => handleDeleteClick(shop)} className="flex items-center justify-center px-2.5 py-1 bg-red-500 text-white rounded-md">Delete</button>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-
-
-            {isModalOpen && (
-               <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center overflow-y-auto pt-16">
-    <div className="bg-white p-6 rounded-md w-full sm:max-w-sm md:max-w-md lg:max-w-lg h-full max-h-[90vh] overflow-y-auto">
-                        <form onSubmit={handleSubmit} className="space-y-4">
-                            <h2 className="text-2xl font-bold mb-4 text-green-600">
-                                {isEdit ? 'Edit Shop' : 'Add Shop'}
-                            </h2>
-                            <div className="grid grid-cols-1 gap-4">
-                                {Object.keys(formData).map((field) => (
-                                    field !== 'shop_id' && !['shop_image_url', 'bir_image_url'].includes(field) && (
-                                        <div key={field} className="flex flex-col">
-                                            <label htmlFor={field} className="text-sm font-semibold text-gray-700">
-                                                {field.replace('_', ' ').toUpperCase()}
-                                            </label>
-                                            <div className="flex items-center">
-                                                <input
-                                                    type={typeof formData[field] === 'boolean' ? 'checkbox' : 'text'}
-                                                    name={field}
-                                                    value={formData[field] || ''}
-                                                    onChange={handleInputChange}
-                                                    className="p-2 border rounded-md"
-                                                    checked={typeof formData[field] === 'boolean' ? formData[field] : undefined}
-                                                />
-                                                {typeof formData[field] === 'boolean' && (
-                                                    <span className="ml-2">Check to enable</span>
-                                                )}
-                                            </div>
-                                        </div>
-                                    )
-                                ))}
-                
-                                <div className="flex flex-col col-span-2">
-                                    <label className="text-sm font-semibold text-gray-700">Shop Image</label>
-                                    <input
-                                        type="file"
-                                        name="shop_image_url"
-                                        accept="image/*"
-                                        onChange={handleFileChange}
-                                        className="p-2 border rounded-md"
-                                    />
-                                </div>
-                                <div className="flex flex-col col-span-2">
-                                    <label className="text-sm font-semibold text-gray-700">BIR Image</label>
-                                    <input
-                                        type="file"
-                                        name="bir_image_url"
-                                        accept="image/*"
-                                        onChange={handleFileChange}
-                                        className="p-2 border rounded-md"
-                                    />
-                                </div>
+        <div className="min-h-screen bg-gradient-to-r from-[rgb(182,244,146)] to-[rgb(51,139,147)]">
+            <div className="p-8">
+                {/* Header */}
+                <div className="mb-8">
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="flex-1">
+                            <h1 className="text-4xl font-bold text-white drop-shadow-md mb-2">
+                                Shop Management
+                            </h1>
+                            <p className="text-white/80 text-lg font-medium">
+                                Manage and organize shop information
+                            </p>
+                        </div>
+                        <div className="hidden md:flex items-center space-x-4">
+                            <div className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/30">
+                                <span className="text-white font-medium">
+                                    {filteredShops.length} Shops
+                                </span>
                             </div>
-                            <div className="flex justify-end space-x-2 mt-4">
-                                <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 bg-gray-500 text-white rounded-md">Cancel</button>
-                                <button type="submit" className="px-4 py-2 bg-green-600 text-white rounded-md">{isEdit ? 'Save' : 'Create'}</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
-
-            {isDeleteModalOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                    <div className="bg-white p-6 rounded-md">
-                        <p>Are you sure you want to delete this shop?</p>
-                        <div className="flex justify-end space-x-2 mt-4">
-                            <button onClick={() => setIsDeleteModalOpen(false)} className="px-4 py-2 bg-gray-500 text-white rounded-md">Cancel</button>
-                            <button onClick={handleDelete} className="px-4 py-2 bg-red-600 text-white rounded-md">Delete</button>
                         </div>
                     </div>
                 </div>
-            )}
+
+                {/* Action Bar */}
+                <div className="flex flex-col gap-4 mb-6">
+                    <div className="flex flex-wrap gap-4">
+                        <button
+                            onClick={handleCreateShop}
+                            className="bg-white/90 backdrop-blur-sm text-green-600 font-semibold py-2 px-4 rounded-xl
+                                hover:bg-white transition-all duration-200 shadow-lg hover:shadow-xl"
+                        >
+                            + Add Shop
+                        </button>
+
+                        <button
+                            onClick={exportToPDF}
+                            className="bg-white/90 backdrop-blur-sm text-green-600 font-semibold py-2 px-4 rounded-xl
+                                hover:bg-white transition-all duration-200 shadow-lg hover:shadow-xl"
+                        >
+                            Export PDF
+                        </button>
+                    </div>
+
+                    {/* Filters */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+                        {['delivery', 'pickup', 'gcash', 'cod', 'bank'].map(filterKey => (
+                            <select
+                                key={filterKey}
+                                name={filterKey}
+                                value={filter[filterKey]}
+                                onChange={handleFilterChange}
+                                className="bg-white/90 backdrop-blur-sm border-0 rounded-xl p-2
+                                    focus:ring-2 focus:ring-white/50 transition-all duration-200 shadow-lg w-full"
+                            >
+                                <option value="">{filterKey.charAt(0).toUpperCase() + filterKey.slice(1)}</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                        ))}
+
+                        <input
+                            type="text"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            placeholder="Search shops..."
+                            className="bg-white/90 backdrop-blur-sm border-0 rounded-xl p-2
+                                focus:ring-2 focus:ring-white/50 transition-all duration-200 shadow-lg w-full"
+                        />
+                    </div>
+                </div>
+
+                {/* Table Section */}
+                <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl overflow-x-auto">
+                    <table className="w-full">
+                        <thead className="bg-green-600 text-white">
+                            <tr className="bg-green-600 text-white">
+                                <th className="py-2 px-4 text-xs sm:text-sm">ID</th>
+                                <th className="py-2 px-4 text-xs sm:text-sm">Shop Name</th>
+                                <th className="py-2 px-4 text-xs sm:text-sm">Address</th>
+                                <th className="py-2 px-4 text-xs sm:text-sm">Description</th>
+                                <th className="py-2 px-4 text-xs sm:text-sm">User</th>
+                                <th className="py-2 px-4 text-xs sm:text-sm">Delivery</th>
+                                <th className="py-2 px-4 text-xs sm:text-sm">Pickup</th>
+                                <th className="py-2 px-4 text-xs sm:text-sm">Delivery Price</th>
+                                <th className="py-2 px-4 text-xs sm:text-sm">Pickup Price</th>
+                                <th className="py-2 px-4 text-xs sm:text-sm">GCash</th>
+                                <th className="py-2 px-4 text-xs sm:text-sm">COD</th>
+                                <th className="py-2 px-4 text-xs sm:text-sm">Bank</th>
+                                <th className="py-2 px-4 text-xs sm:text-sm">Shop Number</th>
+                                <th className="py-2 px-4 text-xs sm:text-sm">TIN Number</th>
+                                <th className="py-2 px-4 text-xs sm:text-sm">Pickup Address</th>
+                                <th className="py-2 px-4 text-xs sm:text-sm">BIR Image</th>
+                                <th className="py-2 px-4 text-xs sm:text-sm">Shop Image</th>
+                                <th className="py-2 px-4 text-xs sm:text-sm">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200">
+                            {filteredShops.map((shop) => (
+                                <tr key={shop.shop_id} className="hover:bg-white/50 transition-colors duration-150">
+                                    <td className="border px-4 py-2 text-xs sm:text-sm">{shop.shop_id}</td>
+                                    <td className="border px-4 py-2 text-xs sm:text-sm">{shop.shop_name}</td>
+                                    <td className="border px-4 py-2 text-xs sm:text-sm">{shop.shop_address}</td>
+                                    <td className="border px-4 py-2 text-xs sm:text-sm">{shop.shop_description}</td>
+                                    <td className="p-2">
+                                        {(() => {
+                                            const user = users.find(user => user.user_id === shop.user_id);
+                                            return user ? `${user.firstname} ${user.lastname}` : 'N/A';
+                                        })()}
+                                    </td>
+                                    <td className="border px-4 py-2 text-xs sm:text-sm">{shop.delivery ? 'Yes' : 'No'}</td>
+                                    <td className="border px-4 py-2 text-xs sm:text-sm">{shop.pickup ? 'Yes' : 'No'}</td>
+                                    <td className="border px-4 py-2 text-xs sm:text-sm">{shop.delivery_price}</td>
+                                    <td className="border px-4 py-2 text-xs sm:text-sm">{shop.pickup_price}</td>
+                                    <td className="border px-4 py-2 text-xs sm:text-sm">{shop.gcash ? 'Yes' : 'No'}</td>
+                                    <td className="border px-4 py-2 text-xs sm:text-sm">{shop.cod ? 'Yes' : 'No'}</td>
+                                    <td className="border px-4 py-2 text-xs sm:text-sm">{shop.bank ? 'Yes' : 'No'}</td>
+                                    <td className="border px-4 py-2 text-xs sm:text-sm">{shop.shop_number}</td>
+                                    <td className="border px-4 py-2 text-xs sm:text-sm">{shop.tin_number}</td>
+                                    <td className="border px-4 py-2 text-xs sm:text-sm">{shop.pickup_address}</td>
+                                    <td className="border py-2 px-4 text-xs sm:text-sm">
+                                        {shop.bir_image_url && (
+                                            <img src={shop.bir_image_url} alt={shop.shop_name} className="w-20 h-auto" />
+                                        )}
+                                    </td>
+                                    <td className="border py-2 px-4 text-xs sm:text-sm">
+                                        {shop.shop_image_url && (
+                                            <img src={shop.shop_image_url} alt={shop.shop_name} className="w-20 h-auto" />
+                                        )}
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <div className="flex justify-center gap-2">
+                                            <button
+                                                onClick={() => handleEdit(shop)}
+                                                className="bg-green-600 text-white px-4 py-2 rounded-xl hover:bg-green-700
+                                                    transition-colors duration-200"
+                                            >
+                                                Edit
+                                            </button>
+                                            <button
+                                                onClick={() => handleDeleteClick(shop)}
+                                                className="bg-red-500 text-white px-4 py-2 rounded-xl hover:bg-red-600
+                                                    transition-colors duration-200"
+                                            >
+                                                Delete
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+
+                {/* Modal Styling Updates */}
+                {isModalOpen && (
+                    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50">
+                        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg m-4 max-h-[80vh] overflow-y-auto">
+                            <div className="p-6">
+                                <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                                    {isEdit ? 'Edit Shop' : 'Add Shop'}
+                                </h2>
+                                <form onSubmit={handleSubmit} className="space-y-4">
+                                    <div className="grid grid-cols-1 gap-4">
+                                        {Object.keys(formData).map((field) => (
+                                            field !== 'shop_id' && !['shop_image_url', 'bir_image_url'].includes(field) && (
+                                                <div key={field} className="flex flex-col">
+                                                    <label htmlFor={field} className="text-sm font-semibold text-gray-700">
+                                                        {field.replace('_', ' ').toUpperCase()}
+                                                    </label>
+                                                    <div className="flex items-center">
+                                                        <input
+                                                            type={typeof formData[field] === 'boolean' ? 'checkbox' : 'text'}
+                                                            name={field}
+                                                            value={formData[field] || ''}
+                                                            onChange={handleInputChange}
+                                                            className="p-2 border rounded-md"
+                                                            checked={typeof formData[field] === 'boolean' ? formData[field] : undefined}
+                                                        />
+                                                        {typeof formData[field] === 'boolean' && (
+                                                            <span className="ml-2">Check to enable</span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            )
+                                        ))}
+                
+                                        <div className="flex flex-col col-span-2">
+                                            <label className="text-sm font-semibold text-gray-700">Shop Image</label>
+                                            <input
+                                                type="file"
+                                                name="shop_image_url"
+                                                accept="image/*"
+                                                onChange={handleFileChange}
+                                                className="p-2 border rounded-md"
+                                            />
+                                        </div>
+                                        <div className="flex flex-col col-span-2">
+                                            <label className="text-sm font-semibold text-gray-700">BIR Image</label>
+                                            <input
+                                                type="file"
+                                                name="bir_image_url"
+                                                accept="image/*"
+                                                onChange={handleFileChange}
+                                                className="p-2 border rounded-md"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="flex justify-end space-x-2 mt-4">
+                                        <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 bg-gray-500 text-white rounded-md">Cancel</button>
+                                        <button type="submit" className="px-4 py-2 bg-green-600 text-white rounded-md">{isEdit ? 'Save' : 'Create'}</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Delete Modal Update */}
+                {isDeleteModalOpen && (
+                    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50">
+                        <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm m-4">
+                            <h2 className="text-xl font-bold text-gray-900 mb-4">Confirm Deletion</h2>
+                            <p className="text-gray-600 mb-6">Are you sure you want to delete this shop?</p>
+                            <div className="flex justify-end gap-3">
+                                <button
+                                    onClick={() => setIsDeleteModalOpen(false)}
+                                    className="px-4 py-2 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200
+                                        transition-colors duration-200"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleDelete}
+                                    className="px-4 py-2 rounded-xl bg-red-500 text-white hover:bg-red-600
+                                        transition-colors duration-200"
+                                >
+                                    Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
         </div>
     );
 }

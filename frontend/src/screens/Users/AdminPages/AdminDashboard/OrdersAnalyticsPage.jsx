@@ -51,11 +51,11 @@ const OrdersAnalyticsPage = () => {
           'x-api-key': API_KEY,
         },
       });
-  
+
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
-  
+
       const data = await response.json();
       const counts = {
         ToConfirm: [],
@@ -68,7 +68,7 @@ const OrdersAnalyticsPage = () => {
         Completed: [],
         Rejected: [],
       };
-  
+
       // Populate counts based on status_id
       data.forEach(order => {
         const statusName = statusMap[order.status_id];
@@ -76,14 +76,14 @@ const OrdersAnalyticsPage = () => {
           counts[statusName].push(order);
         }
       });
-  
+
       setOrderCounts(counts);
       console.log('counts :', counts);
     } catch (error) {
       console.error('Error fetching orders:', error);
     }
   }, [statusMap]); // <-- Add statusMap as a dependency
-   
+
 
   useEffect(() => {
     fetchOrders();
@@ -91,18 +91,18 @@ const OrdersAnalyticsPage = () => {
 
   useEffect(() => {
     fetchOrders(); // Fetch data initially
-  
+
     // Polling for new data every 30 seconds
     const pollingInterval = setInterval(() => {
       fetchOrders();
-    }, 10000);
-  
+    }, 1000);
+
     // Clean up the interval on unmount
     return () => {
       clearInterval(pollingInterval);
     };
   }, [fetchOrders]);
-  
+
 
   const generateLabels = () => {
     const currentDate = new Date();
@@ -216,7 +216,7 @@ const OrdersAnalyticsPage = () => {
       ToRate: 'rgba(144, 238, 144, 0.7)',     // Light Green
       Completed: 'rgba(0, 100, 0, 0.7)',      // Dark Green
       Rejected: 'rgba(139, 0, 0, 0.7)',       // Dark Red
-    };    
+    };
     return colors[status] || 'rgba(0, 0, 0, 0.7)';
   };
 
@@ -267,153 +267,134 @@ const OrdersAnalyticsPage = () => {
   };
 
   return (
-    <div className="p-4">
-      <h5 className="text-3xl font-bold text-center text-green-700 mb-4 pt-8">
-        Orders Analytics Summary
-      </h5>
-      <div className="grid grid-cols-9 auto-rows-auto gap-4">
-        {/* Total Placed */}
-        <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center border-2 border-2">
-          <h5 className="text-lg font-bold text-green-500 mb-3 text-center">To Confirm Orders</h5>
-          <p className="text-3xl font-bold text-green-700">
-            {orderCounts.ToConfirm?.length || 0}
-          </p>
+    <div className="min-h-screen bg-gradient-to-r from-[rgb(182,244,146)] to-[rgb(51,139,147)]">
+      <div className="max-w-7xl mx-auto p-6 md:p-8">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex-1">
+              <h1 className="text-4xl font-bold text-white drop-shadow-md mb-2">
+                Orders Analytics</h1>
+              <p className="text-white/80 text-lg font-medium">
+                Track order status and trends
+              </p>
+            </div>
+          </div>
         </div>
 
-        {/* Total Processed */}
-        <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center border-2">
-          <h5 className="text-lg font-bold text-green-500 mb-4 text-center">Preparing Orders</h5>
-          <p className="text-3xl font-bold text-green-700">
-            {orderCounts.Preparing?.length || 0}
-          </p>
+        {/* Status Cards Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-9 gap-4 mb-8">
+          {[
+            { title: 'To Confirm Orders', count: orderCounts.ToConfirm?.length || 0 },
+            { title: 'Preparing Orders', count: orderCounts.Preparing?.length || 0 },
+            { title: 'Shipping Orders', count: orderCounts.Shipping?.length || 0 },
+            { title: 'Pickup Orders', count: orderCounts.Pickup?.length || 0 },
+            { title: 'For Return Orders', count: orderCounts.ForReturn?.length || 0 },
+            { title: 'Returned Orders', count: orderCounts.Returned?.length || 0 },
+            { title: 'To Rate Orders', count: orderCounts.ToRate?.length || 0 },
+            { title: 'Completed Orders', count: orderCounts.Completed?.length || 0 },
+            { title: 'Rejected Orders', count: orderCounts.Rejected?.length || 0 },
+          ].map((item, index) => (
+            <div
+              key={index}
+              className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-6 transform 
+                hover:scale-[1.02] transition-all duration-300"
+            >
+              <h2 className="text-lg font-semibold text-green-600 mb-3 text-center">{item.title}</h2>
+              <p className="text-3xl font-bold text-gray-900 text-center">{item.count}</p>
+            </div>
+          ))}
         </div>
 
-        {/* Total Shipped */}
-        <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center border-2">
-          <h5 className="text-lg font-bold text-green-500 mb-4 text-center">Shipping Orders</h5>
-          <p className="text-3xl font-bold text-green-700">
-            {orderCounts.Shipping?.length || 0}
-          </p>
+        {/* Filter Section */}
+        <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-6 mb-8">
+          <div className="flex flex-col sm:flex-row justify-between items-center">
+            <div>
+              <h2 className="text-xl font-bold text-gray-900 mb-2">Order Trends</h2>
+              <p className="text-gray-600">
+                Current Range: <span className="font-semibold text-green-600">{selectedFilter}</span>
+              </p>
+            </div>
+            <button
+              onClick={() => setModalVisible(true)}
+              className="mt-4 sm:mt-0 bg-green-600 text-white px-4 py-2 rounded-xl font-semibold
+                hover:bg-green-700 active:bg-green-800 transform hover:scale-[1.02]
+                transition-all duration-200 shadow-lg hover:shadow-xl"
+            >
+              Change Time Range
+            </button>
+          </div>
         </div>
 
-        {/* Total Delivered */}
-        <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center border-2">
-          <h5 className="text-lg font-bold text-green-500 mb-4 text-center">Pickup Orders</h5>
-          <p className="text-3xl font-bold text-green-700">
-            {orderCounts.Pickup?.length || 0}
-          </p>
+        {/* Charts Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Line Charts Container */}
+          <div className="lg:col-span-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {[
+                'ToConfirm', 'Preparing', 'Shipping',
+                'Pickup', 'ForReturn', 'Returned',
+                'ToRate', 'Completed', 'Rejected'
+              ].map((status) => (
+                <div
+                  key={status}
+                  className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-6"
+                >
+                  <h2 className="text-xl font-bold text-gray-900 mb-4 text-center">
+                    {status} Orders
+                  </h2>
+                  {renderOrderStatusLineChart(status)}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Pie Chart Container */}
+          <div className="lg:col-span-1">
+            <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-6 sticky top-4">
+              <h2 className="text-xl font-bold text-gray-900 mb-6 text-center">
+                Order Distribution
+              </h2>
+              <div className="aspect-square">
+                {renderOrdersPieChart()}
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Total Cancelled */}
-        <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center border-2">
-          <h5 className="text-lg font-bold text-green-500 mb-4 text-center">For Return Orders</h5>
-          <p className="text-3xl font-bold text-green-700">
-            {orderCounts.ForReturn?.length || 0}
-          </p>
-        </div>
-        {/* Total Placed */}
-        <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center border-2">
-          <h5 className="text-lg font-bold text-green-500 mb-4 text-center">Returned Orders</h5>
-          <p className="text-3xl font-bold text-green-700">
-            {orderCounts.Returned?.length || 0}
-          </p>
-        </div>
-        {/* Total Placed */}
-        <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center border-2">
-          <h5 className="text-lg font-bold text-green-500 mb-4 text-center">To Rate Orders</h5>
-          <p className="text-3xl font-bold text-green-700">
-            {orderCounts.ToRate?.length || 0}
-          </p>
-        </div>
-        {/* Total Placed */}
-        <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center border-2">
-          <h5 className="text-lg font-bold text-green-500 mb-4 text-center">Completed Orders</h5>
-          <p className="text-3xl font-bold text-green-700">
-            {orderCounts.Completed?.length || 0}
-          </p>
-        </div>
-        {/* Total Placed */}
-        <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center border-2">
-          <h5 className="text-lg font-bold text-green-500 mb-4 text-center">Rejected Orders</h5>
-          <p className="text-3xl font-bold text-green-700">
-            {orderCounts.Rejected?.length || 0}
-          </p>
-        </div>
-
-        {/* Filter Button */}
-        <div className="col-span-3 row-span-1 col-start-7 row-start-2 p-4 flex items-center justify-center">
-          <p className="text-lg font-bold text-green-500 mb-2">
-            Current Filter: <span className="text-green-700">{selectedFilter}</span>
-          </p>
-          <button
-            onClick={() => setModalVisible(true)}
-            className="bg-green-500 text-white p-2 rounded-lg ml-4"
-          >
-            Select Filter
-          </button>
-        </div>
-
-        {/* Line Charts */}
-        <div className="col-span-2 row-span-2 row-start-2 bg-white p-4 rounded-lg shadow-md">
-          {renderOrderStatusLineChart('ToConfirm')}
-        </div>
-        <div className="col-span-2 row-span-2 col-start-3 row-start-2 bg-white p-4 rounded-lg shadow-md">
-          {renderOrderStatusLineChart('Preparing')}
-        </div>
-        <div className="col-span-2 row-span-2 col-start-5 row-start-2 bg-white p-4 rounded-lg shadow-md">
-          {renderOrderStatusLineChart('Shipping')}
-        </div>
-        <div className="col-span-2 row-span-2 row-start-4 bg-white p-4 rounded-lg shadow-md">
-          {renderOrderStatusLineChart('Pickup')}
-        </div>
-        <div className="col-span-2 row-span-2 col-start-3 row-start-4 bg-white p-4 rounded-lg shadow-md">
-          {renderOrderStatusLineChart('ForReturn')}
-        </div>
-        <div className="col-span-2 row-span-2 col-start-5 row-start-4 bg-white p-4 rounded-lg shadow-md">
-          {renderOrderStatusLineChart('Returned')}
-        </div>
-        <div className="col-span-2 row-span-2 row-start-6 bg-white p-4 rounded-lg shadow-md">
-          {renderOrderStatusLineChart('ToRate')}
-        </div>
-        <div className="col-span-2 row-span-2 col-start-3 row-start-6 bg-white p-4 rounded-lg shadow-md">
-          {renderOrderStatusLineChart('Completed')}
-        </div>
-        <div className="col-span-2 row-span-2 col-start-5 row-start-6 bg-white p-4 rounded-lg shadow-md">
-          {renderOrderStatusLineChart('Rejected')}
-        </div>
-
-        {/* Pie Chart */}
-        <div className="col-span-3 row-span-5 col-start-7 row-start-3 bg-white p-4 rounded-lg shadow-md">
-          <h6 className="text-lg font-bold text-green-700 mb-2">Order Status Distribution</h6>
-          {renderOrdersPieChart()}
-        </div>
+        {/* Filter Modal */}
+        <Modal isOpen={modalVisible} onClose={() => setModalVisible(false)}>
+          <div className="bg-white rounded-2xl p-6">
+            <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">Select Time Range</h3>
+            <div className="space-y-3">
+              {['7 Days', '14 Days', '6 Months', '12 Months', 'Yearly'].map((filter) => (
+                <button
+                  key={filter}
+                  className={`w-full p-3 rounded-xl font-semibold transition-all duration-200
+                    ${selectedFilter === filter
+                      ? "bg-green-600 text-white shadow-lg"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`}
+                  onClick={() => {
+                    setSelectedFilter(filter);
+                    setModalVisible(false);
+                  }}
+                >
+                  {filter}
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={() => setModalVisible(false)}
+              className="w-full mt-6 p-3 bg-gray-100 text-gray-700 rounded-xl font-semibold
+                hover:bg-gray-200 transition-all duration-200"
+            >
+              Cancel
+            </button>
+          </div>
+        </Modal>
       </div>
-
-      {/* Modal */}
-      <Modal isOpen={modalVisible} onClose={() => setModalVisible(false)}>
-        <h3 className="text-lg font-bold mb-4 text-center">Select a filter</h3>
-        {['7 Days', '14 Days', '6 Months', '12 Months', 'Yearly'].map((filter) => (
-          <button
-            key={filter}
-            className={`p-2 rounded-lg mb-2 w-full ${selectedFilter === filter ? "bg-green-500 text-white" : "bg-gray-200 text-green-700"}`}
-            onClick={() => {
-              setSelectedFilter(filter);
-              setModalVisible(false);
-            }}
-          >
-            {filter}
-          </button>
-        ))}
-        <button
-          onClick={() => setModalVisible(false)}
-          className="bg-gray-300 text-green-700 p-2 rounded-lg w-full"
-        >
-          Close
-        </button>
-      </Modal>
     </div>
   );
-
 };
 
 export default OrdersAnalyticsPage;

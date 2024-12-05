@@ -9,10 +9,13 @@ const MarketAnalyticsPage = () => {
   const [marketData, setMarketData] = useState([]);
   const [expandedCategory, setExpandedCategory] = useState(null);
   const [expandedSubcategory, setExpandedSubcategory] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   const fetchData = useCallback(async () => {
     try {
+      setLoading(true);
       const cropsResponse = await fetch(`/api/crops`, {
         headers: {
           "x-api-key": API_KEY,
@@ -74,13 +77,32 @@ const MarketAnalyticsPage = () => {
       setMarketData(combinedCategories)
       console.log('combinedCategories :', combinedCategories);
     } catch (error) {
-      console.error('Error fetching orders:', error);
+      setError(error);
+      console.error('Error fetching data:', error);
+    } finally {
+      setLoading(false);
     }
   }, []);
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
+
+  if (loading) {
+    return (
+      <div className="fixed inset-0 bg-gradient-to-r from-[rgb(182,244,146)] to-[rgb(51,139,147)] flex items-center justify-center">
+        <div className="bg-white/30 backdrop-blur-md p-8 rounded-2xl shadow-2xl flex items-center space-x-4">
+          <div className="animate-spin h-8 w-8 text-white">
+            <svg className="w-full h-full" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+            </svg>
+          </div>
+          <span className="text-lg font-semibold text-white">Loading market data...</span>
+        </div>
+      </div>
+    );
+  }
 
   const toggleExpandCategory = (categoryId) => {
     setExpandedCategory(expandedCategory === categoryId ? null : categoryId);
@@ -91,80 +113,128 @@ const MarketAnalyticsPage = () => {
   };
 
   return (
-    <div className="bg-gray-100 p-4 pt-8">
-      <div className="grid grid-cols-1 sm:grid-cols-2 auto-rows-auto">
-        {marketData.map((category) => (
-          <div key={category.crop_category_id} className="my-2 mx-4">
-            <button
-              className="flex flex-row justify-between items-center p-4 bg-white rounded-lg shadow w-full"
-              onClick={() => toggleExpandCategory(category.crop_category_id)}
-            >
-              <div className="flex flex-row items-center">
-                <LazyLoadImage
-                  src={category.crop_category_image_url}
-                  alt={category.crop_category_name}
-                  className="h-10 w-10 object-cover object-center transition-transform duration-300 hover:scale-110"
-                />
-                <span className="pl-2 text-lg font-semibold text-black">
-                  {category.crop_category_name}
-                </span>
-              </div>
-              {expandedCategory === category.crop_category_id ? (
-                <FaChevronUp size={24} color="#00B251" />
-              ) : (
-                <FaChevronDown size={24} color="#00B251" />
-              )}
-            </button>
-            {expandedCategory === category.crop_category_id &&
-              category.subcategories &&
-              category.subcategories.map((subcat) => (
-                <div key={subcat.crop_sub_category_id}><button
-                  className="ml-12 mt-2 p-3 bg-gray-200 rounded-lg w-[90%] text-left"
-                  onClick={() => toggleExpandSubcategory(subcat.crop_sub_category_id)}
-                >
-                  <div className="flex items-center">
-                    <LazyLoadImage
-                      src={subcat.crop_sub_category_image_url}
-                      alt={subcat.crop_sub_category_name}
-                      className="h-10 w-10 mr-4 object-cover object-center transition-transform duration-300 hover:scale-110"
-                    />
-                    <span className="text-md text-green-600 flex-1">
-                      {subcat.crop_sub_category_name}
-                    </span>
-                    {expandedSubcategory === subcat.crop_sub_category_id ? (
-                      <FaChevronUp size={24} color="#00B251" />
-                    ) : (
-                      <FaChevronDown size={24} color="#00B251" />
-                    )}
-                  </div>
-                </button>
-                  {expandedSubcategory === subcat.crop_sub_category_id &&
-                    subcat.varieties &&
-                    subcat.varieties.map((variety) => (
-                      <div key={variety.crop_variety_id} className="ml-20 mt-1 w-[80%]">
-                        <button
-                          className="p-2 bg-white rounded-lg shadow w-full text-left"
-                          onClick={() =>
-                            navigate(`/admin/VarietyAnalytics/${variety.crop_variety_id}`)
-                          }
-                        >
-                          <div className="flex flex-row items-center">
-                            <LazyLoadImage
-                              src={variety.crop_variety_image_url}
-                              alt={variety.crop_variety_name}
-                              className="h-10 w-10 mr-4 object-cover object-center transition-transform duration-300 hover:scale-110"
-                            />
-                            <span className="text-sm text-green-600">
-                              {variety.crop_variety_name}
-                            </span>
-                          </div>
-                        </button>
-                      </div>
-                    ))}
+    <div className="min-h-screen bg-gradient-to-r from-[rgb(182,244,146)] to-[rgb(51,139,147)]">
+      <div className="max-w-7xl mx-auto p-6 md:p-8">
+        {/* Header */}
+        <div className="mb-8">
+            <div className="flex items-center justify-between mb-4">
+                <div className="flex-1">
+                    <h1 className="text-4xl font-bold text-white drop-shadow-md mb-2">
+                        Market Analytics
+                    </h1>
+                    <p className="text-white/80 text-lg font-medium">
+                        Explore market categories and their performance
+                    </p>
                 </div>
-              ))}
-          </div>
-        ))}
+                <div className="hidden md:flex items-center space-x-4">
+                    <div className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/30">
+                        <span className="text-white font-medium">
+                            {marketData.length} Categories
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {/* Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {marketData.map((category) => (
+            <div key={category.crop_category_id} className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg overflow-hidden h-fit">
+              {/* Category Header */}
+              <button
+                className={`w-full p-4 flex items-center justify-between transition-colors duration-200 ${
+                  expandedCategory === category.crop_category_id ? 'bg-green-50' : 'hover:bg-gray-50/50'
+                }`}
+                onClick={() => toggleExpandCategory(category.crop_category_id)}
+              >
+                <div className="flex items-center space-x-4">
+                  <div className="h-12 w-12 rounded-xl overflow-hidden shadow-md">
+                    <img
+                      src={category.crop_category_image_url}
+                      alt={category.crop_category_name}
+                      className="h-full w-full object-cover transform transition-transform duration-300 hover:scale-110"
+                      loading="lazy"
+                    />
+                  </div>
+                  <span className="text-xl font-bold text-gray-900">
+                    {category.crop_category_name}
+                  </span>
+                </div>
+                <div className={`transition-transform duration-300 ${
+                  expandedCategory === category.crop_category_id ? 'rotate-180' : ''
+                }`}>
+                  <FaChevronDown className="h-5 w-5 text-green-600" />
+                </div>
+              </button>
+
+              {/* Subcategories */}
+              <div className={`transition-all duration-300 ease-in-out overflow-hidden ${
+                expandedCategory === category.crop_category_id ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'
+              }`}>
+                <div className="p-4 space-y-3">
+                  {category.subcategories?.map((subcat) => (
+                    <div key={subcat.crop_sub_category_id} className="bg-gray-50 rounded-xl overflow-hidden shadow-sm">
+                      {/* Subcategory Header */}
+                      <button
+                        className={`w-full p-3 flex items-center justify-between transition-colors duration-200 ${
+                          expandedSubcategory === subcat.crop_sub_category_id ? 'bg-green-50' : 'hover:bg-gray-100/50'
+                        }`}
+                        onClick={() => toggleExpandSubcategory(subcat.crop_sub_category_id)}
+                      >
+                        <div className="flex items-center space-x-3">
+                          <div className="h-10 w-10 rounded-lg overflow-hidden shadow-sm">
+                            <img
+                              src={subcat.crop_sub_category_image_url}
+                              alt={subcat.crop_sub_category_name}
+                              className="h-full w-full object-cover transform transition-transform duration-300 hover:scale-110"
+                              loading="lazy"
+                            />
+                          </div>
+                          <span className="text-lg font-semibold text-green-600">
+                            {subcat.crop_sub_category_name}
+                          </span>
+                        </div>
+                        <div className={`transition-transform duration-300 ${
+                          expandedSubcategory === subcat.crop_sub_category_id ? 'rotate-180' : ''
+                        }`}>
+                          <FaChevronDown className="h-4 w-4 text-green-600" />
+                        </div>
+                      </button>
+
+                      {/* Varieties */}
+                      <div className={`transition-all duration-300 ease-in-out overflow-hidden ${
+                        expandedSubcategory === subcat.crop_sub_category_id ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'
+                      }`}>
+                        <div className="p-3 space-y-2">
+                          {subcat.varieties?.map((variety) => (
+                            <button
+                              key={variety.crop_variety_id}
+                              className="w-full bg-white rounded-lg p-3 flex items-center space-x-3 
+                                hover:bg-green-50 transition-all duration-200 transform hover:scale-[1.02] shadow-sm"
+                              onClick={() => navigate(`/admin/VarietyAnalytics/${variety.crop_variety_id}`)}
+                            >
+                              <div className="h-8 w-8 rounded-lg overflow-hidden shadow-sm">
+                                <img
+                                  src={variety.crop_variety_image_url}
+                                  alt={variety.crop_variety_name}
+                                  className="h-full w-full object-cover transform transition-transform duration-300 hover:scale-110"
+                                  loading="lazy"
+                                />
+                              </div>
+                              <span className="text-sm font-medium text-gray-900">
+                                {variety.crop_variety_name}
+                              </span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

@@ -222,8 +222,6 @@ function CropsPage() {
         (varieties.find(variety=> variety.crop_variety_id === crop.crop_variety_id)?.crop_variety_name.toLowerCase().includes(searchTerm.toLowerCase()) || '') ||
         (metricSystems.find(metric=> metric.metric_system_id === crop.metric_system_id)?.metric_system_name.toLowerCase().includes(searchTerm.toLowerCase()) || '');
 
-
-
     const matchesCategory = selectedCategory
       ? crop.category_id === parseInt(selectedCategory)
       : true;
@@ -280,316 +278,387 @@ function CropsPage() {
   };
 
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold text-center text-[#00B251]">Crops Management</h1>
+    <div className="min-h-screen bg-gradient-to-r from-[rgb(182,244,146)] to-[rgb(51,139,147)]">
+      <div className="p-8">
+        {/* Header */}
+        <div className="mb-8">
+            <div className="flex items-center justify-between mb-4">
+                <div className="flex-1">
+                    <h1 className="text-4xl font-bold text-white drop-shadow-md mb-2">
+                        Crops Management
+                    </h1>
+                    <p className="text-white/80 text-lg font-medium">
+                        Manage and organize crop information
+                    </p>
+                </div>
+                <div className="hidden md:flex items-center space-x-4">
+                    <div className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/30">
+                        <span className="text-white font-medium">
+                            {filteredCrops.length} Crops
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-      <button
-          onClick={() => setIsAddModalOpen(true)}
-          className="p-3 bg-[#00B251] text-white font-semibold rounded-lg shadow-md hover:bg-green-600 transition duration-300 mb-1"
-      >
-        + Crop
-      </button>
+        {/* Action Bar */}
+        <div className="flex flex-col gap-4 mb-6">
+          <div className="flex flex-wrap gap-4">
+            <button
+              onClick={() => setIsAddModalOpen(true)}
+              className="bg-white/90 backdrop-blur-sm text-green-600 font-semibold py-2 px-4 rounded-xl
+                hover:bg-white transition-all duration-200 shadow-lg hover:shadow-xl"
+            >
+              + Add Crop
+            </button>
 
-        {/* Filters */}
-        <div className="flex gap-4 my-4 flex-nowrap">
-          <select
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-            className="p-2 border rounded w-1/8"
-          >
-            <option value="">All Categories</option>
-            {categories.map(category => (
-              <option key={category.crop_category_id} value={category.crop_category_id}>
-                {category.crop_category_name}
-              </option>
-            ))}
-          </select>
+            <button
+              onClick={exportToPDF}
+              className="bg-white/90 backdrop-blur-sm text-green-600 font-semibold py-2 px-4 rounded-xl
+                hover:bg-white transition-all duration-200 shadow-lg hover:shadow-xl"
+            >
+              Export PDF
+            </button>
+          </div>
 
-          <select
-            value={selectedSubcategory}
-            onChange={(e) => setSelectedSubcategory(e.target.value)}
-            className="p-2 border rounded w-1/8"
-          >
-            <option value="">All Subcategories</option>
-            {subcategories.map(subcategory => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="bg-white/90 backdrop-blur-sm border-0 rounded-xl p-2
+                focus:ring-2 focus:ring-white/50 transition-all duration-200 shadow-lg w-full"
+            >
+              <option value="">All Categories</option>
+              {categories.map(category => (
+                <option key={category.crop_category_id} value={category.crop_category_id}>
+                  {category.crop_category_name}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={selectedSubcategory}
+              onChange={(e) => setSelectedSubcategory(e.target.value)}
+              className="bg-white/90 backdrop-blur-sm border-0 rounded-xl p-2
+                focus:ring-2 focus:ring-white/50 transition-all duration-200 shadow-lg w-full"
+            >
+              <option value="">All Subcategories</option>
+              {subcategories.map(subcategory => (
                 <option key={subcategory.crop_sub_category_id} value={subcategory.crop_sub_category_id}>
                   {subcategory.crop_sub_category_name}
                 </option>
-            ))}
-          </select>
+              ))}
+            </select>
 
-          <select
-            value={selectedVariety}
-            onChange={(e) => setSelectedVariety(e.target.value)}
-            className="p-2 border rounded w-1/12"
-          >
-            <option value="">All Varieties</option>
-                {varieties.map(variety => (
-                  <option key={variety.crop_variety_id} value={variety.crop_variety_id}>
-                    {variety.crop_variety_name}
-                  </option>
-                ))}
-          </select>
+            <select
+              value={selectedVariety}
+              onChange={(e) => setSelectedVariety(e.target.value)}
+              className="bg-white/90 backdrop-blur-sm border-0 rounded-xl p-2
+                focus:ring-2 focus:ring-white/50 transition-all duration-200 shadow-lg w-full"
+            >
+              <option value="">All Varieties</option>
+              {varieties.map(variety => (
+                <option key={variety.crop_variety_id} value={variety.crop_variety_id}>
+                  {variety.crop_variety_name}
+                </option>
+              ))}
+            </select>
 
-          <select
-            value={selectedShop}
-            onChange={(e) => setSelectedShop(e.target.value)}
-            className="p-2 border rounded w-1/12"
-          >
-            <option value="">All Shops</option>
-            {shops.map(shop => (
-              <option key={shop.shop_id} value={shop.shop_id}>
-                {shop.shop_name}
-              </option>
-            ))}
-          </select>
+            <select
+              value={selectedShop}
+              onChange={(e) => setSelectedShop(e.target.value)}
+              className="bg-white/90 backdrop-blur-sm border-0 rounded-xl p-2
+                focus:ring-2 focus:ring-white/50 transition-all duration-200 shadow-lg w-full"
+            >
+              <option value="">All Shops</option>
+              {shops.map(shop => (
+                <option key={shop.shop_id} value={shop.shop_id}>
+                  {shop.shop_name}
+                </option>
+              ))}
+            </select>
 
-          <select
-            value={selectedMetricSystem}
-            onChange={(e) => setSelectedMetricSystem(e.target.value)}
-            className="p-2 border rounded w-1/8"
-          >
-            <option value="">All Metric Systems</option>
-            {metricSystems.map(metric => (
-              <option key={metric.metric_system_id} value={metric.metric_system_id}>
-                {metric.metric_system_name}
-              </option>
-            ))}
-          </select>
+            <select
+              value={selectedMetricSystem}
+              onChange={(e) => setSelectedMetricSystem(e.target.value)}
+              className="bg-white/90 backdrop-blur-sm border-0 rounded-xl p-2
+                focus:ring-2 focus:ring-white/50 transition-all duration-200 shadow-lg w-full"
+            >
+              <option value="">All Metric Systems</option>
+              {metricSystems.map(metric => (
+                <option key={metric.metric_system_id} value={metric.metric_system_id}>
+                  {metric.metric_system_name}
+                </option>
+              ))}
+            </select>
 
-          <input
-            type="text"
-            placeholder="Search Crops"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="p-2 border rounded w-full sm:w-1/3" // Adjusted width for better alignment
-          />
-
-        <button onClick={exportToPDF} className="bg-[#00B251] text-white p-2 ml-4 rounded">
-            Export to PDF
-          </button>
+            <input
+              type="text"
+              placeholder="Search Crops"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="bg-white/90 backdrop-blur-sm border-0 rounded-xl p-2
+                focus:ring-2 focus:ring-white/50 transition-all duration-200 shadow-lg w-full"
+            />
+          </div>
         </div>
 
-      {/* Crops Table */}
-      <table className="min-w-full border border-gray-300 rounded-lg overflow-hidden">
-        <thead className="bg-[#00B251] text-white">
-          <tr>
-            {['ID', 'Name', 'Description', 'Category','Subcategory', 'Variety','Shop', 'Price', 'Quantity', 'Metric System', 'Actions'].map((header) => (
-              <th key={header} className="p-2 text-center">{header}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {filteredCrops.map((crop) => (
-            <tr key={crop.crop_id} className="text-center border-b hover:bg-gray-100">
-              <td className="p-2">{crop.crop_id}</td>
-              <td className="p-2">{crop.crop_name}</td>
-              <td className="p-2">{crop.crop_description}</td>
-              <td className="p-2">
-                {categories.find(category => category.crop_category_id === crop.category_id)?.crop_category_name || 'N/A'}
-              </td>
-              <td className="p-2">
-                {subcategories.find(subcategory => subcategory.crop_sub_category_id === crop.sub_category_id)?.crop_sub_category_name || 'N/A'}
-              </td>
-              <td className="p-2">
-                {varieties.find(variety => variety.crop_variety_id === crop.crop_variety_id)?.crop_variety_name || 'N/A'}
-              </td>
-              <td className="p-2">
-                {shops.find(shop => shop.shop_id === crop.shop_id)?.shop_name || 'N/A'}
-              </td>
-              <td className="p-2">{crop.crop_price}</td>
-              <td className="p-2">{crop.crop_quantity}</td>
-              <td className="p-2">
-                {metricSystems.find(metric => metric.metric_system_id === crop.metric_system_id)?.metric_system_name || 'N/A'}
-              </td>
-              <td className="p-2 flex justify-center gap-2">
-                <button onClick={() => handleEdit(crop)} className="bg-[#00B251] text-white px-3 py-1 rounded">
-                  Edit
+        {/* Table Section */}
+        <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl overflow-x-auto w-full">
+          <table className="w-full">
+            <thead className="bg-green-600 text-white">
+              <tr>
+                <th className="w-20 px-6 py-4 text-center">ID</th>
+                <th className="w-40 px-6 py-4 text-center">Name</th>
+                <th className="w-64 px-6 py-4 text-center">Description</th>
+                <th className="w-40 px-6 py-4 text-center">Category</th>
+                <th className="w-40 px-6 py-4 text-center">Subcategory</th>
+                <th className="w-40 px-6 py-4 text-center">Variety</th>
+                <th className="w-40 px-6 py-4 text-center">Shop</th>
+                <th className="w-32 px-6 py-4 text-center">Price</th>
+                <th className="w-32 px-6 py-4 text-center">Quantity</th>
+                <th className="w-40 px-6 py-4 text-center">Metric System</th>
+                <th className="w-40 px-6 py-4 text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {filteredCrops.map((crop) => (
+                <tr key={crop.crop_id} className="hover:bg-white/50 transition-colors duration-150">
+                  <td className="px-6 py-4 text-center">{crop.crop_id}</td>
+                  <td className="px-6 py-4 text-center font-medium">{crop.crop_name}</td>
+                  <td className="px-6 py-4 text-center whitespace-normal">{crop.crop_description}</td>
+                  <td className="px-6 py-4 text-center">
+                    {categories.find(category => category.crop_category_id === crop.category_id)?.crop_category_name || 'N/A'}
+                  </td>
+                  <td className="px-6 py-4 text-center">
+                    {subcategories.find(subcategory => subcategory.crop_sub_category_id === crop.sub_category_id)?.crop_sub_category_name || 'N/A'}
+                  </td>
+                  <td className="px-6 py-4 text-center">
+                    {varieties.find(variety => variety.crop_variety_id === crop.crop_variety_id)?.crop_variety_name || 'N/A'}
+                  </td>
+                  <td className="px-6 py-4 text-center">
+                    {shops.find(shop => shop.shop_id === crop.shop_id)?.shop_name || 'N/A'}
+                  </td>
+                  <td className="px-6 py-4 text-center">₱{crop.crop_price}</td>
+                  <td className="px-6 py-4 text-center">{crop.crop_quantity}</td>
+                  <td className="px-6 py-4 text-center">
+                    {metricSystems.find(metric => metric.metric_system_id === crop.metric_system_id)?.metric_system_name || 'N/A'}
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex justify-center gap-2">
+                      <button
+                        onClick={() => handleEdit(crop)}
+                        className="bg-green-600 text-white px-4 py-2 rounded-xl hover:bg-green-700
+                          transition-colors duration-200"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDelete(crop.crop_id)}
+                        className="bg-red-500 text-white px-4 py-2 rounded-xl hover:bg-red-600
+                          transition-colors duration-200"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Add/Edit Modal */}
+        {(isAddModalOpen || isEditModalOpen) && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg m-4 max-h-[80vh] overflow-y-auto">
+              <div className="p-6">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                  {isEditModalOpen ? 'Edit Crop' : 'Add Crop'}
+                </h2>
+                <form onSubmit={isEditModalOpen ? handleEditSubmit : handleCreateSubmit} className="space-y-4">
+                  <p className="text-l font-bold mb-4" style={{ marginBottom: '-15px' }}>Crop Name</p>
+                  <input
+                    type="text"
+                    name="crop_name"
+                    value={formData.crop_name}
+                    onChange={handleInputChange}
+                    placeholder="Crop Name"
+                    required
+                    className="p-2 border rounded mb-2 w-full"
+                  />
+
+                  <p className="text-l font-bold mb-4" style={{ marginBottom: '-15px' }}>Crop Description</p>
+                  <input
+                    type="text"
+                    name="crop_description"
+                    value={formData.crop_description}
+                    onChange={handleInputChange}
+                    placeholder="Crop Description"
+                    className="p-2 border rounded mb-2 w-full"
+                  />
+
+                  <p className="text-l font-bold mb-4" style={{ marginBottom: '-15px' }}>Crop Category</p>
+                  <select
+                    name="category_id"
+                    value={formData.category_id}
+                    onChange={handleInputChange}
+                    required
+                    className="p-2 border rounded mb-2 w-full"
+                  >
+                    <option value="">Select Category</option>
+                    {categories.map(category => (
+                      <option key={category.crop_category_id} value={category.crop_category_id}>
+                        {category.crop_category_name}
+                      </option>
+                    ))}
+                  </select>
+
+                  <p className="text-l font-bold mb-4" style={{ marginBottom: '-15px' }}>Subcategory</p>
+                  <select
+                    name="sub_category_id"
+                    value={formData.crop_sub_category_id}
+                    onChange={handleInputChange}
+                    required
+                    className="p-2 border rounded mb-2 w-full"
+                  >
+                    <option value="">Select Subcategory</option>
+                    {subcategories.map(subcategory => (
+                      <option key={subcategory.crop_sub_category_id} value={subcategory.crop_sub_category_id}>
+                        {subcategory.crop_sub_category_name}
+                      </option>
+                    ))}
+                  </select>
+
+                  <p className="text-l font-bold mb-4" style={{ marginBottom: '-15px' }}>Variety</p>
+                  <select
+                    name="variety_id"
+                    value={formData.crop_variety_id}
+                    onChange={handleInputChange}
+                    required
+                    className="p-2 border rounded mb-2 w-full"
+                  >
+                    <option value="">Select Variety</option>
+                    {varieties.map(variety => (
+                      <option key={variety.crop_variety_id} value={variety.crop_variety_id}>
+                        {variety.crop_variety_name}
+                      </option>
+                    ))}
+                  </select>
+
+                  <p className="text-l font-bold mb-4" style={{ marginBottom: '-15px' }}>Shop</p>
+                  <select
+                    name="shop_id"
+                    value={formData.shop_id}
+                    onChange={handleInputChange}
+                    required
+                    className="p-2 border rounded mb-2 w-full"
+                  >
+                    <option value="">Select Shop</option>
+                    {shops.map(shop => (
+                      <option key={shop.shop_id} value={shop.shop_id}>
+                        {shop.shop_name}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="text-l font-bold mb-4" style={{ marginBottom: '-15px' }}>Crop Image</p>
+                  <input
+                    type="file"
+                    name="image"
+                    onChange={handleInputChange}
+                    accept="image/*"
+                    required={!isEdit}
+                    className="p-2 border rounded mb-2 w-full"
+                  />
+                  <p className="text-l font-bold mb-4" style={{ marginBottom: '-15px' }}>Price</p>
+                  <input
+                    type="number"
+                    step="0.01"
+                    name="crop_price"
+                    value={formData.crop_price}
+                    onChange={handleInputChange}
+                    placeholder="Crop Price"
+                    required
+                    className="p-2 border rounded mb-2 w-full"
+                  />
+                  <p className="text-l font-bold mb-4" style={{ marginBottom: '-15px' }}>Quantity</p>
+                  <input
+                    type="number"
+                    name="crop_quantity"
+                    value={formData.crop_quantity}
+                    onChange={handleInputChange}
+                    placeholder="Crop Quantity"
+                    className="p-2 border rounded mb-2 w-full"
+                  />
+
+                  <p className="text-l font-bold mb-4" style={{ marginBottom: '-15px' }}>Metric System</p>
+                  <select
+                    name="metric_system_id"
+                    value={formData.metric_system_id}
+                    onChange={handleInputChange}
+                    required
+                    className="p-2 border rounded mb-4 w-full"
+                  >
+                    <option value="">Select Metric System</option>
+                    {metricSystems.map(metric => (
+                      <option key={metric.metric_system_id} value={metric.metric_system_id}>
+                        {metric.metric_system_name}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="flex justify-end gap-3 mt-6">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        resetForm();
+                        setIsEditModalOpen(false);
+                        setIsAddModalOpen(false);
+                      }}
+                      className="px-4 py-2 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200
+                        transition-colors duration-200"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-4 py-2 rounded-xl bg-green-600 text-white hover:bg-green-700
+                        transition-colors duration-200"
+                    >
+                      {isEditModalOpen ? 'Save' : 'Create'}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Delete Confirmation Modal */}
+        {isDeleteModalOpen && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50">
+            <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm m-4">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Confirm Deletion</h2>
+              <p className="text-gray-600 mb-6">Are you sure you want to delete this crop?</p>
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={() => setIsDeleteModalOpen(false)}
+                  className="px-4 py-2 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200
+                    transition-colors duration-200"
+                >
+                  Cancel
                 </button>
-                <button onClick={() => handleDelete(crop.crop_id)} className="bg-red-500 text-white px-3 py-1 rounded">
+                <button
+                  onClick={confirmDelete}
+                  className="px-4 py-2 rounded-xl bg-red-500 text-white hover:bg-red-600
+                    transition-colors duration-200"
+                >
                   Delete
                 </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      {/* Modal for Adding/Editing */}
-      {isAddModalOpen || isEditModalOpen ? (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg max-h-[80vh] overflow-y-auto">
-            <h2 className="text-xl font-bold mb-4 text-[#00B251]">{isEdit ? 'Edit Crop' : 'Add Crop'}</h2>
-            <form className="space-y-4" onSubmit={isEdit ? handleEditSubmit : handleCreateSubmit}>
-            
-            <p className="text-l font-bold mb-4" style={{ marginBottom: '-15px' }}>Crop Name</p>
-              <input
-                type="text"
-                name="crop_name"
-                value={formData.crop_name}
-                onChange={handleInputChange}
-                placeholder="Crop Name"
-                required
-                className="p-2 border rounded mb-2 w-full"
-              />
-
-            <p className="text-l font-bold mb-4" style={{ marginBottom: '-15px' }}>Crop Description</p>
-              <input
-                type="text"
-                name="crop_description"
-                value={formData.crop_description}
-                onChange={handleInputChange}
-                placeholder="Crop Description"
-                className="p-2 border rounded mb-2 w-full"
-              />
-
-              <p className="text-l font-bold mb-4" style={{ marginBottom: '-15px' }}>Crop Category</p>
-              <select
-                name="category_id"
-                value={formData.category_id}
-                onChange={handleInputChange}
-                required
-                className="p-2 border rounded mb-2 w-full"
-              >
-                <option value="">Select Category</option>
-                {categories.map(category => (
-                  <option key={category.crop_category_id} value={category.crop_category_id}>
-                    {category.crop_category_name}
-                  </option>
-                ))}
-              </select>
-
-              <p className="text-l font-bold mb-4" style={{ marginBottom: '-15px' }}>Subcategory</p>
-              <select
-                name="sub_category_id"
-                value={formData.crop_sub_category_id}
-                onChange={handleInputChange}
-                required
-                className="p-2 border rounded mb-2 w-full"
-              >
-                <option value="">Select Subcategory</option>
-                {subcategories.map(subcategory => (
-                  <option key={subcategory.crop_sub_category_id} value={subcategory.crop_sub_category_id}>
-                    {subcategory.crop_sub_category_name}
-                  </option>
-                ))}
-              </select>
-
-              <p className="text-l font-bold mb-4" style={{ marginBottom: '-15px' }}>Variety</p>
-              <select
-                name="variety_id"
-                value={formData.crop_variety_id}
-                onChange={handleInputChange}
-                required
-                className="p-2 border rounded mb-2 w-full"
-              >
-                <option value="">Select Variety</option>
-                {varieties.map(variety => (
-                  <option key={variety.crop_variety_id} value={variety.crop_variety_id}>
-                    {variety.crop_variety_name}
-                  </option>
-                ))}
-              </select>
-
-            <p className="text-l font-bold mb-4" style={{ marginBottom: '-15px' }}>Shop</p>
-              <select
-                name="shop_id"
-                value={formData.shop_id}
-                onChange={handleInputChange}
-                required
-                className="p-2 border rounded mb-2 w-full"
-              >
-                <option value="">Select Shop</option>
-                {shops.map(shop => (
-                  <option key={shop.shop_id} value={shop.shop_id}>
-                    {shop.shop_name}
-                  </option>
-                ))}
-              </select>
-            <p className="text-l font-bold mb-4" style={{ marginBottom: '-15px' }}>Crop Image</p>
-              <input
-                type="file"
-                name="image"
-                onChange={handleInputChange}
-                accept="image/*"
-                required={!isEdit}
-                className="p-2 border rounded mb-2 w-full"
-              />
-            <p className="text-l font-bold mb-4" style={{ marginBottom: '-15px' }}>Price</p>
-              <input
-                type="number"
-                step="0.01"
-                name="crop_price"
-                value={formData.crop_price}
-                onChange={handleInputChange}
-                placeholder="Crop Price"
-                required
-                className="p-2 border rounded mb-2 w-full"
-              />
-            <p className="text-l font-bold mb-4" style={{ marginBottom: '-15px' }}>Quantity</p>
-              <input
-                type="number"
-                name="crop_quantity"
-                value={formData.crop_quantity}
-                onChange={handleInputChange}
-                placeholder="Crop Quantity"
-                className="p-2 border rounded mb-2 w-full"
-              />
-
-            <p className="text-l font-bold mb-4" style={{ marginBottom: '-15px' }}>Metric System</p>
-              <select
-                name="metric_system_id"
-                value={formData.metric_system_id}
-                onChange={handleInputChange}
-                required
-                className="p-2 border rounded mb-4 w-full"
-              >
-                <option value="">Select Metric System</option>
-                {metricSystems.map(metric => (
-                  <option key={metric.metric_system_id} value={metric.metric_system_id}>
-                    {metric.metric_system_name}
-                  </option>
-                ))}
-              </select>
-            </form>
-
-            <div className="flex justify-end mt-4">
-              <button
-                type="button"
-                onClick={() => { resetForm(); setIsEditModalOpen(false); setIsAddModalOpen(false); }}
-                className="bg-gray-400 text-white p-2 rounded mr-2"
-              >
-                Cancel
-              </button>
-
-              <button
-                  type="submit"
-                 className="bg-green-600 text-white p-2 rounded"
-              >
-                {isEdit ? 'Save' : 'Create'}
-              </button>
+              </div>
             </div>
           </div>
-        </div>
-      ) : null}
-
-      {/* Modal for Delete Confirmation */}
-      {isDeleteModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white p-8 rounded shadow-lg w-1/2 sm:w-1/3">
-            <h2 className="text-xl font-bold text-center text-red-500 mb-4">Delete Crop</h2>
-            <p className="text-center mb-4">Are you sure you want to delete this crop?</p>
-            <div className="flex justify-between">
-              <button onClick={() => setIsDeleteModalOpen(false)} className="bg-gray-400 text-white p-2 rounded w-full mr-2">
-                Cancel
-              </button>
-              <button onClick={confirmDelete} className="bg-red-500 text-white p-2 rounded w-full">
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
