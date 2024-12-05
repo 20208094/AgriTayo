@@ -1,7 +1,8 @@
 import React, {useState, useEffect} from "react";
-import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, Modal } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { styled } from "nativewind";
+import { Ionicons } from "@expo/vector-icons";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 import GoBack from "../../components/GoBack";
 import { Ionicons } from '@expo/vector-icons';
@@ -13,6 +14,9 @@ function NewPhoneNumberScreen({ navigation, route }) {
   const [newPassword, setNewPassword] = useState('')
   const [passwordError, setPasswordError] = useState("");
   const [loading, setLoading] = useState(false)
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [confirmModalVisible, setConfirmModalVisible] = useState(false);
 
   console.log(secondaryPhoneNumber)
 
@@ -57,16 +61,19 @@ function NewPhoneNumberScreen({ navigation, route }) {
         if (response.ok) {
           const data = await response.json();
           console.log("Successfully Updated Phone Number and Password", data)
-          Alert.alert("Success!", "Successfully Added Phone Number and Password")
-          navigation.replace("Login");
+          setAlertMessage("Successfully Added Phone Number and Password");
+          setAlertVisible(true);
+          navigation.navigate("Login");
         } else {
           const errorData = await response.json();
           console.error("Adding new phone number and password failed:", errorData);
-          alert("Adding New Phone Number Failed. Please Try Again");
+          setAlertMessage("Adding New Phone Number Failed. Please Try Again");
+          setAlertVisible(true);
         }
       } catch (error) {
         console.error("Error during adding new phone number and password:", error);
-        alert("An error occurred. Please try again.");
+        setAlertMessage("An error occurred. Please try again.");
+        setAlertVisible(true);
       } finally {
         setLoading(false);
       }
@@ -99,33 +106,73 @@ function NewPhoneNumberScreen({ navigation, route }) {
             onChangeText={setNewPassword}
           />
           {passwordError ? (
-        <Text className="w-4/5 text-red-500 mb-4">{passwordError}</Text>
-      ) : null}
+            <Text className="w-4/5 text-red-500 mb-4">{passwordError}</Text>
+          ) : null}
           <TouchableOpacity
             onPress={() => {
-              Alert.alert(
-                "Confirm New Password",
-                "Do you really want to add this new password?",
-                [
-                  {
-                    text: "No",
-                    onPress: () => console.log("New Password Added"),
-                    style: "cancel",
-                  },
-                  {
-                    text: "Yes",
-                    onPress: handleNewPhoneNumber,
-                  },
-                ],
-                { cancelable: false }
-              );
+              setAlertMessage("Do you really want to add this new password?");
+              setConfirmModalVisible(true);
             }}
             className="bg-green-600 px-4 py-2 rounded-lg"
           >
-            <Text className="text-white font-bold text-center">Confirm </Text>
+            <Text className="text-white font-bold text-center">Confirm</Text>
           </TouchableOpacity>
         </View>
       </View>
+
+      {/* Confirmation Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={confirmModalVisible}
+        onRequestClose={() => setConfirmModalVisible(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black/50 bg-opacity-50">
+          <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
+            <Text className="text-lg font-semibold text-gray-900 mb-4 text-center">
+              {alertMessage}
+            </Text>
+            <View className="flex-row justify-between mt-4">
+              <TouchableOpacity
+                className="p-2 bg-gray-300 rounded-lg flex-row justify-center items-center w-1/3"
+                onPress={() => setConfirmModalVisible(false)}
+              >
+                <Text className="text-lg text-gray-800 text-center">No</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                className="p-2 bg-[#00B251] rounded-lg flex-row justify-center items-center w-1/3"
+                onPress={() => {
+                  setConfirmModalVisible(false);
+                  handleNewPhoneNumber();
+                }}
+              >
+                <Text className="text-lg text-white text-center">Yes</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Alert Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={alertVisible}
+        onRequestClose={() => setAlertVisible(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black/50 bg-opacity-50">
+          <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
+            <Text className="text-lg font-semibold text-gray-900 mb-4">{alertMessage}</Text>
+            <TouchableOpacity
+              className="mt-4 p-2 bg-[#00B251] rounded-lg flex-row justify-center items-center"
+              onPress={() => setAlertVisible(false)}
+            >
+              <Ionicons name="checkmark-circle-outline" size={24} color="white" />
+              <Text className="text-lg text-white ml-2">OK</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }

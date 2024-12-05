@@ -8,6 +8,7 @@ import {
   View,
   TextInput, // Import TextInput for the search bar
   Alert,
+  Modal,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Reports from "../../../../components/Reports";
@@ -24,6 +25,9 @@ function LiveScreen({ navigation }) {
   const [shopId, setShopId] = useState(null);
   const [searchTerm, setSearchTerm] = useState(""); // State to capture search input
   const [checkedItems, setCheckedItems] = useState({});
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [confirmModalVisible, setConfirmModalVisible] = useState(false);
 
   // Function to fetch shop data
   const getAsyncShopData = async () => {
@@ -189,11 +193,12 @@ function LiveScreen({ navigation }) {
   const handleDelistedProducts = async () => {
     const checkedItems = getCheckedItemsData(); // Retrieve the checked items
     if (checkedItems.length === 0) {
-      Alert.alert("No items selected", "Please select items to delist.");
+      setAlertMessage("Please select items to delist.");
+      setAlertVisible(true);
       return;
     }
 
-    setLoading(true); // Set loading state
+    setLoading(true);
 
     try {
       for (const product of checkedItems) {
@@ -269,13 +274,15 @@ function LiveScreen({ navigation }) {
         console.log(`Updated Product ${product.crop_id}:`, updatedProduct);
       }
 
-      Alert.alert("Success!", "Selected products have been delisted.");
+      setAlertMessage("Success! Selected products have been delisted.");
+      setAlertVisible(true);
       navigation.navigate("My Products", { screen: "Delisted" });
     } catch (error) {
       console.error("Error updating products:", error.message);
-      Alert.alert("Error", "Failed to delist some products. Please try again.");
+      setAlertMessage("Failed to delist some products. Please try again.");
+      setAlertVisible(true);
     } finally {
-      setLoading(false); // Reset loading state
+      setLoading(false);
     }
   };
 
@@ -382,22 +389,8 @@ function LiveScreen({ navigation }) {
         {/* Move to Delisted Button */}
         <TouchableOpacity
           onPress={() => {
-            Alert.alert(
-              "Confirm Delisted Product/s",
-              "Do you really want to move this product to delisted?",
-              [
-                {
-                  text: "No",
-                  onPress: () => console.log("Delist Cancelled"),
-                  style: "cancel",
-                },
-                {
-                  text: "Yes",
-                  onPress: handleDelistedProducts,
-                },
-              ],
-              { cancelable: false }
-            );
+            setAlertMessage("Do you really want to move this product to delisted?");
+            setConfirmModalVisible(true);
           }}
           className="flex-1 flex-row items-center justify-center mx-2"
         >
@@ -531,6 +524,62 @@ function LiveScreen({ navigation }) {
           </TouchableOpacity>
         ))}
       </ScrollView>
+
+      {/* Confirmation Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={confirmModalVisible}
+        onRequestClose={() => setConfirmModalVisible(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black/50 bg-opacity-50">
+          <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
+            <Text className="text-lg font-semibold text-gray-900 mb-4 text-center">
+              {alertMessage}
+            </Text>
+            <View className="flex-row justify-between mt-4">
+              <TouchableOpacity
+                className="p-2 bg-gray-300 rounded-lg flex-row justify-center items-center w-1/3"
+                onPress={() => setConfirmModalVisible(false)}
+              >
+                <Text className="text-lg text-gray-800 text-center">No</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                className="p-2 bg-[#00B251] rounded-lg flex-row justify-center items-center w-1/3"
+                onPress={() => {
+                  setConfirmModalVisible(false);
+                  handleDelistedProducts();
+                }}
+              >
+                <Text className="text-lg text-white text-center">Yes</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Alert Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={alertVisible}
+        onRequestClose={() => setAlertVisible(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black/50 bg-opacity-50">
+          <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
+            <Text className="text-lg font-semibold text-gray-900 mb-4">
+              {alertMessage}
+            </Text>
+            <TouchableOpacity
+              className="mt-4 p-2 bg-[#00B251] rounded-lg flex-row justify-center items-center"
+              onPress={() => setAlertVisible(false)}
+            >
+              <Ionicons name="checkmark-circle-outline" size={24} color="white" />
+              <Text className="text-lg text-white ml-2">OK</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }

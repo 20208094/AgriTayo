@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, Modal } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { styled } from "nativewind";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
+import { Ionicons } from "@expo/vector-icons";
 
 function ChangePasswordScreen({ navigation, route }) {
   const { userData } = route.params;
@@ -11,6 +12,10 @@ function ChangePasswordScreen({ navigation, route }) {
   const [loading, setLoading] = useState(false);
 
   const [passwordError, setPasswordError] = useState("");
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [confirmModalVisible, setConfirmModalVisible] = useState(false);
+
   const password_regex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,30}$/;
 
   useEffect(() => {
@@ -27,7 +32,6 @@ function ChangePasswordScreen({ navigation, route }) {
 
   const handleNewPassword = async () => {
     setPasswordError("");
-
     let hasError = false;
 
     if (!newPassword) {
@@ -59,16 +63,19 @@ function ChangePasswordScreen({ navigation, route }) {
       if (response.ok) {
         const data = await response.json();
         console.log("Successfully Updated Password", data);
-        Alert.alert("Success!", "Successfully Updated Password");
+        setAlertMessage("Successfully Updated Password");
+        setAlertVisible(true);
         navigation.navigate("Profile");
       } else {
         const errorData = await response.json();
         console.error("Updating new password failed:", errorData);
-        alert("Updating the New Password Failed. Please Try Again");
+        setAlertMessage("Updating the New Password Failed. Please Try Again");
+        setAlertVisible(true);
       }
     } catch (error) {
       console.error("Error during updating the new password:", error);
-      alert("An error occurred. Please try again.");
+      setAlertMessage("An error occurred. Please try again.");
+      setAlertVisible(true);
     } finally {
       setLoading(false);
     }
@@ -94,30 +101,70 @@ function ChangePasswordScreen({ navigation, route }) {
             <Text className="w-4/5 text-red-500 mb-4">{passwordError}</Text>
           ) : null}
           <TouchableOpacity
-            onPress={() => {
-              Alert.alert(
-                "Confirm New Password",
-                "Do you really want to update this password?",
-                [
-                  {
-                    text: "No",
-                    onPress: () => console.log("New Password Cancelled"),
-                    style: "cancel",
-                  },
-                  {
-                    text: "Yes",
-                    onPress: handleNewPassword,
-                  },
-                ],
-                { cancelable: false }
-              );
-            }}
+            onPress={() => setConfirmModalVisible(true)}
             className="bg-green-600 px-4 py-2 rounded-lg"
           >
-            <Text className="text-white font-bold text-center">Confirm </Text>
+            <Text className="text-white font-bold text-center">Confirm</Text>
           </TouchableOpacity>
         </View>
       </View>
+
+      {/* Confirmation Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={confirmModalVisible}
+        onRequestClose={() => setConfirmModalVisible(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black/50">
+          <View className="bg-white p-6 rounded-lg w-[80%]">
+            <Text className="text-lg font-semibold mb-4">
+              Confirm New Password
+            </Text>
+            <Text>Do you really want to update this password?</Text>
+            <View className="flex-row justify-end mt-4 space-x-4">
+              <TouchableOpacity
+                className="bg-gray-300 px-4 py-2 rounded-lg"
+                onPress={() => setConfirmModalVisible(false)}
+              >
+                <Text className="text-black">No</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                className="bg-[#00B251] px-4 py-2 rounded-lg"
+                onPress={() => {
+                  setConfirmModalVisible(false);
+                  handleNewPassword();
+                }}
+              >
+                <Text className="text-white">Yes</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Alert Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={alertVisible}
+        onRequestClose={() => setAlertVisible(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black/50">
+          <View className="bg-white p-6 rounded-lg w-[80%]">
+            <Text className="text-lg mb-4 text-center">{alertMessage}</Text>
+            <TouchableOpacity
+              className="bg-[#00B251] p-3 rounded-lg flex-row justify-center items-center"
+              onPress={() => setAlertVisible(false)}
+            >
+              <Ionicons name="checkmark-circle-outline" size={24} color="white" />
+              <Text className="text-white text-center font-semibold ml-2">
+                OK
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }

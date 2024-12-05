@@ -8,6 +8,7 @@ import {
   View,
   Alert,
   TextInput, // Import TextInput for search bar
+  Modal,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Reports from "../../../../components/Reports";
@@ -22,6 +23,10 @@ function ViolationScreen({ navigation }) {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState(""); // State for capturing search input
   const [filteredItems, setFilteredItems] = useState([]); // State for filtered items
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [confirmModalVisible, setConfirmModalVisible] = useState(false);
+  const [selectedCropId, setSelectedCropId] = useState(null);
 
   // Function to fetch shop data and crops under violation
   const getAsyncShopData = async () => {
@@ -155,24 +160,23 @@ function ViolationScreen({ navigation }) {
         setViolationItems((prevItems) =>
           prevItems.filter((item) => item.crop_id !== cropId)
         );
-        Alert.alert("Deleted Successfully!", "Crop Deleted Successfully.");
+        setAlertMessage("Crop Deleted Successfully");
+        setAlertVisible(true);
       } else {
-        console.error("Failed to delete crop:", response.statusText);
+        setAlertMessage("Failed to delete crop");
+        setAlertVisible(true);
       }
     } catch (error) {
       console.error("Error deleting crop:", error);
+      setAlertMessage("Error deleting crop");
+      setAlertVisible(true);
     }
   };
 
   const confirmDelete = (cropId) => {
-    Alert.alert("Delete Crop", "Are you sure you want to delete this crop?", [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Delete",
-        style: "destructive",
-        onPress: () => deleteCrop(cropId),
-      },
-    ]);
+    setSelectedCropId(cropId);
+    setAlertMessage("Are you sure you want to delete this crop?");
+    setConfirmModalVisible(true);
   };
 
   const handleSearch = (text) => {
@@ -342,6 +346,62 @@ function ViolationScreen({ navigation }) {
           </TouchableOpacity>
         ))}
       </ScrollView>
+
+      {/* Confirmation Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={confirmModalVisible}
+        onRequestClose={() => setConfirmModalVisible(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black/50 bg-opacity-50">
+          <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
+            <Text className="text-lg font-semibold text-gray-900 mb-4 text-center">
+              {alertMessage}
+            </Text>
+            <View className="flex-row justify-between mt-4">
+              <TouchableOpacity
+                className="p-2 bg-gray-300 rounded-lg flex-row justify-center items-center w-1/3"
+                onPress={() => setConfirmModalVisible(false)}
+              >
+                <Text className="text-lg text-gray-800 text-center">No</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                className="p-2 bg-[#00B251] rounded-lg flex-row justify-center items-center w-1/3"
+                onPress={() => {
+                  setConfirmModalVisible(false);
+                  deleteCrop(selectedCropId);
+                }}
+              >
+                <Text className="text-lg text-white text-center">Yes</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Alert Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={alertVisible}
+        onRequestClose={() => setAlertVisible(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black/50 bg-opacity-50">
+          <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
+            <Text className="text-lg font-semibold text-gray-900 mb-4">
+              {alertMessage}
+            </Text>
+            <TouchableOpacity
+              className="mt-4 p-2 bg-[#00B251] rounded-lg flex-row justify-center items-center"
+              onPress={() => setAlertVisible(false)}
+            >
+              <Ionicons name="checkmark-circle-outline" size={24} color="white" />
+              <Text className="text-lg text-white ml-2">OK</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }

@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, Modal } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { styled } from "nativewind";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 import GoBack from "../../components/GoBack";
+import { Ionicons } from "@expo/vector-icons";
 
 function LostPhoneNumberScreen({ navigation }) {
   const phone_regex = /^(?:\+63|0)9\d{2}[-\s]?\d{3}[-\s]?\d{4}$/;
@@ -11,6 +12,9 @@ function LostPhoneNumberScreen({ navigation }) {
 
   const [secondaryPhoneNumber, setSecondaryPhoneNumber] = useState("");
   const [phoneNumbersList, setPhoneNumbersList] = useState([]);
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [confirmModalVisible, setConfirmModalVisible] = useState(false);
 
   useEffect(() => {
     const fetchPhoneNumbers = async () => {
@@ -34,7 +38,6 @@ function LostPhoneNumberScreen({ navigation }) {
   }, []);
 
   const handleConfirm = () => {
-
     setPhoneError("");
 
     if (!secondaryPhoneNumber) {
@@ -45,9 +48,9 @@ function LostPhoneNumberScreen({ navigation }) {
       return;
     } else if (phoneNumbersList.includes(secondaryPhoneNumber)) {
       navigation.navigate("Lost Phone Number OTP", { secondaryPhoneNumber });
-      // Alert.alert("Success!", "Secondary Phone Number Confirmed");
     } else {
-      Alert.alert("", "Phone number not found. Please try again.");
+      setAlertMessage("Phone number not found. Please try again.");
+      setAlertVisible(true);
     }
   }
 
@@ -78,21 +81,8 @@ function LostPhoneNumberScreen({ navigation }) {
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => {
-                Alert.alert(
-                  "Confirm Alternative Phone Number",
-                  "Is this really your alternative phone number?",
-                  [
-                    {
-                      text: "No",
-                      style: "cancel",
-                    },
-                    {
-                      text: "Yes",
-                      onPress: handleConfirm,
-                    },
-                  ],
-                  { cancelable: false }
-                );
+                setAlertMessage("Is this really your alternative phone number?");
+                setConfirmModalVisible(true);
               }}
               className="bg-[#00B251] px-4 py-2 rounded-lg"
             >
@@ -104,6 +94,60 @@ function LostPhoneNumberScreen({ navigation }) {
           </Text>
         </View>
       </View>
+
+      {/* Confirmation Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={confirmModalVisible}
+        onRequestClose={() => setConfirmModalVisible(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black/50 bg-opacity-50">
+          <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
+            <Text className="text-lg font-semibold text-gray-900 mb-4 text-center">
+              {alertMessage}
+            </Text>
+            <View className="flex-row justify-between mt-4">
+              <TouchableOpacity
+                className="p-2 bg-gray-300 rounded-lg flex-row justify-center items-center w-1/3"
+                onPress={() => setConfirmModalVisible(false)}
+              >
+                <Text className="text-lg text-gray-800 text-center">No</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                className="p-2 bg-[#00B251] rounded-lg flex-row justify-center items-center w-1/3"
+                onPress={() => {
+                  setConfirmModalVisible(false);
+                  handleConfirm();
+                }}
+              >
+                <Text className="text-lg text-white text-center">Yes</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Alert Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={alertVisible}
+        onRequestClose={() => setAlertVisible(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black/50 bg-opacity-50">
+          <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
+            <Text className="text-lg font-semibold text-gray-900 mb-4">{alertMessage}</Text>
+            <TouchableOpacity
+              className="mt-4 p-2 bg-[#00B251] rounded-lg flex-row justify-center items-center"
+              onPress={() => setAlertVisible(false)}
+            >
+              <Ionicons name="checkmark-circle-outline" size={24} color="white" />
+              <Text className="text-lg text-white ml-2">OK</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }

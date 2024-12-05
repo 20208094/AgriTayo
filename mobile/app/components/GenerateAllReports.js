@@ -1,17 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { TouchableOpacity, SafeAreaView, Text, Alert, View } from 'react-native';
+import { TouchableOpacity, SafeAreaView, Text, View, Modal } from 'react-native';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import * as FileSystem from 'expo-file-system';
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
+import { Ionicons } from "@expo/vector-icons";
 
 const GenerateAllReports = ({ shopId, dataType = "Crops Report" }) => {
   const [shopCropsData, setShopCropsData] = useState([]);
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
 
   // Fetch all crop data filtered by shop_id
   const fetchShopCropsData = async () => {
     if (!shopId || !shopId.shop_id) {
-      Alert.alert("Error", "Shop ID is missing. Unable to generate report.");
+      setAlertMessage("Shop ID is missing. Unable to generate report.");
+      setAlertVisible(true);
       return;
     }
   
@@ -34,11 +38,13 @@ const GenerateAllReports = ({ shopId, dataType = "Crops Report" }) => {
         const filteredData = data.filter(crop => crop.shop_id === shop_id);
         setShopCropsData(filteredData);
       } else {
-        Alert.alert("Error", "Unexpected data format received from the API.");
+        setAlertMessage("Unexpected data format received from the API.");
+        setAlertVisible(true);
       }
     } catch (error) {
       console.error("Error fetching crop data:", error);
-      Alert.alert("Error", "Failed to fetch crop data for the report.");
+      setAlertMessage("Failed to fetch crop data for the report.");
+      setAlertVisible(true);
     }
   };  
 
@@ -52,7 +58,8 @@ const GenerateAllReports = ({ shopId, dataType = "Crops Report" }) => {
   const generatePdf = async () => {
     try {
       if (shopCropsData.length === 0) {
-        Alert.alert('Error', `No crops found for report generation.`);
+        setAlertMessage("No crops found for report generation.");
+        setAlertVisible(true);
         return;
       }
 
@@ -110,14 +117,15 @@ const GenerateAllReports = ({ shopId, dataType = "Crops Report" }) => {
         to: newPath,
       });
 
-      // Display success message
-      Alert.alert('Success', `PDF file saved to your Documents folder.`);
+      setAlertMessage("PDF file saved to your Documents folder.");
+      setAlertVisible(true);
 
       // Share the PDF file
       await Sharing.shareAsync(newPath);
     } catch (error) {
       console.error(error);
-      Alert.alert('Error', `Could not generate or save the PDF file.`);
+      setAlertMessage("Could not generate or save the PDF file.");
+      setAlertVisible(true);
     }
   };
 
@@ -132,6 +140,27 @@ const GenerateAllReports = ({ shopId, dataType = "Crops Report" }) => {
           Generate All Crops PDF
         </Text>
       </TouchableOpacity>
+
+      {/* Alert Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={alertVisible}
+        onRequestClose={() => setAlertVisible(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black/50 bg-opacity-50">
+          <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
+            <Text className="text-lg font-semibold text-gray-900 mb-4">{alertMessage}</Text>
+            <TouchableOpacity
+              className="mt-4 p-2 bg-[#00B251] rounded-lg flex-row justify-center items-center"
+              onPress={() => setAlertVisible(false)}
+            >
+              <Ionicons name="checkmark-circle-outline" size={24} color="white" />
+              <Text className="text-lg text-white ml-2">OK</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
