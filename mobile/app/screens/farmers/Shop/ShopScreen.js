@@ -255,7 +255,7 @@ function ShopScreen({ navigation }) {
                 navigation.navigate("Sales History", { screen: "Completed" })
               }
             >
-              <Text className="text-green-600">View Purchase History</Text>
+              <Text className="text-green-600">View Sales History</Text>
             </TouchableOpacity>
           </View>
         </View>

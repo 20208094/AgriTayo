@@ -109,6 +109,7 @@ const {
     addOrder,
     updateOrder,
     updateOrderStat,
+    orderShopRate,
     deleteOrder
 } = require('./supabase_connection/crud_services/orders');
 
@@ -367,6 +368,7 @@ app.get('/api/orders', getOrders);
 app.post('/api/orders', addOrder);
 app.put('/api/orders/:id', updateOrder);
 app.put('/api/orderStatus/:id', updateOrderStat);
+app.post('/api/shopRate', orderShopRate);
 app.delete('/api/orders/:id', deleteOrder);
 
 // API route for checkout of order

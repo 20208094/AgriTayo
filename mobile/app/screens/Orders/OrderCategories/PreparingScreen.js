@@ -73,7 +73,7 @@ const PreparingScreen = ({ orders, orderProducts }) => {
                     onPress={() => navigation.navigate('Order Details', { item })}
                   >
                     <View className="flex-1">
-                      <Text className="text-lg font-semibold text-gray-800">Item Name: {item.item_name}</Text>
+                      <Text className="text-lg font-semibold text-gray-800">Item Name: {item.orig_prod_name}</Text>
                       <View className="flex-row mt-2">
                         <Text className="w-1/3 text-sm text-gray-600">Total Quantity:</Text>
                         <Text className="text-sm text-gray-600">{item.order_prod_total_weight} {item.orig_prod_metric_symbol}</Text>

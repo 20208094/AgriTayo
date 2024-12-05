@@ -247,7 +247,7 @@ const ForReturnScreen = ({ orders, orderProducts }) => {
                   >
                     <View className="flex-1">
                       <Text className="text-lg font-semibold text-gray-800">
-                        Item Name: {item.item_name}
+                        Item Name: {item.orig_prod_name}
                       </Text>
                       <View className="flex-row mt-2">
                         <Text className="w-1/3 text-sm text-gray-600">Total Quantity:</Text>
