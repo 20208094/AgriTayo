@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronRightIcon } from '@heroicons/react/24/outline';
+import { ChevronRightIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 
 const API_KEY = import.meta.env.VITE_API_KEY;
 
@@ -41,6 +41,7 @@ function CropCategoryPage() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     fetchCategories();
@@ -64,6 +65,10 @@ function CropCategoryPage() {
       setLoading(false);
     }
   };
+
+  const filteredCategories = categories.filter(category =>
+    category.crop_category_name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   if (loading) {
     return (
@@ -129,13 +134,33 @@ function CropCategoryPage() {
                     </div>
                 </div>
             </div>
+            
+            {/* Search Bar */}
+            <div className="relative max-w-md w-full mb-6">
+              <input
+                type="text"
+                placeholder="Search categories..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-12 pr-4 py-3 rounded-xl bg-white/90 backdrop-blur-sm
+                  border border-white/30 focus:outline-none focus:ring-2 focus:ring-green-500
+                  text-gray-800 placeholder-gray-500"
+              />
+              <MagnifyingGlassIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 
+                h-5 w-5 text-gray-400" />
+            </div>
         </div>
 
-        {/* Grid */}
+        {/* Grid - Update to use filteredCategories */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {categories.map((category) => (
+          {filteredCategories.map((category) => (
             <CropCategoryCard key={category.crop_category_id} cropCategory={category} />
           ))}
+          {filteredCategories.length === 0 && (
+            <div className="col-span-full text-center py-8">
+              <p className="text-white text-lg">No categories found matching "{searchQuery}"</p>
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -11,6 +11,7 @@ const MarketAnalyticsPage = () => {
   const [expandedSubcategory, setExpandedSubcategory] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
 
   const fetchData = useCallback(async () => {
@@ -88,6 +89,24 @@ const MarketAnalyticsPage = () => {
     fetchData();
   }, [fetchData]);
 
+  const filteredMarketData = marketData.map(category => {
+    const filteredSubcategories = category.subcategories?.filter(subcat => {
+      const filteredVarieties = subcat.varieties?.filter(variety =>
+        variety.crop_variety_name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      
+      return subcat.crop_sub_category_name.toLowerCase().includes(searchQuery.toLowerCase()) 
+        || (filteredVarieties && filteredVarieties.length > 0);
+    });
+
+    return {
+      ...category,
+      subcategories: filteredSubcategories,
+      matched: category.crop_category_name.toLowerCase().includes(searchQuery.toLowerCase())
+        || (filteredSubcategories && filteredSubcategories.length > 0)
+    };
+  }).filter(category => category.matched);
+
   if (loading) {
     return (
       <div className="fixed inset-0 bg-gradient-to-r from-[rgb(182,244,146)] to-[rgb(51,139,147)] flex items-center justify-center">
@@ -134,11 +153,24 @@ const MarketAnalyticsPage = () => {
                     </div>
                 </div>
             </div>
+            
+            {/* Add Search Bar */}
+            <div className="relative mb-6">
+              <input
+                type="text"
+                placeholder="Search categories, subcategories, or varieties..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full px-4 py-3 rounded-xl bg-white/90 backdrop-blur-sm 
+                  border border-white/30 focus:outline-none focus:ring-2 
+                  focus:ring-green-500 text-gray-800 placeholder-gray-500"
+              />
+            </div>
         </div>
 
-        {/* Grid */}
+        {/* Grid - Update marketData to filteredMarketData */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {marketData.map((category) => (
+          {filteredMarketData.map((category) => (
             <div key={category.crop_category_id} className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg overflow-hidden h-fit">
               {/* Category Header */}
               <button

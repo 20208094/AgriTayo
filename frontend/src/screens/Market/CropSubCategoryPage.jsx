@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ChevronRightIcon, ArrowLeftIcon } from '@heroicons/react/24/outline';
+import { ChevronRightIcon, ArrowLeftIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 
 const API_KEY = import.meta.env.VITE_API_KEY;
 
@@ -9,6 +9,7 @@ function CropSubCategoryPage() {
     const [subCategories, setSubCategories] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [searchQuery, setSearchQuery] = useState('');
 
     useEffect(() => {
         fetchSubCategories();
@@ -71,7 +72,9 @@ function CropSubCategoryPage() {
     }
 
     const filteredSubCategories = subCategories.filter(
-        (subCategory) => String(subCategory.crop_category_id) === String(cropCategoryId)
+        (subCategory) => 
+            String(subCategory.crop_category_id) === String(cropCategoryId) &&
+            subCategory.crop_sub_category_name.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     if (filteredSubCategories.length === 0) {
@@ -128,46 +131,64 @@ function CropSubCategoryPage() {
                             </div>
                         </div>
                     </div>
+
+                    {/* Add Search Bar */}
+                    <div className="relative max-w-md w-full mt-6">
+                        <input
+                            type="text"
+                            placeholder="Search subcategories..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="w-full pl-12 pr-4 py-3 rounded-xl bg-white/90 backdrop-blur-sm
+                                border border-white/30 focus:outline-none focus:ring-2 focus:ring-green-500
+                                text-gray-800 placeholder-gray-500"
+                        />
+                        <MagnifyingGlassIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 
+                            h-5 w-5 text-gray-400" />
+                    </div>
                 </div>
 
                 {/* Grid */}
                 <div className="grid gap-4 md:gap-6">
-                    {subCategories.map((subCategory) => {
-                        if (String(cropCategoryId) === String(subCategory.crop_category_id)) {
-                            return (
-                                <Link
-                                    key={subCategory.crop_sub_category_id}
-                                    to={`/admin/product-list/${subCategory.crop_sub_category_id}`}
-                                    className="bg-white rounded-xl shadow-lg hover:shadow-xl 
-                                        transition-all duration-200 overflow-hidden group transform hover:scale-[1.02]"
-                                >
-                                    <div className="flex items-start p-4">
-                                        <div className="flex-shrink-0">
-                                            <img
-                                                src={subCategory.crop_sub_category_image_url}
-                                                alt={subCategory.crop_sub_category_name}
-                                                className="w-24 h-24 object-cover rounded-lg shadow-md"
-                                            />
-                                        </div>
-                                        <div className="ml-4 flex-1">
-                                            <div className="flex items-center justify-between">
-                                                <h3 className="text-xl font-bold text-gray-900 group-hover:text-green-600 
-                                                    transition-colors duration-200">
-                                                    {subCategory.crop_sub_category_name}
-                                                </h3>
-                                                <ChevronRightIcon className="h-6 w-6 text-gray-400 group-hover:text-green-600 
-                                                    transform group-hover:translate-x-1 transition-all duration-200" />
-                                            </div>
-                                            <p className="mt-2 text-gray-600 line-clamp-2">
-                                                {subCategory.crop_sub_category_description}
-                                            </p>
-                                        </div>
+                    {filteredSubCategories.length > 0 ? (
+                        filteredSubCategories.map((subCategory) => (
+                            <Link
+                                key={subCategory.crop_sub_category_id}
+                                to={`/admin/product-list/${subCategory.crop_sub_category_id}`}
+                                className="bg-white rounded-xl shadow-lg hover:shadow-xl 
+                                    transition-all duration-200 overflow-hidden group transform hover:scale-[1.02]"
+                            >
+                                <div className="flex items-start p-4">
+                                    <div className="flex-shrink-0">
+                                        <img
+                                            src={subCategory.crop_sub_category_image_url}
+                                            alt={subCategory.crop_sub_category_name}
+                                            className="w-24 h-24 object-cover rounded-lg shadow-md"
+                                        />
                                     </div>
-                                </Link>
-                            );
-                        }
-                        return null;
-                    })}
+                                    <div className="ml-4 flex-1">
+                                        <div className="flex items-center justify-between">
+                                            <h3 className="text-xl font-bold text-gray-900 group-hover:text-green-600 
+                                                transition-colors duration-200">
+                                                {subCategory.crop_sub_category_name}
+                                            </h3>
+                                            <ChevronRightIcon className="h-6 w-6 text-gray-400 group-hover:text-green-600 
+                                                transform group-hover:translate-x-1 transition-all duration-200" />
+                                        </div>
+                                        <p className="mt-2 text-gray-600 line-clamp-2">
+                                            {subCategory.crop_sub_category_description}
+                                        </p>
+                                    </div>
+                                </div>
+                            </Link>
+                        ))
+                    ) : (
+                        <div className="bg-white/90 backdrop-blur-sm rounded-xl p-8 text-center">
+                            <p className="text-gray-600 text-lg">
+                                No subcategories found matching "{searchQuery}"
+                            </p>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

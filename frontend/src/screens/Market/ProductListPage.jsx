@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ArrowLeftIcon, StarIcon } from '@heroicons/react/24/outline';
+import { ArrowLeftIcon, StarIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { StarIcon as StarSolidIcon } from '@heroicons/react/24/solid';
 
 const API_KEY = import.meta.env.VITE_API_KEY;
@@ -10,6 +10,7 @@ function CropListPage() {
     const [crops, setCrops] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [searchQuery, setSearchQuery] = useState('');
 
     useEffect(() => {
         fetchCrops();
@@ -72,7 +73,10 @@ function CropListPage() {
     }
 
     const filteredCrops = crops.filter(
-        (crop) => String(crop.sub_category_id) === String(cropSubCategoryId)
+        (crop) => 
+            String(crop.sub_category_id) === String(cropSubCategoryId) &&
+            (crop.crop_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+             crop.crop_description.toLowerCase().includes(searchQuery.toLowerCase()))
     );
 
     if (filteredCrops.length === 0) {
@@ -129,55 +133,75 @@ function CropListPage() {
                             </div>
                         </div>
                     </div>
+
+                    {/* Add Search Bar */}
+                    <div className="relative max-w-md w-full mt-6">
+                        <input
+                            type="text"
+                            placeholder="Search products..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="w-full pl-12 pr-4 py-3 rounded-xl bg-white/90 backdrop-blur-sm
+                                border border-white/30 focus:outline-none focus:ring-2 focus:ring-green-500
+                                text-gray-800 placeholder-gray-500"
+                        />
+                        <MagnifyingGlassIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 
+                            h-5 w-5 text-gray-400" />
+                    </div>
                 </div>
 
                 {/* Product Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                    {crops.map((crop) => {
-                        if (String(cropSubCategoryId) === String(crop.sub_category_id)) {
-                            return (
-                                <Link
-                                    key={crop.crop_id}
-                                    to={`/admin/product-details/${crop.crop_id}`}
-                                    className="bg-white rounded-xl shadow-lg hover:shadow-xl 
-                                        transition-all duration-200 overflow-hidden group transform hover:scale-[1.02]"
-                                >
-                                    <div className="relative">
-                                        <img
-                                            src={crop.crop_image_url}
-                                            alt={crop.crop_name}
-                                            className="w-full h-48 object-cover"
-                                        />
-                                        <div className="absolute top-2 right-2 bg-white rounded-full px-2 py-1 
-                                            flex items-center space-x-1 shadow-md">
-                                            <StarSolidIcon className="h-4 w-4 text-yellow-400" />
-                                            <span className="text-sm font-semibold">{crop.crop_rating}</span>
-                                        </div>
+                    {filteredCrops.length > 0 ? (
+                        filteredCrops.map((crop) => (
+                            <Link
+                                key={crop.crop_id}
+                                to={`/admin/product-details/${crop.crop_id}`}
+                                className="bg-white rounded-xl shadow-lg hover:shadow-xl 
+                                    transition-all duration-200 overflow-hidden group transform hover:scale-[1.02]"
+                            >
+                                <div className="relative">
+                                    <img
+                                        src={crop.crop_image_url}
+                                        alt={crop.crop_name}
+                                        className="w-full h-48 object-cover"
+                                    />
+                                    <div className="absolute top-2 right-2 bg-white rounded-full px-2 py-1 
+                                        flex items-center space-x-1 shadow-md">
+                                        <StarSolidIcon className="h-4 w-4 text-yellow-400" />
+                                        <span className="text-sm font-semibold">{crop.crop_rating}</span>
                                     </div>
-                                    
-                                    <div className="p-4">
-                                        <h3 className="text-lg font-bold text-gray-900 group-hover:text-green-600 
-                                            transition-colors duration-200 truncate">
-                                            {crop.crop_name}
-                                        </h3>
-                                        <p className="mt-1 text-sm text-gray-600 line-clamp-2 h-10 overflow-hidden">
-                                            {crop.crop_description}
-                                        </p>
-                                        <div className="mt-4 flex items-center justify-between">
-                                            <span className="text-xl font-bold text-green-600">
-                                                ₱{crop.crop_price}
-                                            </span>
-                                            <button className="bg-green-100 text-green-600 px-3 py-1 rounded-lg text-sm 
-                                                font-semibold hover:bg-green-200 transition-colors duration-200">
-                                                View Details
-                                            </button>
-                                        </div>
+                                </div>
+                                
+                                <div className="p-4">
+                                    <h3 className="text-lg font-bold text-gray-900 group-hover:text-green-600 
+                                        transition-colors duration-200 truncate">
+                                        {crop.crop_name}
+                                    </h3>
+                                    <p className="mt-1 text-sm text-gray-600 line-clamp-2 h-10 overflow-hidden">
+                                        {crop.crop_description}
+                                    </p>
+                                    <div className="mt-4 flex items-center justify-between">
+                                        <span className="text-xl font-bold text-green-600">
+                                            ₱{crop.crop_price}
+                                        </span>
+                                        <button className="bg-green-100 text-green-600 px-3 py-1 rounded-lg text-sm 
+                                            font-semibold hover:bg-green-200 transition-colors duration-200">
+                                            View Details
+                                        </button>
                                     </div>
-                                </Link>
-                            );
-                        }
-                        return null;
-                    })}
+                                </div>
+                            </Link>
+                        ))
+                    ) : (
+                        <div className="col-span-full">
+                            <div className="bg-white/90 backdrop-blur-sm rounded-xl p-8 text-center">
+                                <p className="text-gray-600 text-lg">
+                                    No products found matching "{searchQuery}"
+                                </p>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
