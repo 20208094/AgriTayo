@@ -13,6 +13,10 @@ function ForgotPasswordPage() {
     const phone_regex = /^(?:\+63|0)?9\d{9}$/;
     const [phoneNumbersList, setPhoneNumbersList] = useState([]);
 
+    const [showModal, setShowModal] = useState(false);
+    const [modalMessage, setModalMessage] = useState('');
+    const [modalType, setModalType] = useState('success'); // 'success' or 'error'
+
     useEffect(() => {
         const fetchPhoneNumbers = async () => {
             try {
@@ -47,10 +51,16 @@ function ForgotPasswordPage() {
             } else if (!phone_regex.test(phone)) {
                 setPhoneError("Invalid phone number format. Please use 09 followed by 9 digits.");
             } else if (phoneNumbersList.includes(phone)) {
-                alert("Phone Number Confirmed");
-                navigate('/forgotPasswordOTP', { state: { phone } });
+                setModalType('success');
+                setModalMessage('Phone Number Confirmed');
+                setShowModal(true);
+                setTimeout(() => {
+                    navigate('/forgotPasswordOTP', { state: { phone } });
+                }, 1500);
             } else {
-                alert("Phone number not found. Please try again.");
+                setModalType('error');
+                setModalMessage('Phone number not found. Please try again.');
+                setShowModal(true);
             }
         } finally {
             setLoading(false);
@@ -149,6 +159,32 @@ function ForgotPasswordPage() {
                     </div>
                 </div>
             </div>
+
+            {/* Add Modal */}
+            {showModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+                    <div className="bg-white rounded-lg p-6 max-w-sm w-full">
+                        <div className="flex items-center justify-center mb-4">
+                            {modalType === 'success' ? (
+                                <svg className="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                </svg>
+                            ) : (
+                                <svg className="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            )}
+                        </div>
+                        <p className="text-center text-gray-700 mb-4">{modalMessage}</p>
+                        <button
+                            onClick={() => setShowModal(false)}
+                            className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition-colors duration-200"
+                        >
+                            Close
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

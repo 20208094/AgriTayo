@@ -17,6 +17,9 @@ function EditAlternativeNumberPage() {
     const [generatedCode, setGeneratedCode] = useState("");
     const [seconds, setSeconds] = useState(10 * 60);
     const [isResendEnabled, setIsResendEnabled] = useState(false);
+    const [showModal, setShowModal] = useState(false);
+    const [modalMessage, setModalMessage] = useState('');
+    const [modalType, setModalType] = useState('success');
 
     const phone_regex = /^(?:\+63|0)9\d{2}[-\s]?\d{3}[-\s]?\d{4}$/;
 
@@ -34,7 +37,9 @@ function EditAlternativeNumberPage() {
     useEffect(() => {
         if (isClicked) {
             if (phoneNumbersList.includes(newSecondaryPhone) || phoneNumbers2List.includes(newSecondaryPhone)) {
-                alert("Phone Number is already registered");
+                setModalType('error');
+                setModalMessage("Phone Number is already registered");
+                setShowModal(true);
                 setIsClicked(false);
             } else {
                 const generateRandomCode = async () => {
@@ -62,9 +67,13 @@ function EditAlternativeNumberPage() {
 
                         const data = await response.json();
                         console.log('SMS sent successfully:', data);
-                        alert('Message sent successfully!');
+                        setModalType('success');
+                        setModalMessage('Message sent successfully!');
+                        setShowModal(true);
                     } catch (error) {
-                        alert('Failed to send the message.');
+                        setModalType('error');
+                        setModalMessage('Failed to send the message.');
+                        setShowModal(true);
                     }
                 };
 
@@ -128,13 +137,21 @@ function EditAlternativeNumberPage() {
                     body: formData,
                 });
                 if (response.ok) {
-                    alert("Success! Alternative phone number updated.");
-                    navigate('/admin/profile')
+                    setModalType('success');
+                    setModalMessage('Success! Alternative phone number updated.');
+                    setShowModal(true);
+                    setTimeout(() => {
+                        navigate('/admin/profile');
+                    }, 1500);
                 } else {
-                    alert("Failed to update alternative phone number.");
+                    setModalType('error');
+                    setModalMessage('Failed to update alternative phone number.');
+                    setShowModal(true);
                 }
             } catch (error) {
-                alert("An error occurred. Please try again.");
+                setModalType('error');
+                setModalMessage('An error occurred. Please try again.');
+                setShowModal(true);
             } finally {
                 setLoading(false);
             }
@@ -247,6 +264,32 @@ function EditAlternativeNumberPage() {
                     )}
                 </div>
             </div>
+
+            {/* Add Modal */}
+            {showModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+                    <div className="bg-white rounded-lg p-6 max-w-sm w-full">
+                        <div className="flex items-center justify-center mb-4">
+                            {modalType === 'success' ? (
+                                <svg className="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                </svg>
+                            ) : (
+                                <svg className="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            )}
+                        </div>
+                        <p className="text-center text-gray-700 mb-4">{modalMessage}</p>
+                        <button
+                            onClick={() => setShowModal(false)}
+                            className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition-colors duration-200"
+                        >
+                            Close
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

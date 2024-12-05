@@ -19,7 +19,9 @@ function ProductDetailsPage() {
     const [message, setMessage] = useState('');
     const [shopNumber, setShopNumber] = useState('');
     const [cropId, setCropId] = useState('');
-
+    const [showModal, setShowModal] = useState(false);
+    const [modalMessage, setModalMessage] = useState('');
+    const [modalType, setModalType] = useState('success');
 
     useEffect(() => {
         fetchCrops();
@@ -71,11 +73,15 @@ function ProductDetailsPage() {
             if (shop && shop.shop_id) {
                 navigate(`/admin/chat/${shop.shop_id}/Shop`);
             } else {
-                alert('Failed to find the shop ID.');
+                setModalType('error');
+                setModalMessage('Failed to find the shop ID.');
+                setShowModal(true);
             }
         } catch (error) {
             console.error('Error navigating to the chat page:', error);
-            alert('Failed to navigate to the chat page.');
+            setModalType('error');
+            setModalMessage('Failed to navigate to the chat page.');
+            setShowModal(true);
         }
     };
 
@@ -112,14 +118,18 @@ function ProductDetailsPage() {
     
             const data = await response.json();
             console.log('Crop availability updated successfully:', data);
-            alert('Crop has been successfully updated.');
+            setModalType('success');
+            setModalMessage('Crop has been successfully updated.');
+            setShowModal(true);
     
         } catch (error) {
             console.error('Error updating crop availability:', error);
-            alert('Failed to update crop availability. Please try again.');
+            setModalType('error');
+            setModalMessage('Failed to update crop availability. Please try again.');
+            setShowModal(true);
         }
     
-        closeUnlistModal(); // Close the modal after submitting
+        closeUnlistModal();
     };
     
     const openMessageModal = (number) => {
@@ -158,12 +168,16 @@ function ProductDetailsPage() {
     
             const data = await response.json();
             console.log('SMS sent successfully:', data);
-            alert('Message sent successfully!');
+            setModalType('success');
+            setModalMessage('Message sent successfully!');
+            setShowModal(true);
     
-            closeMessageModal(); // Close the modal after sending the message
+            closeMessageModal();
         } catch (error) {
             console.error('Error sending SMS:', error);
-            alert('Failed to send the message.');
+            setModalType('error');
+            setModalMessage('Failed to send the message.');
+            setShowModal(true);
         }
     };
 
@@ -399,6 +413,32 @@ function ProductDetailsPage() {
                                 Send
                             </button>
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Add Modal */}
+            {showModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+                    <div className="bg-white rounded-lg p-6 max-w-sm w-full">
+                        <div className="flex items-center justify-center mb-4">
+                            {modalType === 'success' ? (
+                                <svg className="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                </svg>
+                            ) : (
+                                <svg className="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            )}
+                        </div>
+                        <p className="text-center text-gray-700 mb-4">{modalMessage}</p>
+                        <button
+                            onClick={() => setShowModal(false)}
+                            className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition-colors duration-200"
+                        >
+                            Close
+                        </button>
                     </div>
                 </div>
             )}
