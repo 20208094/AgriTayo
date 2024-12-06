@@ -332,20 +332,21 @@ function LiveScreen({ navigation }) {
         />
       </View>
 
-      <View className="flex-row justify-around items-center bg-white p-4 rounded-lg shadow-md mx-2 mb-4">
+      {/* Action buttons container */}
+      <View className="flex-row justify-between items-center bg-white p-4 rounded-lg shadow-md mx-2 mb-4">
         {/* Select All / Deselect All Button */}
         <TouchableOpacity
           onPress={() => {
             const allChecked = filteredItems.every(
-                (item) => checkedItems[item.crop_id]
+              (item) => checkedItems[item.crop_id]
             );
             const updatedCheckedItems = {};
             (allChecked ? liveItems : filteredItems).forEach((item) => {
-                updatedCheckedItems[item.crop_id] = !allChecked;
+              updatedCheckedItems[item.crop_id] = !allChecked;
             });
             setCheckedItems(updatedCheckedItems);
-        }}
-          className="flex-1 flex-row items-center justify-center mx-2"
+          }}
+          className="flex-1 flex-row items-center justify-center bg-gray-50 py-2 rounded-lg mr-2"
         >
           <Ionicons
             name={
@@ -353,11 +354,11 @@ function LiveScreen({ navigation }) {
                 ? "close-circle"
                 : "checkmark-circle"
             }
-            size={20}
+            size={24}
             color={
               filteredItems.every((item) => checkedItems[item.crop_id])
-                ? "red"
-                : "green"
+                ? "#EF4444"
+                : "#00B251"
             }
             className="mr-2"
           />
@@ -365,7 +366,7 @@ function LiveScreen({ navigation }) {
             className={`font-semibold ${
               filteredItems.every((item) => checkedItems[item.crop_id])
                 ? "text-red-500"
-                : "text-green-500"
+                : "text-[#00B251]"
             }`}
           >
             {filteredItems.every((item) => checkedItems[item.crop_id])
@@ -374,27 +375,15 @@ function LiveScreen({ navigation }) {
           </Text>
         </TouchableOpacity>
 
-        {/* Featured Product Button */}
-        <TouchableOpacity
-          onPress={() => {
-            const checkedData = getCheckedItemsData();
-            console.log("Checked items for featured product:", checkedData); // Handle as needed
-          }}
-          className="flex-1 flex-row items-center justify-center mx-2"
-        >
-          <Ionicons name="star" size={20} color="blue" className="mr-2" />
-          <Text className="text-blue-500 font-semibold">Feature Product</Text>
-        </TouchableOpacity>
-
         {/* Move to Delisted Button */}
         <TouchableOpacity
           onPress={() => {
             setAlertMessage("Do you really want to move this product to delisted?");
             setConfirmModalVisible(true);
           }}
-          className="flex-1 flex-row items-center justify-center mx-2"
+          className="flex-1 flex-row items-center justify-center bg-red-50 py-2 rounded-lg ml-2"
         >
-          <Ionicons name="trash-bin" size={20} color="red" className="mr-2" />
+          <Ionicons name="trash-bin" size={24} color="#EF4444" className="mr-2" />
           <Text className="text-red-500 font-semibold">Move to Delisted</Text>
         </TouchableOpacity>
       </View>
@@ -409,19 +398,6 @@ function LiveScreen({ navigation }) {
               navigation.navigate("Farmers Product Details", { liveItem })
             }
           >
-            {/* Check/Uncheck Icon */}
-            <TouchableOpacity
-              className="absolute top-4 left-4 z-10"
-              onPress={() => toggleCheck(liveItem.crop_id)}
-            >
-              <Ionicons
-                name={
-                  checkedItems[liveItem.crop_id] ? "checkbox" : "square-outline"
-                }
-                size={24}
-                color={checkedItems[liveItem.crop_id] ? "#00B251" : "#888"}
-              />
-            </TouchableOpacity>
             <Image
               source={{ uri: liveItem.crop_image_url }}
               className="w-16 h-16 rounded-lg mr-4 object-cover bg-gray-200"
@@ -432,11 +408,11 @@ function LiveScreen({ navigation }) {
             />
 
             {/* Crop Information */}
-            <View className="flex-1">
+            <View className="flex-1 mr-2">
               <Text className="text-lg font-semibold text-gray-800 mb-1">
                 {liveItem.crop_name}
               </Text>
-              <Text className="text-sm text-gray-600 mb-1">
+              <Text className="text-sm text-gray-600 mb-1" numberOfLines={2}>
                 {liveItem.crop_description}
               </Text>
 
@@ -521,6 +497,20 @@ function LiveScreen({ navigation }) {
                 </Text>
               </View>
             </View>
+
+            {/* Checkbox moved to the right */}
+            <TouchableOpacity
+              className="p-2"
+              onPress={() => toggleCheck(liveItem.crop_id)}
+            >
+              <Ionicons
+                name={
+                  checkedItems[liveItem.crop_id] ? "checkbox" : "square-outline"
+                }
+                size={24}
+                color={checkedItems[liveItem.crop_id] ? "#00B251" : "#888"}
+              />
+            </TouchableOpacity>
           </TouchableOpacity>
         ))}
       </ScrollView>
