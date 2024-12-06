@@ -130,6 +130,11 @@ function NegotiationBuyerScreen({ navigation, route }) {
       return;
     }
 
+    if (parseFloat(price) >= (product.crop_price * 1.3)) {
+      setPriceError(`Maximum price per ${product.metric.metric_system_symbol}: ₱${(product.crop_price * 1.3).toFixed(2)} (130% of ₱${product.crop_price})`);
+      return;
+    }
+
     setPriceError('');
   }, [total, price, product.crop_price, product.metric.metric_system_symbol]);
 
@@ -305,6 +310,12 @@ function NegotiationBuyerScreen({ navigation, route }) {
                 </StyledText>
                 <StyledText className="text-sm text-gray-600 mt-1">
                   Minimum price per {product.metric.metric_system_symbol}: ₱{(product.crop_price * 0.7).toFixed(2)} (70% of ₱{product.crop_price})
+                </StyledText>
+                <StyledText className="text-sm text-gray-600">
+                  Maximum price per {product.metric.metric_system_symbol}: ₱{(product.crop_price * 1.3).toFixed(2)} (130% of ₱{product.crop_price})
+                </StyledText>
+                <StyledText className="text-sm text-gray-600 mt-1">
+                  You can offer between ₱{(product.crop_price * amount * 0.7).toFixed(2)} to ₱{(product.crop_price * amount * 1.3).toFixed(2)} for {amount} {product.metric.metric_system_symbol}
                 </StyledText>
                 {priceError && (
                   <Text className="text-red-500 text-sm mt-1">
