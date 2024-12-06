@@ -1,5 +1,5 @@
 import * as React from "react";
-import * as Notifications from "expo-notifications";
+// import * as Notifications from "expo-notifications";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { useEffect, useState } from "react";
@@ -251,11 +251,11 @@ function App() {
       console.log("WebSocket connected:", socket.id);
     });
 
-    socket.on("mobilePushNotification", (notificationData) => {
-      if (notificationData.user_id === userData.user_id){
-        triggerNotification(notificationData);
-      } 
-    });
+    // socket.on("mobilePushNotification", (notificationData) => {
+    //   if (notificationData.user_id === userData.user_id){
+    //     triggerNotification(notificationData);
+    //   } 
+    // });
     
     socket.on("disconnect", () => {
       console.log("WebSocket disconnected");
@@ -273,63 +273,63 @@ function App() {
   }, []);
 
   // PUSH NOTIFICATIONS
-  useEffect(() => {
-    // Request notification permissions
-    async function requestPermissions() {
-      const { status } = await Notifications.requestPermissionsAsync();
-      console.log("Notification Permission Status:", status);
-      if (status !== "granted") {
-        alert("Permission to receive notifications was denied");
-      }
-    }
+  // useEffect(() => {
+  //   // Request notification permissions
+  //   async function requestPermissions() {
+  //     const { status } = await Notifications.requestPermissionsAsync();
+  //     console.log("Notification Permission Status:", status);
+  //     if (status !== "granted") {
+  //       alert("Permission to receive notifications was denied");
+  //     }
+  //   }
 
-    requestPermissions();
+  //   requestPermissions();
 
-    // Notification handler for foreground notifications
-    Notifications.setNotificationHandler({
-      handleNotification: async (notification) => {
-        console.log("Foreground notification received:", notification);
-        return {
-          shouldShowAlert: true, // Shows the notification alert
-          shouldPlaySound: true, // Plays sound when notification is triggered
-          shouldSetBadge: false, // No badge count
-        };
-      },
-    });
+  //   // Notification handler for foreground notifications
+  //   Notifications.setNotificationHandler({
+  //     handleNotification: async (notification) => {
+  //       console.log("Foreground notification received:", notification);
+  //       return {
+  //         shouldShowAlert: true, // Shows the notification alert
+  //         shouldPlaySound: true, // Plays sound when notification is triggered
+  //         shouldSetBadge: false, // No badge count
+  //       };
+  //     },
+  //   });
 
-    // Handle notifications received in the foreground
-    const notificationListener = Notifications.addNotificationReceivedListener((notification) => {
-      console.log("Notification received in foreground:", notification);
-    });
+  //   // Handle notifications received in the foreground
+  //   const notificationListener = Notifications.addNotificationReceivedListener((notification) => {
+  //     console.log("Notification received in foreground:", notification);
+  //   });
 
-    const responseListener = Notifications.addNotificationResponseReceivedListener((response) => {
-      console.log("Notification response received:", response);
-      const screen = response.notification.request.content.data.screen;
-      if (screen) {
-        console.log(' navigating to:', screen);
-        navigationRef.current?.navigate(screen);
-      }
-    });
+  //   const responseListener = Notifications.addNotificationResponseReceivedListener((response) => {
+  //     console.log("Notification response received:", response);
+  //     const screen = response.notification.request.content.data.screen;
+  //     if (screen) {
+  //       console.log(' navigating to:', screen);
+  //       navigationRef.current?.navigate(screen);
+  //     }
+  //   });
 
-    return () => {
-      Notifications.removeNotificationSubscription(notificationListener);
-      Notifications.removeNotificationSubscription(responseListener);
-    };
-  }, []);
+  //   return () => {
+  //     Notifications.removeNotificationSubscription(notificationListener);
+  //     Notifications.removeNotificationSubscription(responseListener);
+  //   };
+  // }, []);
 
 
-  const triggerNotification = async (notificationData) => {
-    console.log("Triggering notification with data:", notificationData);
+  // const triggerNotification = async (notificationData) => {
+  //   console.log("Triggering notification with data:", notificationData);
 
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title: notificationData.title || "Default Title", // Customize the title
-        body: notificationData.body || "Default Body",  // Customize the body
-        data: { screen: "Biddings" },
-      },
-      trigger: null,  // Trigger immediately
-    });
-  };
+  //   await Notifications.scheduleNotificationAsync({
+  //     content: {
+  //       title: notificationData.title || "Default Title", // Customize the title
+  //       body: notificationData.body || "Default Body",  // Customize the body
+  //       data: { screen: "Biddings" },
+  //     },
+  //     trigger: null,  // Trigger immediately
+  //   });
+  // };
 
   const screenOptions = {
     headerTitleStyle: {

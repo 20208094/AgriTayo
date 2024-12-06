@@ -23,11 +23,6 @@ function CompareShopsScreen({ route }) {
 
   const fetchCrops = async () => {
     try {
-      // Get the logged-in shop's data first
-      const storedShopData = await AsyncStorage.getItem("shopData");
-      const loggedInShop = storedShopData ? JSON.parse(storedShopData) : null;
-      const loggedInShopId = loggedInShop ? (Array.isArray(loggedInShop) ? loggedInShop[0].shop_id : loggedInShop.shop_id) : null;
-
       // Fetch crops and related data (same as the original code)
       const cropsResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crops`, {
         headers: {
@@ -86,11 +81,9 @@ function CompareShopsScreen({ route }) {
       const metrics = await metricResponse.json();
       const shops = await shopResponse.json();
 
-      // Filter crops that are live, have quantity > 0, and NOT from the logged-in shop
       const crops = rawcrops.filter(crop => 
         crop.availability === 'live' && 
-        crop.crop_quantity > 0 && 
-        crop.shop_id !== loggedInShopId // Filter out the seller's own products
+        crop.crop_quantity > 0
       );
 
       // Filter crops based on payment methods
@@ -161,8 +154,22 @@ function CompareShopsScreen({ route }) {
 
   useFocusEffect(
     React.useCallback(() => {
-      fetchCrops();
-    }, [filter_category_id, filter_sub_category_id, filter_variety_id, filter_class, filter_size_id, filter_price_range, filter_quantity, filter_payment_methods])
+      const interval = setInterval(() => {
+        fetchCrops();
+      }, 2000); 
+  
+      // Clean up the interval when the component loses focus
+      return () => clearInterval(interval);
+    }, [
+      filter_category_id,
+      filter_sub_category_id,
+      filter_variety_id,
+      filter_class,
+      filter_size_id,
+      filter_price_range,
+      filter_quantity,
+      filter_payment_methods,
+    ])
   );
 
   const getAsyncShopData = async () => {
@@ -171,7 +178,9 @@ function CompareShopsScreen({ route }) {
       if (storedData) {
         const parsedData = JSON.parse(storedData);
         const shop = Array.isArray(parsedData) ? parsedData[0] : parsedData;
-        setShopData(shop);
+        if (shop){
+          setShopData(shop);
+        }
       }
     } catch (error) {
       alert(`Failed to load shop data: ${error.message}`);
@@ -312,7 +321,9 @@ function CompareShopsScreen({ route }) {
         <View className="px-4">
           <View className="space-y-3 mb-12">
             {filteredData.length > 0 ? (
-              filteredData.map((crop) => (
+              filteredData
+              .filter((crop) => !shopData || shopData.shop_id !== crop.shop_id)
+              .map((crop) => (
                 <React.Fragment key={crop.crop_id}>
                   <ShopCard
                     shopName={crop.shop.shop_name}

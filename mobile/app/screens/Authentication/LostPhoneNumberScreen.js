@@ -81,7 +81,7 @@ function LostPhoneNumberScreen({ navigation }) {
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => {
-                setAlertMessage("Is this really your alternative phone number?");
+                setAlertMessage(`Is this really your alternative phone number? \n(${secondaryPhoneNumber})`);
                 setConfirmModalVisible(true);
               }}
               className="bg-[#00B251] px-4 py-2 rounded-lg"

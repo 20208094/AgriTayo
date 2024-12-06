@@ -132,7 +132,7 @@ function LoginScreen({ navigation, fetchUserSession }) {
   };
 
   const openSecondaryPhoneConfirmation = () => {
-    setConfirmModalMessage("Is this really your alternative phone number?");
+    setConfirmModalMessage(`Is this really your alternative phone number? \n${secondaryPhoneNumber}`);
     setConfirmModalVisible(true);
   };
 

@@ -15,6 +15,7 @@ import {
 import { useFocusEffect } from "@react-navigation/native";
 import LoadingAnimation from "../../components/LoadingAnimation";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
 
@@ -29,6 +30,7 @@ function BiddingDetailsScreen({ route, navigation }) {
   const [loading, setLoading] = useState(true);
   const [bidData, setBidData] = useState([]);
   const [userBids, setUserBids] = useState([]);
+  const [shopData, setShopData] = useState(null);
 
   const onViewRef = React.useRef((viewableItems) => {
     if (viewableItems?.changed?.length > 0) {
@@ -125,6 +127,28 @@ function BiddingDetailsScreen({ route, navigation }) {
     }, [data])
   );
 
+  const getAsyncShopData = async () => {
+    try {
+      const storedData = await AsyncStorage.getItem("shopData");
+      if (storedData) {
+        const parsedData = JSON.parse(storedData);
+        const shop = Array.isArray(parsedData) ? parsedData[0] : parsedData;
+        if (shop) {
+          setShopData(shop);
+        }
+      }
+    } catch (error) {
+      alert(`Failed to load shop data: ${error.message}`);
+    } finally {
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      getAsyncShopData();
+    }, [])
+  );
+
   const carouselImages = [
     { uri: bidData.bid_image },
     { uri: bidData.bid_image },
@@ -137,12 +161,12 @@ function BiddingDetailsScreen({ route, navigation }) {
     const now = new Date();
     // Convert the endDate to the correct timezone
     const end = new Date(endDate);
-    
+
     // Adjust for timezone
     const philippinesOffset = 8 * 60; // Philippines is UTC+8
     const localOffset = now.getTimezoneOffset();
     const offsetDiff = (philippinesOffset + localOffset) * 60 * 1000;
-    
+
     const difference = end.getTime() + offsetDiff - now.getTime();
 
     let timeLeft = {};
@@ -233,9 +257,8 @@ function BiddingDetailsScreen({ route, navigation }) {
           {carouselImages.map((_, index) => (
             <View
               key={index}
-              className={`h-2 w-2 rounded-full mx-1 ${
-                index === activeIndex ? "bg-green-600" : "bg-gray-300"
-              }`}
+              className={`h-2 w-2 rounded-full mx-1 ${index === activeIndex ? "bg-green-600" : "bg-gray-300"
+                }`}
             />
           ))}
         </View>
@@ -265,9 +288,9 @@ function BiddingDetailsScreen({ route, navigation }) {
               Total Bids: {userBids.length}
             </Text>
           </View>
-          
-          <View style={{ maxHeight: 300 }}> 
-            <ScrollView 
+
+          <View style={{ maxHeight: 300 }}>
+            <ScrollView
               nestedScrollEnabled={true}
               showsVerticalScrollIndicator={true}
             >
@@ -283,13 +306,13 @@ function BiddingDetailsScreen({ route, navigation }) {
                     }}
                   >
                     <View className="flex-row items-center">
-                      <View 
+                      <View
                         className="w-8 h-8 rounded-full items-center justify-center mr-3"
                         style={{
                           backgroundColor: index === 0 ? '#dcfce7' : '#f3f4f6'
                         }}
                       >
-                        <Text 
+                        <Text
                           style={{
                             fontSize: 14,
                             fontWeight: '600',
@@ -300,7 +323,7 @@ function BiddingDetailsScreen({ route, navigation }) {
                         </Text>
                       </View>
                       <View>
-                        <Text 
+                        <Text
                           style={{
                             fontSize: 16,
                             fontWeight: index === 0 ? '700' : '400',
@@ -314,7 +337,7 @@ function BiddingDetailsScreen({ route, navigation }) {
                         </Text>
                       </View>
                     </View>
-                    <Text 
+                    <Text
                       style={{
                         fontSize: 16,
                         fontWeight: '600',
@@ -325,7 +348,7 @@ function BiddingDetailsScreen({ route, navigation }) {
                     </Text>
                   </View>
                 ))}
-                
+
                 {userBids.length === 0 && (
                   <View className="py-8 items-center">
                     <Text className="text-gray-500">No bids yet</Text>
@@ -367,14 +390,16 @@ function BiddingDetailsScreen({ route, navigation }) {
         />
 
         {/* Floating Place Bid Button */}
-        <TouchableOpacity
-          className="absolute bottom-5 left-5 right-5 bg-[#00b251] py-4 rounded-lg shadow-lg"
-          onPress={() => navigation.navigate('Place a Bid', { data: bidData })}
-        >
-          <Text className="text-lg font-bold text-white text-center">
-            Place a Bid
-          </Text>
-        </TouchableOpacity>
+        {(!shopData || shopData.shop_id !== bidData.shops.shop_id) && (
+          <TouchableOpacity
+            className="absolute bottom-5 left-5 right-5 bg-[#00b251] py-4 rounded-lg shadow-lg"
+            onPress={() => navigation.navigate('Place a Bid', { data: bidData })}
+          >
+            <Text className="text-lg font-bold text-white text-center">
+              Place a Bid
+            </Text>
+          </TouchableOpacity>
+        )}
 
         {/* Modal for Full-Screen Image */}
         {selectedImage && (
