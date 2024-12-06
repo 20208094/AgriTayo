@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { View, Text, FlatList, TouchableOpacity, Image, TextInput } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { styled } from 'nativewind';
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from '@env';
+import io from 'socket.io-client';
 
 const API_URL_CHATS = `${REACT_NATIVE_API_BASE_URL}/api/chats`;
 const API_URL_USERS = `${REACT_NATIVE_API_BASE_URL}/api/users`;
@@ -45,6 +46,7 @@ const ChatListScreen = () => {
   const [shopId, setShopId] = useState(null);
   const [senderId, setSenderId] = useState(null);
   const [senderType, setSenderType] = useState('User');
+  const socketRef = useRef(null);
 
   const getAsyncUserData = async () => {
     try {
@@ -138,85 +140,140 @@ const ChatListScreen = () => {
     }
   }, [senderId, senderType]);
 
+  // Add this useEffect for socket connection and real-time updates
+  useEffect(() => {
+    // Initialize socket connection
+    socketRef.current = io(REACT_NATIVE_API_BASE_URL, { transports: ['websocket'] });
+
+    // Listen for new messages and chat updates
+    socketRef.current.on("chat message", (msg) => {
+      console.log("New message received:", msg);
+      // Immediately fetch latest chats when new message arrives
+      fetchChats();
+    });
+
+    // Initial fetch
+    if (senderId && senderType) {
+      fetchChats();
+    }
+
+    // Cleanup
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.off("chat message");
+        socketRef.current.disconnect();
+      }
+    };
+  }, [senderId, senderType]); // Dependencies ensure socket reconnects when user changes
+
+  // Update the fetchChats function
   const fetchChats = async () => {
     try {
       if (!senderId) return;
 
-      const chatResponse = await fetch(API_URL_CHATS, {
-        headers: { 'x-api-key': REACT_NATIVE_API_KEY },
+      const chatResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/chats`, {
+        headers: { 
+          'x-api-key': REACT_NATIVE_API_KEY,
+          'Cache-Control': 'no-cache'  // Prevent caching
+        },
       });
 
-      if (chatResponse.ok) {
-        const chats = await chatResponse.json();
-
-        chats.sort((a, b) => new Date(b.sent_at) - new Date(a.sent_at));
-
-        const userResponse = await fetch(API_URL_USERS, {
-          headers: { 'x-api-key': REACT_NATIVE_API_KEY },
-        });
-        const shopResponse = await fetch(API_URL_SHOPS, {
-          headers: { 'x-api-key': REACT_NATIVE_API_KEY },
-        });
-
-        if (userResponse.ok && shopResponse.ok) {
-          const usersData = await userResponse.json();
-          const shopsData = await shopResponse.json();
-
-          const uniqueUserIds = Array.from(new Set(
-            chats.filter(chat => chat.sender_type === senderType)
-              .map(chat => chat.sender_id === senderId && chat.sender_type === senderType && chat.receiver_type === 'User' ? chat.receiver_id : chat.sender_id)
-          ));
-          const chatUsers = uniqueUserIds.map(id => {
-            const user = usersData.find(user => user.user_id === id);
-            const lastChat = chats.find(chat =>
-              (chat.sender_id === senderId && chat.sender_type === senderType && chat.receiver_id === id && chat.receiver_type === 'User') ||
-              (chat.receiver_id === senderId && chat.receiver_type === senderType && chat.sender_id === id && chat.sender_type === 'User')
-            );
-            return {
-              ...user,
-              lastMessage: lastChat?.chat_message || 'No recent messages',
-              time: lastChat ? new Date(lastChat.sent_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : null
-            };
-          });
-
-          const filteredChatUsers = chatUsers.filter(user => user.lastMessage !== 'No recent messages');
-
-          const uniqueShopIds = Array.from(new Set(
-            chats.filter(chat => chat.sender_type === senderType)
-              .map(chat => chat.sender_id === senderId && chat.sender_type === senderType && chat.receiver_type === 'Shop' ? chat.receiver_id : chat.sender_id)
-          ));
-          const chatShops = uniqueShopIds.map(id => {
-            const shop = shopsData.find(shop => shop.shop_id === id);
-            const lastChat = chats.find(chat =>
-              (chat.sender_id === senderId && chat.sender_type === senderType && chat.receiver_id === id && chat.receiver_type === 'Shop') ||
-              (chat.receiver_id === senderId && chat.receiver_type === senderType && chat.sender_id === id && chat.sender_type === 'Shop')
-            );
-            return {
-              ...shop,
-              lastMessage: lastChat?.chat_message || 'No recent messages',
-              time: lastChat ? new Date(lastChat.sent_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : null
-            };
-          });
-
-          const filteredChatShops = chatShops.filter(user => user.lastMessage !== 'No recent messages');
-
-
-          setUsers(filteredChatUsers);
-          setAllUsers(usersData);
-          setFilteredUsers(filteredChatUsers);
-          setShops(filteredChatShops);
-          setAllShops(shopsData);
-          setFilteredShops(filteredChatShops);
-        } else {
-          setError('Failed to fetch user/shop data.');
-        }
-      } else {
-        setError('Failed to fetch chats.');
+      if (!chatResponse.ok) {
+        throw new Error('Failed to fetch chats');
       }
+
+      const chats = await chatResponse.json();
+      
+      // Filter chats for current user
+      const relevantChats = chats.filter(chat => 
+        (chat.sender_id === senderId && chat.sender_type === senderType) ||
+        (chat.receiver_id === senderId && chat.receiver_type === senderType)
+      );
+
+      // Get latest messages by grouping conversations
+      const latestMessages = {};
+      relevantChats.forEach(chat => {
+        const otherPartyId = chat.sender_id === senderId ? chat.receiver_id : chat.sender_id;
+        const otherPartyType = chat.sender_id === senderId ? chat.receiver_type : chat.sender_type;
+        const key = `${otherPartyType}-${otherPartyId}`;
+        
+        if (!latestMessages[key] || new Date(chat.sent_at) > new Date(latestMessages[key].sent_at)) {
+          latestMessages[key] = chat;
+        }
+      });
+
+      // Fetch users and shops data
+      const [usersResponse, shopsResponse] = await Promise.all([
+        fetch(`${REACT_NATIVE_API_BASE_URL}/api/users`, {
+          headers: { 
+            'x-api-key': REACT_NATIVE_API_KEY,
+            'Cache-Control': 'no-cache'
+          }
+        }),
+        fetch(`${REACT_NATIVE_API_BASE_URL}/api/shops`, {
+          headers: { 
+            'x-api-key': REACT_NATIVE_API_KEY,
+            'Cache-Control': 'no-cache'
+          }
+        })
+      ]);
+
+      const [usersData, shopsData] = await Promise.all([
+        usersResponse.json(),
+        shopsResponse.json()
+      ]);
+
+      // Process and combine chat data with user/shop info
+      const processChats = (messages, data, type) => {
+        return Object.values(messages)
+          .filter(msg => msg.sender_type === type || msg.receiver_type === type)
+          .map(msg => {
+            const id = msg.sender_id === senderId ? msg.receiver_id : msg.sender_id;
+            const item = data.find(d => (type === 'User' ? d.user_id : d.shop_id) === id);
+            
+            if (!item) return null;
+
+            return {
+              ...item,
+              lastMessage: msg.chat_message,
+              time: new Date(msg.sent_at).toLocaleTimeString([], { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+              }),
+              sent_at: msg.sent_at,
+              chat_id: msg.chat_id // Add chat_id for better tracking
+            };
+          })
+          .filter(Boolean)
+          .sort((a, b) => new Date(b.sent_at) - new Date(a.sent_at)); // Sort by most recent
+      };
+
+      const userChats = processChats(latestMessages, usersData, 'User');
+      const shopChats = processChats(latestMessages, shopsData, 'Shop');
+
+      // Update state with new data
+      setUsers(userChats);
+      setFilteredUsers(userChats);
+      setShops(shopChats);
+      setFilteredShops(shopChats);
+      setAllUsers(usersData);
+      setAllShops(shopsData);
+
     } catch (error) {
-      setError('Network error. Please try again.');
+      console.error('Error fetching chats:', error);
+      setError('Failed to fetch latest messages. Please try again.');
     }
   };
+
+  // Add this to refresh chats when screen comes into focus
+  useFocusEffect(
+    React.useCallback(() => {
+      if (senderId && senderType) {
+        fetchChats();
+      }
+      return () => {};
+    }, [senderId, senderType])
+  );
 
   const handleSearch = (query) => {
     setSearchQuery(query);
@@ -320,7 +377,11 @@ const ChatListScreen = () => {
           renderItem={({ item }) => (
             <UserItem
               onPress={() =>
-                handleUserClick(item.shop_id || item.user_id, item.firstname || item.shop_name, item.user_image_url || item.shop_image_url)
+                handleUserClick(
+                  item.shop_id || item.user_id,
+                  item.firstname || item.shop_name,
+                  item.user_image_url || item.shop_image_url
+                )
               }
             >
               <Avatar source={{ uri: item.user_image_url || item.shop_image_url || 'https://example.com/default-avatar.png' }} />
@@ -332,18 +393,12 @@ const ChatListScreen = () => {
             </UserItem>
           )}
           keyExtractor={(item) => {
-            // If the item has a `user_id`, use it as a key
-            if (item.user_id) {
-              return `user-${item.user_id}`;
-            }
-            // If the item has a `shop_id`, use it as a key
-            if (item.shop_id) {
-              return `shop-${item.shop_id}`;
-            }
-            // Fallback in case there's no `user_id` or `shop_id` (this should rarely be the case)
-            return `item-${Math.random().toString(36).substr(2, 9)}`;
+            // Create a unique key combining type, id, and timestamp
+            const type = item.user_id ? 'user' : 'shop';
+            const id = item.user_id || item.shop_id;
+            const timestamp = item.sent_at ? new Date(item.sent_at).getTime() : Date.now();
+            return `${type}-${id}-${timestamp}`;
           }}
-
         />
       </Container>
     </>
