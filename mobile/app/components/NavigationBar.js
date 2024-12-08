@@ -116,7 +116,7 @@ const NavigationBar = () => {
               case "Market Category":
                 iconName = "leaf-outline";
                 break;
-              case "Featured Products":
+              case "Market Categories":
                 iconName = "leaf-outline";
                 break;
               case "Biddings":
@@ -147,7 +147,7 @@ const NavigationBar = () => {
           options={{ headerShown: false }}
         />
         <Tab.Screen
-          name="Featured Products"
+          name="Market Categories"
           component={FeaturedProductScreen}
           options={{
             tabBarLabel: "Market",

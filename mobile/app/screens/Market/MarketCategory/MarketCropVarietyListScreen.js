@@ -38,9 +38,11 @@ function MarketVarietyListScreen() {
         throw new Error("Network response was not ok");
       }
       const data = await response.json();
-      const sortedData = data.sort((a, b) => a.crop_variety_id - b.crop_variety_id);
+      const sortedData = data.sort(
+        (a, b) => a.crop_variety_id - b.crop_variety_id
+      );
       const filteredItems = sortedData.filter(
-        (item) => item.crop_sub_category_id === subcategoryId
+        (item) => item.crop_sub_category_id === subcategoryId.crop_sub_category_id
       );
       setItems(filteredItems);
     } catch (error) {
@@ -60,17 +62,23 @@ function MarketVarietyListScreen() {
     const filter_sub_category_id = item.crop_sub_category_id;
     const filter_variety_id = item.crop_variety_id;
     const filter_class = [];
-    const filter_size_id = '';
+    const filter_size_id = "";
     const filter_price_range = [];
-    const filter_quantity = '';
+    const filter_quantity = "";
 
-    navigation.navigate("Compare Shops", { filter_category_id, filter_sub_category_id, filter_variety_id, filter_class, filter_size_id, filter_price_range, filter_quantity });
+    navigation.navigate("Compare Shops", {
+      filter_category_id,
+      filter_sub_category_id,
+      filter_variety_id,
+      filter_class,
+      filter_size_id,
+      filter_price_range,
+      filter_quantity,
+    });
   };
 
   if (loading) {
-    return (
-      <LoadingAnimation />
-    );
+    return <LoadingAnimation />;
   }
 
   if (error) {
@@ -86,6 +94,17 @@ function MarketVarietyListScreen() {
   return (
     <>
       <SafeAreaView className="flex-1 p-4 bg-gray-200">
+      <View className="flex-row justify-end">
+          <TouchableOpacity
+            className="px-3 py-1 rounded-md mb-3"
+            onPress={() => {
+              console.log("Sub Category:", subcategoryId.crop_sub_category_id); // Check what is logged here
+              navigation.navigate("Compare Shops", { filter_sub_category_id: subcategoryId.crop_sub_category_id });
+            }}
+          >
+            <Text className="text-green-600">View All {subcategoryId.crop_sub_category_name}</Text>
+          </TouchableOpacity>
+        </View>
         <ScrollView>
           <View className="flex-col pb-10">
             {items.length > 0 ? (
@@ -117,10 +136,11 @@ function MarketVarietyListScreen() {
                 </TouchableOpacity>
               ))
             ) : (
-              <Text className="text-center text-gray-600">No crop variety found</Text>
+              <Text className="text-center text-gray-600">
+                No crop variety found
+              </Text>
             )}
           </View>
-
         </ScrollView>
       </SafeAreaView>
       <NavigationbarComponent />
