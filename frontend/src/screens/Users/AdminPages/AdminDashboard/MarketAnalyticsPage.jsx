@@ -94,8 +94,8 @@ const MarketAnalyticsPage = () => {
       const filteredVarieties = subcat.varieties?.filter(variety =>
         variety.crop_variety_name.toLowerCase().includes(searchQuery.toLowerCase())
       );
-      
-      return subcat.crop_sub_category_name.toLowerCase().includes(searchQuery.toLowerCase()) 
+
+      return subcat.crop_sub_category_name.toLowerCase().includes(searchQuery.toLowerCase())
         || (filteredVarieties && filteredVarieties.length > 0);
     });
 
@@ -136,36 +136,36 @@ const MarketAnalyticsPage = () => {
       <div className="max-w-7xl mx-auto p-6 md:p-8">
         {/* Header */}
         <div className="mb-8">
-            <div className="flex items-center justify-between mb-4">
-                <div className="flex-1">
-                    <h1 className="text-4xl font-bold text-white drop-shadow-md mb-2">
-                        Market Analytics
-                    </h1>
-                    <p className="text-white/80 text-lg font-medium">
-                        Explore market categories and their performance
-                    </p>
-                </div>
-                <div className="hidden md:flex items-center space-x-4">
-                    <div className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/30">
-                        <span className="text-white font-medium">
-                            {marketData.length} Categories
-                        </span>
-                    </div>
-                </div>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex-1">
+              <h1 className="text-4xl font-bold text-gray-800 drop-shadow-md mb-2">
+                Market Analytics
+              </h1>
+              <p className="text-gray-700 text-lg font-medium">
+                Explore market categories and their performance
+              </p>
             </div>
-            
-            {/* Add Search Bar */}
-            <div className="relative mb-6">
-              <input
-                type="text"
-                placeholder="Search categories, subcategories, or varieties..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-white/90 backdrop-blur-sm 
+            <div className="hidden md:flex items-center space-x-4">
+              <div className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/30">
+                <span className="text-gray-800 font-medium">
+                  {marketData.length} Categories
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Add Search Bar */}
+          <div className="relative mb-6">
+            <input
+              type="text"
+              placeholder="Search categories, subcategories, or varieties..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl bg-white/90 backdrop-blur-sm 
                   border border-white/30 focus:outline-none focus:ring-2 
                   focus:ring-green-500 text-gray-800 placeholder-gray-500"
-              />
-            </div>
+            />
+          </div>
         </div>
 
         {/* Grid - Update marketData to filteredMarketData */}
@@ -174,9 +174,8 @@ const MarketAnalyticsPage = () => {
             <div key={category.crop_category_id} className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg overflow-hidden h-fit">
               {/* Category Header */}
               <button
-                className={`w-full p-4 flex items-center justify-between transition-colors duration-200 ${
-                  expandedCategory === category.crop_category_id ? 'bg-green-50' : 'hover:bg-gray-50/50'
-                }`}
+                className={`w-full p-4 flex items-center justify-between transition-colors duration-200 ${expandedCategory === category.crop_category_id ? 'bg-green-50' : 'hover:bg-gray-50/50'
+                  }`}
                 onClick={() => toggleExpandCategory(category.crop_category_id)}
               >
                 <div className="flex items-center space-x-4">
@@ -192,25 +191,22 @@ const MarketAnalyticsPage = () => {
                     {category.crop_category_name}
                   </span>
                 </div>
-                <div className={`transition-transform duration-300 ${
-                  expandedCategory === category.crop_category_id ? 'rotate-180' : ''
-                }`}>
+                <div className={`transition-transform duration-300 ${expandedCategory === category.crop_category_id ? 'rotate-180' : ''
+                  }`}>
                   <FaChevronDown className="h-5 w-5 text-green-600" />
                 </div>
               </button>
 
               {/* Subcategories */}
-              <div className={`transition-all duration-300 ease-in-out overflow-hidden ${
-                expandedCategory === category.crop_category_id ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'
-              }`}>
+              <div className={`transition-all duration-300 ease-in-out overflow-hidden ${expandedCategory === category.crop_category_id ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'
+                }`}>
                 <div className="p-4 space-y-3">
                   {category.subcategories?.map((subcat) => (
                     <div key={subcat.crop_sub_category_id} className="bg-gray-50 rounded-xl overflow-hidden shadow-sm">
                       {/* Subcategory Header */}
                       <button
-                        className={`w-full p-3 flex items-center justify-between transition-colors duration-200 ${
-                          expandedSubcategory === subcat.crop_sub_category_id ? 'bg-green-50' : 'hover:bg-gray-100/50'
-                        }`}
+                        className={`w-full p-3 flex items-center justify-between transition-colors duration-200 ${expandedSubcategory === subcat.crop_sub_category_id ? 'bg-green-50' : 'hover:bg-gray-100/50'
+                          }`}
                         onClick={() => toggleExpandSubcategory(subcat.crop_sub_category_id)}
                       >
                         <div className="flex items-center space-x-3">
@@ -226,17 +222,15 @@ const MarketAnalyticsPage = () => {
                             {subcat.crop_sub_category_name}
                           </span>
                         </div>
-                        <div className={`transition-transform duration-300 ${
-                          expandedSubcategory === subcat.crop_sub_category_id ? 'rotate-180' : ''
-                        }`}>
+                        <div className={`transition-transform duration-300 ${expandedSubcategory === subcat.crop_sub_category_id ? 'rotate-180' : ''
+                          }`}>
                           <FaChevronDown className="h-4 w-4 text-green-600" />
                         </div>
                       </button>
 
                       {/* Varieties */}
-                      <div className={`transition-all duration-300 ease-in-out overflow-hidden ${
-                        expandedSubcategory === subcat.crop_sub_category_id ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'
-                      }`}>
+                      <div className={`transition-all duration-300 ease-in-out overflow-hidden ${expandedSubcategory === subcat.crop_sub_category_id ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'
+                        }`}>
                         <div className="p-3 space-y-2">
                           {subcat.varieties?.map((variety) => (
                             <button

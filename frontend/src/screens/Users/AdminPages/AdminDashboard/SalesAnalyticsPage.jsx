@@ -42,35 +42,35 @@ const SalesAnalyticsPage = () => {
 
       let totalAll = 0;
       const currentDate = new Date();
-      
+
       // Filter orders based on selected time range
       const filteredOrders = orders.filter(order => {
         const orderDate = new Date(order.order_date);
-        
+
         switch (selectedFilter) {
           case '7 Days':
             const sevenDaysAgo = new Date(currentDate);
             sevenDaysAgo.setDate(currentDate.getDate() - 7);
             return orderDate >= sevenDaysAgo;
-            
+
           case '14 Days':
             const fourteenDaysAgo = new Date(currentDate);
             fourteenDaysAgo.setDate(currentDate.getDate() - 14);
             return orderDate >= fourteenDaysAgo;
-            
+
           case '6 Months':
             const sixMonthsAgo = new Date(currentDate);
             sixMonthsAgo.setMonth(currentDate.getMonth() - 6);
             return orderDate >= sixMonthsAgo;
-            
+
           case '12 Months':
             const twelveMonthsAgo = new Date(currentDate);
             twelveMonthsAgo.setMonth(currentDate.getMonth() - 12);
             return orderDate >= twelveMonthsAgo;
-            
+
           case 'Yearly':
             return orderDate.getFullYear() === currentDate.getFullYear();
-            
+
           default:
             return false;
         }
@@ -129,12 +129,12 @@ const SalesAnalyticsPage = () => {
 
   useEffect(() => {
     fetchOrdersAndCalculateTotalPrices(); // Fetch data initially
-  
+
     // Polling for new data every 30 seconds
     const pollingInterval = setInterval(() => {
       fetchOrdersAndCalculateTotalPrices();
     }, 1000);
-  
+
     // Clean up the interval on unmount
     return () => {
       clearInterval(pollingInterval);
@@ -216,16 +216,16 @@ const SalesAnalyticsPage = () => {
       <div className="max-w-7xl mx-auto p-6 md:p-8">
         {/* Header */}
         <div className="mb-8">
-            <div className="flex items-center justify-between mb-4">
-                <div className="flex-1">
-                    <h1 className="text-4xl font-bold text-white drop-shadow-md mb-2">
-                        Sales Analytics Summary
-                    </h1>
-                    <p className="text-white/80 text-lg font-medium">
-                        Track your sales performance and trends
-                    </p>
-                </div>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex-1">
+              <h1 className="text-4xl font-bold text-gray-800 drop-shadow-md mb-2">
+                Sales Analytics Summary
+              </h1>
+              <p className="text-gray-700 text-lg font-medium">
+                Track your sales performance and trends
+              </p>
             </div>
+          </div>
         </div>
 
         {/* Stats Cards */}
@@ -284,8 +284,8 @@ const SalesAnalyticsPage = () => {
                 <button
                   key={filter}
                   className={`w-full p-3 rounded-xl font-semibold transition-all duration-200
-                    ${selectedFilter === filter 
-                      ? "bg-green-600 text-white shadow-lg" 
+                    ${selectedFilter === filter
+                      ? "bg-green-600 text-white shadow-lg"
                       : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`}
                   onClick={() => {
                     setSelectedFilter(filter);

@@ -58,7 +58,7 @@ function CropSubCategoryPage() {
                     </div>
                     <h3 className="text-2xl font-bold text-gray-900 text-center mb-3">Error Loading Data</h3>
                     <p className="text-gray-600 text-center mb-6">{error.message}</p>
-                    <button 
+                    <button
                         onClick={() => window.location.reload()}
                         className="w-full bg-green-600 text-white py-3 rounded-xl font-semibold
                             hover:bg-green-700 active:bg-green-800 transform hover:scale-[1.02]
@@ -72,7 +72,7 @@ function CropSubCategoryPage() {
     }
 
     const filteredSubCategories = subCategories.filter(
-        (subCategory) => 
+        (subCategory) =>
             String(subCategory.crop_category_id) === String(cropCategoryId) &&
             subCategory.crop_sub_category_name.toLowerCase().includes(searchQuery.toLowerCase())
     );
@@ -111,21 +111,21 @@ function CropSubCategoryPage() {
                             backdrop-blur-sm border border-white/30 text-white transition-all duration-200
                             hover:shadow-lg group mb-6"
                     >
-                        <ArrowLeftIcon className="h-5 w-5 mr-2 group-hover:-translate-x-1 transition-transform duration-200" />
-                        <span className="font-medium">Back to Categories</span>
+                        <ArrowLeftIcon className="h-5 w-5 mr-2 text-gray-800 font-medium  group-hover:-translate-x-1 transition-transform duration-200" />
+                        <span className="text-gray-800 font-medium">Back to Categories</span>
                     </Link>
                     <div className="flex items-center justify-between mb-4">
                         <div className="flex-1">
-                            <h1 className="text-4xl font-bold text-white drop-shadow-md mb-2">
+                            <h1 className="text-4xl font-bold text-gray-800 drop-shadow-md mb-2">
                                 Product Subcategories
                             </h1>
-                            <p className="text-white/80 text-lg font-medium">
+                            <p className="text-gray-700 text-lg font-medium">
                                 Browse through our selection of product varieties
                             </p>
                         </div>
                         <div className="hidden md:flex items-center space-x-4">
                             <div className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/30">
-                                <span className="text-white font-medium">
+                                <span className="text-gray-800 font-medium">
                                     {filteredSubCategories.length} Categories
                                 </span>
                             </div>
@@ -184,7 +184,7 @@ function CropSubCategoryPage() {
                         ))
                     ) : (
                         <div className="bg-white/90 backdrop-blur-sm rounded-xl p-8 text-center">
-                            <p className="text-gray-600 text-lg">
+                            <p className="text-gray-800 text-lg">
                                 No subcategories found matching "{searchQuery}"
                             </p>
                         </div>

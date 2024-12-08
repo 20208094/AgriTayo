@@ -119,16 +119,16 @@ function CropCategoryPage() {
         <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
                 <div className="flex-1">
-                    <h1 className="text-4xl font-bold text-white drop-shadow-md mb-2">
+                    <h1 className="text-4xl font-bold text-gray-800 drop-shadow-md mb-2">
                         Product Categories
                     </h1>
-                    <p className="text-white/80 text-lg font-medium">
+                    <p className="text-gray-700 text-lg font-medium">
                         Browse through our selection of product varieties
                     </p>
                 </div>
                 <div className="hidden md:flex items-center space-x-4">
                     <div className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/30">
-                        <span className="text-white font-medium">
+                        <span className="text-gray-800 font-medium">
                             {categories.length} Categories
                         </span>
                     </div>
@@ -158,7 +158,7 @@ function CropCategoryPage() {
           ))}
           {filteredCategories.length === 0 && (
             <div className="col-span-full text-center py-8">
-              <p className="text-white text-lg">No categories found matching "{searchQuery}"</p>
+              <p className="text-gray-800 text-lg">No categories found matching "{searchQuery}"</p>
             </div>
           )}
         </div>

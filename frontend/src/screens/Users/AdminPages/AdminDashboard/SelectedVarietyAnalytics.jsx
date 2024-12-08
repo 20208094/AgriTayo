@@ -441,25 +441,25 @@ const SelectedVarietyAnalyticsPage = () => {
       <div className="max-w-7xl mx-auto p-6 md:p-8">
         {/* Header */}
         <div className="mb-8">
-            <Link
-                to="/admin/MarketAnalytics"
-                className="inline-flex items-center px-4 py-2 rounded-lg bg-white/20 hover:bg-white/30 
+          <Link
+            to="/admin/MarketAnalytics"
+            className="inline-flex items-center px-4 py-2 rounded-lg bg-white/20 hover:bg-white/30 
                     backdrop-blur-sm border border-white/30 text-white transition-all duration-200
                     hover:shadow-lg group mb-6"
-            >
-                <ArrowLeftIcon className="h-5 w-5 mr-2 group-hover:-translate-x-1 transition-transform duration-200" />
-                <span className="font-medium">Back to Market</span>
-            </Link>
-            <div className="flex items-center justify-between mb-4">
-                <div className="flex-1">
-                    <h1 className="text-4xl font-bold text-white drop-shadow-md mb-2">
-                        {varietyMarketData.crop_variety_name} Analytics
-                    </h1>
-                    <p className="text-white/80 text-lg font-medium">
-                        View detailed analytics for this variety
-                    </p>
-                </div>
+          >
+            <ArrowLeftIcon className="h-5 w-5 mr-2 text-gray-800 font-medium group-hover:-translate-x-1 transition-transform duration-200" />
+            <span className="text-gray-800 font-medium">Back to Market</span>
+          </Link>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex-1">
+              <h1 className="text-4xl font-bold text-gray-800 drop-shadow-md mb-2">
+                {varietyMarketData.crop_variety_name} Analytics
+              </h1>
+              <p className="text-gray-700 text-lg font-medium">
+                View detailed analytics for this variety
+              </p>
             </div>
+          </div>
         </div>
 
         {/* Stats Grid */}
@@ -506,7 +506,7 @@ const SelectedVarietyAnalyticsPage = () => {
               Change Time Range
             </button>
           </div>
-          
+
           <div className="bg-white rounded-xl p-4">
             {renderAnalyticsChart()}
           </div>
@@ -521,8 +521,8 @@ const SelectedVarietyAnalyticsPage = () => {
                 <button
                   key={filter}
                   className={`w-full p-3 rounded-xl font-semibold transition-all duration-200
-                    ${selectedFilter === filter 
-                      ? "bg-green-600 text-white shadow-lg" 
+                    ${selectedFilter === filter
+                      ? "bg-green-600 text-white shadow-lg"
                       : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`}
                   onClick={() => {
                     setSelectedFilter(filter);
