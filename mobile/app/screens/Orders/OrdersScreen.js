@@ -27,6 +27,7 @@ function OrdersScreen({ route }) {
   const [orderProducts, setOrderProducts] = useState([]);
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [viewedScreens, setViewedScreens] = useState(new Set());
 
   // Fetch user data from AsyncStorage
   const getAsyncUserData = async () => {
@@ -109,6 +110,35 @@ function OrdersScreen({ route }) {
     };
   }, [userData]);
 
+  // Add a function to get counts for each status
+  const getOrderCounts = () => {
+    if (!orders || !userData) return {};
+    
+    return {
+      toConfirm: orders.filter(order => order.status_id === 1 && order.user_id === userData.user_id).length,
+      preparing: orders.filter(order => order.status_id === 2 && order.user_id === userData.user_id).length,
+      shipping: orders.filter(order => order.status_id === 3 && order.user_id === userData.user_id).length,
+      pickup: orders.filter(order => order.status_id === 4 && order.user_id === userData.user_id).length,
+      forReturn: orders.filter(order => order.status_id === 5 && order.user_id === userData.user_id).length,
+      returned: orders.filter(order => order.status_id === 6 && order.user_id === userData.user_id).length,
+      toRate: orders.filter(order => order.status_id === 7 && order.user_id === userData.user_id).length,
+      completed: orders.filter(order => order.status_id === 8 && order.user_id === userData.user_id).length,
+      rejected: orders.filter(order => order.status_id === 9 && order.user_id === userData.user_id).length,
+    };
+  };
+
+  // Handle screen focus to mark as viewed
+  const handleScreenFocus = (screenName) => {
+    setViewedScreens(prev => new Set([...prev, screenName]));
+  };
+
+  // Check if screen has been viewed
+  const isScreenNew = (screenName) => {
+    const counts = getOrderCounts();
+    const countKey = screenName.toLowerCase().replace(/\s+/g, '');
+    return !viewedScreens.has(screenName) && counts[countKey] > 0;
+  };
+
   if (loading) {
     return <LoadingAnimation />;
   }
@@ -157,9 +187,41 @@ function OrdersScreen({ route }) {
                 break;
             }
 
+            const counts = getOrderCounts();
+            const countKey = route.name.toLowerCase().replace(/\s+/g, '');
+            const isNew = isScreenNew(route.name);
+
             return (
               <View style={{ alignItems: "center" }}>
-                <Icon name={iconName} size={25} color={color} />
+                <View>
+                  <Icon name={iconName} size={25} color={color} />
+                  {counts[countKey] > 0 && (
+                    <View style={{ 
+                      position: 'absolute',
+                      right: -6,
+                      top: -6,
+                      backgroundColor: '#00B215',
+                      borderRadius: 10,
+                      paddingHorizontal: 4,
+                      paddingVertical: 2,
+                      minWidth: 16,
+                      alignItems: 'center'
+                    }}>
+                      <Text style={{ color: 'white', fontSize: 10 }}>
+                        {counts[countKey]}
+                      </Text>
+                    </View>
+                  )}
+                  {isNew && (
+                    <View style={{ 
+                      position: 'absolute',
+                      right: -12,
+                      top: -2,
+                    }}>
+                      <Text style={{ color: '#FF0000', fontSize: 16 }}>!</Text>
+                    </View>
+                  )}
+                </View>
               </View>
             );
           },
@@ -184,31 +246,103 @@ function OrdersScreen({ route }) {
           ),
         })}
       >
-        <Tab.Screen name="To Confirm" options={{ tabBarLabel: "To Confirm" }}>
+        <Tab.Screen 
+          name="To Confirm" 
+          options={{
+            tabBarLabel: "To Confirm"
+          }}
+          listeners={{
+            tabPress: () => handleScreenFocus("To Confirm")
+          }}
+        >
           {() => <ToConfirmScreen orders={orders} orderProducts={orderProducts} />}
         </Tab.Screen>
-        <Tab.Screen name="Preparing" options={{ tabBarLabel: "Preparing" }}>
+        <Tab.Screen 
+          name="Preparing" 
+          options={{
+            tabBarLabel: "Preparing"
+          }}
+          listeners={{
+            tabPress: () => handleScreenFocus("Preparing")
+          }}
+        >
           {() => <PreparingScreen orders={orders} orderProducts={orderProducts} />}
         </Tab.Screen>
-        <Tab.Screen name="Shipping" options={{ tabBarLabel: "Shipping" }}>
+        <Tab.Screen 
+          name="Shipping" 
+          options={{
+            tabBarLabel: "Shipping"
+          }}
+          listeners={{
+            tabPress: () => handleScreenFocus("Shipping")
+          }}
+        >
           {() => <ShippingScreen orders={orders} orderProducts={orderProducts} />}
         </Tab.Screen>
-        <Tab.Screen name="Pickup" options={{ tabBarLabel: "Pickup" }}>
+        <Tab.Screen 
+          name="Pickup" 
+          options={{
+            tabBarLabel: "Pickup"
+          }}
+          listeners={{
+            tabPress: () => handleScreenFocus("Pickup")
+          }}
+        >
           {() => <PickupScreen orders={orders} orderProducts={orderProducts} />}
         </Tab.Screen>
-        <Tab.Screen name="For Return" options={{ tabBarLabel: "For Return" }}>
+        <Tab.Screen 
+          name="For Return" 
+          options={{
+            tabBarLabel: "For Return"
+          }}
+          listeners={{
+            tabPress: () => handleScreenFocus("For Return")
+          }}
+        >
           {() => <ForReturnScreen orders={orders} orderProducts={orderProducts} />}
         </Tab.Screen>
-        <Tab.Screen name="Returned" options={{ tabBarLabel: "Returned" }}>
+        <Tab.Screen 
+          name="Returned" 
+          options={{
+            tabBarLabel: "Returned"
+          }}
+          listeners={{
+            tabPress: () => handleScreenFocus("Returned")
+          }}
+        >
           {() => <ReturnedScreen orders={orders} orderProducts={orderProducts} />}
         </Tab.Screen>
-        <Tab.Screen name="To Rate" options={{ tabBarLabel: "To Rate" }}>
+        <Tab.Screen 
+          name="To Rate" 
+          options={{
+            tabBarLabel: "To Rate"
+          }}
+          listeners={{
+            tabPress: () => handleScreenFocus("To Rate")
+          }}
+        >
           {() => <ToRateScreen orders={orders} orderProducts={orderProducts} />}
         </Tab.Screen>
-        <Tab.Screen name="Completed" options={{ tabBarLabel: "Completed" }}>
+        <Tab.Screen 
+          name="Completed" 
+          options={{
+            tabBarLabel: "Completed"
+          }}
+          listeners={{
+            tabPress: () => handleScreenFocus("Completed")
+          }}
+        >
           {() => <CompletedScreen orders={orders} orderProducts={orderProducts} />}
         </Tab.Screen>
-        <Tab.Screen name="Rejected" options={{ tabBarLabel: "Rejected" }}>
+        <Tab.Screen 
+          name="Rejected" 
+          options={{
+            tabBarLabel: "Rejected"
+          }}
+          listeners={{
+            tabPress: () => handleScreenFocus("Rejected")
+          }}
+        >
           {() => <RejectedScreen orders={orders} orderProducts={orderProducts} />}
         </Tab.Screen>
       </Tab.Navigator>

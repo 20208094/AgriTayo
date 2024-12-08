@@ -285,6 +285,18 @@ function PlaceABid({ route, navigation }) {
     setAmount(newAmount.toFixed(2)); // Format to 2 decimal places
   };
 
+  // Add this function near your other amount-related functions
+  const subtractMinimumIncrement = () => {
+    const currentAmount = parseFloat(amount) || minValidBid;
+    const increment = parseFloat(bidData.bid_minimum_increment);
+    const newAmount = currentAmount - increment;
+    
+    // Check if new amount would be less than minValidBid
+    if (newAmount >= minValidBid) {
+      setAmount(newAmount.toFixed(2)); // Format to 2 decimal places
+    }
+  };
+
   if (loading || fetching) {
     return (
       <LoadingAnimation />
@@ -364,6 +376,12 @@ function PlaceABid({ route, navigation }) {
               onPress={setToMinValidBid}
             >
               <Ionicons name="refresh-outline" size={24} color="#00b251" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              className="ml-2 p-2 rounded-lg"
+              onPress={subtractMinimumIncrement}
+            >
+              <Ionicons name="remove-outline" size={24} color="#00b251" />
             </TouchableOpacity>
             <TouchableOpacity
               className="ml-2 p-2 rounded-lg"
