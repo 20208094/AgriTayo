@@ -202,7 +202,7 @@ function OrderProductsPage() {
         } else if (filterType === 'price') {
             return orderProduct.order_prod_total_price.toString().includes(searchTerm);
         }
-        
+
         return (
             cropName.includes(searchTerm.toLowerCase()) ||
             userFullName.includes(searchTerm.toLowerCase()) ||
@@ -216,15 +216,15 @@ function OrderProductsPage() {
         const doc = new jsPDF('landscape'); // Set the PDF to landscape mode
 
         const logoWidth = 50;
-        const logoHeight = 50; 
-        const marginBelowLogo = 5; 
+        const logoHeight = 50;
+        const marginBelowLogo = 5;
         const textMargin = 5;
 
         const pageWidth = doc.internal.pageSize.getWidth();
         const xPosition = (pageWidth - logoWidth) / 2; // Center the logo horizontally
 
         doc.addImage(MainLogo, 'PNG', xPosition, 10, logoWidth, logoHeight);
-        const textYPosition = 10 + logoHeight + textMargin; 
+        const textYPosition = 10 + logoHeight + textMargin;
         doc.text("Order Product List", xPosition + logoWidth / 2, textYPosition, { align: "center" });
 
         const tableStartY = textYPosition + marginBelowLogo + 5;
@@ -250,9 +250,9 @@ function OrderProductsPage() {
         });
 
         doc.autoTable({
-            head: [tableColumn], 
-            body: tableRows,     
-            startY: tableStartY,  
+            head: [tableColumn],
+            body: tableRows,
+            startY: tableStartY,
             headStyles: {
                 fillColor: [0, 128, 0],
                 halign: 'center',
@@ -284,16 +284,16 @@ function OrderProductsPage() {
                 <div className="mb-8">
                     <div className="flex items-center justify-between mb-4">
                         <div className="flex-1">
-                            <h1 className="text-4xl font-bold text-white drop-shadow-md mb-2">
+                            <h1 className="text-4xl font-bold text-gray-800 drop-shadow-md mb-2">
                                 Order Products Management
                             </h1>
-                            <p className="text-white/80 text-lg font-medium">
+                            <p className="text-gray-700 text-lg font-medium">
                                 Manage and track order products efficiently
                             </p>
                         </div>
                         <div className="hidden md:flex items-center space-x-4">
                             <div className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/30">
-                                <span className="text-white font-medium">
+                                <span className="text-gray-800 font-medium">
                                     {filteredOrderProducts.length} Products
                                 </span>
                             </div>
@@ -394,7 +394,7 @@ function OrderProductsPage() {
                                 <h2 className="text-2xl font-bold text-gray-900 mb-6">Create Order Product</h2>
                                 <form onSubmit={handleSubmit} className="space-y-4">
                                     <div className="grid grid-cols-1 gap-4">
-                                        <p className="text-l font-bold mb-4" style={{ marginTop: '20px',marginBottom: '-10px' }}>Order ID</p>
+                                        <p className="text-l font-bold mb-4" style={{ marginTop: '20px', marginBottom: '-10px' }}>Order ID</p>
                                         <select
                                             name="order_id"
                                             value={formData.order_id}
@@ -516,7 +516,7 @@ function OrderProductsPage() {
                                 <h2 className="text-2xl font-bold text-gray-900 mb-6">Edit Order Products</h2>
                                 <form onSubmit={handleSubmit} className="space-y-4">
                                     <div className="grid grid-cols-1 gap-4">
-                                        <p className="text-l font-bold mb-4" style={{ marginTop: '20px',marginBottom: '-10px' }}>Order ID</p>
+                                        <p className="text-l font-bold mb-4" style={{ marginTop: '20px', marginBottom: '-10px' }}>Order ID</p>
                                         <select
                                             name="order_id"
                                             value={formData.order_id}

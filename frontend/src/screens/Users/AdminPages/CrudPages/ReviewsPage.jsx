@@ -126,7 +126,7 @@ function ReviewsPage() {
         setIsEdit(true);
         setIsModalOpen(true);
     };
-    
+
     const handleCreate = () => {
         setFormData({ crop_id: '', user_id: '', rating: '', review_text: '' });  // Reset form data
         setIsEdit(false);  // Not in edit mode
@@ -243,16 +243,16 @@ function ReviewsPage() {
                 <div className="mb-8">
                     <div className="flex items-center justify-between mb-4">
                         <div className="flex-1">
-                            <h1 className="text-4xl font-bold text-white drop-shadow-md mb-2">
+                            <h1 className="text-4xl font-bold text-gray-800 drop-shadow-md mb-2">
                                 Reviews Management
                             </h1>
-                            <p className="text-white/80 text-lg font-medium">
+                            <p className="text-gray-700 text-lg font-medium">
                                 Manage and review user feedback
                             </p>
                         </div>
                         <div className="hidden md:flex items-center space-x-4">
                             <div className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/30">
-                                <span className="text-white font-medium">
+                                <span className="text-gray-800 font-medium">
                                     {filteredReviews.length} Reviews
                                 </span>
                             </div>
@@ -370,7 +370,7 @@ function ReviewsPage() {
                                 <h2 className="text-2xl font-bold text-gray-900 mb-6">Create Review</h2>
                                 <form onSubmit={handleSubmit} className="space-y-4">
                                     <div className="grid grid-cols-1 gap-6">
-                                        <p className="text-l font-bold mb-4" style={{ marginTop: '20px',marginBottom: '-20px' }}>Crop Name</p>
+                                        <p className="text-l font-bold mb-4" style={{ marginTop: '20px', marginBottom: '-20px' }}>Crop Name</p>
                                         <select
                                             name="crop_id"
                                             value={formData.crop_id}
@@ -457,7 +457,7 @@ function ReviewsPage() {
                                 <h2 className="text-2xl font-bold text-gray-900 mb-6">Edit Review</h2>
                                 <form onSubmit={handleSubmit} className="space-y-4">
                                     <div className="grid grid-cols-1 gap-6">
-                                        <p className="text-l font-bold mb-4" style={{ marginTop: '20px',marginBottom: '-20px' }}>Crop Name</p>
+                                        <p className="text-l font-bold mb-4" style={{ marginTop: '20px', marginBottom: '-20px' }}>Crop Name</p>
                                         <select
                                             name="crop_id"
                                             value={formData.crop_id}

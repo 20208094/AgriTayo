@@ -339,10 +339,10 @@ const NewUsersAnalyticsPage = () => {
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <div className="flex-1">
-              <h1 className="text-4xl font-bold text-white drop-shadow-md mb-2">
+            <h1 className="text-4xl font-bold text-gray-800 drop-shadow-md mb-2">
                 New Users Analytics
               </h1>
-              <p className="text-white/80 text-lg font-medium">
+              <p className="text-gray-700 text-lg font-medium">
                 Track user growth and distribution
               </p>
             </div>

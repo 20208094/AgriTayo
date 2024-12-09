@@ -18,7 +18,7 @@ function UsersPage() {
         gender: '',
         birthday: '',
         user_type_id: '',
-        image: null 
+        image: null
     });
 
     const [searchQuery, setSearchQuery] = useState('');
@@ -42,13 +42,13 @@ function UsersPage() {
                 const searchValue = searchQuery.toLowerCase();
                 const fullNameMatches = `${user.firstname} ${user.middlename} ${user.lastname}`.toLowerCase().includes(searchValue);
                 const phoneMatches = user.phone_number?.toLowerCase().includes(searchValue) || user.secondary_phone_number?.toLowerCase().includes(searchValue);
-                
+
                 const userTypeName = userTypes.find(type => type.user_type_id === user.user_type_id)?.user_type_name || '';
                 const userTypeMatches = userTypeName.toLowerCase().includes(searchValue);
-    
+
                 const genderMatches = genderFilter ? user.gender === genderFilter : true;
                 const userTypeFilterMatches = userTypeFilter ? user.user_type_id === parseInt(userTypeFilter) : true;
-    
+
                 return (fullNameMatches || phoneMatches || userTypeMatches) && genderMatches && userTypeFilterMatches;
             })
         );
@@ -116,7 +116,7 @@ function UsersPage() {
         formPayload.append('birthday', formData.birthday);
         formPayload.append('user_type_id', formData.user_type_id);
         if (formData.image) formPayload.append('image', formData.image);
-    
+
         try {
             const response = await fetch(url, {
                 method,
@@ -124,14 +124,14 @@ function UsersPage() {
                 body: formPayload
             });
             if (!response.ok) throw new Error('Network response was not ok');
-            
+
             fetchUsers();
-            
+
             setFormData({
                 user_id: '', firstname: '', middlename: '', lastname: '', password: '',
                 phone_number: '', secondary_phone_number: '', gender: '', birthday: '', user_type_id: '', image: null
             });
-            
+
             setIsEdit(false);
             setShowModal(false);
             setShowEditModal(false);
@@ -177,10 +177,10 @@ function UsersPage() {
         ]);
 
         const logoWidth = 50;
-        const logoHeight = 50; 
+        const logoHeight = 50;
         const pageWidth = doc.internal.pageSize.getWidth();
-        const xPosition = (pageWidth - logoWidth) / 2; 
-        doc.addImage(MainLogo, 'PNG', xPosition, 10, logoWidth, logoHeight); 
+        const xPosition = (pageWidth - logoWidth) / 2;
+        doc.addImage(MainLogo, 'PNG', xPosition, 10, logoWidth, logoHeight);
         doc.text("List of Users", xPosition + logoWidth / 2, logoHeight + 15, { align: "center" });
         doc.autoTable({ head: [columns], body: data, startY: logoHeight + 20 });
         doc.save('user-reports.pdf');
@@ -199,7 +199,7 @@ function UsersPage() {
             gender: '',
             birthday: '',
             user_type_id: '',
-            image: null 
+            image: null
         });
     };
 
@@ -210,16 +210,16 @@ function UsersPage() {
                 <div className="mb-8">
                     <div className="flex items-center justify-between mb-4">
                         <div className="flex-1">
-                            <h1 className="text-4xl font-bold text-white drop-shadow-md mb-2">
+                            <h1 className="text-4xl font-bold text-gray-800 drop-shadow-md mb-2">
                                 Users Management
                             </h1>
-                            <p className="text-white/80 text-lg font-medium">
+                            <p className="text-gray-700 text-lg font-medium">
                                 Manage and organize system users
                             </p>
                         </div>
                         <div className="hidden md:flex items-center space-x-4">
                             <div className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/30">
-                                <span className="text-white font-medium">
+                                <span className="text-gray-800 font-medium">
                                     {filteredUsers.length} Users
                                 </span>
                             </div>
@@ -237,8 +237,8 @@ function UsersPage() {
                         + Add User
                     </button>
 
-                    <button 
-                        onClick={generatePDF} 
+                    <button
+                        onClick={generatePDF}
                         className="bg-white/90 backdrop-blur-sm text-green-600 font-semibold py-2 px-4 rounded-xl
                             hover:bg-white transition-all duration-200 shadow-lg hover:shadow-xl w-full sm:w-auto"
                     >
@@ -303,7 +303,7 @@ function UsersPage() {
                                         <td className="px-6 py-4">
                                             {userTypes.find((type) => type.user_type_id === user.user_type_id)?.user_type_name || 'Unknown'}
                                         </td>
-                                       
+
                                         <td className="px-6 py-4">
                                             {user.user_image_url && (
                                                 <img src={user.user_image_url} alt={`${user.firstname} ${user.lastname}`} className="w-8 h-8 rounded-full" />
@@ -471,14 +471,14 @@ function UsersPage() {
                             <h2 className="text-2xl font-bold text-red-500 mb-4">Confirm Delete</h2>
                             <p className="text-gray-600 mb-6">Are you sure you want to delete this user? This action cannot be undone.</p>
                             <div className="flex justify-end gap-3">
-                                <button 
+                                <button
                                     onClick={() => setShowDeleteModal(false)}
                                     className="px-4 py-2 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200
                                         transition-colors duration-200"
                                 >
                                     Cancel
                                 </button>
-                                <button 
+                                <button
                                     onClick={handleDelete}
                                     className="px-4 py-2 rounded-xl bg-red-500 text-white hover:bg-red-600
                                         transition-colors duration-200"
