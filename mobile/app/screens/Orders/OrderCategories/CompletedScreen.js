@@ -40,7 +40,7 @@ const CompletedScreen = ({ orders, orderProducts }) => {
   const transformToReportData = () => {
     return completedOrders.flatMap((order) =>
       order.items.map((item) => ({
-        item_name: item.item_name,
+        item_name: item.orig_prod_name|| item.item_name,
         total_price: `₱${item.order_prod_total_price}`,
         order_date: formatDate(order.order_date),
         receive_date: formatDate(order.completed_date),

@@ -23,6 +23,8 @@ function MarketCategoryListScreen() {
   const { category } = route.params;
   const API_KEY = REACT_NATIVE_API_KEY;
 
+  console.log(category);
+
   // Fetch crop sub category data from API
   const fetchCropSubCategories = async () => {
     try {
@@ -38,9 +40,11 @@ function MarketCategoryListScreen() {
         throw new Error("Network response was not ok");
       }
       const data = await response.json();
-      const sortedData = data.sort((a, b) => a.crop_sub_category_id - b.crop_sub_category_id);
+      const sortedData = data.sort(
+        (a, b) => a.crop_sub_category_id - b.crop_sub_category_id
+      );
       const filteredItems = sortedData.filter(
-        (item) => item.crop_category_id === category
+        (item) => item.crop_category_id === category.crop_category_id
       );
       setItems(filteredItems);
     } catch (error) {
@@ -55,9 +59,7 @@ function MarketCategoryListScreen() {
   }, [category]);
 
   if (loading) {
-    return (
-      <LoadingAnimation />
-    );
+    return <LoadingAnimation />;
   }
 
   if (error) {
@@ -73,6 +75,17 @@ function MarketCategoryListScreen() {
   return (
     <>
       <SafeAreaView className="flex-1 p-4 bg-gray-200">
+        <View className="flex-row justify-end">
+          <TouchableOpacity
+            className="px-3 py-1 rounded-md mb-3"
+            onPress={() => {
+              console.log("Category:", category.crop_category_id); // Check what is logged here
+              navigation.navigate("Compare Shops", { filter_category_id: category.crop_category_id });
+            }}
+          >
+            <Text className="text-green-600">View All {category.crop_category_name}</Text>
+          </TouchableOpacity>
+        </View>
         <ScrollView>
           <View className="flex-col pb-10">
             {items.length > 0 ? (
@@ -81,7 +94,7 @@ function MarketCategoryListScreen() {
                   key={item.crop_sub_category_id}
                   onPress={() =>
                     navigation.navigate("Market Variety", {
-                      subcategoryId: item.crop_sub_category_id,
+                      subcategoryId: item
                     })
                   }
                   className="bg-white rounded-lg shadow-md flex-row items-start p-4 mb-4 border border-gray-300"
@@ -99,7 +112,7 @@ function MarketCategoryListScreen() {
                   />
                   <View className="flex-1">
                     <Text className="text-lg font-semibold text-gray-800 mb-1">
-            {item.crop_sub_category_name}
+                      {item.crop_sub_category_name}
                     </Text>
                     <Text className="text-sm text-gray-600">
                       {item.crop_sub_category_description}
@@ -108,10 +121,11 @@ function MarketCategoryListScreen() {
                 </TouchableOpacity>
               ))
             ) : (
-              <Text className="text-center text-gray-600">No subcategory found</Text>
+              <Text className="text-center text-gray-600">
+                No subcategory found
+              </Text>
             )}
           </View>
-
         </ScrollView>
       </SafeAreaView>
       <NavigationbarComponent />
