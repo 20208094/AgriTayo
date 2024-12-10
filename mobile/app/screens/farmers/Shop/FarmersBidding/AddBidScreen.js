@@ -34,7 +34,7 @@ function AddBidScreen({ navigation }) {
   const [imageUri, setImageUri] = useState(null);
   const [hasPermission, setHasPermission] = useState(null);
   const [numberOfBids, setNumberOfBids] = useState(0);
-  const [metricSystem, setMetricSystem] = useState([])
+  const [metricSystem, setMetricSystem] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const [modalVisible, setModalVisible] = useState(false);
@@ -47,7 +47,7 @@ function AddBidScreen({ navigation }) {
 
   const handleValidation = (field, value) => {
     // If value is empty, clear the error for this field
-    if (!value || value.trim() === '') {
+    if (!value || value.trim() === "") {
       setErrors((prevErrors) => {
         const newErrors = { ...prevErrors };
         delete newErrors[field];
@@ -75,7 +75,8 @@ function AddBidScreen({ navigation }) {
         break;
       case "bidMinimumIncrement":
         if (!PRICE_REGEX.test(value)) {
-          error = "Enter a valid minimum bid increment greater than 0 (e.g., 5 or 5.00).";
+          error =
+            "Enter a valid minimum bid increment greater than 0 (e.g., 5 or 5.00).";
         }
         break;
       default:
@@ -105,17 +106,20 @@ function AddBidScreen({ navigation }) {
       if (currentDate < today) {
         setErrors((prev) => ({
           ...prev,
-          endDate: "The selected date is in the past. Please choose a future date.",
+          endDate:
+            "The selected date is in the past. Please choose a future date.",
         }));
       } else {
         setShow(false);
         setDate(currentDate);
         // Format date for display
-        setFormattedDate(currentDate.toLocaleDateString('en-US', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric'
-        }));
+        setFormattedDate(
+          currentDate.toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          })
+        );
         setShowTime(true);
         setErrors((prev) => ({ ...prev, endDate: "" }));
       }
@@ -130,16 +134,16 @@ function AddBidScreen({ navigation }) {
       const currentTime = selectedTime || time;
       setShowTime(false);
       setTime(currentTime);
-      
+
       // Format time for display with AM/PM
-      const formattedTimeStr = currentTime.toLocaleTimeString('en-US', {
-        hour: 'numeric',
-        minute: '2-digit',
+      const formattedTimeStr = currentTime.toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
         hour12: true,
-        timeZone: 'Asia/Manila' // Set to Philippines timezone
+        timeZone: "Asia/Manila", // Set to Philippines timezone
       });
       setFormattedTime(formattedTimeStr);
-      
+
       // Combine date and time with proper timezone handling
       const combinedDateTime = new Date(date);
       combinedDateTime.setHours(currentTime.getHours());
@@ -149,8 +153,10 @@ function AddBidScreen({ navigation }) {
 
       // Convert to UTC for storage while preserving the local time
       const offset = combinedDateTime.getTimezoneOffset() * 60000; // Convert offset to milliseconds
-      const localISOTime = new Date(combinedDateTime.getTime() - offset).toISOString();
-      
+      const localISOTime = new Date(
+        combinedDateTime.getTime() - offset
+      ).toISOString();
+
       setEndDate(localISOTime);
     } else {
       setShowTime(false);
@@ -386,7 +392,8 @@ function AddBidScreen({ navigation }) {
     if (!bidName) {
       errors.bidName = "Product Name is required.";
     } else if (!NAME_REGEX.test(bidName)) {
-      errors.bidName = "Product Name must be 3-50 characters long and only letters.";
+      errors.bidName =
+        "Product Name must be 3-50 characters long and only letters.";
     }
 
     if (!bidDescription) {
@@ -398,27 +405,29 @@ function AddBidScreen({ navigation }) {
     if (!bidStartingPrice) {
       errors.bidStartingPrice = "Bidding Starting Price is required.";
     } else if (!PRICE_REGEX.test(bidStartingPrice)) {
-      errors.bidStartingPrice = "Enter a valid price greater than 0 (e.g., 100 or 100.00).";
+      errors.bidStartingPrice =
+        "Enter a valid price greater than 0 (e.g., 100 or 100.00).";
     }
 
     if (!bidMinimumIncrement) {
       errors.bidMinimumIncrement = "Minimum Bid Increment is required.";
     } else if (!PRICE_REGEX.test(bidMinimumIncrement)) {
-      errors.bidMinimumIncrement = "Enter a valid minimum bid increment greater than 0 (e.g., 5 or 5.00).";
+      errors.bidMinimumIncrement =
+        "Enter a valid minimum bid increment greater than 0 (e.g., 5 or 5.00).";
     }
 
-    if (!imageUri) { 
-      errors.imageUri = "Select an image."; 
+    if (!imageUri) {
+      errors.imageUri = "Select an image.";
     }
-    
+
     if (!endDate) {
       errors.endDate = "Bidding End Date is required.";
     }
-    
+
     if (!selectedCategoryId) {
       errors.selectedCategoryId = "Select a category.";
     }
-    
+
     if (!selectedSubCategoryId) {
       errors.selectedSubCategoryId = "Select a sub-category.";
     }
@@ -455,14 +464,17 @@ function AddBidScreen({ navigation }) {
       setLoading(true);
       console.log("Submitting bid data: ", formData);
 
-      const response = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/biddings`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "multipart/form-data",
-          "x-api-key": REACT_NATIVE_API_KEY,
-        },
-        body: formData,
-      });
+      const response = await fetch(
+        `${REACT_NATIVE_API_BASE_URL}/api/biddings`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "multipart/form-data",
+            "x-api-key": REACT_NATIVE_API_KEY,
+          },
+          body: formData,
+        }
+      );
 
       const responseText = await response.text();
       console.log("Response Text: ", responseText);
@@ -489,47 +501,47 @@ function AddBidScreen({ navigation }) {
   // Add new state for modal and search
   const [modalVisible2, setModalVisible2] = useState(false);
   const [activeField, setActiveField] = useState(null);
-  const [searchText, setSearchText] = useState('');
+  const [searchText, setSearchText] = useState("");
   const [modalData, setModalData] = useState([]);
 
   // Helper function for modal data
   const handleOpenModal = (field) => {
     let data = [];
     switch (field) {
-      case 'category':
-        data = categories.map(cat => ({
+      case "category":
+        data = categories.map((cat) => ({
           label: cat.crop_category_name,
           value: cat.crop_category_id,
-          original: cat
+          original: cat,
         }));
         break;
-      case 'subcategory':
-        data = subCategories.map(sub => ({
+      case "subcategory":
+        data = subCategories.map((sub) => ({
           label: sub.crop_sub_category_name,
           value: sub.crop_sub_category_id,
-          original: sub
+          original: sub,
         }));
         break;
     }
     setModalData(data);
     setActiveField(field);
-    setSearchText('');
+    setSearchText("");
     setModalVisible2(true);
   };
 
   const handleModalItemSelect = (item) => {
     switch (activeField) {
-      case 'category':
+      case "category":
         handleCategorySelect(item.original);
         break;
-      case 'subcategory':
+      case "subcategory":
         handleSubCategorySelect(item.original);
         break;
     }
     setModalVisible2(false);
   };
 
-  const filteredItems = modalData.filter(item =>
+  const filteredItems = modalData.filter((item) =>
     item.label.toLowerCase().includes(searchText.toLowerCase())
   );
 
@@ -541,7 +553,9 @@ function AddBidScreen({ navigation }) {
           <View className="mb-4">
             <Text className="text-lg font-semibold mb-1">
               Product Name <Text className="text-red-500">*</Text>
-              {errors.bidName && <Text className="text-red-600 text-xs">{errors.bidName}</Text>}
+              {errors.bidName && (
+                <Text className="text-red-600 text-xs">{errors.bidName}</Text>
+              )}
             </Text>
             <TextInput
               placeholder="e.g. Vegetables, Potatoes, etc."
@@ -558,7 +572,11 @@ function AddBidScreen({ navigation }) {
           <View className="mb-4">
             <Text className="text-lg font-semibold mb-1">
               Product Description <Text className="text-red-500">*</Text>
-              {errors.bidDescription && <Text className="text-red-600 text-xs">{errors.bidDescription}</Text>}
+              {errors.bidDescription && (
+                <Text className="text-red-600 text-xs">
+                  {errors.bidDescription}
+                </Text>
+              )}
             </Text>
             <TextInput
               placeholder="Describe your product"
@@ -576,10 +594,14 @@ function AddBidScreen({ navigation }) {
           <View className="mb-4">
             <Text className="text-lg font-semibold mb-1">
               Choose Category <Text className="text-red-500">*</Text>
-              {errors.selectedCategoryId && <Text className="text-red-600 text-xs">{errors.selectedCategoryId}</Text>}
+              {errors.selectedCategoryId && (
+                <Text className="text-red-600 text-xs">
+                  {errors.selectedCategoryId}
+                </Text>
+              )}
             </Text>
             <TouchableOpacity
-              onPress={() => handleOpenModal('category')}
+              onPress={() => handleOpenModal("category")}
               className="w-full border border-gray-500 rounded-lg p-2 px-4 mx-2"
             >
               <Text className="text-base pl-2">
@@ -592,10 +614,14 @@ function AddBidScreen({ navigation }) {
           <View className="mb-4">
             <Text className="text-lg font-semibold mb-1">
               Choose Subcategory <Text className="text-red-500">*</Text>
-              {errors.selectedSubCategoryId && <Text className="text-red-600 text-xs">{errors.selectedSubCategoryId}</Text>}
+              {errors.selectedSubCategoryId && (
+                <Text className="text-red-600 text-xs">
+                  {errors.selectedSubCategoryId}
+                </Text>
+              )}
             </Text>
             <TouchableOpacity
-              onPress={() => handleOpenModal('subcategory')}
+              onPress={() => handleOpenModal("subcategory")}
               className="w-full border border-gray-500 rounded-lg p-2 px-4 mx-2"
             >
               <Text className="text-base pl-2">
@@ -608,7 +634,11 @@ function AddBidScreen({ navigation }) {
           <View className="mb-4">
             <Text className="text-lg font-semibold mb-1">
               Starting Price <Text className="text-red-500">*</Text>
-              {errors.bidStartingPrice && <Text className="text-red-600 text-xs">{errors.bidStartingPrice}</Text>}
+              {errors.bidStartingPrice && (
+                <Text className="text-red-600 text-xs">
+                  {errors.bidStartingPrice}
+                </Text>
+              )}
             </Text>
             <TextInput
               placeholder="₱ 0.00"
@@ -617,10 +647,10 @@ function AddBidScreen({ navigation }) {
               value={bidStartingPrice}
               onChangeText={(text) => {
                 let formattedText = text;
-                if (text.startsWith('.')) {
+                if (text.startsWith(".")) {
                   formattedText = `0${text}`;
                 }
-                const parts = formattedText.split('.');
+                const parts = formattedText.split(".");
                 if (parts[1] && parts[1].length > 2) {
                   formattedText = `${parts[0]}.${parts[1].slice(0, 2)}`;
                 }
@@ -634,7 +664,11 @@ function AddBidScreen({ navigation }) {
           <View className="mb-4">
             <Text className="text-lg font-semibold mb-1">
               Minimum Bid Increment <Text className="text-red-500">*</Text>
-              {errors.bidMinimumIncrement && <Text className="text-red-600 text-xs">{errors.bidMinimumIncrement}</Text>}
+              {errors.bidMinimumIncrement && (
+                <Text className="text-red-600 text-xs">
+                  {errors.bidMinimumIncrement}
+                </Text>
+              )}
             </Text>
             <TextInput
               placeholder="₱ 0.00"
@@ -643,10 +677,10 @@ function AddBidScreen({ navigation }) {
               value={bidMinimumIncrement}
               onChangeText={(text) => {
                 let formattedText = text;
-                if (text.startsWith('.')) {
+                if (text.startsWith(".")) {
                   formattedText = `0${text}`;
                 }
-                const parts = formattedText.split('.');
+                const parts = formattedText.split(".");
                 if (parts[1] && parts[1].length > 2) {
                   formattedText = `${parts[0]}.${parts[1].slice(0, 2)}`;
                 }
@@ -660,14 +694,18 @@ function AddBidScreen({ navigation }) {
           <View className="mb-4">
             <Text className="text-lg font-semibold mb-1">
               Bidding End Date <Text className="text-red-500">*</Text>
-              {errors.endDate && <Text className="text-red-600 text-xs">{errors.endDate}</Text>}
+              {errors.endDate && (
+                <Text className="text-red-600 text-xs">{errors.endDate}</Text>
+              )}
             </Text>
             <TouchableOpacity
               onPress={() => setShow(true)}
               className="w-full border border-gray-500 rounded-lg p-2 px-4 mx-2"
             >
               <Text className="text-base pl-2">
-                {formattedDate ? `${formattedDate} ${formattedTime}` : "Select Date and Time"}
+                {formattedDate
+                  ? `${formattedDate} ${formattedTime}`
+                  : "Select Date and Time"}
               </Text>
             </TouchableOpacity>
             {show && (
@@ -696,7 +734,9 @@ function AddBidScreen({ navigation }) {
           <View className="mb-4">
             <Text className="text-lg font-semibold mb-1">
               Upload Image <Text className="text-red-500">*</Text>
-              {errors.imageUri && <Text className="text-red-600 text-xs">{errors.imageUri}</Text>}
+              {errors.imageUri && (
+                <Text className="text-red-600 text-xs">{errors.imageUri}</Text>
+              )}
             </Text>
             <TouchableOpacity
               className="border border-dashed border-green-600 rounded-md p-4 flex-row justify-center items-center"
@@ -725,7 +765,7 @@ function AddBidScreen({ navigation }) {
           </View>
 
           {/* Add Bid Button */}
-          <TouchableOpacity 
+          <TouchableOpacity
             className="bg-[#00B251] p-4 rounded-lg flex items-center mt-4"
             onPress={() => setModalVisible1(true)}
           >
@@ -742,7 +782,10 @@ function AddBidScreen({ navigation }) {
         onRequestClose={() => setModalVisible2(false)}
       >
         <View className="flex-1 justify-center items-center bg-black/50">
-          <View className="w-11/12 bg-white rounded-lg" style={{ maxHeight: '80%' }}>
+          <View
+            className="w-11/12 bg-white rounded-lg"
+            style={{ maxHeight: "80%" }}
+          >
             <View className="p-4 border-b border-gray-200">
               <TextInput
                 className="w-full p-2 bg-gray-100 rounded-lg"
@@ -768,7 +811,9 @@ function AddBidScreen({ navigation }) {
               onPress={() => setModalVisible2(false)}
               className="p-4 border-t border-gray-200"
             >
-              <Text className="text-center text-gray-600 font-semibold">Close</Text>
+              <Text className="text-center text-gray-600 font-semibold">
+                Close
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -786,9 +831,15 @@ function AddBidScreen({ navigation }) {
             <Text className="text-lg font-semibold text-gray-800 mb-4">
               Confirm Add Bid
             </Text>
-            <Text className="text-gray-600 mb-6">
+            <Text className="text-gray-600 mb-3">
               Do you really want to add this bid?
             </Text>
+            <View className="bg-green-50 border-l-4 border-green-600 p-3 rounded-md mb-6">
+              <Text className="text-green-600">
+                Note: You may modify or remove this bid until a buyer places
+                their first bid. After that point, the bid is permanently fixed.
+              </Text>
+            </View>
             <View className="flex-row justify-end space-x-4">
               <TouchableOpacity
                 className="px-4 py-2 rounded-md bg-gray-200"
@@ -822,7 +873,7 @@ function AddBidScreen({ navigation }) {
             <Text className="text-lg font-semibold mb-4 text-center">
               Select Image Source
             </Text>
-            
+
             <TouchableOpacity
               className="bg-[#00B251] p-3 rounded-lg mb-3"
               onPress={selectImageFromGallery}
@@ -831,7 +882,7 @@ function AddBidScreen({ navigation }) {
                 Choose from Gallery
               </Text>
             </TouchableOpacity>
-            
+
             <TouchableOpacity
               className="bg-[#00B251] p-3 rounded-lg mb-3"
               onPress={selectImageFromCamera}
@@ -840,12 +891,14 @@ function AddBidScreen({ navigation }) {
                 Take a Photo
               </Text>
             </TouchableOpacity>
-            
+
             <TouchableOpacity
               className="bg-gray-400 p-3 rounded-lg"
               onPress={() => setModalVisible(false)}
             >
-              <Text className="text-white text-center font-semibold">Cancel</Text>
+              <Text className="text-white text-center font-semibold">
+                Cancel
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
