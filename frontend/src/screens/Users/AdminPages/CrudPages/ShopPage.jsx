@@ -197,7 +197,7 @@ function ShopsPage() {
         const matchesGcash = filter.gcash === '' || (filter.gcash === 'Yes' && shop.gcash) || (filter.gcash === 'No' && !shop.gcash);
         const matchesCod = filter.cod === '' || (filter.cod === 'Yes' && shop.cod) || (filter.cod === 'No' && !shop.cod);
         const matchesBank = filter.bank === '' || (filter.bank === 'Yes' && shop.bank) || (filter.bank === 'No' && !shop.bank);
-      
+
         const matchesSearch = shop.shop_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             shop.shop_address.toLowerCase().includes(searchTerm.toLowerCase()) ||
             shop.shop_description.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -235,7 +235,7 @@ function ShopsPage() {
                 shop.cod ? 'Yes' : 'No',
                 shop.bank ? 'Yes' : 'No',
                 shop.shop_number,
-               
+
                 shop.tin_number,
                 shop.pickup_address,
             ]),
@@ -251,16 +251,16 @@ function ShopsPage() {
                 <div className="mb-8">
                     <div className="flex items-center justify-between mb-4">
                         <div className="flex-1">
-                            <h1 className="text-4xl font-bold text-white drop-shadow-md mb-2">
+                            <h1 className="text-4xl font-bold text-gray-800 drop-shadow-md mb-2">
                                 Shop Management
                             </h1>
-                            <p className="text-white/80 text-lg font-medium">
+                            <p className="text-gray-700 text-lg font-medium">
                                 Manage and organize shop information
                             </p>
                         </div>
                         <div className="hidden md:flex items-center space-x-4">
                             <div className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/30">
-                                <span className="text-white font-medium">
+                                <span className="text-gray-800 font-medium">
                                     {filteredShops.length} Shops
                                 </span>
                             </div>
@@ -430,7 +430,7 @@ function ShopsPage() {
                                                 </div>
                                             )
                                         ))}
-                
+
                                         <div className="flex flex-col col-span-2">
                                             <label className="text-sm font-semibold text-gray-700">Shop Image</label>
                                             <input

@@ -206,23 +206,23 @@ function CropSubCategoryPageCRUD() {
       <div className="max-w-7xl mx-auto p-6 md:p-8">
         {/* Header */}
         <div className="mb-8">
-            <div className="flex items-center justify-between mb-4">
-                <div className="flex-1">
-                    <h1 className="text-4xl font-bold text-white drop-shadow-md mb-2">
-                        Product Subcategories
-                    </h1>
-                    <p className="text-white/80 text-lg font-medium">
-                        Browse through our selection of product varieties
-                    </p>
-                </div>
-                <div className="hidden md:flex items-center space-x-4">
-                    <div className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/30">
-                        <span className="text-white font-medium">
-                            {filteredSubCategories.length} Categories
-                        </span>
-                    </div>
-                </div>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex-1">
+              <h1 className="text-4xl font-bold text-gray-800 drop-shadow-md mb-2">
+                Product Subcategories
+              </h1>
+              <p className="text-gray-700 text-lg font-medium">
+                Browse through our selection of product varieties
+              </p>
             </div>
+            <div className="hidden md:flex items-center space-x-4">
+              <div className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/30">
+                <span className="text-gray-800 font-medium">
+                  {filteredSubCategories.length} Categories
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Action Bar */}
@@ -281,13 +281,13 @@ function CropSubCategoryPageCRUD() {
             </thead>
             <tbody className="divide-y divide-gray-200">
               {filteredSubCategories.map((subCategory) => (
-                <tr key={subCategory.crop_sub_category_id} 
+                <tr key={subCategory.crop_sub_category_id}
                   className="hover:bg-white/50 transition-colors duration-150">
                   <td className="px-6 py-4">{subCategory.crop_sub_category_id}</td>
                   <td className="px-6 py-4 font-medium">{subCategory.crop_sub_category_name}</td>
                   <td className="px-6 py-4">{subCategory.crop_sub_category_description}</td>
                   <td className="px-6 py-4">
-                    {categories.find(category => 
+                    {categories.find(category =>
                       category.crop_category_id === subCategory.crop_category_id
                     )?.crop_category_name || 'N/A'}
                   </td>
@@ -332,10 +332,10 @@ function CropSubCategoryPageCRUD() {
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">
                   {isEditModalOpen ? 'Edit Subcategory' : 'Add Subcategory'}
                 </h2>
-                <form onSubmit={isEditModalOpen ? handleEditSubmit : handleCreateSubmit} 
+                <form onSubmit={isEditModalOpen ? handleEditSubmit : handleCreateSubmit}
                   className="space-y-4">
                   <div className="mb-4">
-                    <p className="text-l font-bold mb-4" style={{ marginTop: '20px',marginBottom: '5px' }}>Subcategory Name</p>
+                    <p className="text-l font-bold mb-4" style={{ marginTop: '20px', marginBottom: '5px' }}>Subcategory Name</p>
                     <input
                       type="text"
                       name="crop_sub_category_name"
@@ -346,7 +346,7 @@ function CropSubCategoryPageCRUD() {
                     />
                   </div>
                   <div className="mb-4">
-                    <p className="text-l font-bold mb-4" style={{marginBottom: '5px' }}>Description</p>
+                    <p className="text-l font-bold mb-4" style={{ marginBottom: '5px' }}>Description</p>
                     <textarea
                       name="crop_sub_category_description"
                       value={formData.crop_sub_category_description}
@@ -356,7 +356,7 @@ function CropSubCategoryPageCRUD() {
                     />
                   </div>
                   <div className="mb-4">
-                    <p className="text-l font-bold mb-4" style={{marginBottom: '5px' }}>Image</p>
+                    <p className="text-l font-bold mb-4" style={{ marginBottom: '5px' }}>Image</p>
                     <input
                       type="file"
                       name="image"

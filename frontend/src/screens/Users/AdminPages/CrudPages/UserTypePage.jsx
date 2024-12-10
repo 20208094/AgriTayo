@@ -128,23 +128,23 @@ function UserTypePage() {
       <div className="max-w-7xl mx-auto p-6 md:p-8">
         {/* Header */}
         <div className="mb-8">
-            <div className="flex items-center justify-between mb-4">
-                <div className="flex-1">
-                    <h1 className="text-4xl font-bold text-white drop-shadow-md mb-2">
-                        User Type Management
-                    </h1>
-                    <p className="text-white/80 text-lg font-medium">
-                        Manage and organize user roles and permissions
-                    </p>
-                </div>
-                <div className="hidden md:flex items-center space-x-4">
-                    <div className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/30">
-                        <span className="text-white font-medium">
-                            {filteredUserTypes.length} User Types
-                        </span>
-                    </div>
-                </div>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex-1">
+              <h1 className="text-4xl font-bold text-gray-800 drop-shadow-md mb-2">
+                User Type Management
+              </h1>
+              <p className="text-gray-700 text-lg font-medium">
+                Manage and organize user roles and permissions
+              </p>
             </div>
+            <div className="hidden md:flex items-center space-x-4">
+              <div className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/30">
+                <span className="text-gray-800 font-medium">
+                  {filteredUserTypes.length} User Types
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Action Bar */}

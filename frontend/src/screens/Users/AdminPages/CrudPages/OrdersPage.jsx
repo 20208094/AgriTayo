@@ -22,7 +22,7 @@ function OrdersPage() {
     const [isEdit, setIsEdit] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
-    const [selectedStatus, setSelectedStatus] = useState(''); 
+    const [selectedStatus, setSelectedStatus] = useState('');
     const [showEditModal, setShowEditModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [orderToDelete, setOrderToDelete] = useState(null);
@@ -36,12 +36,12 @@ function OrdersPage() {
 
     useEffect(() => {
         setFilteredOrders(
-            orders.filter(order => 
+            orders.filter(order =>
                 (order.total_price.toString().includes(searchTerm) ||
-                order.total_weight.toString().includes(searchTerm) ||
-                statuses.find(status => status.order_status_id === order.status_id)?.order_status_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                users.find(user => user.user_id === order.user_id)?.firstname.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                users.find(user => user.user_id === order.user_id)?.lastname.toLowerCase().includes(searchTerm.toLowerCase())) &&
+                    order.total_weight.toString().includes(searchTerm) ||
+                    statuses.find(status => status.order_status_id === order.status_id)?.order_status_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    users.find(user => user.user_id === order.user_id)?.firstname.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    users.find(user => user.user_id === order.user_id)?.lastname.toLowerCase().includes(searchTerm.toLowerCase())) &&
                 (selectedStatus === '' || order.status_id === parseInt(selectedStatus))
             )
         );
@@ -205,16 +205,16 @@ function OrdersPage() {
                 <div className="mb-8">
                     <div className="flex items-center justify-between mb-4">
                         <div className="flex-1">
-                            <h1 className="text-4xl font-bold text-white drop-shadow-md mb-2">
+                            <h1 className="text-4xl font-bold text-gray-800 drop-shadow-md mb-2">
                                 Orders Management
                             </h1>
-                            <p className="text-white/80 text-lg font-medium">
+                            <p className="text-gray-700 text-lg font-medium">
                                 Manage and track orders efficiently
                             </p>
                         </div>
                         <div className="hidden md:flex items-center space-x-4">
                             <div className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/30">
-                                <span className="text-white font-medium">
+                                <span className="text-gray-800 font-medium">
                                     {filteredOrders.length} Orders
                                 </span>
                             </div>
@@ -431,69 +431,69 @@ function OrdersPage() {
                                 <h2 className="text-2xl font-bold text-gray-900 mb-6">Edit Order</h2>
                                 <form onSubmit={handleSubmit} className="space-y-4">
                                     <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
-                                    <p className="text-l font-bold mb-4" style={{ marginTop: '20px',marginBottom: '-20px' }}>Total Price</p>
+                                        <p className="text-l font-bold mb-4" style={{ marginTop: '20px', marginBottom: '-20px' }}>Total Price</p>
                                         <input
-                                        type="text"
-                                        name="total_price"
-                                        value={formData.total_price}
-                                        onChange={handleInputChange}
-                                        placeholder="Total Price"
-                                        className="p-2 border border-gray-300 rounded"
-                                        required
+                                            type="text"
+                                            name="total_price"
+                                            value={formData.total_price}
+                                            onChange={handleInputChange}
+                                            placeholder="Total Price"
+                                            className="p-2 border border-gray-300 rounded"
+                                            required
                                         />
-                                    <p className="text-l font-bold mb-4" style={{ marginBottom: '-20px' }}>Total Weight</p>
+                                        <p className="text-l font-bold mb-4" style={{ marginBottom: '-20px' }}>Total Weight</p>
                                         <input
-                                        type="text"
-                                        name="total_weight"
-                                        value={formData.total_weight}
-                                        onChange={handleInputChange}
-                                        placeholder="Total Weight"
-                                        className="p-2 border border-gray-300 rounded"
+                                            type="text"
+                                            name="total_weight"
+                                            value={formData.total_weight}
+                                            onChange={handleInputChange}
+                                            placeholder="Total Weight"
+                                            className="p-2 border border-gray-300 rounded"
                                         />
-                                    <p className="text-l font-bold mb-4" style={{ marginBottom: '-20px' }}>Order Status</p>
+                                        <p className="text-l font-bold mb-4" style={{ marginBottom: '-20px' }}>Order Status</p>
                                         <select
-                                        name="status_id"
-                                        value={formData.status_id}
-                                        onChange={handleInputChange}
-                                        className="p-2 border border-gray-300 rounded"
-                                        required
+                                            name="status_id"
+                                            value={formData.status_id}
+                                            onChange={handleInputChange}
+                                            className="p-2 border border-gray-300 rounded"
+                                            required
                                         >
-                                        <option value="">Select Status</option>
-                                        {statuses.map((status) => (
-                                            <option key={status.order_status_id} value={status.order_status_id}>
-                                            {status.order_status_name}
-                                            </option>
-                                        ))}
+                                            <option value="">Select Status</option>
+                                            {statuses.map((status) => (
+                                                <option key={status.order_status_id} value={status.order_status_id}>
+                                                    {status.order_status_name}
+                                                </option>
+                                            ))}
                                         </select>
-                                    <p className="text-l font-bold mb-4" style={{ marginBottom: '-20px' }}>User</p>
+                                        <p className="text-l font-bold mb-4" style={{ marginBottom: '-20px' }}>User</p>
                                         <select
-                                        name="user_id"
-                                        value={formData.user_id}
-                                        onChange={handleInputChange}
-                                        className="p-2 border border-gray-300 rounded"
-                                        required
+                                            name="user_id"
+                                            value={formData.user_id}
+                                            onChange={handleInputChange}
+                                            className="p-2 border border-gray-300 rounded"
+                                            required
                                         >
-                                        <option value="">Select User</option>
-                                        {users.map((user) => (
-                                            <option key={user.user_id} value={user.user_id}>
-                                            {user.firstname} {user.lastname}
-                                            </option>
-                                        ))}
+                                            <option value="">Select User</option>
+                                            {users.map((user) => (
+                                                <option key={user.user_id} value={user.user_id}>
+                                                    {user.firstname} {user.lastname}
+                                                </option>
+                                            ))}
                                         </select>
-                                    <p className="text-l font-bold mb-4" style={{ marginBottom: '-20px' }}>Metric System</p>
+                                        <p className="text-l font-bold mb-4" style={{ marginBottom: '-20px' }}>Metric System</p>
                                         <select
-                                        name="order_metric_system_id"
-                                        value={formData.order_metric_system_id}
-                                        onChange={handleInputChange}
-                                        className="p-2 border border-gray-300 rounded"
-                                        required
+                                            name="order_metric_system_id"
+                                            value={formData.order_metric_system_id}
+                                            onChange={handleInputChange}
+                                            className="p-2 border border-gray-300 rounded"
+                                            required
                                         >
-                                        <option value="">Select Metric System</option>
-                                        {metricSystems.map((metric) => (
-                                            <option key={metric.metric_system_id} value={metric.metric_system_id}>
-                                            {metric.metric_system_name}
-                                            </option>
-                                        ))}
+                                            <option value="">Select Metric System</option>
+                                            {metricSystems.map((metric) => (
+                                                <option key={metric.metric_system_id} value={metric.metric_system_id}>
+                                                    {metric.metric_system_name}
+                                                </option>
+                                            ))}
                                         </select>
                                     </div>
                                     <div className="flex justify-end gap-3 mt-6">

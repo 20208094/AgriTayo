@@ -215,12 +215,12 @@ function CropsPage() {
 
   const filteredCrops = crops.filter((crop) => {
     const matchesSearch = crop.crop_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        crop.crop_description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        crop.crop_price.toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (categories.find(category => category.crop_category_id === crop.category_id)?.crop_category_name.toLowerCase().includes(searchTerm.toLowerCase()) || '') ||
-        (subcategories.find(subcategory => subcategory.crop_sub_category_id === crop.sub_category_id)?.crop_sub_category_name.toLowerCase().includes(searchTerm.toLowerCase()) || '') ||
-        (varieties.find(variety=> variety.crop_variety_id === crop.crop_variety_id)?.crop_variety_name.toLowerCase().includes(searchTerm.toLowerCase()) || '') ||
-        (metricSystems.find(metric=> metric.metric_system_id === crop.metric_system_id)?.metric_system_name.toLowerCase().includes(searchTerm.toLowerCase()) || '');
+      crop.crop_description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      crop.crop_price.toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (categories.find(category => category.crop_category_id === crop.category_id)?.crop_category_name.toLowerCase().includes(searchTerm.toLowerCase()) || '') ||
+      (subcategories.find(subcategory => subcategory.crop_sub_category_id === crop.sub_category_id)?.crop_sub_category_name.toLowerCase().includes(searchTerm.toLowerCase()) || '') ||
+      (varieties.find(variety => variety.crop_variety_id === crop.crop_variety_id)?.crop_variety_name.toLowerCase().includes(searchTerm.toLowerCase()) || '') ||
+      (metricSystems.find(metric => metric.metric_system_id === crop.metric_system_id)?.metric_system_name.toLowerCase().includes(searchTerm.toLowerCase()) || '');
 
     const matchesCategory = selectedCategory
       ? crop.category_id === parseInt(selectedCategory)
@@ -282,23 +282,23 @@ function CropsPage() {
       <div className="p-8">
         {/* Header */}
         <div className="mb-8">
-            <div className="flex items-center justify-between mb-4">
-                <div className="flex-1">
-                    <h1 className="text-4xl font-bold text-white drop-shadow-md mb-2">
-                        Crops Management
-                    </h1>
-                    <p className="text-white/80 text-lg font-medium">
-                        Manage and organize crop information
-                    </p>
-                </div>
-                <div className="hidden md:flex items-center space-x-4">
-                    <div className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/30">
-                        <span className="text-white font-medium">
-                            {filteredCrops.length} Crops
-                        </span>
-                    </div>
-                </div>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex-1">
+              <h1 className="text-4xl font-bold text-gray-800 drop-shadow-md mb-2">
+                Crops Management
+              </h1>
+              <p className="text-gray-700 text-lg font-medium">
+                Manage and organize crop information
+              </p>
             </div>
+            <div className="hidden md:flex items-center space-x-4">
+              <div className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/30">
+                <span className="text-gray-800 font-medium">
+                  {filteredCrops.length} Crops
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Action Bar */}
