@@ -153,8 +153,15 @@ function BiddingDetailsFarmersScreen({ route, navigation }) {
         <Text className="text-sm text-gray-500 mb-3 text-center">
           Sold by: {shopData.shop_name}
         </Text>
+        <Text className="text-base text-green-600 mb-1 text-center">
+          Starting Price: <Text className="font-bold">₱{bidding.bid_starting_price}</Text>
+        </Text>
         <Text className="text-lg text-green-600 mb-1 text-center">
-          Current Highest Bid: ₱{bidding.bid_current_highest}
+          {bidding.bid_current_highest > bidding.bid_starting_price ? (
+            <>Current Highest Bid: ₱{bidding.bid_current_highest}</>
+          ) : (
+            <Text className="text-gray-500">No bids placed yet</Text>
+          )}
         </Text>
         <Text className="text-sm text-gray-500 mb-1 text-center">
           Number of Bids: {userBids.length}

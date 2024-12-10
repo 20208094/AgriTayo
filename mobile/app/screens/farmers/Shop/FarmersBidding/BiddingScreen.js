@@ -205,10 +205,13 @@ function BiddingScreen({ navigation }) {
                       <Text className="font-semibold text-base">
                         Current Highest Bid:
                       </Text>
-                      <Text className="font-bold text-base text-[#00b251]">
-                        {" "}
-                        ₱{bidding.bid_current_highest}
-                      </Text>
+                      {bidding.bid_current_highest > bidding.bid_starting_price ? (
+                        <Text className="font-bold text-base text-[#00b251]">
+                          {" "}₱{bidding.bid_current_highest}
+                        </Text>
+                      ) : (
+                        <Text className="font-bold text-base text-gray-500"> No bids yet</Text>
+                      )}
                     </Text>
                     {bidding.checked_out === false && (
                       <Text className='text-base text-red-600'>
@@ -419,10 +422,13 @@ const BidItem = ({ bidding, navigation, handleDeleteConfirmation }) => {
           </Text>
           <Text className="text-gray-700 mb-1">
             <Text className="font-semibold text-base">Current Highest Bid:</Text>
-            <Text className="font-bold text-base text-[#00b251]">
-              {" "}
-              ₱{bidding.bid_current_highest}
-            </Text>
+            {bidding.bid_current_highest > bidding.bid_starting_price ? (
+              <Text className="font-bold text-base text-[#00b251]">
+                {" "}₱{bidding.bid_current_highest}
+              </Text>
+            ) : (
+              <Text className="font-bold text-base text-gray-500"> No bids yet</Text>
+            )}
           </Text>
           {timeLeft.expired ? (
             <Text className="text-base text-red-600">Bid Expired</Text>

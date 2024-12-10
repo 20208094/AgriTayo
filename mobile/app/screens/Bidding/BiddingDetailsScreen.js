@@ -206,8 +206,15 @@ function BiddingDetailsScreen({ route, navigation }) {
             Sold by: {bidData.shops.shop_name}
           </Text>
         </TouchableOpacity>
+        <Text className="text-base text-green-600 mb-1 text-center">
+          Starting Price: <Text className="font-bold">₱{bidData.bid_starting_price}</Text>
+        </Text>
         <Text className="text-lg text-green-600 mb-1 text-center">
-          Current Highest Bid: ₱{bidData.bid_current_highest}
+          {bidData.bid_current_highest > bidData.bid_starting_price ? (
+            <>Current Highest Bid: ₱{bidData.bid_current_highest}</>
+          ) : (
+            <Text className="text-gray-500">No bids placed yet</Text>
+          )}
         </Text>
         <Text className="text-sm text-gray-500 mb-1 text-center">
           Number of Bids: {bidData.number_of_bids}

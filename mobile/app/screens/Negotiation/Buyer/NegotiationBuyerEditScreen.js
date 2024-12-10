@@ -300,7 +300,7 @@ const NegotiationBuyerScreen = ({ route }) => {
               </View>
               <View className="flex-1 ml-2">
                 <Text className="text-lg font-bold text-[#00b251]">Price Range per {negotiationData.metric_system.metric_system_symbol}:</Text>
-                <Text className="text-lg text-gray-600">₱{(negotiationData.crops.crop_price * 0.7).toFixed(2)} - ₱{(negotiationData.crops.crop_price * 1.3).toFixed(2)}</Text>
+                <Text className="text-lg text-gray-600">₱{(negotiationData.crops.crop_price * 0.7).toFixed(2)} - ₱{((negotiationData.crops.crop_price - 0.1) * 1.3 - 0.1).toFixed(2)}</Text>
               </View>
             </View>
 
@@ -415,18 +415,21 @@ const NegotiationBuyerScreen = ({ route }) => {
                         Minimum price per {negotiationData.metric_system.metric_system_symbol}: ₱{(negotiationData.crops.crop_price * 0.7).toFixed(2)} (70% of ₱{negotiationData.crops.crop_price})
                       </Text>
                       <Text className="text-sm text-gray-600">
-                        Maximum price per {negotiationData.metric_system.metric_system_symbol}: ₱{(negotiationData.crops.crop_price * 1.3).toFixed(2)} (130% of ₱{negotiationData.crops.crop_price})
+                        Maximum price per {negotiationData.metric_system.metric_system_symbol}: ₱{((negotiationData.crops.crop_price - 0.1) * 1.3 - 0.1).toFixed(2)} (₱{(negotiationData.crops.crop_price - 0.1).toFixed(2)})
                       </Text>
-                      <Text className="text-sm text-gray-600 mt-1">
-                        You can offer between ₱{(negotiationData.crops.crop_price * amount * 0.7).toFixed(2)} to ₱{(negotiationData.crops.crop_price * amount * 1.3).toFixed(2)} for {amount} {negotiationData.metric_system.metric_system_symbol}
-                      </Text>
+                      {amount ? (
+                        <Text className="text-sm text-gray-600 mt-1">
+                          You can offer between ₱{(negotiationData.crops.crop_price * amount * 0.7).toFixed(2)} to ₱{((negotiationData.crops.crop_price - 0.1) * amount * 1.3 - 0.1).toFixed(2)} for {amount} {negotiationData.metric_system.metric_system_symbol}
+                        </Text>
+                      ) : null}
                       <TextInput
-                        className="border border-gray-300 rounded-md p-2 text-gray-800"
+                        className={`border border-gray-300 rounded-md p-2 text-gray-800 ${!amount ? 'bg-gray-100' : 'bg-white'}`}
                         keyboardType="numeric"
                         placeholder="₱00.00"
                         placeholderTextColor="#9CA3AF"
                         value={total}
                         onChangeText={handleTotalChange}
+                        editable={!!amount}
                       />
 
                       <Text className={`text-base font-bold text-gray-800 mt-2`}>
