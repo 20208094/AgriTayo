@@ -175,7 +175,7 @@ const PickupScreen = ({ orders, orderProducts }) => {
                   className="bg-red-600 p-2 rounded-lg items-center"
                   onPress={() => handleReturnItem(pickupOrder)}
                 >
-                  <Text className="text-white text-center font-bold">No, I have returned my order.</Text>
+                  <Text className="text-white text-center font-bold">No, I refuse to recieve my order.</Text>
                 </TouchableOpacity>
               </View>
             </View>
