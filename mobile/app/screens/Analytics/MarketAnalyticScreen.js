@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from "react";
-import { View, Text, Dimensions, TouchableOpacity, Modal, Button } from "react-native";
+import { View, Text, Dimensions, TouchableOpacity, Modal, Button, ScrollView, SafeAreaView } from "react-native";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { LineChart } from "react-native-chart-kit";
 import { FontAwesome } from "@expo/vector-icons";
@@ -8,6 +8,7 @@ import { MarketIcon, NotificationIcon, MessagesIcon } from "../../components/Sea
 import LoadingAnimation from "../../components/LoadingAnimation";
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env";
 import moment from 'moment';
+import { useEffect } from "react";
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -17,9 +18,14 @@ function MarketAnalyticScreen({ route }) {
   const chartHeight = screenWidth * 0.6;
   const [selectedFilter, setSelectedFilter] = useState("7 Days");
   const [modalVisible, setModalVisible] = useState(false);
+  const [varietyFilterModalVisible, setVarietyFilterModalVisible] = useState(false);
   const [tooltip, setTooltip] = useState({ visible: false, x: 0, y: 0, value: '', date: '', sold: 0 });
   const [varietyData, setVarietyData] = useState([]);
   const [soldInVarietyData, setSoldInVarietyData] = useState([]);
+  const [varietyList, setVarietyList] = useState([]);
+  const [selectedVariety, setSelectedVariety] = useState('All Variety');
+  const [filteredVarietyData, setFilteredVarietyData] = useState([]);
+  const [selectedSubcategory, setSelectedSubcategory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [highestData, setHighestData] = useState('');
   const [lowestData, setLowestData] = useState('');
@@ -39,6 +45,8 @@ function MarketAnalyticScreen({ route }) {
       const crops = await cropsResponse.json();
       const categories = await categoryResponse.json();
       const subcategories = await subcategoryResponse.json();
+      const subcategoriesFiltered = subcategories.find(subcat => Number(subcat.crop_sub_category_id) === Number(subcategoryId));
+      setSelectedSubcategory(subcategoriesFiltered)
       const varieties = await varietyResponse.json();
       const orders = await ordersResponse.json();
       const orderProducts = await orderProductsResponse.json();
@@ -46,6 +54,8 @@ function MarketAnalyticScreen({ route }) {
       const cropsFiltered = crops.filter(crop => Number(crop.sub_category_id) === Number(subcategoryId));
       // filter variety to only include variety thats in the subcategory chosen
       const varietiesComplete = varieties.filter(variety => Number(variety.crop_sub_category_id) === Number(subcategoryId));
+      const cropVarietyNames = ["All Variety"]
+        .concat(varietiesComplete.map(variety => variety.crop_variety_name));
       // combine orderProducts inside the orders table
       const varietiesFiltered = varietiesComplete.map(variety => {
         // Filter crops for the current variety
@@ -144,8 +154,65 @@ function MarketAnalyticScreen({ route }) {
         average: item.sum_price_per_weight / item.count, // Calculate average price per weight
       }));
 
+      // Initialize "All Variety" data
+      let allVariety = {
+        crop_variety_name: "All Variety",
+        crop_variety_id: 0,
+        crop_variety_description: "Combined data of all varieties.",
+        crop_variety_image_url: "https://placeholder.com/all-variety.png",
+        availableListing: 0,
+        highestListing: {
+          crop_price: 0,
+          crop_quantity: 0,
+          crop_rating: null,
+        },
+        lowestListing: {
+          crop_price: Infinity,
+          crop_quantity: 0,
+          crop_rating: null,
+        },
+      };
+
+      // Calculate combined values
+      varietiesFiltered.forEach((variety) => {
+        allVariety.availableListing += variety.availableListing;
+
+        // Update highest listing
+        if (variety.highestListing) {
+          allVariety.highestListing.crop_price = Math.max(
+            allVariety.highestListing.crop_price,
+            variety.highestListing.crop_price
+          );
+          allVariety.highestListing.crop_quantity += variety.highestListing.crop_quantity;
+        }
+
+        // Update lowest listing
+        if (variety.lowestListing) {
+          allVariety.lowestListing.crop_price = Math.min(
+            allVariety.lowestListing.crop_price,
+            variety.lowestListing.crop_price
+          );
+          allVariety.lowestListing.crop_quantity += variety.lowestListing.crop_quantity;
+        }
+      });
+
+      // If no valid lowest price exists, set it to 0
+      if (allVariety.lowestListing.crop_price === Infinity) {
+        allVariety.lowestListing.crop_price = 0;
+      }
+
+      // Add the "All Variety" entry to the array
+      varietiesFiltered.unshift(allVariety);
+
       setSoldInVarietyData(combinedProductDetails);
       setVarietyData(varietiesFiltered);
+      setVarietyList(cropVarietyNames);
+      replaceSelectedVarietyData(selectedVariety);
+      varietiesFiltered.map(variety => {
+        if (variety.crop_variety_name === selectedVariety) {
+          setFilteredVarietyData(variety);
+        }
+      });
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
@@ -156,7 +223,6 @@ function MarketAnalyticScreen({ route }) {
   useFocusEffect(
     useCallback(() => {
       fetchData();
-
       const intervalId = setInterval(() => {
         fetchData();
       }, 10000);
@@ -164,7 +230,7 @@ function MarketAnalyticScreen({ route }) {
       return () => {
         clearInterval(intervalId);
       };
-    }, [categoryId, subcategoryId, varietyId])
+    }, [categoryId, subcategoryId, varietyId, selectedVariety])
   );
 
   React.useLayoutEffect(() => {
@@ -178,6 +244,16 @@ function MarketAnalyticScreen({ route }) {
       ),
     });
   }, [navigation]);
+
+  // REPLACE CONTENT OF FILTERED VARIETY DATA
+  const replaceSelectedVarietyData = (variety_name) => {
+    setSelectedVariety(variety_name)
+    varietyData.map(variety => {
+      if (variety.crop_variety_name === variety_name) {
+        setFilteredVarietyData(variety);
+      }
+    });
+  }
 
   const calculateDateRange = (filter) => {
     const today = moment();
@@ -221,10 +297,17 @@ function MarketAnalyticScreen({ route }) {
       currentDate = currentDate.add(1, 'days'); // Add day by day
     }
     // Filter data based on the variety_id and the selected date range
-    const itemData = soldInVarietyData.filter(product =>
-      product.variety_id === id &&
-      moment(product.order_date).isBetween(startDate, today, null, '[]')
-    );
+    const itemData = soldInVarietyData.filter(product => {
+      if (id === 0) {
+        return moment(product.order_date).isBetween(startDate, today, null, '[]');
+      } else {
+        return (
+          product.variety_id === id &&
+          moment(product.order_date).isBetween(startDate, today, null, '[]')
+        );
+      }
+    });
+
     // Create a mapping of order dates to product data
     const dataMap = itemData.reduce((acc, product) => {
       const formattedDate = moment(product.order_date).format('MM/DD/YYYY');
@@ -465,113 +548,181 @@ function MarketAnalyticScreen({ route }) {
   }
 
   return (
-    <Tab.Navigator
-      screenOptions={{
-        swipeEnabled: true, tabBarScrollEnabled: true, lazy: true, tabBarShowLabel: true, tabBarActiveTintColor: "#00B251", tabBarInactiveTintColor: "gray", tabBarStyle: { backgroundColor: "white", elevation: 3 }, tabBarIndicatorStyle: { backgroundColor: "#00B251", height: 4, borderRadius: 2, },
-      }}
-      initialRouteName={varietyData.length > 0 && varietyData.find((item) => item.crop_variety_id === varietyId)?.crop_variety_name}
-    >
-      {varietyData.map((item) => (
-        <Tab.Screen key={item.crop_variety_id} name={item.crop_variety_name}>
-          {() => (
-            <View className="bg-white p-4 rounded-lg shadow-md">
-              <Text className="text-xl font-bold text-green-700 text-center mb-4">
-                {item.crop_variety_name.toUpperCase()} SUMMARY
-              </Text>
-              <Text className="text-sm font-bold text-green-500 mb-2">
-                Current Available Listings
-                <Text className="text-green-700"> {item.availableListing} Listings</Text>
-              </Text>
-              <Text className="text-sm font-bold text-green-500 mb-2">
-                Current Highest Price/Kilo
-                <Text className="text-green-700"> ₱{item.highestListing.crop_price}/kilo</Text>
-              </Text>
-              <Text className="text-sm font-bold text-green-500 mb-4">
-                Current Lowest Price/Kilo
-                <Text className="text-green-700"> ₱{item.lowestListing.crop_price}/kilo</Text>
-              </Text>
+    <SafeAreaView className="flex-1 bg-gray-50">
+      <ScrollView>
+        {filteredVarietyData && filteredVarietyData.crop_variety_name ? (
+          <View className="bg-white px-4 rounded-lg shadow-md">
+            <View className="flex-row items-center my-2">
               <TouchableOpacity
-                onPress={() => setModalVisible(true)} className="bg-green-500 p-2 rounded-lg flex-row items-center justify-center mb-4" style={{ width: "100%", alignItems: "center" }}
+                onPress={() => setVarietyFilterModalVisible(true)} className=" bg-green-500 p-2 my-3 mx-1 rounded-lg items-center justify-center mb-4 w-12 mr-2 h-12"
               >
-                <FontAwesome name="cog" size={18} color="white" />
-                <Text className="text-white text-sm ml-2">{selectedFilter} Summary</Text>
+                <FontAwesome name="filter" size={28} color="white" />
               </TouchableOpacity>
-              <Modal
-                visible={modalVisible}
-                transparent={true}
-                animationType="slide"
-                onRequestClose={() => setModalVisible(false)} // This will work on Android hardware back button
-              >
-                <View className="flex-1 justify-end bg-black/50" onTouchStart={() => setModalVisible(false)}>
-                  <View className="bg-white p-6 rounded-t-lg shadow-lg" onTouchStart={(e) => e.stopPropagation()}>
-                    <Text className="text-xl font-bold text-center mb-4">Select a Filter</Text>
-                    {["7 Days", "14 Days", "1 Month", "3 Months", "6 Months", "9 Months", "12 Months"].map((filter) => (
-                      <TouchableOpacity
-                        key={filter}
-                        className={`p-3 rounded-lg border transition duration-200 ${selectedFilter === filter
-                          ? "bg-green-600 border-green-700"
-                          : "bg-gray-200 border-transparent hover:bg-gray-300"
-                          } mb-3`}
-                        onPress={() => {
-                          setSelectedFilter(filter);
-                          setModalVisible(false);
-                        }}
-                        accessibilityLabel={`Select ${filter}`}
-                      >
-                        <Text
-                          className={`text-center ${selectedFilter === filter ? "text-white" : "text-green-800"}`}
-                        >
-                          {filter}
-                        </Text>
-                      </TouchableOpacity>
-                    ))}
-                    <TouchableOpacity
-                      onPress={() => setModalVisible(false)}
-                      className="bg-red-600 p-3 rounded-lg mt-4"
-                    >
-                      <Text className="text-white text-center font-bold">Close</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              </Modal><Text className="text-sm font-bold text-green-500 mb-2">
-                Average:
-                <Text className="text-green-700">
-                  ₱{
-                    (() => {
-                      const value = getDataForItem(item.crop_variety_id, selectedFilter).averagep.slice(-1)[0];
-                      return isNaN(value) || !isFinite(value) ? 0 : value;
-                    })()
-                  }
+              <View className="flex-1 flex-col">
+                <Text className="flex-1 text-3xl font-bold text-green-700 text-center">
+                  {selectedSubcategory.crop_sub_category_name.toUpperCase()}:
                 </Text>
-              </Text>
-              <Text className="text-sm font-bold text-green-500 mb-2">
-                Highest:
-                <Text className="text-green-700">
-                   ₱{
-                    (() => {
-                      const value = getDataForItem(item.crop_variety_id, selectedFilter).lowestp.slice(-1)[0];
-                      return isNaN(value) || !isFinite(value) ? 0 : value;
-                    })()
-                  }
+                <Text className="flex-1 text-2xl font-bold text-green-700 text-center">
+                  {selectedVariety}
                 </Text>
-              </Text>
-              <Text className="text-sm font-bold text-green-500 mb-2">
-                Lowest: 
-                <Text className="text-green-700">
-                  ₱{
-                    (() => {
-                      const value = getDataForItem(item.crop_variety_id, selectedFilter).highestp.slice(-1)[0];
-                      return isNaN(value) || !isFinite(value) ? 0 : value;
-                    })()
-                  }
-                </Text>
-              </Text>
-              {renderAnalyticsChart(item.crop_variety_id)}
+              </View>
             </View>
-          )}
-        </Tab.Screen>
-      ))}
-    </Tab.Navigator>
+            <View className='flex-row border-2 rounded-lg px-2 py-1 mb-3 border-green-500'>
+              <View className='space-y-1'>
+                <Text className="text-base font-extrabold text-green-500">
+                  Current Available Listings:
+                </Text>
+                <Text className="text-base font-extrabold text-green-500">
+                  Current Highest Price/Kg:
+                </Text>
+                <Text className="text-base font-extrabold text-green-500">
+                  Current Lowest Price/Kg:
+                </Text>
+              </View>
+              <View className='flex-1 space-y-1'>
+                <Text className="text-green-700 text-base font-bold"> {filteredVarietyData.availableListing} Listings</Text>
+                <Text className="text-green-700 text-base font-bold"> ₱{filteredVarietyData.highestListing.crop_price}/kg</Text>
+                <Text className="text-green-700 text-base font-bold"> ₱{filteredVarietyData.lowestListing.crop_price}/kg</Text>
+              </View>
+            </View>
+
+            <TouchableOpacity
+              onPress={() => setModalVisible(true)} className="bg-green-500 p-2 rounded-lg flex-row items-center justify-center mt-1 mb-2"
+            >
+              <FontAwesome name="cog" size={18} color="white" />
+              <Text className="text-white text-base ml-2">{selectedFilter} Summary</Text>
+            </TouchableOpacity>
+
+            <View className='flex-row px-2 py-1 mb-3'>
+              <View className='space-y-1'>
+                <Text className="text-base font-extrabold text-green-500">
+                  Highest Total Sold in {selectedFilter}:
+                </Text>
+                <Text className="text-base font-extrabold text-green-500">
+                  Average Total Sold in {selectedFilter}:
+                </Text>
+                <Text className="text-base font-extrabold text-green-500">
+                  Lowest Total Sold in {selectedFilter}:
+                </Text>
+              </View>
+              <View className='flex-1 space-y-1 ml-1'>
+                {/* HIGHEST */}
+                <Text className="text-green-700 text-base font-bold">
+                  ₱{
+                    (() => {
+                      const value = getDataForItem(filteredVarietyData.crop_variety_id, selectedFilter).highestp.slice(-1)[0];
+                      return isNaN(value) || !isFinite(value) ? 0 : value;
+                    })()
+                  }
+                </Text>
+                {/* AVERAGE */}
+                <Text className="text-green-700 text-base font-bold">
+                  ₱{
+                    (() => {
+                      const value = getDataForItem(filteredVarietyData.crop_variety_id, selectedFilter).averagep.slice(-1)[0];
+                      return isNaN(value) || !isFinite(value) ? 0 : value;
+                    })()
+                  }
+                </Text>
+                {/* LOWEST */}
+                <Text className="text-green-700 text-base font-bold">
+                  ₱{
+                    (() => {
+                      const value = getDataForItem(filteredVarietyData.crop_variety_id, selectedFilter).lowestp.slice(-1)[0];
+                      return isNaN(value) || !isFinite(value) ? 0 : value;
+                    })()
+                  }
+                </Text>
+              </View>
+            </View>
+            {renderAnalyticsChart(filteredVarietyData.crop_variety_id)}
+
+            {/* SELECT FILTER MODAL */}
+            <Modal
+              visible={modalVisible}
+              transparent={true}
+              animationType="slide"
+              onRequestClose={() => setModalVisible(false)} // This will work on Android hardware back button
+            >
+              <View className="flex-1 justify-end bg-black/50" onTouchStart={() => setModalVisible(false)}>
+                <View className="bg-white p-6 rounded-t-lg shadow-lg" onTouchStart={(e) => e.stopPropagation()}>
+                  <Text className="text-xl font-bold text-center mb-4">Select a Filter</Text>
+                  {["7 Days", "14 Days", "1 Month", "3 Months", "6 Months", "9 Months", "12 Months"].map((filter) => (
+                    <TouchableOpacity
+                      key={filter}
+                      className={`p-3 rounded-lg border transition duration-200 ${selectedFilter === filter
+                        ? "bg-green-600 border-green-700"
+                        : "bg-gray-200 border-transparent hover:bg-gray-300"
+                        } mb-3`}
+                      onPress={() => {
+                        setSelectedFilter(filter);
+                        setModalVisible(false);
+                      }}
+                      accessibilityLabel={`Select ${filter}`}
+                    >
+                      <Text
+                        className={`text-center ${selectedFilter === filter ? "text-white" : "text-green-800"}`}
+                      >
+                        {filter}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                  <TouchableOpacity
+                    onPress={() => setModalVisible(false)}
+                    className="bg-red-600 p-3 rounded-lg mt-4"
+                  >
+                    <Text className="text-white text-center font-bold">Close</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </Modal>
+
+            {/* SELECT VARIETY MODAL */}
+            <Modal
+              visible={varietyFilterModalVisible}
+              transparent={true}
+              animationType="slide"
+              onRequestClose={() => setVarietyFilterModalVisible(false)}
+            >
+              <View className="flex-1 justify-end bg-black/50" onTouchStart={() => setVarietyFilterModalVisible(false)}>
+                <View className="bg-white p-6 rounded-t-lg shadow-lg" onTouchStart={(e) => e.stopPropagation()}>
+                  <Text className="text-xl font-bold text-center mb-4">Select a Variety</Text>
+                  {varietyList.map((filter) => (
+                    <TouchableOpacity
+                      key={filter}
+                      className={`p-3 rounded-lg border transition duration-200 ${selectedVariety === filter
+                        ? "bg-green-600 border-green-700"
+                        : "bg-gray-200 border-transparent hover:bg-gray-300"
+                        } mb-3`}
+                      onPress={() => {
+                        replaceSelectedVarietyData(filter);
+                        setVarietyFilterModalVisible(false);
+                      }}
+                      accessibilityLabel={`Select ${filter}`}
+                    >
+                      <Text
+                        className={`text-center ${selectedVariety === filter ? "text-white" : "text-green-800"}`}
+                      >
+                        {filter}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                  <TouchableOpacity
+                    onPress={() => setVarietyFilterModalVisible(false)}
+                    className="bg-red-600 p-3 rounded-lg mt-4"
+                  >
+                    <Text className="text-white text-center font-bold">Close</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </Modal>
+          </View>
+        ) : (
+          <Text>No Data Available</Text>
+        )
+        }
+      </ScrollView>
+    </SafeAreaView>
   )
 }
 export default MarketAnalyticScreen;

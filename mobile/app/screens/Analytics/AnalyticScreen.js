@@ -13,40 +13,28 @@ import LoadingAnimation from "../../components/LoadingAnimation";
 
 function AnalyticScreen({ navigation }) {
   const [categoryData, setCategoryData] = useState([]);
+  const [varietyData, setVarietyData] = useState([]);
   const [expandedCategory, setExpandedCategory] = useState(null);
   const [expandedSubcategory, setExpandedSubcategory] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const fetchData = async () => {
     try {
-      const cropsResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crops`, {
-        headers: {
-          "x-api-key": REACT_NATIVE_API_KEY,
-        },
-      });
-
-      const categoryResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_categories`, {
-        headers: {
-          "x-api-key": REACT_NATIVE_API_KEY,
-        },
-      });
-
-      const subcategoryResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_sub_categories`, {
-        headers: {
-          "x-api-key": REACT_NATIVE_API_KEY,
-        },
-      });
-
-      const varietyResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_varieties`, {
-        headers: {
-          "x-api-key": REACT_NATIVE_API_KEY,
-        },
-      });
+      const [cropsResponse, categoryResponse, subcategoryResponse, varietyResponse, ordersResponse, orderProductsResponse] = await Promise.all([
+        fetch(`${REACT_NATIVE_API_BASE_URL}/api/crops`, { headers: { "x-api-key": REACT_NATIVE_API_KEY } }),
+        fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_categories`, { headers: { "x-api-key": REACT_NATIVE_API_KEY } }),
+        fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_sub_categories`, { headers: { "x-api-key": REACT_NATIVE_API_KEY } }),
+        fetch(`${REACT_NATIVE_API_BASE_URL}/api/crop_varieties`, { headers: { "x-api-key": REACT_NATIVE_API_KEY } }),
+        fetch(`${REACT_NATIVE_API_BASE_URL}/api/orders`, { headers: { "x-api-key": REACT_NATIVE_API_KEY } }),
+        fetch(`${REACT_NATIVE_API_BASE_URL}/api/order_products`, { headers: { "x-api-key": REACT_NATIVE_API_KEY } }),
+      ]);
 
       const crops = await cropsResponse.json();
       const categoriesraw = await categoryResponse.json();
       const subcategories = await subcategoryResponse.json();
       const varieties = await varietyResponse.json();
+      const orders = await ordersResponse.json();
+      const orderProducts = await orderProductsResponse.json();
 
       const categories = categoriesraw.sort((a, b) => a.crop_category_id - b.crop_category_id);
 
@@ -77,8 +65,33 @@ function AnalyticScreen({ navigation }) {
         };
       });
 
-      // Set the category data state
+      // combine orderProducts inside the orders table
+      const varietiesFiltered = varieties.map(variety => {
+        // Filter crops for the current variety
+        const availableCrops = crops.filter(crop => crop.crop_variety_id === variety.crop_variety_id);
+        // If there are no available crops, set defaults to null
+        if (availableCrops.length === 0) {
+          return {
+            ...variety,
+            availableListing: 0, // Set count to 0 if no available crops
+            highestListing: 0,
+            lowestListing: 0,
+          };
+        }
+        // Find the highest and lowest price crops
+        const highestCrop = availableCrops.reduce((max, crop) => (crop.crop_price > max.crop_price ? crop : max), availableCrops[0]);
+        const lowestCrop = availableCrops.reduce((min, crop) => (crop.crop_price < min.crop_price ? crop : min), availableCrops[0]);
+        return {
+          ...variety,
+          availableListing: availableCrops.length,
+          highestListing: highestCrop,
+          lowestListing: lowestCrop,
+        };
+      });
+
       setCategoryData(combinedCategories);
+      // setVarietyData yung ma eexport to PDF, pag pinili Carrots, lahat ng variety ni Carrots maprint.
+      setVarietyData(varietiesFiltered);
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
@@ -103,10 +116,6 @@ function AnalyticScreen({ navigation }) {
 
   const toggleExpandCategory = (categoryId) => {
     setExpandedCategory(expandedCategory === categoryId ? null : categoryId);
-  };
-
-  const toggleExpandSubcategory = (subcategoryId) => {
-    setExpandedSubcategory(expandedSubcategory === subcategoryId ? null : subcategoryId);
   };
 
   if (loading) {
@@ -142,38 +151,36 @@ function AnalyticScreen({ navigation }) {
             {expandedCategory === category.crop_category_id && category.subcategories && category.subcategories.map((subcat) => (
               <View key={subcat.crop_sub_category_id}>
                 <TouchableOpacity
-                  className="ml-8 mt-2 p-3 bg-gray-200 rounded-lg"
-                  onPress={() => toggleExpandSubcategory(subcat.crop_sub_category_id)}
+                  className="ml-8 mt-2 p-3 py-4 bg-gray-200 rounded-lg"
+                  onPress={() =>
+                    navigation.navigate("Market Analytics", {
+                      categoryId: category.crop_category_id,
+                      subcategoryId: subcat.crop_sub_category_id
+                    })
+                  }
                 >
                   <View className="flex-row justify-between items-center">
-                    <Text className="text-md text-green-600">
+                    <Text className="text-md text-green-600 font-bold ml-3">
                       {subcat.crop_sub_category_name}
                     </Text>
-                    <Icon
-                      name={expandedSubcategory === subcat.crop_sub_category_id ? "chevron-up" : "chevron-down"}
-                      size={20}
-                      color="#00B251"
-                    />
-                  </View>
-                </TouchableOpacity>
-                {expandedSubcategory === subcat.crop_sub_category_id && subcat.varieties && subcat.varieties.map((variety) => (
-                  <View key={variety.crop_variety_id} className="ml-12 mt-1">
+                    {/* PRESSABLE FOR GENERATE PDF ICON */}
                     <TouchableOpacity
-                      className="p-2 bg-white rounded-lg shadow"
+                      className="mr-4 bg-gray-200 rounded-lg"
                       onPress={() =>
                         navigation.navigate("Market Analytics", {
                           categoryId: category.crop_category_id,
-                          subcategoryId: subcat.crop_sub_category_id,
-                          varietyId: variety.crop_variety_id,
+                          subcategoryId: subcat.crop_sub_category_id
                         })
                       }
                     >
-                      <Text className="text-sm text-green-600">
-                        {variety.crop_variety_name}
-                      </Text>
+                      <Icon
+                        name={"file-export"}
+                        size={20}
+                        color="#00B251"
+                      />
                     </TouchableOpacity>
                   </View>
-                ))}
+                </TouchableOpacity>
               </View>
             ))}
           </View>
