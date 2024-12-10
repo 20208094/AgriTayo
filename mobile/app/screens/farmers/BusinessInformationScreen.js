@@ -37,6 +37,12 @@ function BusinessInformationScreen({ navigation, route }) {
   });
   const [attemptedSubmit, setAttemptedSubmit] = useState(false);
 
+  const [hasReadTerms, setHasReadTerms] = useState(false);
+
+  const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false);
+  const [scrollViewHeight, setScrollViewHeight] = useState(0);
+  const [contentHeight, setContentHeight] = useState(0);
+
   const formatTIN = (value) => {
     // Remove any non-numeric characters
     let formattedValue = value.replace(/\D/g, '');
@@ -302,6 +308,15 @@ function BusinessInformationScreen({ navigation, route }) {
     }
   };
 
+  const handleScroll = (event) => {
+    const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
+    const paddingToBottom = 20;
+    
+    if (layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom) {
+      setHasScrolledToBottom(true);
+      setHasReadTerms(true);
+    }
+  };
 
   if (loading) {
     return (
@@ -525,23 +540,41 @@ function BusinessInformationScreen({ navigation, route }) {
         animationType="slide"
         transparent={true}
         visible={termsModalVisible}
-        onRequestClose={() => setTermsModalVisible(false)}
+        onRequestClose={() => {
+          if (hasScrolledToBottom) {
+            setTermsModalVisible(false);
+            setHasReadTerms(true);
+          }
+        }}
       >
         <View className="flex-1 justify-center items-center bg-black/50">
           <View className="bg-white rounded-lg p-6 w-12/13 max-w-lg shadow-lg">
             {/* Header Section */}
             <View className="flex-row justify-between items-center mb-4">
-              <Text className="text-xl font-bold text-[#00B251]">Terms and Conditions</Text>
+              <Text className="text-xl font-bold text-[#00B251]">
+                Terms and Conditions
+              </Text>
               <TouchableOpacity
-                onPress={() => setTermsModalVisible(false)}
+                onPress={() => hasScrolledToBottom && setTermsModalVisible(false)}
                 className="p-2"
+                disabled={!hasScrolledToBottom}
               >
-                <Text className="text-gray-500 font-bold">✕</Text>
+                <Text className={`text-gray-500 font-bold ${!hasScrolledToBottom ? 'opacity-30' : ''}`}>✕</Text>
               </TouchableOpacity>
             </View>
 
             {/* Scrollable Content */}
-            <ScrollView className="h-60 mb-4">
+            <ScrollView 
+              className="h-60 mb-4"
+              onScroll={handleScroll}
+              scrollEventThrottle={16}
+              onContentSizeChange={(contentWidth, contentHeight) => {
+                setContentHeight(contentHeight);
+              }}
+              onLayout={(event) => {
+                setScrollViewHeight(event.nativeEvent.layout.height);
+              }}
+            >
               <Text className="text-gray-800 text-base font-semibold mb-2">
                 Welcome to AgriTayo!
               </Text>
@@ -700,12 +733,24 @@ function BusinessInformationScreen({ navigation, route }) {
             </ScrollView>
 
             {/* Action Buttons */}
-            <View className="flex-row justify-end mt-4">
+            <View className="flex-row justify-end">
               <TouchableOpacity
-                onPress={() => setTermsModalVisible(false)}
-                className="bg-[#00B251] px-4 py-2 rounded-md"
+                onPress={() => {
+                  if (hasScrolledToBottom) {
+                    setTermsModalVisible(false);
+                    setHasReadTerms(true);
+                  }
+                }}
+                className={`px-4 py-2 rounded-md ${
+                  hasScrolledToBottom ? 'bg-[#00B251]' : 'bg-gray-300'
+                }`}
+                disabled={!hasScrolledToBottom}
               >
-                <Text className="text-white font-medium">Close</Text>
+                <Text className={`font-medium ${
+                  hasScrolledToBottom ? 'text-white' : 'text-gray-500'
+                }`}>
+                  Close
+                </Text>
               </TouchableOpacity>
             </View>
           </View>

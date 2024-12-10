@@ -98,7 +98,7 @@ function ProductDetailsPage() {
     const handleUnlistSubmit = async () => {
         const availability = 'violation';
         const availability_message = unlistReason;
-        
+
         try {
             const response = await fetch(`/api/crops_availability/${cropId}`, {
                 method: 'PUT',
@@ -111,27 +111,27 @@ function ProductDetailsPage() {
                     availability_message,
                 }),
             });
-    
+
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
-    
+
             const data = await response.json();
             console.log('Crop availability updated successfully:', data);
             setModalType('success');
             setModalMessage('Crop has been successfully updated.');
             setShowModal(true);
-    
+
         } catch (error) {
             console.error('Error updating crop availability:', error);
             setModalType('error');
             setModalMessage('Failed to update crop availability. Please try again.');
             setShowModal(true);
         }
-    
+
         closeUnlistModal();
     };
-    
+
     const openMessageModal = (number) => {
         setShopNumber(number);
         setIsMessageModalOpen(true);
@@ -161,17 +161,17 @@ function ProductDetailsPage() {
                     phone_number: shopNumber,
                 }),
             });
-    
+
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
-    
+
             const data = await response.json();
             console.log('SMS sent successfully:', data);
             setModalType('success');
             setModalMessage('Message sent successfully!');
             setShowModal(true);
-    
+
             closeMessageModal();
         } catch (error) {
             console.error('Error sending SMS:', error);
@@ -208,7 +208,7 @@ function ProductDetailsPage() {
                     </div>
                     <h3 className="text-2xl font-bold text-gray-900 text-center mb-3">Error Loading Product</h3>
                     <p className="text-gray-600 text-center mb-6">{error.message}</p>
-                    <button 
+                    <button
                         onClick={() => window.location.reload()}
                         className="w-full bg-green-600 text-white py-3 rounded-xl font-semibold
                             hover:bg-green-700 active:bg-green-800 transform hover:scale-[1.02]
@@ -244,15 +244,15 @@ function ProductDetailsPage() {
                             backdrop-blur-sm border border-white/30 text-white transition-all duration-200
                             hover:shadow-lg group mb-6"
                     >
-                        <ArrowLeftIcon className="h-5 w-5 mr-2 group-hover:-translate-x-1 transition-transform duration-200" />
-                        <span className="font-medium">Back to Products</span>
+                        <ArrowLeftIcon className="h-5 w-5 mr-2 text-gray-800 font-medium group-hover:-translate-x-1 transition-transform duration-200" />
+                        <span className="text-gray-800 font-medium">Back to Products</span>
                     </Link>
                     <div className="flex items-center justify-between mb-4">
                         <div className="flex-1">
-                            <h1 className="text-4xl font-bold text-white drop-shadow-md mb-2">
+                            <h1 className="text-4xl font-bold text-gray-800 drop-shadow-md mb-2">
                                 Product Details
                             </h1>
-                            <p className="text-white/80 text-lg font-medium">
+                            <p className="text-gray-700 text-lg font-medium">
                                 View detailed information about this product
                             </p>
                         </div>

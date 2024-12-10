@@ -51,6 +51,8 @@ function RegisterScreenBuyers({ navigation }) {
   const [isTermsAccepted, setIsTermsAccepted] = useState(false);
   const [termsModalVisible, setTermsModalVisible] = useState(false);
 
+  const [hasReadTerms, setHasReadTerms] = useState(false);
+
   const togglePasswordVisibility = () =>
     setIsPasswordVisible(!isPasswordVisible);
   const toggleConfirmPasswordVisibility = () =>
@@ -321,10 +323,37 @@ function RegisterScreenBuyers({ navigation }) {
       hasError = true;
     }
 
+    if (!hasReadTerms && isTermsAccepted) {
+      setAlertMessage("Please read the Terms and Conditions before registering.");
+      setAlertVisible(true);
+      return;
+    }
+
+    if (!isTermsAccepted) {
+      setAlertMessage("You must accept the Terms and Conditions to register.");
+      setAlertVisible(true);
+      return;
+    }
+
     if (hasError) {
       return;
     }
     setModalVisible(true);
+  };
+
+  const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false);
+  const [contentHeight, setContentHeight] = useState(0);
+  const [scrollViewHeight, setScrollViewHeight] = useState(0);
+
+  const handleScroll = (event) => {
+    const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
+    const paddingToBottom = 20;
+    
+    // Calculate if user has scrolled to bottom
+    if (layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom) {
+      setHasScrolledToBottom(true);
+      setHasReadTerms(true);
+    }
   };
 
   return (
@@ -500,16 +529,20 @@ function RegisterScreenBuyers({ navigation }) {
           {/* Terms and Conditions */}
           <View className="flex-row items-center mb-6">
             <TouchableOpacity
-              onPress={() => setIsTermsAccepted(!isTermsAccepted)}
+              onPress={() => {
+                if (!hasReadTerms) {
+                  setAlertMessage("Please read the Terms and Conditions first before accepting.");
+                  setAlertVisible(true);
+                  setIsTermsAccepted(false);
+                } else {
+                  setIsTermsAccepted(!isTermsAccepted);
+                }
+              }}
               className={`w-6 h-6 border-2 rounded-md flex items-center justify-center ${
-                isTermsAccepted
-                  ? "bg-green-600 border-green-600"
-                  : "border-gray-400"
+                isTermsAccepted ? "bg-green-600 border-green-600" : "border-gray-400"
               }`}
             >
-              {isTermsAccepted && (
-                <Ionicons name="checkmark" size={18} color="white" />
-              )}
+              {isTermsAccepted && <Ionicons name="checkmark" size={18} color="white" />}
             </TouchableOpacity>
             <View className="ml-2 flex-1">
               <Text className="text-gray-800 leading-5">
@@ -560,15 +593,26 @@ function RegisterScreenBuyers({ navigation }) {
                     Terms and Conditions
                   </Text>
                   <TouchableOpacity
-                    onPress={() => setTermsModalVisible(false)}
+                    onPress={() => hasScrolledToBottom && setTermsModalVisible(false)}
                     className="p-2"
+                    disabled={!hasScrolledToBottom}
                   >
-                    <Text className="text-gray-500 font-bold">✕</Text>
+                    <Text className={`text-gray-500 font-bold ${!hasScrolledToBottom ? 'opacity-30' : ''}`}>✕</Text>
                   </TouchableOpacity>
                 </View>
 
                 {/* Scrollable Content */}
-                <ScrollView className="h-60 mb-4">
+                <ScrollView 
+                  className="h-60 mb-4"
+                  onScroll={handleScroll}
+                  scrollEventThrottle={16}
+                  onContentSizeChange={(contentWidth, contentHeight) => {
+                    setContentHeight(contentHeight);
+                  }}
+                  onLayout={(event) => {
+                    setScrollViewHeight(event.nativeEvent.layout.height);
+                  }}
+                >
                   <Text className="text-gray-800 text-base font-semibold mb-2">
                     Welcome to AgriTayo!
                   </Text>
@@ -715,10 +759,22 @@ function RegisterScreenBuyers({ navigation }) {
                 {/* Action Buttons */}
                 <View className="flex-row justify-end">
                   <TouchableOpacity
-                    onPress={() => setTermsModalVisible(false)}
-                    className="bg-[#00B251] px-4 py-2 rounded-md"
+                    onPress={() => {
+                      if (hasScrolledToBottom) {
+                        setTermsModalVisible(false);
+                        setHasReadTerms(true);
+                      }
+                    }}
+                    className={`px-4 py-2 rounded-md ${
+                      hasScrolledToBottom ? 'bg-[#00B251]' : 'bg-gray-300'
+                    }`}
+                    disabled={!hasScrolledToBottom}
                   >
-                    <Text className="text-white font-medium">Close</Text>
+                    <Text className={`font-medium ${
+                      hasScrolledToBottom ? 'text-white' : 'text-gray-500'
+                    }`}>
+                      Close
+                    </Text>
                   </TouchableOpacity>
                 </View>
               </View>

@@ -171,97 +171,157 @@ const ChatListScreen = () => {
     try {
       if (!senderId) return;
 
-      const chatResponse = await fetch(`${REACT_NATIVE_API_BASE_URL}/api/chats`, {
-        headers: { 
-          'x-api-key': REACT_NATIVE_API_KEY,
-          'Cache-Control': 'no-cache'  // Prevent caching
-        },
+      setError('');
+
+      const chatResponse = await fetch(API_URL_CHATS, {
+        headers: { 'x-api-key': REACT_NATIVE_API_KEY },
       });
 
-      if (!chatResponse.ok) {
-        throw new Error('Failed to fetch chats');
-      }
+      if (chatResponse.ok) {
+        const chats = await chatResponse.json();
+        chats.sort((a, b) => new Date(b.sent_at) - new Date(a.sent_at));
 
-      const chats = await chatResponse.json();
-      
-      // Filter chats for current user
-      const relevantChats = chats.filter(chat => 
-        (chat.sender_id === senderId && chat.sender_type === senderType) ||
-        (chat.receiver_id === senderId && chat.receiver_type === senderType)
-      );
+        const userResponse = await fetch(API_URL_USERS, {
+          headers: { 'x-api-key': REACT_NATIVE_API_KEY },
+        });
+        const shopResponse = await fetch(API_URL_SHOPS, {
+          headers: { 'x-api-key': REACT_NATIVE_API_KEY },
+        });
 
-      // Get latest messages by grouping conversations
-      const latestMessages = {};
-      relevantChats.forEach(chat => {
-        const otherPartyId = chat.sender_id === senderId ? chat.receiver_id : chat.sender_id;
-        const otherPartyType = chat.sender_id === senderId ? chat.receiver_type : chat.sender_type;
-        const key = `${otherPartyType}-${otherPartyId}`;
-        
-        if (!latestMessages[key] || new Date(chat.sent_at) > new Date(latestMessages[key].sent_at)) {
-          latestMessages[key] = chat;
+        if (userResponse.ok && shopResponse.ok) {
+          const usersData = await userResponse.json();
+          const shopsData = await shopResponse.json();
+
+          // Get relevant chats for the current sender
+          const relevantChats = chats.filter(chat => 
+            (chat.sender_id === senderId && chat.sender_type === senderType) ||
+            (chat.receiver_id === senderId && chat.receiver_type === senderType)
+          );
+
+          if (senderType === 'Shop') {
+            // For Chat as Seller mode
+            // Filter buyers (user_type_id === 3) for User Chats
+            const buyerChats = relevantChats.filter(chat => 
+              chat.sender_type === 'User' || chat.receiver_type === 'User'
+            );
+
+            const uniqueBuyerIds = [...new Set(buyerChats.map(chat => 
+              chat.sender_id === senderId ? chat.receiver_id : chat.sender_id
+            ))];
+
+            const filteredBuyers = usersData
+              .filter(user => user.user_type_id === 3) // Only buyers
+              .filter(user => uniqueBuyerIds.includes(user.user_id))
+              .map(user => {
+                const lastChat = buyerChats.find(chat =>
+                  (chat.sender_id === user.user_id || chat.receiver_id === user.user_id)
+                );
+                
+                if (!lastChat) return null;
+
+                return {
+                  ...user,
+                  lastMessage: lastChat.chat_message,
+                  time: new Date(lastChat.sent_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                };
+              })
+              .filter(Boolean);
+
+            // For Shop Chats in seller mode
+            const shopChats = relevantChats.filter(chat => 
+              chat.sender_type === 'Shop' || chat.receiver_type === 'Shop'
+            );
+
+            const uniqueShopIds = [...new Set(shopChats.map(chat => 
+              chat.sender_id === senderId ? chat.receiver_id : chat.sender_id
+            ))];
+
+            const filteredShops = shopsData
+              .filter(shop => uniqueShopIds.includes(shop.shop_id))
+              .map(shop => {
+                const lastChat = shopChats.find(chat =>
+                  (chat.sender_id === shop.shop_id || chat.receiver_id === shop.shop_id)
+                );
+                
+                if (!lastChat) return null;
+
+                return {
+                  ...shop,
+                  lastMessage: lastChat.chat_message,
+                  time: new Date(lastChat.sent_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                };
+              })
+              .filter(Boolean);
+
+            setUsers(filteredBuyers);
+            setAllUsers(usersData.filter(user => user.user_type_id === 3)); // Only buyers in allUsers
+            setFilteredUsers(filteredBuyers);
+            setShops(filteredShops);
+            setAllShops(shopsData);
+            setFilteredShops(filteredShops);
+          } else {
+            // For Chat as Buyer mode - keep existing logic
+            const uniqueUserIds = [...new Set(relevantChats.map(chat => 
+              chat.sender_id === senderId ? chat.receiver_id : chat.sender_id
+            ))];
+
+            const filteredUsers = usersData
+              .filter(user => user.user_type_id === 1) // Only admins for buyer mode
+              .filter(user => uniqueUserIds.includes(user.user_id))
+              .map(user => {
+                const lastChat = relevantChats.find(chat =>
+                  (chat.sender_id === user.user_id || chat.receiver_id === user.user_id)
+                );
+                
+                if (!lastChat) return null;
+
+                return {
+                  ...user,
+                  lastMessage: lastChat.chat_message,
+                  time: new Date(lastChat.sent_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                };
+              })
+              .filter(Boolean);
+
+            const uniqueShopIds = [...new Set(relevantChats.map(chat => 
+              chat.sender_id === senderId ? chat.receiver_id : chat.sender_id
+            ))];
+
+            const filteredShops = shopsData
+              .filter(shop => uniqueShopIds.includes(shop.shop_id))
+              .map(shop => {
+                const lastChat = relevantChats.find(chat =>
+                  (chat.sender_id === shop.shop_id || chat.receiver_id === shop.shop_id)
+                );
+                
+                if (!lastChat) return null;
+
+                return {
+                  ...shop,
+                  lastMessage: lastChat.chat_message,
+                  time: new Date(lastChat.sent_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                };
+              })
+              .filter(Boolean);
+
+            setUsers(filteredUsers);
+            setAllUsers(usersData.filter(user => user.user_type_id === 1)); // Only admins in allUsers
+            setFilteredUsers(filteredUsers);
+            setShops(filteredShops);
+            setAllShops(shopsData);
+            setFilteredShops(filteredShops);
+          }
+        } else {
+          console.error('Failed to fetch users/shops:', userResponse.status, shopResponse.status);
+          setError('Failed to fetch user/shop data.');
         }
-      });
-
-      // Fetch users and shops data
-      const [usersResponse, shopsResponse] = await Promise.all([
-        fetch(`${REACT_NATIVE_API_BASE_URL}/api/users`, {
-          headers: { 
-            'x-api-key': REACT_NATIVE_API_KEY,
-            'Cache-Control': 'no-cache'
-          }
-        }),
-        fetch(`${REACT_NATIVE_API_BASE_URL}/api/shops`, {
-          headers: { 
-            'x-api-key': REACT_NATIVE_API_KEY,
-            'Cache-Control': 'no-cache'
-          }
-        })
-      ]);
-
-      const [usersData, shopsData] = await Promise.all([
-        usersResponse.json(),
-        shopsResponse.json()
-      ]);
-
-      // Process and combine chat data with user/shop info
-      const processChats = (messages, data, type) => {
-        return Object.values(messages)
-          .filter(msg => msg.sender_type === type || msg.receiver_type === type)
-          .map(msg => {
-            const id = msg.sender_id === senderId ? msg.receiver_id : msg.sender_id;
-            const item = data.find(d => (type === 'User' ? d.user_id : d.shop_id) === id);
-            
-            if (!item) return null;
-
-            return {
-              ...item,
-              lastMessage: msg.chat_message,
-              time: new Date(msg.sent_at).toLocaleTimeString([], { 
-                hour: '2-digit', 
-                minute: '2-digit' 
-              }),
-              sent_at: msg.sent_at,
-              chat_id: msg.chat_id // Add chat_id for better tracking
-            };
-          })
-          .filter(Boolean)
-          .sort((a, b) => new Date(b.sent_at) - new Date(a.sent_at)); // Sort by most recent
-      };
-
-      const userChats = processChats(latestMessages, usersData, 'User');
-      const shopChats = processChats(latestMessages, shopsData, 'Shop');
-
-      // Update state with new data
-      setUsers(userChats);
-      setFilteredUsers(userChats);
-      setShops(shopChats);
-      setFilteredShops(shopChats);
-      setAllUsers(usersData);
-      setAllShops(shopsData);
-
+      } else {
+        console.error('Failed to fetch chats:', chatResponse.status);
+        setError('Failed to fetch chats.');
+      }
     } catch (error) {
-      console.error('Error fetching chats:', error);
-      setError('Failed to fetch latest messages. Please try again.');
+      console.error('Network error:', error);
+      setError('Network error. Please try again.');
     }
   };
 
@@ -281,15 +341,52 @@ const ChatListScreen = () => {
     if (query) {
       const lowerCaseQuery = query.toLowerCase();
       if (selectedType === 'User') {
-        const filtered = allUsers.filter(user => user?.firstname?.toLowerCase().includes(lowerCaseQuery));
+        // Filter users based on sender type (admin for buyer mode, buyers for seller mode)
+        const filtered = allUsers
+          .filter(user => senderType === 'User' ? user?.user_type_id === 1 : user?.user_type_id === 3)
+          .filter(user => user?.firstname?.toLowerCase().includes(lowerCaseQuery))
+          .map(user => {
+            // Find existing chat data to preserve last message
+            const existingUserChat = users?.find(u => u.user_id === user.user_id);
+            if (existingUserChat) {
+              return {
+                ...user,
+                lastMessage: existingUserChat.lastMessage,
+                time: existingUserChat.time
+              };
+            }
+            return {
+              ...user,
+              lastMessage: 'No recent messages',
+              time: null
+            };
+          });
         setFilteredUsers(filtered);
       } else if (selectedType === 'Shop') {
-        const filtered = allShops.filter(shop => shop?.shop_name?.toLowerCase().includes(lowerCaseQuery));
+        const filtered = allShops
+          .filter(shop => shop?.shop_name?.toLowerCase().includes(lowerCaseQuery))
+          .map(shop => {
+            // Find existing chat data to preserve last message
+            const existingShopChat = shops?.find(s => s.shop_id === shop.shop_id);
+            if (existingShopChat) {
+              return {
+                ...shop,
+                lastMessage: existingShopChat.lastMessage,
+                time: existingShopChat.time
+              };
+            }
+            return {
+              ...shop,
+              lastMessage: 'No recent messages',
+              time: null
+            };
+          });
         setFilteredShops(filtered);
       }
     } else {
-      setFilteredUsers(users);
-      setFilteredShops(shops);
+      // When search query is empty, restore original lists
+      setFilteredUsers(users || []);
+      setFilteredShops(shops || []);
     }
   };
 
@@ -341,14 +438,22 @@ const ChatListScreen = () => {
         <Header>
           <Title>
             {selectedType === 'User'
-              ? 'User Chats'
+              ? senderType === 'User' ? 'Admin Chats' : 'User Chats'
               : selectedType === 'Shop'
                 ? 'Shop Chats'
                 : null
             }
           </Title>
           <SearchInput
-            placeholder={`Search ${selectedType === 'User' ? 'users' : selectedType === 'Shop' ? 'shops' : selectedType === 'Seller' ? 'sellers' : 'buyers'} by name`}
+            placeholder={`Search ${
+              selectedType === 'User'
+                ? senderType === 'User' 
+                  ? 'admin'
+                  : 'users'
+                : selectedType === 'Shop'
+                  ? 'shops'
+                  : ''
+            } by name`}
             value={searchQuery}
             onChangeText={handleSearch}
           />
@@ -361,7 +466,9 @@ const ChatListScreen = () => {
             onPress={() => handleTypeChange('User')}
             className={selectedType === 'User' ? 'bg-[#00B251]' : 'bg-gray-200'}
           >
-            <ButtonText className={selectedType === 'User' ? 'text-white' : 'text-[#00B251]'}>{'User Chats'}</ButtonText>
+            <ButtonText className={selectedType === 'User' ? 'text-white' : 'text-[#00B251]'}>
+              {senderType === 'User' ? 'Admin Chats' : 'User Chats'}
+            </ButtonText>
           </Button>
           <Button
             onPress={() => handleTypeChange('Shop')}
@@ -392,12 +499,12 @@ const ChatListScreen = () => {
               <TimeText>{item.time || ''}</TimeText>
             </UserItem>
           )}
-          keyExtractor={(item) => {
-            // Create a unique key combining type, id, and timestamp
-            const type = item.user_id ? 'user' : 'shop';
-            const id = item.user_id || item.shop_id;
-            const timestamp = item.sent_at ? new Date(item.sent_at).getTime() : Date.now();
-            return `${type}-${id}-${timestamp}`;
+          keyExtractor={(item, index) => {
+            if (selectedType === 'User') {
+              return `user-${item.user_id}-${index}-${Date.now()}`;
+            } else {
+              return `shop-${item.shop_id}-${index}-${Date.now()}`;
+            }
           }}
         />
       </Container>

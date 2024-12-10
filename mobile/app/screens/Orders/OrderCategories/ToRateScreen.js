@@ -2,10 +2,29 @@ import React, { useEffect, useState } from "react";
 import { View, Text, ScrollView, TouchableOpacity, SafeAreaView, Modal, TextInput, Image } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import Slider from '@react-native-community/slider'; // Import the slider component
 import * as ImagePicker from 'expo-image-picker'; // Import the Expo Image Picker
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from "@env"; // Import environment variables
 import LoadingAnimation from "../../../components/LoadingAnimation";
+
+const StarRating = ({ rating, setRating }) => {
+  return (
+    <View className="flex-row justify-center my-2">
+      {[1, 2, 3, 4, 5].map((star) => (
+        <TouchableOpacity
+          key={star}
+          onPress={() => setRating(star)}
+          className="px-1"
+        >
+          <Ionicons
+            name={rating >= star ? "star" : "star-outline"}
+            size={32}
+            color="#FFD700"
+          />
+        </TouchableOpacity>
+      ))}
+    </View>
+  );
+};
 
 const ToRateScreen = ({ orders, orderProducts }) => {
   const [toRateOrders, setToRateOrders] = useState([]);
@@ -321,16 +340,8 @@ const ToRateScreen = ({ orders, orderProducts }) => {
             <Text className="text-lg font-bold mb-4 text-center text-[#00B251]">
               Rate The Shop
             </Text>
-            <Text className="text-md font-semibold">Rating:</Text>
-            <Slider
-              minimumValue={0}
-              maximumValue={5}
-              step={1}
-              value={rating}
-              onValueChange={(value) => setRating(value)}
-              style={{ marginVertical: 10 }}
-            />
-            <Text className="text-md font-semibold text-center">Your Rating: {rating}</Text>
+            <Text className="text-md font-semibold text-center mb-2">Tap to Rate:</Text>
+            <StarRating rating={rating} setRating={setRating} />
             <Text className="mt-4 text-md font-semibold">Review:</Text>
             <TextInput
               multiline
