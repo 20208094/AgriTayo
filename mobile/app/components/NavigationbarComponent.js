@@ -95,7 +95,7 @@ const NavigationbarComponent = () => {
           <Text className="text-[10px] text-gray-600 w-full text-center">Home</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => navigation.navigate("Featured Products")} className="items-center w-1/5">
+        <TouchableOpacity onPress={() => navigation.navigate("Market Categories")} className="items-center w-1/5">
           <Icon name="leaf-outline" size={25} color="gray" />
           <Text className="text-[10px]  text-gray-600 w-full text-center">Market</Text>
         </TouchableOpacity>
