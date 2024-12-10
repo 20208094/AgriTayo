@@ -130,8 +130,8 @@ function NegotiationBuyerScreen({ navigation, route }) {
       return;
     }
 
-    if (parseFloat(price) >= (product.crop_price * 1.3)) {
-      setPriceError(`Maximum price per ${product.metric.metric_system_symbol}: ₱${(product.crop_price * 1.3).toFixed(2)} (130% of ₱${product.crop_price})`);
+    if (parseFloat(price) >= ((product.crop_price - 0.1) * 1.3 - 0.1)) {
+      setPriceError(`Maximum price per ${product.metric.metric_system_symbol}: ₱${((product.crop_price - 0.1) * 1.3 - 0.1).toFixed(2)} (₱${(product.crop_price - 0.1).toFixed(2)})`);
       return;
     }
 
@@ -312,22 +312,25 @@ function NegotiationBuyerScreen({ navigation, route }) {
                   Minimum price per {product.metric.metric_system_symbol}: ₱{(product.crop_price * 0.7).toFixed(2)} (70% of ₱{product.crop_price})
                 </StyledText>
                 <StyledText className="text-sm text-gray-600">
-                  Maximum price per {product.metric.metric_system_symbol}: ₱{(product.crop_price * 1.3).toFixed(2)} (130% of ₱{product.crop_price})
+                  Maximum price per {product.metric.metric_system_symbol}: ₱{((product.crop_price - 0.1) * 1.3 - 0.1).toFixed(2)} (₱${(product.crop_price - 0.1).toFixed(2)})
                 </StyledText>
-                <StyledText className="text-sm text-gray-600 mt-1">
-                  You can offer between ₱{(product.crop_price * amount * 0.7).toFixed(2)} to ₱{(product.crop_price * amount * 1.3).toFixed(2)} for {amount} {product.metric.metric_system_symbol}
-                </StyledText>
+                {amount ? (
+                  <StyledText className="text-sm text-gray-600 mt-1">
+                    You can offer between ₱{(product.crop_price * amount * 0.7).toFixed(2)} to ₱{((product.crop_price - 0.1) * amount * 1.3 - 0.1).toFixed(2)} for {amount} {product.metric.metric_system_symbol}
+                  </StyledText>
+                ) : null}
                 {priceError && (
                   <Text className="text-red-500 text-sm mt-1">
                     {priceError}
                   </Text>
                 )}
                 <StyledTextInput
-                  className="border-2 text-lg border-[#00B251] rounded-lg p-3 text-gray-600 mt-2"
+                  className={`border-2 text-lg border-[#00B251] rounded-lg p-3 text-gray-600 mt-2 ${!amount ? 'bg-gray-100' : 'bg-white'}`}
                   keyboardType="numeric"
                   placeholder="₱00.00"
                   value={total}
                   onChangeText={handleTotalChange}
+                  editable={!!amount}
                 />
               </View>
 
