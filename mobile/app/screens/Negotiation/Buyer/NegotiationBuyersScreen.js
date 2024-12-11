@@ -312,7 +312,7 @@ function NegotiationBuyerScreen({ navigation, route }) {
                   Minimum price per {product.metric.metric_system_symbol}: ₱{(product.crop_price * 0.7).toFixed(2)} (70% of ₱{product.crop_price})
                 </StyledText>
                 <StyledText className="text-sm text-gray-600">
-                  Maximum price per {product.metric.metric_system_symbol}: ₱{((product.crop_price - 0.1) * 1.3 - 0.1).toFixed(2)} (₱${(product.crop_price - 0.1).toFixed(2)})
+                  Maximum price per {product.metric.metric_system_symbol}: ₱{((product.crop_price - 0.1) * 1.3 - 0.1).toFixed(2)} (₱{(product.crop_price - 0.1).toFixed(2)})
                 </StyledText>
                 {amount ? (
                   <StyledText className="text-sm text-gray-600 mt-1">
