@@ -158,7 +158,7 @@ const PreparingScreen = ({ orders, orderProducts }) => {
                   className="bg-red-600 p-2 rounded-lg w-1/2 items-center"
                   onPress={() => handleRejectOrder(preparingOrder)}
                 >
-                  <Text className="text-white">Reject Order</Text>
+                  <Text className="text-white">Cancel Order</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -234,27 +234,27 @@ const PreparingScreen = ({ orders, orderProducts }) => {
         onRequestClose={() => setRejectReasonVisible(false)}
       >
         <View className="flex-1 justify-center items-center bg-black/50">
-          <View className="bg-white p-6 rounded-lg">
-            <Text className="text-lg font-semibold mb-4">Reject Order</Text>
-            <Text>Why are you rejecting this order?</Text>
+          <View className="bg-white p-6 rounded-lg w-5/6 ">
+            <Text className="text-lg font-semibold mb-4">Cancel Order</Text>
+            <Text>Why are you cancelling this order?</Text>
             <TextInput
-              className="border border-gray-300 p-2 mt-2 rounded-lg w-full"
-              placeholder="Enter reason for rejection"
+              className="border border-gray-300 p-2 mt-2 rounded-lg w-full h-28"
+              placeholder="Enter reason for cancellation"
               value={rejectReason}
               onChangeText={setRejectReason}
             />
             <View className="flex-row justify-end mt-4">
               <TouchableOpacity
-                className="bg-red-500 p-2 rounded-lg mr-2"
-                onPress={submitRejectOrder}
-              >
-                <Text className="text-white">Submit</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                className="bg-gray-300 p-2 rounded-lg"
+                className="bg-gray-300 p-2 rounded-lg mr-2"
                 onPress={() => setRejectReasonVisible(false)}
               >
                 <Text className="text-gray-800">Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                className="bg-red-500 p-2 rounded-lg"
+                onPress={submitRejectOrder}
+              >
+                <Text className="text-white">Submit</Text>
               </TouchableOpacity>
             </View>
           </View>
