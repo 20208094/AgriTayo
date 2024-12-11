@@ -2,9 +2,19 @@
 const supabase = require("../db");
 const { getIo } = require("../../socket");
 
-async function checkoutOrder(req, res) {
+async function checkoutOrder(req, res, io) {
   const orderDetails = req.body;
-  console.log("orderDetails :", orderDetails);
+
+  // Fetch shop data
+  const { data: shopdata, error: shopError } = await supabase
+    .from("shop")
+    .select("*");
+
+  if (shopError) {
+    console.error("Error fetching shop data:", shopError.message);
+    return res.status(500).json({ error: "Error fetching shop data", details: shopError.message });
+  }
+
   let newOrder = {};
 
   // CREATING THE NEW ORDER
@@ -137,7 +147,14 @@ async function checkoutOrder(req, res) {
       phone_number: shopNumber,
     });
 
-    console.log(`SMS sent to ${shopNumber}: ${title} - ${message}`);
+    const mobileNotifToSend = {};
+    mobileNotifToSend.title = "New Order";
+    mobileNotifToSend.body = "You’ve received a new order in your shop. Check it out now!";
+    const shop = shopdata.find(shop => shop.shop_id === shopId);
+    mobileNotifToSend.user_id = shop.user_id;
+
+    io.emit('mobilePushNotification', mobileNotifToSend);
+    // console.log(`SMS sent to ${shopNumber}: ${title} - ${message}`);
 
     if (orderDetails.cartType === "cart") {
       // DELETING THE PRODUCTS IN CART

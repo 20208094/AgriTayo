@@ -109,41 +109,40 @@ async function updateOrderStat(req, res, io) {
 
             // FOR SELLERS
             if (status_id === 1) {
-                mobileNotifToSend.title = "New Order";
-                mobileNotifToSend.body = "You have a new order.";
+                mobileNotifToSend.title = "New Order Received!";
+                mobileNotifToSend.body = "You have a new order waiting to be processed. Check it now!";
             } else if (status_id === 5) {
-                mobileNotifToSend.title = "Return Request";
-                mobileNotifToSend.body = "A buyer has requested to return their order.";
+                mobileNotifToSend.title = "Return Request Received";
+                mobileNotifToSend.body = "A buyer has requested to return an order. Review the request.";
             } else if (status_id === 6) {
-                mobileNotifToSend.title = "Returned Order";
-                mobileNotifToSend.body = "An order has been successfully returned.";
+                mobileNotifToSend.title = "Order Successfully Returned";
+                mobileNotifToSend.body = "An order has been successfully returned. Please review the details.";
             } else if (status_id === 7) {
-                mobileNotifToSend.title = "Order Received";
-                mobileNotifToSend.body = "A buyer has confirmed that they have received their order.";
+                mobileNotifToSend.title = "Order Confirmed by Buyer";
+                mobileNotifToSend.body = "A buyer has confirmed receiving their order. Great work!";
             } else if (status_id === 8) {
-                mobileNotifToSend.title = "Order Rated";
-                mobileNotifToSend.body = "An order has been successfully rated and is now completed.";
+                mobileNotifToSend.title = "Order Rated!";
+                mobileNotifToSend.body = "An order has been rated and marked as completed.";
             }
 
             // FOR BUYERS
             if (status_id === 2) {
-                mobileNotifToSend.title = "Preparing Order";
-                mobileNotifToSend.body = "Your order has been confirmed by the seller and it is now being prepared.";
+                mobileNotifToSend.title = "Preparing Your Order";
+                mobileNotifToSend.body = "Your order has been confirmed by the seller and is now being prepared.";
             } else if (status_id === 3) {
-                mobileNotifToSend.title = "Shipping Order";
-                mobileNotifToSend.body = "Your order is now being shipped by the seller.";
+                mobileNotifToSend.title = "Order on the Way!";
+                mobileNotifToSend.body = "Your order is now being shipped. It’ll arrive soon!";
             } else if (status_id === 4) {
-                mobileNotifToSend.title = "Pickup Order";
-                mobileNotifToSend.body = "Your order is now ready to be picked up.";
+                mobileNotifToSend.title = "Order Ready for Pickup";
+                mobileNotifToSend.body = "Your order is ready for pickup. Don't forget to claim it.";
             } else if (status_id === 6) {
-                mobileNotifToSend.title = "Returned Order";
-                mobileNotifToSend.body = "Your order was successfully returned to the seller.";
+                mobileNotifToSend.title = "Order Successfully Returned";
+                mobileNotifToSend.body = "Your return request has been processed, and the order was successfully returned to the seller.";
             } else if (status_id === 9) {
-                mobileNotifToSend.title = "Rejected Order";
-                mobileNotifToSend.body = "Your order was rejected by the seller.";
+                mobileNotifToSend.title = "Order Rejected";
+                mobileNotifToSend.body = "Unfortunately, your order was rejected by the seller.";
             }
             
-
             if (io) {
                 io.emit('mobilePushNotification', mobileNotifToSend);
             } else {
