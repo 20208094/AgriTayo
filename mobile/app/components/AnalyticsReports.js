@@ -10,13 +10,17 @@ import * as Print from "expo-print";
 import * as Sharing from "expo-sharing";
 import * as FileSystem from "expo-file-system";
 import Icon from "react-native-vector-icons/FontAwesome5";
+import { Ionicons } from "@expo/vector-icons";
 
 const AnalyticsReports = ({ data, subcategoryName }) => {
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+
   const generatePdf = async () => {
     try {
-      // Check if there is data
       if (data.length === 0) {
-        alert(`No varieties found for ${subcategoryName}.`);
+        setAlertMessage(`No varieties found for ${subcategoryName}.`);
+        setAlertVisible(true);
         return;
       }
 
@@ -154,25 +158,43 @@ const AnalyticsReports = ({ data, subcategoryName }) => {
         to: newPath,
       });
 
-      // Change success message
-      alert(
-        `${subcategoryName} Varieties PDF file saved to your Documents folder.`
-      );
+      setAlertMessage(`${subcategoryName} Varieties PDF file saved to your Documents folder.`);
+      setAlertVisible(true);
 
-      // Share the PDF file
       await Sharing.shareAsync(newPath);
     } catch (error) {
       console.error(error);
-      alert(
-        `Could not generate or save the ${subcategoryName} Varieties PDF file.`
-      );
+      setAlertMessage(`Could not generate or save the ${subcategoryName} Varieties PDF file.`);
+      setAlertVisible(true);
     }
   };
 
   return (
-    <TouchableOpacity onPress={generatePdf} activeOpacity={0.8}>
-      <Icon name={"file-export"} size={20} color="#00B251" />
-    </TouchableOpacity>
+    <>
+      <TouchableOpacity onPress={generatePdf} activeOpacity={0.8}>
+        <Icon name={"file-export"} size={20} color="#00B251" />
+      </TouchableOpacity>
+
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={alertVisible}
+        onRequestClose={() => setAlertVisible(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black/50 bg-opacity-50">
+          <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
+            <Text className="text-lg font-semibold text-gray-900 mb-4">{alertMessage}</Text>
+            <TouchableOpacity
+              className="mt-4 p-2 bg-[#00B251] rounded-lg flex-row justify-center items-center"
+              onPress={() => setAlertVisible(false)}
+            >
+              <Ionicons name="checkmark-circle-outline" size={24} color="white" />
+              <Text className="text-lg text-white ml-2">OK</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+    </>
   );
 };
 
