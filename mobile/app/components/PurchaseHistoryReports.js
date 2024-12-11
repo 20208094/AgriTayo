@@ -1,14 +1,19 @@
-import React from 'react';
-import { TouchableOpacity, SafeAreaView, Text, Alert } from 'react-native';
+import React, { useState } from 'react';
+import { TouchableOpacity, SafeAreaView, Text, View, Modal } from 'react-native';
+import { Ionicons } from "@expo/vector-icons";
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import * as FileSystem from 'expo-file-system';
 
 const PurchaseHistoryReports = ({ purchaseHistory }) => {
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+
   const generatePdf = async () => {
     try {
       if (purchaseHistory.length === 0) {
-        Alert.alert('Error', 'No purchase history available to generate the report.');
+        setAlertMessage('No purchase history available to generate the report.');
+        setAlertVisible(true);
         return;
       }
 
@@ -68,27 +73,52 @@ const PurchaseHistoryReports = ({ purchaseHistory }) => {
         to: newPath,
       });
 
-      Alert.alert('Success', 'Purchase history PDF file saved to your Documents folder.');
+      setAlertMessage('Purchase history PDF file saved to your Documents folder.');
+      setAlertVisible(true);
 
       await Sharing.shareAsync(newPath);
     } catch (error) {
       console.error(error);
-      Alert.alert('Error', 'Could not generate or save the purchase history PDF file.');
+      setAlertMessage('Could not generate or save the purchase history PDF file.');
+      setAlertVisible(true);
     }
   };
 
   return (
-    <SafeAreaView className="flex flex-row justify-end mt-4 mr-2">
-      <TouchableOpacity
-        className="bg-[#00B251] py-3 px-4 rounded-lg shadow-lg"
-        onPress={generatePdf}
-        activeOpacity={0.8}
+    <>
+      <SafeAreaView className="flex flex-row justify-end mt-4 mr-2">
+        <TouchableOpacity
+          className="bg-[#00B251] py-3 px-4 rounded-lg shadow-lg"
+          onPress={generatePdf}
+          activeOpacity={0.8}
+        >
+          <Text className="text-white font-semibold text-center">
+            Generate Purchase History
+          </Text>
+        </TouchableOpacity>
+      </SafeAreaView>
+
+      {/* Alert Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={alertVisible}
+        onRequestClose={() => setAlertVisible(false)}
       >
-        <Text className="text-white font-semibold text-center">
-          Generate Purchase History
-        </Text>
-      </TouchableOpacity>
-    </SafeAreaView>
+        <View className="flex-1 justify-center items-center bg-black/50 bg-opacity-50">
+          <View className="bg-white p-6 rounded-lg shadow-lg w-3/4">
+            <Text className="text-lg font-semibold text-gray-900 mb-4">{alertMessage}</Text>
+            <TouchableOpacity
+              className="mt-4 p-2 bg-[#00B251] rounded-lg flex-row justify-center items-center"
+              onPress={() => setAlertVisible(false)}
+            >
+              <Ionicons name="checkmark-circle-outline" size={24} color="white" />
+              <Text className="text-lg text-white ml-2">OK</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+    </>
   );
 };
 
