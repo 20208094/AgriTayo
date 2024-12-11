@@ -72,13 +72,12 @@ function initializeSocket(server) {
                     user_id: notif.user_id, // Target user ID
                     title: notif.title || "Default Notification Title", // Notification title
                     body: notif.message || "Default notification message", // Notification body
-                    screen: notif.screen || "Notifications",
                 });
             } catch (error) {
                 console.error('Error handling notification:', error);
             }
         });
-        
+
         socket.on('requestActiveUsers', () => {
             // Emit the current list of active users to the requesting client
             socket.emit('activeUsers', Object.keys(userSockets));

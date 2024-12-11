@@ -25,7 +25,7 @@ async function getChats(req, res) {
     }
 }
 
-async function getChatsId(req, res) { 
+async function getChatsId(req, res) {
     try {
         const { userId, receiverId, receiverType, senderType } = req.params;
         const receiverIdNum = parseInt(receiverId, 10);
@@ -66,7 +66,7 @@ async function getChatsId(req, res) {
     }
 }
 
-async function getChatList(req, res) { 
+async function getChatList(req, res) {
     try {
         const { userId, receiverType, senderType } = req.params;
         const userIdNum = parseInt(userId, 10);
@@ -109,7 +109,7 @@ async function getChatList(req, res) {
         // Step 5: Map each user with their latest chat time
         const userChatMap = allUsers.map(user => {
             // Filter chats involving this user
-            const userChats = allChats.filter(chat => 
+            const userChats = allChats.filter(chat =>
                 chat.sender_id === user.user_id || chat.receiver_id === user.user_id
             );
 
@@ -142,7 +142,7 @@ async function getChatList(req, res) {
 }
 
 
-async function getChatShopList(req, res) { 
+async function getChatShopList(req, res) {
     try {
         const { userId, receiverType, senderType } = req.params;
         const userIdNum = parseInt(userId, 10);
@@ -183,7 +183,7 @@ async function getChatShopList(req, res) {
             ...(messagesUserToShop || []),
             ...(messagesShopToUser || [])
         ];
-        
+
         // Step 5: Create a map to store the latest chat time for each shop
         const latestChatMap = {};
 
@@ -205,7 +205,7 @@ async function getChatShopList(req, res) {
             shop_image_url: shop.shop_image_url,
             latest_chat_time: latestChatMap[shop.shop_id] || null,
         }));
-        console.log('result :', result);
+        // console.log('result :', result);
 
         res.json(result); // Send the result as JSON
     } catch (err) {
@@ -217,8 +217,31 @@ async function getChatShopList(req, res) {
 // Function to add a new chat message with an optional image
 async function addChat(req, res, io) {
     try {
-        console.log('Processing add chat request');
+        // console.log('Processing add chat request');
         const form = new formidable.IncomingForm({ multiples: true });
+
+        // Fetch shop data
+        const { data: shopdata, error: shopError } = await supabase
+            .from("shop")
+            .select("*");
+
+        if (shopError) {
+            console.error("Error fetching shop data:", shopError.message);
+            return res.status(500).json({ error: "Error fetching shop data", details: shopError.message });
+        }
+
+        // Fetch user data
+        const { data: userData, error: userError } = await supabase
+            .from("users")
+            .select("*");
+
+        if (userError) {
+            console.error("Error fetching user data:", userError.message);
+            return res.status(500).json({ error: "Error fetching user data", details: userError.message });
+        }
+
+        // console.log('shopdata :', shopdata[0]);
+        // console.log('userData :', userData[0]);
 
         form.parse(req, async (err, fields, files) => {
             if (err) {
@@ -255,10 +278,10 @@ async function addChat(req, res, io) {
                     return res.status(500).json({ error: 'Internal server error', details: error.message });
                 }
 
-                console.log('Added chat to db');
+                // console.log('Added chat to db');
 
                 if (data && data.length > 0) {
-                    const savedMessage = data[0]; 
+                    const savedMessage = data[0];
                     const messageToSend = {
                         sender_id: savedMessage.sender_id,
                         receiver_id: savedMessage.receiver_id,
@@ -269,14 +292,53 @@ async function addChat(req, res, io) {
                         sent_at: new Date().toISOString(),
                     };
 
-                    if (io) { // Ensure io is defined
-                        io.emit('chat message', messageToSend); // Broadcast the message
-                        console.log('emited message');
+                    console.log('savedMessage.chat_image_url :', savedMessage.chat_image_url);
+                    const mobileNotifToSend = {};
+                    // Title Part
+                    if (savedMessage.sender_type === 'User') {
+                        // Get the user.firstname of the user that has user_id equal to sender_id
+                        const user = userData.find(user => user.user_id === savedMessage.sender_id);
+                        if (user) {
+                            mobileNotifToSend.title = user.firstname; // Assuming 'firstname' is the correct property
+                        } else {
+                            console.error("User not found for sender_id:", savedMessage.sender_id);
+                            mobileNotifToSend.title = "Unknown User"; // Fallback
+                        }
+                    } else {
+                        // Get the shop.name (or equivalent) from the shop that has shop_id equal to sender_id
+                        const shop = shopdata.find(shop => shop.shop_id === savedMessage.sender_id);
+                        if (shop) {
+                            mobileNotifToSend.title = shop.name; // Assuming 'name' is the correct property
+                        } else {
+                            console.error("Shop not found for sender_id:", savedMessage.sender_id);
+                            mobileNotifToSend.title = "Unknown Shop"; // Fallback
+                        }
+                    }
+                    // User_id part
+                    if (savedMessage.receiver_type === 'User') {
+                        mobileNotifToSend.user_id = savedMessage.receiver_id;
+                    } else {
+                        const shop = shopdata.find(shop => shop.shop_id === savedMessage.receiver_id);
+                        mobileNotifToSend.user_id = shop.user_id;
+                    }
+                    // Body part
+                    if (savedMessage.chat_message === '') {
+                        const msg = "Sent a photo."
+                        mobileNotifToSend.body = msg
+                    } else {
+                        mobileNotifToSend.body = savedMessage.chat_message
+                    }
+
+                    console.log('mobileNotifToSend :', mobileNotifToSend);
+
+                    if (io) { 
+                        io.emit('chat message', messageToSend);
+                        io.emit('mobilePushNotification', mobileNotifToSend);
                     } else {
                         console.error('Socket.io instance is undefined');
                     }
                 }
-                console.log('closing message api');
+                // console.log('closing message api');
                 res.status(201).json({ message: 'Chat added successfully', data });
             } catch (err) {
                 console.error('Error executing Supabase query:', err.message);
@@ -290,7 +352,7 @@ async function addChat(req, res, io) {
 }
 
 async function updateChatReadStatus(req, res) {
-    const { sender_id, user_id } = req.body; 
+    const { sender_id, user_id } = req.body;
     const userId = user_id;
 
     try {

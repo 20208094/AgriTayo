@@ -135,14 +135,14 @@ function LeftSidebar({ userType }) {
                 )}
 
                 {/* Trigger Notification Button */}
-                {/* <div className="p-4">
+                <div className="p-4">
                     <button
                         onClick={sendPushNotification}
                         className="bg-green-500 text-white px-4 py-2 rounded shadow hover:bg-green-600"
                     >
                         Trigger Notification
                     </button>
-                </div> */}
+                </div>
 
                 {/* Pin Toggle Button */}
                 <button onClick={handlePinToggle} className={`pin-button ${window.innerWidth <= 767 ? 'hidden' : ''}`}>

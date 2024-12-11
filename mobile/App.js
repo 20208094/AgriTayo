@@ -1,5 +1,5 @@
 import * as React from "react";
-// import * as Notifications from "expo-notifications";
+import * as Notifications from "expo-notifications";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { useEffect, useState } from "react";
@@ -163,6 +163,7 @@ function App() {
       } else {
         // if theres no logged in user, go to login screen
         setUserSession(null);
+        setUserData(null);
         navigationRef.current?.navigate("Login");
       }
     } catch (error) {
@@ -243,29 +244,42 @@ function App() {
     await fetchUserSession();
   };
 
+
   useEffect(() => {
-    loadSessionData();
+    const interval = setInterval(() => {
+      loadSessionData();
+    }, 10000); // 20000 milliseconds = 20 seconds
+  
+    return () => clearInterval(interval); // Cleanup interval on unmount
+  }, []);
 
+  useEffect(() => {
+    if (!userData){
+      console.log('userData is Empty:');
+      return;
+    }  // Avoid initializing socket listeners if userData is not set
+  
     const socket = io(SOCKET_URL, { transports: ["websocket"] });
+  
     socket.on("connect", () => {
-      console.log("WebSocket connected:", socket.id);
+      // console.log("WebSocket connected:", socket.id);
     });
-
-    // socket.on("mobilePushNotification", (notificationData) => {
-    //   if (notificationData.user_id === userData.user_id){
-    //     triggerNotification(notificationData);
-    //   } 
-    // });
-    
+  
+    socket.on("mobilePushNotification", (notificationData) => {
+      if (notificationData.user_id === userData.user_id) {
+        triggerNotification(notificationData);
+      }
+    });
+  
     socket.on("disconnect", () => {
-      console.log("WebSocket disconnected");
+      // console.log("WebSocket disconnected");
     });
-
+  
     return () => {
       socket.disconnect();
     };
-  }, []);
-
+  }, [userData]); // Re-initialize when userData changes
+  
   useEffect(() => {
     setTimeout(() => {
       setIsLoading(false);
@@ -273,63 +287,61 @@ function App() {
   }, []);
 
   // PUSH NOTIFICATIONS
-  // useEffect(() => {
-  //   // Request notification permissions
-  //   async function requestPermissions() {
-  //     const { status } = await Notifications.requestPermissionsAsync();
-  //     console.log("Notification Permission Status:", status);
-  //     if (status !== "granted") {
-  //       alert("Permission to receive notifications was denied");
-  //     }
-  //   }
+  useEffect(() => {
+    // Request notification permissions
+    async function requestPermissions() {
+      const { status } = await Notifications.requestPermissionsAsync();
+      console.log("Notification Permission Status:", status);
+      if (status !== "granted") {
+        alert("Permission to receive notifications was denied");
+      }
+    }
+    requestPermissions();
 
-  //   requestPermissions();
+    // Notification handler for foreground notifications
+    Notifications.setNotificationHandler({
+      handleNotification: async (notification) => {
+        console.log("Foreground notification received:", notification);
+        return {
+          shouldShowAlert: true, // Shows the notification alert
+          shouldPlaySound: true, // Plays sound when notification is triggered
+          shouldSetBadge: false, // No badge count
+        };
+      },
+    });
 
-  //   // Notification handler for foreground notifications
-  //   Notifications.setNotificationHandler({
-  //     handleNotification: async (notification) => {
-  //       console.log("Foreground notification received:", notification);
-  //       return {
-  //         shouldShowAlert: true, // Shows the notification alert
-  //         shouldPlaySound: true, // Plays sound when notification is triggered
-  //         shouldSetBadge: false, // No badge count
-  //       };
-  //     },
-  //   });
+    // Handle notifications received in the foreground
+    const notificationListener = Notifications.addNotificationReceivedListener((notification) => {
+      console.log("Notification received in foreground:", notification);
+    });
 
-  //   // Handle notifications received in the foreground
-  //   const notificationListener = Notifications.addNotificationReceivedListener((notification) => {
-  //     console.log("Notification received in foreground:", notification);
-  //   });
+    const responseListener = Notifications.addNotificationResponseReceivedListener((response) => {
+      console.log("Notification response received:", response);
+      const screen = response.notification.request.content.data.screen;
+      if (screen) {
+        console.log(' navigating to:', screen);
+        navigationRef.current?.navigate(screen);
+      }
+    });
 
-  //   const responseListener = Notifications.addNotificationResponseReceivedListener((response) => {
-  //     console.log("Notification response received:", response);
-  //     const screen = response.notification.request.content.data.screen;
-  //     if (screen) {
-  //       console.log(' navigating to:', screen);
-  //       navigationRef.current?.navigate(screen);
-  //     }
-  //   });
-
-  //   return () => {
-  //     Notifications.removeNotificationSubscription(notificationListener);
-  //     Notifications.removeNotificationSubscription(responseListener);
-  //   };
-  // }, []);
+    return () => {
+      Notifications.removeNotificationSubscription(notificationListener);
+      Notifications.removeNotificationSubscription(responseListener);
+    };
+  }, []);
 
 
-  // const triggerNotification = async (notificationData) => {
-  //   console.log("Triggering notification with data:", notificationData);
+  const triggerNotification = async (notificationData) => {
+    console.log("Triggering notification with data:", notificationData);
 
-  //   await Notifications.scheduleNotificationAsync({
-  //     content: {
-  //       title: notificationData.title || "Default Title", // Customize the title
-  //       body: notificationData.body || "Default Body",  // Customize the body
-  //       data: { screen: "Biddings" },
-  //     },
-  //     trigger: null,  // Trigger immediately
-  //   });
-  // };
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: notificationData.title || "Default Title",
+        body: notificationData.body || "Default Body",
+      },
+      trigger: null,  // Trigger immediately
+    });
+  };
 
   const screenOptions = {
     headerTitleStyle: {
@@ -473,12 +485,12 @@ function App() {
             <Stack.Screen
               name="Edit Shop Phone"
               component={EditShopPhoneScreen}
-              options={{ ...screenOptions}}
+              options={{ ...screenOptions }}
             />
             <Stack.Screen
               name="Edit Alternative Shop Phone"
               component={EditSecondaryShopPhoneScreen}
-              options={{ ...screenOptions}}
+              options={{ ...screenOptions }}
             />
             <Stack.Screen
               name="Business Information"
@@ -713,22 +725,22 @@ function App() {
             <Stack.Screen
               name="Edit Phone Number"
               component={EditPhoneNumberScreen}
-              options={{ ...screenOptions}}
+              options={{ ...screenOptions }}
             />
             <Stack.Screen
               name="Edit Shop Phone Information"
               component={EditShopPhoneInformationScreen}
-              options={{ ...screenOptions}}
+              options={{ ...screenOptions }}
             />
             <Stack.Screen
               name="Edit Shop Alternative Phone Information"
               component={EditShopAlternativePhoneInformationScreen}
-              options={{ ...screenOptions}}
+              options={{ ...screenOptions }}
             />
             <Stack.Screen
               name="Edit Alternative Phone Number"
               component={EditSecondaryPhoneNumberScreen}
-              options={{ ...screenOptions}}
+              options={{ ...screenOptions }}
             />
             <Stack.Screen
               name="Navigator"
@@ -814,7 +826,7 @@ function App() {
             <Stack.Screen
               name="Register"
               component={RegisterScreenBuyers}
-              options={{ ...screenOptions}}
+              options={{ ...screenOptions }}
             />
             <Stack.Screen
               name="OTP Screen"
