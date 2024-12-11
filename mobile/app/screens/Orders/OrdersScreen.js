@@ -28,6 +28,7 @@ function OrdersScreen({ route }) {
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [viewedScreens, setViewedScreens] = useState(new Set());
+  const [lastViewedCounts, setLastViewedCounts] = useState({});
 
   // Fetch user data from AsyncStorage
   const getAsyncUserData = async () => {
@@ -110,11 +111,11 @@ function OrdersScreen({ route }) {
     };
   }, [userData]);
 
-  // Add a function to get counts for each status
+  // Modify the getOrderCounts function to store the current counts
   const getOrderCounts = () => {
     if (!orders || !userData) return {};
     
-    return {
+    const counts = {
       toConfirm: orders.filter(order => order.status_id === 1 && order.user_id === userData.user_id).length,
       preparing: orders.filter(order => order.status_id === 2 && order.user_id === userData.user_id).length,
       shipping: orders.filter(order => order.status_id === 3 && order.user_id === userData.user_id).length,
@@ -125,19 +126,38 @@ function OrdersScreen({ route }) {
       completed: orders.filter(order => order.status_id === 8 && order.user_id === userData.user_id).length,
       rejected: orders.filter(order => order.status_id === 9 && order.user_id === userData.user_id).length,
     };
+
+    return counts;
   };
 
-  // Handle screen focus to mark as viewed
-  const handleScreenFocus = (screenName) => {
-    setViewedScreens(prev => new Set([...prev, screenName]));
-  };
-
-  // Check if screen has been viewed
+  // Replace isScreenNew function
   const isScreenNew = (screenName) => {
     const counts = getOrderCounts();
     const countKey = screenName.toLowerCase().replace(/\s+/g, '');
-    return !viewedScreens.has(screenName) && counts[countKey] > 0;
+    const currentCount = counts[countKey] || 0;
+    const lastCount = lastViewedCounts[countKey] || 0;
+    
+    return currentCount > lastCount;
   };
+
+  // Modify handleScreenFocus function
+  const handleScreenFocus = (screenName) => {
+    const counts = getOrderCounts();
+    const countKey = screenName.toLowerCase().replace(/\s+/g, '');
+    
+    setLastViewedCounts(prev => ({
+      ...prev,
+      [countKey]: counts[countKey] || 0
+    }));
+  };
+
+  // Add this useEffect to initialize lastViewedCounts when orders change
+  useEffect(() => {
+    if (orders.length > 0 && !Object.keys(lastViewedCounts).length) {
+      const counts = getOrderCounts();
+      setLastViewedCounts(counts);
+    }
+  }, [orders]);
 
   if (loading) {
     return <LoadingAnimation />;

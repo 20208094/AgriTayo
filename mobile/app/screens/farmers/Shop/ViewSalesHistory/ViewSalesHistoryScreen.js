@@ -28,7 +28,7 @@ function ViewSalesHistoryScreen({ route }) {
   const [orderProducts, setOrderProducts] = useState([]);
   const [shopData, setShopData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [viewedScreens, setViewedScreens] = useState(new Set());
+  const [lastViewedCounts, setLastViewedCounts] = useState({});
 
   // Fetch user data from AsyncStorage
   const getAsyncShopData = async () => {
@@ -122,7 +122,7 @@ function ViewSalesHistoryScreen({ route }) {
   const getOrderCounts = () => {
     if (!orders || !shopData) return {};
     
-    return {
+    const counts = {
       toConfirm: orders.filter(order => order.status_id === 1 && order.shop_id === shopData.shop_id).length,
       preparing: orders.filter(order => order.status_id === 2 && order.shop_id === shopData.shop_id).length,
       shipping: orders.filter(order => order.status_id === 3 && order.shop_id === shopData.shop_id).length,
@@ -133,19 +133,35 @@ function ViewSalesHistoryScreen({ route }) {
       completed: orders.filter(order => order.status_id === 8 && order.shop_id === shopData.shop_id).length,
       rejected: orders.filter(order => order.status_id === 9 && order.shop_id === shopData.shop_id).length,
     };
+
+    return counts;
   };
 
-  // Add this function to handle screen focus
-  const handleScreenFocus = (screenName) => {
-    setViewedScreens(prev => new Set([...prev, screenName]));
-  };
-
-  // Add this function to check if screen is new
   const isScreenNew = (screenName) => {
     const counts = getOrderCounts();
     const countKey = screenName.toLowerCase().replace(/\s+/g, '');
-    return !viewedScreens.has(screenName) && counts[countKey] > 0;
+    const currentCount = counts[countKey] || 0;
+    const lastCount = lastViewedCounts[countKey] || 0;
+    
+    return currentCount > lastCount;
   };
+
+  const handleScreenFocus = (screenName) => {
+    const counts = getOrderCounts();
+    const countKey = screenName.toLowerCase().replace(/\s+/g, '');
+    
+    setLastViewedCounts(prev => ({
+      ...prev,
+      [countKey]: counts[countKey] || 0
+    }));
+  };
+
+  useEffect(() => {
+    if (orders.length > 0 && !Object.keys(lastViewedCounts).length) {
+      const counts = getOrderCounts();
+      setLastViewedCounts(counts);
+    }
+  }, [orders]);
 
   if (loading) {
     return <LoadingAnimation />;
