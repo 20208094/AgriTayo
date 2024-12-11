@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, FlatList, TouchableOpacity, Image, TextInput } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { styled } from 'nativewind';
 import { REACT_NATIVE_API_KEY, REACT_NATIVE_API_BASE_URL } from '@env';
-import io from 'socket.io-client';
 
 const API_URL_CHATS = `${REACT_NATIVE_API_BASE_URL}/api/chats`;
 const API_URL_USERS = `${REACT_NATIVE_API_BASE_URL}/api/users`;
@@ -46,7 +45,7 @@ const ChatListScreen = () => {
   const [shopId, setShopId] = useState(null);
   const [senderId, setSenderId] = useState(null);
   const [senderType, setSenderType] = useState('User');
-  const socketRef = useRef(null);
+  const [isSearching, setIsSearching] = useState(false);
 
   const getAsyncUserData = async () => {
     try {
@@ -133,45 +132,20 @@ const ChatListScreen = () => {
     }
   };
 
-  // Fetch chat data whenever senderId or senderType changes
+  // Modify the useEffect for fetching to respect search state
   useEffect(() => {
-    if (senderId && senderType) {
-      fetchChats();
-    }
-  }, [senderId, senderType]);
-
-  // Add this useEffect for socket connection and real-time updates
-  useEffect(() => {
-    // Initialize socket connection
-    socketRef.current = io(REACT_NATIVE_API_BASE_URL, { transports: ['websocket'] });
-
-    // Listen for new messages and chat updates
-    socketRef.current.on("chat message", (msg) => {
-      console.log("New message received:", msg);
-      // Immediately fetch latest chats when new message arrives
-      fetchChats();
-    });
-
-    // Initial fetch
-    if (senderId && senderType) {
-      fetchChats();
-    }
-
-    // Cleanup
-    return () => {
-      if (socketRef.current) {
-        socketRef.current.off("chat message");
-        socketRef.current.disconnect();
+    const intervalId = setInterval(() => {
+      if (senderId && senderType && !isSearching) {
+        fetchChats();
       }
-    };
-  }, [senderId, senderType]); // Dependencies ensure socket reconnects when user changes
+    }, 1000); // Fetch every 5 seconds
 
-  // Update the fetchChats function
+    return () => clearInterval(intervalId);
+  }, [senderId, senderType, isSearching]);
+
   const fetchChats = async () => {
     try {
       if (!senderId) return;
-
-      setError('');
 
       const chatResponse = await fetch(API_URL_CHATS, {
         headers: { 'x-api-key': REACT_NATIVE_API_KEY },
@@ -192,201 +166,174 @@ const ChatListScreen = () => {
           const usersData = await userResponse.json();
           const shopsData = await shopResponse.json();
 
-          // Get relevant chats for the current sender
-          const relevantChats = chats.filter(chat => 
-            (chat.sender_id === senderId && chat.sender_type === senderType) ||
-            (chat.receiver_id === senderId && chat.receiver_type === senderType)
-          );
+          // Filter unique user IDs based on chat history
+          const uniqueUserIds = Array.from(new Set(
+            chats.filter(chat => 
+              (chat.sender_id === senderId && chat.sender_type === senderType) ||
+              (chat.receiver_id === senderId && chat.receiver_type === senderType)
+            ).map(chat => 
+              chat.sender_id === senderId ? chat.receiver_id : chat.sender_id
+            )
+          ));
 
-          if (senderType === 'Shop') {
-            // For Chat as Seller mode
-            // Filter buyers (user_type_id === 3) for User Chats
-            const buyerChats = relevantChats.filter(chat => 
-              chat.sender_type === 'User' || chat.receiver_type === 'User'
+          // Map users based on mode
+          const chatUsers = uniqueUserIds.map(id => {
+            const user = usersData.find(user => user.user_id === id);
+            
+            // Skip if in buyer mode and user is not admin
+            if (senderType === 'User' && (!user || user.user_type_id !== 1)) {
+              return null;
+            }
+
+            // Skip if in seller mode and user is admin
+            if (senderType === 'Shop' && user?.user_type_id === 1) {
+              return null;
+            }
+
+            const lastChat = chats.find(chat =>
+              (chat.sender_id === senderId && chat.receiver_id === id) ||
+              (chat.receiver_id === senderId && chat.sender_id === id)
             );
 
-            const uniqueBuyerIds = [...new Set(buyerChats.map(chat => 
-              chat.sender_id === senderId ? chat.receiver_id : chat.sender_id
-            ))];
+            if (!lastChat) return null;
 
-            const filteredBuyers = usersData
-              .filter(user => user.user_type_id === 3) // Only buyers
-              .filter(user => uniqueBuyerIds.includes(user.user_id))
-              .map(user => {
-                const lastChat = buyerChats.find(chat =>
-                  (chat.sender_id === user.user_id || chat.receiver_id === user.user_id)
-                );
-                
-                if (!lastChat) return null;
+            return user ? {
+              ...user,
+              lastMessage: lastChat.chat_message,
+              time: new Date(lastChat.sent_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            } : null;
+          }).filter(Boolean);
 
-                return {
-                  ...user,
-                  lastMessage: lastChat.chat_message,
-                  time: new Date(lastChat.sent_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                };
-              })
-              .filter(Boolean);
-
-            // For Shop Chats in seller mode
-            const shopChats = relevantChats.filter(chat => 
-              chat.sender_type === 'Shop' || chat.receiver_type === 'Shop'
-            );
-
-            const uniqueShopIds = [...new Set(shopChats.map(chat => 
-              chat.sender_id === senderId ? chat.receiver_id : chat.sender_id
-            ))];
-
-            const filteredShops = shopsData
-              .filter(shop => uniqueShopIds.includes(shop.shop_id))
-              .map(shop => {
-                const lastChat = shopChats.find(chat =>
-                  (chat.sender_id === shop.shop_id || chat.receiver_id === shop.shop_id)
-                );
-                
-                if (!lastChat) return null;
-
-                return {
-                  ...shop,
-                  lastMessage: lastChat.chat_message,
-                  time: new Date(lastChat.sent_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                };
-              })
-              .filter(Boolean);
-
-            setUsers(filteredBuyers);
-            setAllUsers(usersData.filter(user => user.user_type_id === 3)); // Only buyers in allUsers
-            setFilteredUsers(filteredBuyers);
-            setShops(filteredShops);
-            setAllShops(shopsData);
-            setFilteredShops(filteredShops);
+          // Set users based on mode
+          if (senderType === 'User') {
+            // For Chat as Buyer: only show admins with chat history
+            const adminUsers = chatUsers.filter(user => user.user_type_id === 1);
+            setUsers(adminUsers);
+            setAllUsers(usersData.filter(user => user.user_type_id === 1));
+            setFilteredUsers(adminUsers);
           } else {
-            // For Chat as Buyer mode - keep existing logic
-            const uniqueUserIds = [...new Set(relevantChats.map(chat => 
-              chat.sender_id === senderId ? chat.receiver_id : chat.sender_id
-            ))];
-
-            const filteredUsers = usersData
-              .filter(user => user.user_type_id === 1) // Only admins for buyer mode
-              .filter(user => uniqueUserIds.includes(user.user_id))
-              .map(user => {
-                const lastChat = relevantChats.find(chat =>
-                  (chat.sender_id === user.user_id || chat.receiver_id === user.user_id)
-                );
-                
-                if (!lastChat) return null;
-
-                return {
-                  ...user,
-                  lastMessage: lastChat.chat_message,
-                  time: new Date(lastChat.sent_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                };
-              })
-              .filter(Boolean);
-
-            const uniqueShopIds = [...new Set(relevantChats.map(chat => 
-              chat.sender_id === senderId ? chat.receiver_id : chat.sender_id
-            ))];
-
-            const filteredShops = shopsData
-              .filter(shop => uniqueShopIds.includes(shop.shop_id))
-              .map(shop => {
-                const lastChat = relevantChats.find(chat =>
-                  (chat.sender_id === shop.shop_id || chat.receiver_id === shop.shop_id)
-                );
-                
-                if (!lastChat) return null;
-
-                return {
-                  ...shop,
-                  lastMessage: lastChat.chat_message,
-                  time: new Date(lastChat.sent_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                };
-              })
-              .filter(Boolean);
-
-            setUsers(filteredUsers);
-            setAllUsers(usersData.filter(user => user.user_type_id === 1)); // Only admins in allUsers
-            setFilteredUsers(filteredUsers);
-            setShops(filteredShops);
-            setAllShops(shopsData);
-            setFilteredShops(filteredShops);
+            // For Chat as Seller: show only users with chat history
+            const regularUsers = chatUsers.filter(user => user.user_type_id !== 1);
+            setUsers(regularUsers);
+            setAllUsers(usersData.filter(user => user.user_type_id !== 1));
+            setFilteredUsers(regularUsers);
           }
+
+          const uniqueShopIds = Array.from(new Set(
+            chats.filter(chat => chat.sender_type === senderType)
+              .map(chat => chat.sender_id === senderId && chat.sender_type === senderType && chat.receiver_type === 'Shop' ? chat.receiver_id : chat.sender_id)
+          ));
+          const chatShops = uniqueShopIds.map(id => {
+            const shop = shopsData.find(shop => shop.shop_id === id);
+            const lastChat = chats.find(chat =>
+              (chat.sender_id === senderId && chat.sender_type === senderType && chat.receiver_id === id && chat.receiver_type === 'Shop') ||
+              (chat.receiver_id === senderId && chat.receiver_type === senderType && chat.sender_id === id && chat.sender_type === 'Shop')
+            );
+            return {
+              ...shop,
+              lastMessage: lastChat?.chat_message || 'No recent messages',
+              time: lastChat ? new Date(lastChat.sent_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : null
+            };
+          });
+
+          const filteredChatShops = chatShops.filter(user => user.lastMessage !== 'No recent messages');
+
+          setShops(filteredChatShops);
+          setAllShops(shopsData);
+          setFilteredShops(filteredChatShops);
         } else {
-          console.error('Failed to fetch users/shops:', userResponse.status, shopResponse.status);
           setError('Failed to fetch user/shop data.');
         }
       } else {
-        console.error('Failed to fetch chats:', chatResponse.status);
         setError('Failed to fetch chats.');
       }
     } catch (error) {
-      console.error('Network error:', error);
       setError('Network error. Please try again.');
     }
   };
 
-  // Add this to refresh chats when screen comes into focus
-  useFocusEffect(
-    React.useCallback(() => {
-      if (senderId && senderType) {
-        fetchChats();
-      }
-      return () => {};
-    }, [senderId, senderType])
-  );
-
   const handleSearch = (query) => {
     setSearchQuery(query);
+    setIsSearching(true);
+    const lowerCaseQuery = query.toLowerCase();
 
-    if (query) {
-      const lowerCaseQuery = query.toLowerCase();
-      if (selectedType === 'User') {
-        // Filter users based on sender type (admin for buyer mode, buyers for seller mode)
-        const filtered = allUsers
-          .filter(user => senderType === 'User' ? user?.user_type_id === 1 : user?.user_type_id === 3)
-          .filter(user => user?.firstname?.toLowerCase().includes(lowerCaseQuery))
-          .map(user => {
-            // Find existing chat data to preserve last message
-            const existingUserChat = users?.find(u => u.user_id === user.user_id);
-            if (existingUserChat) {
-              return {
-                ...user,
-                lastMessage: existingUserChat.lastMessage,
-                time: existingUserChat.time
-              };
-            }
-            return {
-              ...user,
-              lastMessage: 'No recent messages',
-              time: null
-            };
-          });
+    if (selectedType === 'User') {
+      if (senderType === 'User') {
+        // For Chat as Buyer: search within admin users
+        const adminUsers = allUsers?.filter(user => user?.user_type_id === 1) || [];
+        const filtered = adminUsers.filter(user => {
+          const firstNameMatch = user?.firstname?.toLowerCase().includes(lowerCaseQuery);
+          const lastNameMatch = user?.lastname?.toLowerCase().includes(lowerCaseQuery);
+          return (firstNameMatch || lastNameMatch) && user?.user_id;
+        }).map(user => {
+          // Find the matching user from users array to get the lastMessage
+          const userWithChat = users.find(u => u.user_id === user.user_id);
+          return {
+            ...user,
+            lastMessage: userWithChat?.lastMessage || 'No recent messages',
+            time: userWithChat?.time || ''
+          };
+        });
         setFilteredUsers(filtered);
-      } else if (selectedType === 'Shop') {
-        const filtered = allShops
-          .filter(shop => shop?.shop_name?.toLowerCase().includes(lowerCaseQuery))
-          .map(shop => {
-            // Find existing chat data to preserve last message
-            const existingShopChat = shops?.find(s => s.shop_id === shop.shop_id);
-            if (existingShopChat) {
-              return {
-                ...shop,
-                lastMessage: existingShopChat.lastMessage,
-                time: existingShopChat.time
-              };
-            }
-            return {
-              ...shop,
-              lastMessage: 'No recent messages',
-              time: null
-            };
-          });
-        setFilteredShops(filtered);
+      } else {
+        // For Chat as Seller: search within regular users
+        const regularUsers = allUsers?.filter(user => user?.user_type_id !== 1) || [];
+        const filtered = regularUsers.filter(user => {
+          const firstNameMatch = user?.firstname?.toLowerCase().includes(lowerCaseQuery);
+          const lastNameMatch = user?.lastname?.toLowerCase().includes(lowerCaseQuery);
+          return (firstNameMatch || lastNameMatch) && user?.user_id;
+        }).map(user => {
+          // Find the matching user from users array to get the lastMessage
+          const userWithChat = users.find(u => u.user_id === user.user_id);
+          return {
+            ...user,
+            lastMessage: userWithChat?.lastMessage || 'No recent messages',
+            time: userWithChat?.time || ''
+          };
+        });
+        setFilteredUsers(filtered);
       }
-    } else {
-      // When search query is empty, restore original lists
-      setFilteredUsers(users || []);
-      setFilteredShops(shops || []);
+    } else if (selectedType === 'Shop') {
+      // Search within shops
+      const filtered = allShops?.filter(shop => 
+        shop?.shop_name?.toLowerCase().includes(lowerCaseQuery) &&
+        shop?.shop_id
+      ).map(shop => {
+        // Find the matching shop from shops array to get the lastMessage
+        const shopWithChat = shops.find(s => s.shop_id === shop.shop_id);
+        return {
+          ...shop,
+          lastMessage: shopWithChat?.lastMessage || 'No recent messages',
+          time: shopWithChat?.time || ''
+        };
+      }) || [];
+      setFilteredShops(filtered);
+    }
+
+    // If search query is empty, restore original filtered lists and resume fetching
+    if (!query) {
+      setIsSearching(false);
+      if (selectedType === 'User') {
+        if (senderType === 'User') {
+          // For Chat as Buyer: show only admins with chat history
+          const adminChats = users?.filter(user => 
+            user?.user_type_id === 1 && 
+            user?.lastMessage !== 'No recent messages'
+          ) || [];
+          setFilteredUsers(adminChats);
+        } else {
+          // For Chat as Seller: show only users with chat history
+          const usersWithChats = users?.filter(user => 
+            user?.user_type_id !== 1 && 
+            user?.lastMessage !== 'No recent messages'
+          ) || [];
+          setFilteredUsers(usersWithChats);
+        }
+      } else {
+        setFilteredShops(shops?.filter(shop => 
+          shop?.lastMessage !== 'No recent messages'
+        ) || []);
+      }
     }
   };
 
@@ -401,15 +348,30 @@ const ChatListScreen = () => {
     });
   };
 
+  // Add cleanup for search state when changing types
   const handleTypeChange = (type) => {
     setSelectedType(type);
     setSearchQuery('');
+    setIsSearching(false);
 
-    // Set senderId based on the type of chat
     if (type === 'User') {
-      setFilteredUsers(users);
+      if (senderType === 'User') {
+        // For Chat as Buyer: show only admins with chat history
+        const adminUsers = users?.filter(user => 
+          user?.user_type_id === 1 &&
+          user?.lastMessage
+        );
+        setFilteredUsers(adminUsers || []);
+      } else {
+        // For Chat as Seller: show only users with actual chat history
+        const usersWithChats = users?.filter(user => 
+          user?.user_type_id !== 1 && 
+          user?.lastMessage
+        );
+        setFilteredUsers(usersWithChats || []);
+      }
     } else if (type === 'Shop') {
-      setFilteredShops(shops);
+      setFilteredShops(shops?.filter(shop => shop?.shop_id) || []);
     }
   };
 
@@ -437,22 +399,16 @@ const ChatListScreen = () => {
 
         <Header>
           <Title>
-            {selectedType === 'User'
-              ? senderType === 'User' ? 'Admin Chats' : 'User Chats'
-              : selectedType === 'Shop'
-                ? 'Shop Chats'
-                : null
+            {senderType === 'User' 
+              ? (selectedType === 'User' ? 'Admin Chats' : 'Shop Chats')
+              : (selectedType === 'User' ? 'User Chats' : 'Shop Chats')
             }
           </Title>
           <SearchInput
             placeholder={`Search ${
-              selectedType === 'User'
-                ? senderType === 'User' 
-                  ? 'admin'
-                  : 'users'
-                : selectedType === 'Shop'
-                  ? 'shops'
-                  : ''
+              senderType === 'User' 
+                ? (selectedType === 'User' ? 'admins' : 'shops')
+                : (selectedType === 'User' ? 'users' : 'shops')
             } by name`}
             value={searchQuery}
             onChangeText={handleSearch}
@@ -481,7 +437,7 @@ const ChatListScreen = () => {
 
         <FlatList
           data={selectedType === 'User' ? filteredUsers : filteredShops}
-          renderItem={({ item }) => (
+          renderItem={({ item, index }) => (
             <UserItem
               onPress={() =>
                 handleUserClick(
@@ -500,11 +456,10 @@ const ChatListScreen = () => {
             </UserItem>
           )}
           keyExtractor={(item, index) => {
-            if (selectedType === 'User') {
-              return `user-${item.user_id}-${index}-${Date.now()}`;
-            } else {
-              return `shop-${item.shop_id}-${index}-${Date.now()}`;
-            }
+            const itemId = item?.shop_id || item?.user_id || `index-${index}`;
+            const itemType = selectedType === 'User' ? 'user' : 'shop';
+            const senderPrefix = senderType === 'User' ? 'buyer' : 'seller';
+            return `${itemType}-${itemId}-${senderPrefix}-${index}`;
           }}
         />
       </Container>
@@ -513,4 +468,3 @@ const ChatListScreen = () => {
 };
 
 export default ChatListScreen;
-
