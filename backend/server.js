@@ -367,8 +367,12 @@ app.delete('/api/order_statuses/:id', deleteOrderStatus);
 app.get('/api/orders', getOrders);
 app.post('/api/orders', addOrder);
 app.put('/api/orders/:id', updateOrder);
-app.put('/api/orderStatus/:id', updateOrderStat);
-app.post('/api/shopRate', orderShopRate);
+app.put('/api/orderStatus/:id', (req, res) => {
+    updateOrderStat(req, res, getIo());
+});
+app.post('/api/shopRate', (req, res) => {
+    orderShopRate(req, res, getIo());
+});
 app.delete('/api/orders/:id', deleteOrder);
 
 // API route for checkout of order

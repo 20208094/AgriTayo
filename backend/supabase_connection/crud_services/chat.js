@@ -292,7 +292,6 @@ async function addChat(req, res, io) {
                         sent_at: new Date().toISOString(),
                     };
 
-                    console.log('savedMessage.chat_image_url :', savedMessage.chat_image_url);
                     const mobileNotifToSend = {};
                     // Title Part
                     if (savedMessage.sender_type === 'User') {
@@ -328,8 +327,6 @@ async function addChat(req, res, io) {
                     } else {
                         mobileNotifToSend.body = savedMessage.chat_message
                     }
-
-                    console.log('mobileNotifToSend :', mobileNotifToSend);
 
                     if (io) { 
                         io.emit('chat message', messageToSend);

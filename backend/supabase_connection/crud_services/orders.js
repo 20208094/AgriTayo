@@ -3,6 +3,12 @@ const supabase = require('../db');
 const formidable = require("formidable");
 const imageHandler = require("../imageHandler");
 
+let io;
+
+function setSocketIOInstance(socketIOInstance) {
+    io = socketIOInstance;
+}
+
 async function getOrders(req, res) {
     try {
         const { data, error } = await supabase
@@ -63,19 +69,86 @@ async function updateOrder(req, res) {
     }
 }
 
-async function updateOrderStat(req, res) {
+async function updateOrderStat(req, res, io) {
 
     const { id } = req.params;
     const { status_id, buyer_is_received, seller_is_received, allow_return, reject_reason, return_reason, reject_date, order_received_date, return_date, completed_date } = req.body;
+
+    // Fetch shop data
+    const { data: shopdata, error: shopError } = await supabase
+        .from("shop")
+        .select("*");
+
+    if (shopError) {
+        console.error("Error fetching shop data:", shopError.message);
+        return res.status(500).json({ error: "Error fetching shop data", details: shopError.message });
+    }
+
     try {
         const { data, error } = await supabase
             .from('orders')
             .update({ status_id, buyer_is_received, seller_is_received, allow_return, reject_reason, return_reason, reject_date, order_received_date, return_date, completed_date })
-            .eq('order_id', id);
+            .eq('order_id', id)
+            .select();
 
         if (error) {
             console.error('Supabase query failed:', error.message);
             return res.status(500).json({ error: 'Internal server error' });
+        } else {
+            const orderData = data[0];
+
+            const mobileNotifToSend = {};
+            // FOR SELLERS USER ID
+            if (status_id === 1 || status_id === 5 || status_id === 6 || status_id === 7 || status_id === 8) {
+                const shop = shopdata.find(shop => shop.shop_id === orderData.shop_id);
+                mobileNotifToSend.user_id = shop.user_id;
+            } else {
+                // FOR BUYERS USER ID
+                mobileNotifToSend.user_id = orderData.user_id;
+            }
+
+            // FOR SELLERS
+            if (status_id === 1) {
+                mobileNotifToSend.title = "New Order";
+                mobileNotifToSend.body = "You have a new order.";
+            } else if (status_id === 5) {
+                mobileNotifToSend.title = "Return Request";
+                mobileNotifToSend.body = "A buyer has requested to return their order.";
+            } else if (status_id === 6) {
+                mobileNotifToSend.title = "Returned Order";
+                mobileNotifToSend.body = "An order has been successfully returned.";
+            } else if (status_id === 7) {
+                mobileNotifToSend.title = "Order Received";
+                mobileNotifToSend.body = "A buyer has confirmed that they have received their order.";
+            } else if (status_id === 8) {
+                mobileNotifToSend.title = "Order Rated";
+                mobileNotifToSend.body = "An order has been successfully rated and is now completed.";
+            }
+
+            // FOR BUYERS
+            if (status_id === 2) {
+                mobileNotifToSend.title = "Preparing Order";
+                mobileNotifToSend.body = "Your order has been confirmed by the seller and it is now being prepared.";
+            } else if (status_id === 3) {
+                mobileNotifToSend.title = "Shipping Order";
+                mobileNotifToSend.body = "Your order is now being shipped by the seller.";
+            } else if (status_id === 4) {
+                mobileNotifToSend.title = "Pickup Order";
+                mobileNotifToSend.body = "Your order is now ready to be picked up.";
+            } else if (status_id === 6) {
+                mobileNotifToSend.title = "Returned Order";
+                mobileNotifToSend.body = "Your order was successfully returned to the seller.";
+            } else if (status_id === 9) {
+                mobileNotifToSend.title = "Rejected Order";
+                mobileNotifToSend.body = "Your order was rejected by the seller.";
+            }
+            
+
+            if (io) {
+                io.emit('mobilePushNotification', mobileNotifToSend);
+            } else {
+                console.error('Socket.io instance is undefined');
+            }
         }
 
         res.status(200).json({ message: 'Order updated successfully', data });
@@ -85,7 +158,7 @@ async function updateOrderStat(req, res) {
     }
 }
 
-async function orderShopRate(req, res) {
+async function orderShopRate(req, res, io) {
     try {
         const { shop_id, order_id, ratings, review, status_id, completed_date, images } = req.body;
 
@@ -115,7 +188,7 @@ async function orderShopRate(req, res) {
         const old_total = sdata[0].shop_total_rating;
 
         const computed_total = old_total + 1;
-        const computed_rating = ((old_rating * old_total)+ratings)/computed_total;
+        const computed_rating = ((old_rating * old_total) + ratings) / computed_total;
         const formatted_rating = parseFloat(computed_rating.toFixed(2));
 
         const { data: shopData, error: shopError } = await supabase
@@ -138,7 +211,6 @@ async function orderShopRate(req, res) {
         //         console.log('uploading image :', image);
         //         let review_image_url = null;
         //         console.log('old review_image_url :', review_image_url);
-                
 
         //         if (image) {
         //             try {
@@ -163,6 +235,18 @@ async function orderShopRate(req, res) {
         //         }
         //     }
         // }
+
+        const shopUserId = sdata[0].user_id;
+        const mobileNotifToSend = {};
+        mobileNotifToSend.user_id = shopUserId;
+        mobileNotifToSend.title = "Order Rated";
+        mobileNotifToSend.body = "An order has been successfully rated and is now completed.";
+        
+        if (io) {
+            io.emit('mobilePushNotification', mobileNotifToSend);
+        } else {
+            console.error('Socket.io instance is undefined');
+        }
 
         res.status(200).json({
             message: 'Rating submitted successfully',
@@ -200,5 +284,6 @@ module.exports = {
     updateOrder,
     updateOrderStat,
     deleteOrder,
+    setSocketIOInstance,
     orderShopRate
 };
