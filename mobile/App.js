@@ -380,12 +380,12 @@ function App() {
             <Stack.Screen
               name="ChatListScreen"
               component={ChatListScreen}
-              options={{ ...screenOptions, headerShown: true }}
+              options={{ ...screenOptions, headerShown: true, title: 'Chat List' }}
             />
             <Stack.Screen
               name="ChatScreen"
               component={ChatScreen}
-              options={{ ...screenOptions, headerShown: true }}
+              options={{ ...screenOptions, headerShown: true, title: 'Chat' }}
             />
             <Stack.Screen
               name="CartScreen"

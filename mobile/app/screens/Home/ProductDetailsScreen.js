@@ -537,15 +537,14 @@ function ProductDetailsScreen({ navigation, route }) {
         
         {/* Enhanced Sticky Bottom Bar */}
         {!isOwnProduct && (
-          <View className="absolute bottom-0 left-0 right-0 flex-row mb-12 h-12 px-1">
-            <TouchableOpacity
+          <View className="absolute bottom-0 left-0 right-0 flex-row mb-14 h-12 px-1">
+            {/* <TouchableOpacity
               className="flex-1 w-12 items-center justify-center border border-green-600 bg-green-100 rounded-lg"
               onPress={handleMessageSeller}
             >
               <FontAwesome name="comment" size={20} color="#00B251" />
             </TouchableOpacity>
 
-            {/* Separator */}
             <View className="w-1" />
             {displayedProduct.negotiation_allowed ? (
               <TouchableOpacity
@@ -560,10 +559,10 @@ function ProductDetailsScreen({ navigation, route }) {
               >
                 <FontAwesome5 name="handshake" size={20} color="gray" />
               </View>
-            )}
+            )} */}
 
             {/* Separator */}
-            <View className="w-1" />
+            <View className="w-1"/>
 
             <TouchableOpacity
               className="flex-1 flex-row items-center justify-center border border-green-600 bg-green-600 rounded-lg"
